@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/plugins/pobieracz_danych_gugik">
+    <file>img/drzewiec.png</file>
+    <file>img/icon.png</file>
+    <file>img/icon_pw2.png</file>
+  </qresource>
+</RCC>
