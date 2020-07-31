@@ -13,6 +13,7 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 from .gugik_api import GugikAPI
+from . import utils
 
 """Wersja wtyczki"""
 plugin_version = '0.1'
@@ -207,10 +208,24 @@ class PobieraczDanychGugik:
 
     def fromLayer_btn_clicked(self):
         layer = self.dockwidget.mapLayerComboBox.currentLayer()
+        # TODO: zamien uklad na 92
         if layer:
-            # siatka co 1000 m
+            points = utils.createPointsFromPolygon(layer)
+            ortoList = []
+            for point in points:
+                ortoList.extend(self.getOrtoListWithPoint1992(point1992=point))
+            print("przed 'set'", len(ortoList))
+            # usuwanie duplikatów
+            ortoList = list(set(ortoList))
+            print("po 'set'", len(ortoList))
+            # filtrowanie
+            ortoList = self.filterOrtoList(ortoList)
+            print("po 'filtrowaniu'", len(ortoList))
 
-            pass
+            # pobieranie
+            for orto in ortoList:
+                task = QgsTask.fromFunction('Pobieranie pliku ortofotomapy', self.downloadFiles, orto=orto)
+                QgsApplication.taskManager().addTask(task)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -238,6 +253,7 @@ class PobieraczDanychGugik:
             for orto in ortoList:
                 task = QgsTask.fromFunction('Pobieranie pliku ortofotomapy', self.downloadFiles, orto=orto)
                 QgsApplication.taskManager().addTask(task)
+                print(orto.url, orto.godlo, orto.kolor, orto.aktualnosc)
             self.iface.messageBar().pushSuccess("Sukces:",
                                                 'Pobrano dane (%d plików) dla wskazanego punktu' % len(ortoList))
         else:
@@ -271,3 +287,4 @@ class PobieraczDanychGugik:
 
     def downloadFiles(self, task, orto):
         GugikAPI.retreiveFile(orto.url, self.dockwidget.folder_fileWidget.filePath())
+        print('pobrano',orto.url)
