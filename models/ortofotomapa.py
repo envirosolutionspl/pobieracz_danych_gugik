@@ -26,4 +26,10 @@ class Ortofotomapa:
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
 
+    def __eq__(self, other):
+        return self.url == other.url
+
+    def __hash__(self):
+        return hash(('url', self.url))
+
 

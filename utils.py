@@ -1,5 +1,13 @@
 from qgis.core import QgsCoordinateReferenceSystem
 import processing
+from qgis.core import *
+
+def pointTo2180(point, sourceCrs, project):
+    """zamiana układu na 1992"""
+    crsDest = QgsCoordinateReferenceSystem(2180)  # PL 1992
+    xform = QgsCoordinateTransform(sourceCrs, crsDest, project)
+    point1992 = xform.transform(point)
+    return point1992
 
 def createPointsFromPolygon(layer):
     ext = layer.extent()

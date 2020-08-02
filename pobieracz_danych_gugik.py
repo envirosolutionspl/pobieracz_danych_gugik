@@ -5,6 +5,8 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication
 from qgis.gui import *
 from qgis.core import *
+from .tasks import DownloadOrtofotoTask
+import asyncio
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -12,8 +14,8 @@ from .resources import *
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
 import os.path
-from .gugik_api import GugikAPI
-from . import utils
+
+from . import utils, ortofoto_api
 
 """Wersja wtyczki"""
 plugin_version = '0.1'
@@ -52,7 +54,7 @@ class PobieraczDanychGugik:
         self.clickTool = QgsMapToolEmitPoint(self.canvas)
         self.clickTool.canvasClicked.connect(self.canvas_clicked)
         # --------------------------------------------------------------------------
-
+        QgsApplication.taskManager().taskAboutToBeDeleted.connect(self.test2)
 
     def add_action(
         self,
@@ -176,9 +178,6 @@ class PobieraczDanychGugik:
         if not self.pluginIsActive:
             self.pluginIsActive = True
 
-            # dockwidget may not exist if:
-            #    first run of plugin
-            #    removed on close (see self.onClosePlugin method)
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
@@ -207,63 +206,56 @@ class PobieraczDanychGugik:
                                                 'Nie wskazano wskazano miejsca zapisu plików')
 
     def fromLayer_btn_clicked(self):
+        """na podstawie warstwy"""
         layer = self.dockwidget.mapLayerComboBox.currentLayer()
         # TODO: zamien uklad na 92
         if layer:
+            sourceCrs = layer.crs()
             points = utils.createPointsFromPolygon(layer)
             ortoList = []
+
             for point in points:
-                ortoList.extend(self.getOrtoListWithPoint1992(point1992=point))
-            print("przed 'set'", len(ortoList))
-            # usuwanie duplikatów
-            ortoList = list(set(ortoList))
-            print("po 'set'", len(ortoList))
-            # filtrowanie
-            ortoList = self.filterOrtoList(ortoList)
-            print("po 'filtrowaniu'", len(ortoList))
+                ortoList.extend(ortofoto_api.getOrtoListbyPoint1992(point=point))
 
-            # pobieranie
-            for orto in ortoList:
-                task = QgsTask.fromFunction('Pobieranie pliku ortofotomapy', self.downloadFiles, orto=orto)
-                QgsApplication.taskManager().addTask(task)
-
+            self.iterateAndRunTask(ortoList)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy poligonowej')
+    def downloadForSinglePoint(self, point):
+        """pojedynczy punkt"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
+        self.iterateAndRunTask(ortoList)
+
+    def iterateAndRunTask(self, ortoList):
+
+        print("przed 'set'", len(ortoList))
+
+        # usuwanie duplikatów
+        ortoList = list(set(ortoList))
+        print("po 'set'", len(ortoList))
+        for el in ortoList:
+            print(el.url)
+        # filtrowanie
+        ortoList = self.filterOrtoList(ortoList)
+        print("po 'filtrowaniu'", len(ortoList))
+
+        # pobieranie
+
+        task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
+                                    ortoList=ortoList,
+                                    folder=self.dockwidget.folder_fileWidget.filePath())
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('')
+
 
     def canvas_clicked(self, point):
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.clickTool)
-        self.captureOrtoList(point)
+        self.downloadForSinglePoint(point)
 
-    def pointTo2180(self, point):
-        """zamiana układu na 1992"""
-        projectCrs = QgsProject.instance().crs()
-        crsDest = QgsCoordinateReferenceSystem(2180)  # PL 1992
-        xform = QgsCoordinateTransform(projectCrs, crsDest, QgsProject.instance())
-        point1992 = xform.transform(point)
-        return point1992
-
-    def captureOrtoList(self, point):
-        point1992 = self.pointTo2180(point)
-        ortoList = self.filterOrtoList(self.getOrtoListWithPoint1992(point1992=point1992))
-
-        print(len(ortoList))
-        if ortoList:
-            for orto in ortoList:
-                task = QgsTask.fromFunction('Pobieranie pliku ortofotomapy', self.downloadFiles, orto=orto)
-                QgsApplication.taskManager().addTask(task)
-                print(orto.url, orto.godlo, orto.kolor, orto.aktualnosc)
-            self.iface.messageBar().pushSuccess("Sukces:",
-                                                'Pobrano dane (%d plików) dla wskazanego punktu' % len(ortoList))
-        else:
-            # błąd usługi lub brak połączenia z internetem
-            self.iface.messageBar().pushCritical("Błąd usługi:",
-                                                 'Brak połączenia z serwerem, sprawdź czy działa połączenie z internetem', )
-
-    def getOrtoListWithPoint1992(self, point1992):
-        ortoList = GugikAPI.getOrtoListbyXY(y=point1992.x(), x=point1992.y())
-        return ortoList
 
     def filterOrtoList(self, ortoList):
         if self.dockwidget.orto_filter_groupBox.isChecked():
@@ -285,6 +277,7 @@ class PobieraczDanychGugik:
                 ortoList = [orto for orto in ortoList if orto.wielkoscPiksela <= float(self.dockwidget.pixelTo_lineEdit.text())]
         return ortoList
 
-    def downloadFiles(self, task, orto):
-        GugikAPI.retreiveFile(orto.url, self.dockwidget.folder_fileWidget.filePath())
-        print('pobrano',orto.url)
+    def downloadFiles(self, orto, folder):
+        QgsMessageLog.logMessage('start ' + orto.url)
+        ortofoto_api.retreiveFile(orto.url, folder)
+
