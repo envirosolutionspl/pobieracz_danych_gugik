@@ -301,14 +301,15 @@ class PobieraczDanychGugik:
 
 
     def filterOrtoList(self, ortoList):
+        print(self.dockwidget.from_dateTimeEdit.date(), bool(self.dockwidget.from_dateTimeEdit.date()))
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.kolor_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.kolor_cmbbx.currentText()]
             if not (self.dockwidget.crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.crs_cmbbx.currentText()]
-            if not self.dockwidget.from_dateTimeEdit.isNull():
+            if self.dockwidget.from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if orto.aktualnosc >= self.dockwidget.from_dateTimeEdit.dateTime().toPyDateTime().date()]
-            if not self.dockwidget.to_dateTimeEdit.isNull():
+            if self.dockwidget.to_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if orto.aktualnosc <= self.dockwidget.to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if not (self.dockwidget.source_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.zrodloDanych == self.dockwidget.source_cmbbx.currentText()]
