@@ -31,7 +31,7 @@ homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
 icon=img/icon_pw2.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False

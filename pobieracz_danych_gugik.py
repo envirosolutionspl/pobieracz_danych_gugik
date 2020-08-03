@@ -246,7 +246,7 @@ class PobieraczDanychGugik:
                     bledy += 1
 
             self.iterateAndRunTask(ortoList)
-            print("znaleziono %d bledow" % bledy)
+            print("%d zapytań się nie powiodło" % bledy)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy poligonowej')
@@ -301,7 +301,7 @@ class PobieraczDanychGugik:
 
 
     def filterOrtoList(self, ortoList):
-        print(self.dockwidget.from_dateTimeEdit.date(), bool(self.dockwidget.from_dateTimeEdit.date()))
+        # print(self.dockwidget.from_dateTimeEdit.date(), bool(self.dockwidget.from_dateTimeEdit.date()))
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.kolor_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.kolor_cmbbx.currentText()]

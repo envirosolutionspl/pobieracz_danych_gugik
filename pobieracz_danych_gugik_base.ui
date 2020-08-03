@@ -95,7 +95,7 @@ nieodpłatnie przez GUGiK.</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/plugins/przechwyc_wysokosc/icon_pw2.png</pixmap>
+             <pixmap>:/plugins/pobieracz_danych_gugik/img/icon_pw2.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
@@ -103,6 +103,13 @@ nieodpłatnie przez GUGiK.</string>
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_7">
@@ -126,7 +133,7 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QgsCollapsibleGroupBox" name="orto_filter_groupBox">
              <property name="title">
-              <string>filtruj wyniki</string>
+              <string>filtruj dane</string>
              </property>
              <property name="checkable">
               <bool>true</bool>
@@ -135,7 +142,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -325,7 +332,7 @@ nieodpłatnie przez GUGiK.</string>
              </property>
              <property name="icon">
               <iconset>
-               <normaloff>:/plugins/przechwyc_wysokosc/icon.png</normaloff>:/plugins/przechwyc_wysokosc/icon.png</iconset>
+               <normaloff>:/plugins/pobieracz_danych_gugik/img/icon.png</normaloff>:/plugins/pobieracz_danych_gugik/img/icon.png</iconset>
              </property>
             </widget>
            </item>
@@ -337,9 +344,19 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>lub</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Wybierz warstwę</string>
+              <string>Wybierz warstwę poligonową</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -352,7 +369,7 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QPushButton" name="fromLayer_btn">
              <property name="text">
-              <string>Pobierz dane w zasięgu wybranej warstwy</string>
+              <string>  Pobierz dane w zasięgu wybranej warstwy</string>
              </property>
             </widget>
            </item>
@@ -456,7 +473,7 @@ nieodpłatnie przez GUGiK.</string>
              <string/>
             </property>
             <property name="pixmap">
-             <pixmap>:/plugins/przechwyc_wysokosc/drzewiec.png</pixmap>
+             <pixmap>:/plugins/pobieracz_danych_gugik/img/drzewiec.png</pixmap>
             </property>
             <property name="scaledContents">
              <bool>true</bool>
