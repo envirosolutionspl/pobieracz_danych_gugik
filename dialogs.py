@@ -25,6 +25,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.from_dateTimeEdit.setAllowNull(False)
+        self.to_dateTimeEdit.setAllowNull(False)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
