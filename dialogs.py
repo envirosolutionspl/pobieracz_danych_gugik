@@ -4,7 +4,8 @@
 import os
 
 from qgis.PyQt import QtGui, QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal, QRegExp
+from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
 from qgis.core import QgsMapLayerProxyModel
 
@@ -22,6 +23,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupUi(self)
         self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
         self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
