@@ -22,7 +22,8 @@ def createPointsFromPolygon(layer):
         'CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
         'OUTPUT':'TEMPORARY_OUTPUT'
     }
-    proc = processing.run("native:creategrid", params)
+    proc = processing.run("qgis:creategrid", params)
+    # proc = processing.run("native:creategrid", params)
     punkty = proc['OUTPUT']
 
     params = {
@@ -30,13 +31,13 @@ def createPointsFromPolygon(layer):
         'OVERLAY': layer,
         'OUTPUT': 'TEMPORARY_OUTPUT'}
 
-    proc = processing.run("native:clip", params)
+    proc = processing.run("qgis:clip", params)
     punkty = proc['OUTPUT']
 
     params = {
         'INPUT': punkty,
         'OUTPUT': 'TEMPORARY_OUTPUT'}
-    proc = processing.run("native:multiparttosingleparts", params)
+    proc = processing.run("qgis:multiparttosingleparts", params)
     punkty = proc['OUTPUT']
 
     punktyList = []

@@ -222,7 +222,7 @@ class PobieraczDanychGugik:
                     'TARGET_CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
                     'OPERATION':None,
                     'OUTPUT':'TEMPORARY_OUTPUT'}
-                proc = processing.run("native:reprojectlayer", params)
+                proc = processing.run("qgis:reprojectlayer", params)
                 layer = proc['OUTPUT']
 
 
