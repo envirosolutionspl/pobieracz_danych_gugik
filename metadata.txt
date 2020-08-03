@@ -5,7 +5,7 @@
 [general]
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.0
-description=Pozwala na pobranie danych z zasobów GUGiK. EN: Allows user to download spatial data of Poland based on GUGiK's services.
+description=Pozwala na pobranie danych z zasobów GUGiK. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
 version=0.1
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
@@ -20,10 +20,12 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
-# changelog= zmiana url do usługi
+changelog=
+  Wersja 0.1
+  * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, ortofotomapy, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz
+tags=python, ortofotomapy, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, geoportal
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins

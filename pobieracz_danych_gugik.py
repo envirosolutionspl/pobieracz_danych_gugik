@@ -135,7 +135,7 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/pobieracz_danych_gugik/icon_pw2.png'
+        icon_path = ':/plugins/pobieracz_danych_gugik/img/icon_pw2.png'
         self.add_action(
             icon_path,
             text=u'Pobieracz Danych GUGiK',
@@ -292,8 +292,6 @@ class PobieraczDanychGugik:
                                             folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
-
-
 
 
     def canvas_clicked(self, point):
