@@ -1,6 +1,6 @@
 import requests, re
 from .models import Ortofotomapa
-import os, asyncio
+import os, asyncio, time
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?"
 c = re.compile("\{{1}.*\}{1}")
@@ -11,12 +11,16 @@ def getRequest(params):
     try:
         r = requests.get(url=URL, params=params)
     except requests.exceptions.ConnectionError:
-        return None
+        time.sleep(0.4)
+        try:
+            r = requests.get(url=URL, params=params)
+        except requests.exceptions.ConnectionError:
+            return False, "Błąd połączenia"
     r_txt = r.text
-    if r .status_code == 200:
-        return r_txt
+    if r.status_code == 200:
+        return True, r_txt
     else:
-        return None
+        return False, "Błąd %d" % r.status_code
 
 def retreiveFile(url, destFolder):
     r = requests.get(url)
@@ -62,8 +66,8 @@ def getOrtoListbyPoint1992(point):
     resp = getRequest(PARAMS)
 
 
-    if resp:
-        ortos = c.findall(resp)
+    if resp[0]:
+        ortos = c.findall(resp[1])
         ortofotomapaList = []
         for orto in ortos:
             element = orto.strip("{").strip("}").split(',')
@@ -82,5 +86,5 @@ def getOrtoListbyPoint1992(point):
         #     print(el.url, el.godlo, el.wielkoscPiksela, el.kolor, el.aktualnoscRok, el.aktualnosc)
         return ortofotomapaList
     else:
-        # print("błąd")
-        return False
+        # print(resp[1])
+        return None

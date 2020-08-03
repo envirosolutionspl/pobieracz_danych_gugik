@@ -2,11 +2,11 @@
 
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask
-import asyncio
+from .tasks import DownloadOrtofotoTask, DownloadAvailableFilesListTask
+import asyncio, processing
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -37,6 +37,8 @@ class PobieraczDanychGugik:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
+        self.settings = QgsSettings()
+
         # Declare instance attributes
         self.actions = []
         self.menu = u'&EnviroSolutions'
@@ -54,7 +56,7 @@ class PobieraczDanychGugik:
         self.clickTool = QgsMapToolEmitPoint(self.canvas)
         self.clickTool.canvasClicked.connect(self.canvas_clicked)
         # --------------------------------------------------------------------------
-        QgsApplication.taskManager().taskAboutToBeDeleted.connect(self.test2)
+
 
     def add_action(
         self,
@@ -187,13 +189,16 @@ class PobieraczDanychGugik:
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
-
+            self.dockwidget.folder_fileWidget.setFilePath(
+                self.settings.value("pobieracz_danych_gugik/settings/defaultPath", ""))
+            self.dockwidget.folder_fileWidget.fileChanged.connect(
+                lambda: self.settings.setValue("pobieracz_danych_gugik/settings/defaultPath",
+                                               self.dockwidget.folder_fileWidget.filePath()))
 
             # informacje o wersji
             self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
             # show the dockwidget
-            # TODO: fix to allow choice of dock location
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
@@ -207,17 +212,41 @@ class PobieraczDanychGugik:
 
     def fromLayer_btn_clicked(self):
         """na podstawie warstwy"""
+        bledy = 0
         layer = self.dockwidget.mapLayerComboBox.currentLayer()
         # TODO: zamien uklad na 92
         if layer:
-            sourceCrs = layer.crs()
+            if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
+                params = {
+                    'INPUT':layer,
+                    'TARGET_CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
+                    'OPERATION':None,
+                    'OUTPUT':'TEMPORARY_OUTPUT'}
+                proc = processing.run("native:reprojectlayer", params)
+                layer = proc['OUTPUT']
+
+
             points = utils.createPointsFromPolygon(layer)
+            print('---', len(points))
+
+
+            # # pobieranie
+            # task = DownloadAvailableFilesListTask(description='Pobieranie plików ortofotomapy',
+            #                             points=points)
+            # QgsApplication.taskManager().addTask(task)
+            # QgsMessageLog.logMessage('runtask')
+
             ortoList = []
 
             for point in points:
-                ortoList.extend(ortofoto_api.getOrtoListbyPoint1992(point=point))
+                subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
+                if subList:
+                    ortoList.extend(subList)
+                else:
+                    bledy += 1
 
             self.iterateAndRunTask(ortoList)
+            print("znaleziono %d bledow" % bledy)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy poligonowej')
@@ -236,19 +265,35 @@ class PobieraczDanychGugik:
         # usuwanie duplikatów
         ortoList = list(set(ortoList))
         print("po 'set'", len(ortoList))
-        for el in ortoList:
-            print(el.url)
+        # for el in ortoList:
+        #     print(el.url)
         # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
         print("po 'filtrowaniu'", len(ortoList))
 
-        # pobieranie
+        # wyswietl komunikat pytanie
+        if len(ortoList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(ortoList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            print(reply)
+            if reply == QMessageBox.Yes:
+                # pobieranie
+                task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
+                                            ortoList=ortoList,
+                                            folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
 
-        task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
-                                    ortoList=ortoList,
-                                    folder=self.dockwidget.folder_fileWidget.filePath())
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('')
+
 
 
     def canvas_clicked(self, point):
@@ -280,4 +325,3 @@ class PobieraczDanychGugik:
     def downloadFiles(self, orto, folder):
         QgsMessageLog.logMessage('start ' + orto.url)
         ortofoto_api.retreiveFile(orto.url, folder)
-
