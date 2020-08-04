@@ -217,7 +217,7 @@ class Ui_PobieraczDanychDockWidgetBase(object):
         _translate = QtCore.QCoreApplication.translate
         PobieraczDanychDockWidgetBase.setWindowTitle(_translate("PobieraczDanychDockWidgetBase", "Pobieracz Danych GUGiK"))
         self.label.setText(_translate("PobieraczDanychDockWidgetBase", "Wtyczka pozwala na pobranie\n"
-"danych przestrzennych udostepnianych\n"
+"danych przestrzennych udostępnianych\n"
 "nieodpłatnie przez GUGiK."))
         self.label_7.setText(_translate("PobieraczDanychDockWidgetBase", "Scieżka zapisu plików"))
         self.orto_groupBox.setTitle(_translate("PobieraczDanychDockWidgetBase", "Pobieranie ortofotomapy"))

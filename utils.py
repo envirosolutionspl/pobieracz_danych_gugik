@@ -10,7 +10,10 @@ def pointTo2180(point, sourceCrs, project):
     return point1992
 
 def createPointsFromPolygon(layer):
+
     ext = layer.extent()
+    if ext.area() < 1000000:
+        return [ext.center()]
     params = {
         'TYPE':0,
         # 'EXTENT': '749707.2763195293,756551.6130037877,374593.57733500504,378804.6037195156 [EPSG:2180]',
