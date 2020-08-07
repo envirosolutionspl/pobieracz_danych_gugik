@@ -1,4 +1,4 @@
-import os
+import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
     )
@@ -31,6 +31,10 @@ class DownloadOrtofotoTask(QgsTask):
             fileName = orto.url.split("/")[-1]
             ortofoto_api.retreiveFile(orto.url, self.folder)
             self.setProgress(self.progress() + 100 / total)
+
+        # utworz plik csv z podsumowaniem
+        self.createCsvReport()
+
         os.startfile(self.folder)
         if self.isCanceled():
             return False
@@ -58,6 +62,41 @@ class DownloadOrtofotoTask(QgsTask):
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
+
+    def createCsvReport(self):
+        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        with open(os.path.join(self.folder, 'pobieracz_ortofoto_%s.txt' % date), 'w') as csvFile:
+            naglowki = [
+                'nazwa_pliku',
+                'godlo',
+                'aktualnosc',
+                'wielkosc_piksela',
+                'uklad_wspolrzednych',
+                'caly_arkusz_wypelniony_trescia',
+                'modul_archiwizacji',
+                'zrodlo_danych',
+                'kolor',
+                'numer_zgloszenia_pracy',
+                'aktualnosc_rok'
+            ]
+            csvFile.write(','.join(naglowki)+'\n')
+            for orto in self.ortoList:
+                fileName = orto.url.split("/")[-1]
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                    fileName,
+                    orto.godlo,
+                    orto.aktualnosc,
+                    orto.wielkoscPiksela,
+                    orto.ukladWspolrzednych,
+                    orto.calyArkuszWyeplnionyTrescia,
+                    orto.modulArchiwizacji,
+                    orto.zrodloDanych,
+                    orto.kolor,
+                    orto.numerZgloszeniaPracy,
+                    orto.aktualnoscRok
+                ))
+
+
 
 
 class DownloadAvailableFilesListTask(QgsTask):

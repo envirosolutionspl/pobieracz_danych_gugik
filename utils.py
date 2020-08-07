@@ -56,5 +56,11 @@ def createPointsFromPolygon(layer):
     for feat in punkty.getFeatures():
         punktyList.append(feat.geometry().asPoint())
 
+    # dodanie werteksów poligonu
+    for feat in layer.getFeatures():
+        geom = feat.geometry()
+        for point in geom.vertices():
+            punktyList.append(point)
+
     return punktyList
 
