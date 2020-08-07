@@ -5,12 +5,12 @@
 [general]
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.0
-description=Pozwala na pobranie danych z zasobów GUGiK. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.1.1
+description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
+version=0.2
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
-about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK.
+about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie ortofotomap za pomocą wskazania punktu na mapie, poprzez warstwę poligonową albo liniową
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
@@ -21,6 +21,10 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.2
+  * dodanie możliwości pobierania za pomocą warstwy liniowej
+  * generowanie raportu CSV z pobierania
+  * poprawienie skuteczności pobierania obiektów poligonem
   Wersja 0.1.1
   * poprawki błędów. Dla bboxów poligonów pon. 100ha pobieranie centroidą
   Wersja 0.1
@@ -33,7 +37,7 @@ homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
 icon=img/icon_pw2.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
