@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>418</width>
-         <height>772</height>
+         <width>422</width>
+         <height>780</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -356,7 +356,7 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QLabel" name="label_2">
              <property name="text">
-              <string>Wybierz warstwę poligonową</string>
+              <string>Wybierz warstwę wektorową</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -369,7 +369,7 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QPushButton" name="fromLayer_btn">
              <property name="text">
-              <string>  Pobierz dane w zasięgu wybranej warstwy</string>
+              <string>  Pobierz warstwą wektorową</string>
              </property>
             </widget>
            </item>

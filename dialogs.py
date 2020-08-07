@@ -22,7 +22,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
         self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
-        self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer)
+        self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer)
         self.pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.from_dateTimeEdit.setAllowNull(False)

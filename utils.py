@@ -9,6 +9,15 @@ def pointTo2180(point, sourceCrs, project):
     point1992 = xform.transform(point)
     return point1992
 
+def createPointsFromLine(layer):
+    points = []
+    for feat in layer.getFeatures():
+        geom = feat.geometry()
+        for point in geom.densifyByDistance(1000).vertices():
+            if point not in points:
+                points.append(point)
+    return points
+
 def createPointsFromPolygon(layer):
 
     ext = layer.extent()

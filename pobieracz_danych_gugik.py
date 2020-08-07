@@ -42,7 +42,6 @@ class PobieraczDanychGugik:
         # Declare instance attributes
         self.actions = []
         self.menu = u'&EnviroSolutions'
-        # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.mainWindow().findChild(QToolBar, 'EnviroSolutions')
         if not self.toolbar:
             self.toolbar = self.iface.addToolBar(u'EnviroSolutions')
@@ -214,7 +213,7 @@ class PobieraczDanychGugik:
         """na podstawie warstwy"""
         bledy = 0
         layer = self.dockwidget.mapLayerComboBox.currentLayer()
-        # TODO: zamien uklad na 92
+        # zamiana układu na 92
         if layer:
             if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
                 params = {
@@ -225,8 +224,12 @@ class PobieraczDanychGugik:
                 proc = processing.run("qgis:reprojectlayer", params)
                 layer = proc['OUTPUT']
 
-
-            points = utils.createPointsFromPolygon(layer)
+            if layer.geometryType() == QgsWkbTypes.LineGeometry:
+                print("line")
+                points = utils.createPointsFromLine(layer)
+            elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+                print("polygon")
+                points = utils.createPointsFromPolygon(layer)
             print('---', len(points))
 
 
@@ -236,8 +239,10 @@ class PobieraczDanychGugik:
             # QgsApplication.taskManager().addTask(task)
             # QgsMessageLog.logMessage('runtask')
 
-            ortoList = []
+            #zablokowanie klawisza pobierania
+            self.dockwidget.fromLayer_btn.setEnabled(False)
 
+            ortoList = []
             for point in points:
                 subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
                 if subList:
@@ -247,6 +252,10 @@ class PobieraczDanychGugik:
 
             self.iterateAndRunTask(ortoList)
             print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.fromLayer_btn.setEnabled(True)
+
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy poligonowej')
@@ -265,8 +274,6 @@ class PobieraczDanychGugik:
         # usuwanie duplikatów
         ortoList = list(set(ortoList))
         print("po 'set'", len(ortoList))
-        # for el in ortoList:
-        #     print(el.url)
         # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
         print("po 'filtrowaniu'", len(ortoList))
