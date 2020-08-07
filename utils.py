@@ -19,48 +19,55 @@ def createPointsFromLine(layer):
     return points
 
 def createPointsFromPolygon(layer):
-
-    ext = layer.extent()
-    if ext.area() < 1000000:
-        return [ext.center()]
-    params = {
-        'TYPE':0,
-        # 'EXTENT': '749707.2763195293,756551.6130037877,374593.57733500504,378804.6037195156 [EPSG:2180]',
-        'EXTENT':ext,
-        'HSPACING':1000,
-        'VSPACING':1000,
-        'HOVERLAY':0,
-        'VOVERLAY':0,
-        'CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
-        'OUTPUT':'TEMPORARY_OUTPUT'
-    }
-    proc = processing.run("qgis:creategrid", params)
-    # proc = processing.run("native:creategrid", params)
-    punkty = proc['OUTPUT']
-
-    params = {
-        'INPUT': punkty,
-        'OVERLAY': layer,
-        'OUTPUT': 'TEMPORARY_OUTPUT'}
-
-    proc = processing.run("qgis:clip", params)
-    punkty = proc['OUTPUT']
-
-    params = {
-        'INPUT': punkty,
-        'OUTPUT': 'TEMPORARY_OUTPUT'}
-    proc = processing.run("qgis:multiparttosingleparts", params)
-    punkty = proc['OUTPUT']
-
     punktyList = []
-    for feat in punkty.getFeatures():
-        punktyList.append(feat.geometry().asPoint())
 
-    # dodanie werteksów poligonu
     for feat in layer.getFeatures():
         geom = feat.geometry()
-        for point in geom.vertices():
-            punktyList.append(point)
+        bbox = geom.boundingBox()
+        if bbox.area() < 1000000:
+            punktyList.append(bbox.center())
+        else:
+            params = {
+                'TYPE':0,
+                'EXTENT':bbox,
+                'HSPACING':1000,
+                'VSPACING':1000,
+                'HOVERLAY':0,
+                'VOVERLAY':0,
+                'CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
+                'OUTPUT':'TEMPORARY_OUTPUT'
+            }
+            proc = processing.run("qgis:creategrid", params)
+            # proc = processing.run("native:creategrid", params)
+            punkty = proc['OUTPUT']
+
+            # params = {
+            #     'INPUT': punkty,
+            #     'OVERLAY': layer,
+            #     'OUTPUT': 'TEMPORARY_OUTPUT'}
+            #
+            # proc = processing.run("qgis:clip", params)
+            # punkty = proc['OUTPUT']
+            #
+            # params = {
+            #     'INPUT': punkty,
+            #     'OUTPUT': 'TEMPORARY_OUTPUT'}
+            # proc = processing.run("qgis:multiparttosingleparts", params)
+            # punkty = proc['OUTPUT']
+
+
+            for pointFeat in punkty.getFeatures():
+                point = pointFeat.geometry().asPoint()
+                if geom.contains(point):
+                    punktyList.append(point)
+
+
+            # dodanie werteksów poligonu
+            # uproszczenie geometrii
+            geom2 = geom.simplify(800)
+            for point in geom2.vertices():
+                punktyList.append(point)
+
 
     return punktyList
 
