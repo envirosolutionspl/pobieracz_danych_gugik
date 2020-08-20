@@ -189,10 +189,13 @@ class PobieraczDanychGugik:
 
             if layer.geometryType() == QgsWkbTypes.LineGeometry:
                 print("line")
-                points = utils.createPointsFromLine(layer)
+                points = utils.createPointsFromLineLayer(layer)
             elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
                 print("polygon")
                 points = utils.createPointsFromPolygon(layer)
+            elif layer.geometryType() == QgsWkbTypes.PointGeometry:
+                print("point")
+                points = utils.createPointsFromPointLayer(layer)
             print('---', len(points))
 
 

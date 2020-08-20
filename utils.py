@@ -9,7 +9,18 @@ def pointTo2180(point, sourceCrs, project):
     point1992 = xform.transform(point)
     return point1992
 
-def createPointsFromLine(layer):
+def createPointsFromPointLayer(layer):
+    points = []
+    for feat in layer.getFeatures():
+        geom = feat.geometry()
+        if geom.isMultipart():
+            mp = geom.asMultiPoint()
+            points.extend(mp)
+        else:
+            points.append(geom.asPoint())
+    return points
+
+def createPointsFromLineLayer(layer):
     points = []
     for feat in layer.getFeatures():
         geom = feat.geometry()
