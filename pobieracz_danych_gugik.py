@@ -18,7 +18,7 @@ import os.path
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api
 
 """Wersja wtyczki"""
-plugin_version = '0.2.1'
+plugin_version = '0.3.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 class PobieraczDanychGugik:

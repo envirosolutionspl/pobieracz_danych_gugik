@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.0
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.2.1
+version=0.3.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
@@ -21,6 +21,11 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.3
+  * dodanie możliwości pobierania danych warstwą punktową
+  * dodanie możliwości filtrowania ortofotomapy czarnobiałej (B/W)
+  * dodanie możliwości pobierania NMT/NMPT
+  * pomijanie pobierania pustych plików (gdy serwer nie zwraca pliku pod adresem)
   Wersja 0.2.1
   * optymalizacja przetwarzania poligonów
   * pobieranie plików jedynie wewnątrz warstwy w przypadku warstwy poligonowej wieloobiektowej
