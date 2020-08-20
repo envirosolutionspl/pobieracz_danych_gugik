@@ -22,11 +22,20 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
         self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
-        self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
-        self.pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.from_dateTimeEdit.setAllowNull(False)
-        self.to_dateTimeEdit.setAllowNull(False)
+        # orto
+        self.orto_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.orto_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.orto_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.orto_from_dateTimeEdit.setAllowNull(False)
+        self.orto_to_dateTimeEdit.setAllowNull(False)
+        # nmt/nmpt
+        self.nmt_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.nmt_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.nmt_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.nmt_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.nmt_mhTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.nmt_from_dateTimeEdit.setAllowNull(False)
+        self.nmt_to_dateTimeEdit.setAllowNull(False)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

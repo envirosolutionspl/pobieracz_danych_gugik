@@ -1,9 +1,9 @@
 import re
 from . import service_api
-from .models import Ortofotomapa
+from .models import Nmt
 
 
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?"
+URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieKRON86?"
 c = re.compile("\{{1}.*\}{1}")
 
 
@@ -15,18 +15,16 @@ def retreiveFile(url, destFolder):
     return service_api.retreiveFile(url=url, destFolder=destFolder)
 
 
-def getOrtoListbyPoint1992(point):
+def getNmtListbyPoint1992(point):
     x = point.x()
     y = point.y()
+
     LAYERS = [
-        'SkorowidzeOrtofotomapyZasiegiStarsze',
-        'SkorowidzeOrtofotomapyStarsze',
-        'SkorowidzeOrtofotomapyZasiegi2018',
-        'SkorowidzeOrtofotomapy2018',
-        'SkorowidzeOrtofotomapyZasiegi2019',
-        'SkorowidzeOrtofotomapy2019',
-        'SkorowidzeOrtofotomapyZasiegi2020',
-        'SkorowidzeOrtofotomapy2020'
+        'Uk%C5%82ad%20wysoko%C5%9Bciowy%20PL-KRON86-NH',
+        'KRON86_XYZ_GRID',
+        'KRON86_XYZ_GRID_Zasiegi',
+        'KRON86_ARC_INFO_GRID',
+        'KRON86_ARC_INFO_GRID_Zasiegi'
     ]
     PARAMS = {
         'SERVICE': 'WMS',
@@ -48,10 +46,10 @@ def getOrtoListbyPoint1992(point):
     resp = getRequest(PARAMS)
 
     if resp[0]:
-        ortos = c.findall(resp[1])
-        ortofotomapaList = []
-        for orto in ortos:
-            element = orto.strip("{").strip("}").split(',')
+        nmtElements = c.findall(resp[1])
+        nmtList = []
+        for nmtElement in nmtElements:
+            element = nmtElement.strip("{").strip("}").split(',')
             params = {}
             for el in element:
                 item = el.strip().split(':')
@@ -59,8 +57,8 @@ def getOrtoListbyPoint1992(point):
                 if len(item) > 2:
                     val = ":".join(item[1:]).strip('"')
                 params[item[0]] = val
-            ortofotomapa = Ortofotomapa(**params)
-            ortofotomapaList.append(ortofotomapa)
-        return ortofotomapaList
+            nmt = Nmt(**params)
+            nmtList.append(nmt)
+        return nmtList
     else:
         return None

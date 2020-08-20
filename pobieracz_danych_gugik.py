@@ -146,8 +146,8 @@ class PobieraczDanychGugik:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
-            self.dockwidget.capture_btn.clicked.connect(self.capture_btn_clicked)
-            self.dockwidget.fromLayer_btn.clicked.connect(self.fromLayer_btn_clicked)
+            self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
+            self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -164,7 +164,7 @@ class PobieraczDanychGugik:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-    def capture_btn_clicked(self):
+    def orto_capture_btn_clicked(self):
         path = self.dockwidget.folder_fileWidget.filePath()
         if path:    # pobrano ściezkę
             self.canvas.setMapTool(self.clickTool)
@@ -172,10 +172,10 @@ class PobieraczDanychGugik:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano wskazano miejsca zapisu plików')
 
-    def fromLayer_btn_clicked(self):
+    def orto_fromLayer_btn_clicked(self):
         """na podstawie warstwy"""
         bledy = 0
-        layer = self.dockwidget.mapLayerComboBox.currentLayer()
+        layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
         if layer:
             if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
@@ -206,7 +206,7 @@ class PobieraczDanychGugik:
             # QgsMessageLog.logMessage('runtask')
 
             #zablokowanie klawisza pobierania
-            self.dockwidget.fromLayer_btn.setEnabled(False)
+            self.dockwidget.orot_fromLayer_btn.setEnabled(False)
 
             ortoList = []
             for point in points:
@@ -220,7 +220,7 @@ class PobieraczDanychGugik:
             print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
-            self.dockwidget.fromLayer_btn.setEnabled(True)
+            self.dockwidget.orto_fromLayer_btn.setEnabled(True)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -276,22 +276,22 @@ class PobieraczDanychGugik:
     def filterOrtoList(self, ortoList):
         # print(self.dockwidget.from_dateTimeEdit.date(), bool(self.dockwidget.from_dateTimeEdit.date()))
         if self.dockwidget.orto_filter_groupBox.isChecked():
-            if not (self.dockwidget.kolor_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.kolor_cmbbx.currentText()]
-            if not (self.dockwidget.crs_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.crs_cmbbx.currentText()]
-            if self.dockwidget.from_dateTimeEdit.date():
-                ortoList = [orto for orto in ortoList if orto.aktualnosc >= self.dockwidget.from_dateTimeEdit.dateTime().toPyDateTime().date()]
-            if self.dockwidget.to_dateTimeEdit.date():
-                ortoList = [orto for orto in ortoList if orto.aktualnosc <= self.dockwidget.to_dateTimeEdit.dateTime().toPyDateTime().date()]
-            if not (self.dockwidget.source_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.zrodloDanych == self.dockwidget.source_cmbbx.currentText()]
-            if not (self.dockwidget.full_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.calyArkuszWyeplnionyTrescia == self.dockwidget.full_cmbbx.currentText()]
-            if self.dockwidget.pixelFrom_lineEdit.text():
-                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela >= float(self.dockwidget.pixelFrom_lineEdit.text())]
-            if self.dockwidget.pixelTo_lineEdit.text():
-                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela <= float(self.dockwidget.pixelTo_lineEdit.text())]
+            if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
+                ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.orto_kolor_cmbbx.currentText()]
+            if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
+                ortoList = [orto for orto in ortoList if orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
+            if self.dockwidget.orto_from_dateTimeEdit.date():
+                ortoList = [orto for orto in ortoList if orto.aktualnosc >= self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.orto_to_dateTimeEdit.date():
+                ortoList = [orto for orto in ortoList if orto.aktualnosc <= self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if not (self.dockwidget.orto_source_cmbbx.currentText() == 'wszystkie'):
+                ortoList = [orto for orto in ortoList if orto.zrodloDanych == self.dockwidget.orto_source_cmbbx.currentText()]
+            if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
+                ortoList = [orto for orto in ortoList if orto.calyArkuszWyeplnionyTrescia == self.dockwidget.orto_full_cmbbx.currentText()]
+            if self.dockwidget.orto_pixelFrom_lineEdit.text():
+                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela >= float(self.dockwidget.orto_pixelFrom_lineEdit.text())]
+            if self.dockwidget.orto_pixelTo_lineEdit.text():
+                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
         return ortoList
 
     def downloadFiles(self, orto, folder):
