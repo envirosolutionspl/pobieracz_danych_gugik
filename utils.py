@@ -20,29 +20,29 @@ def createPointsFromPointLayer(layer):
             points.append(geom.asPoint())
     return points
 
-def createPointsFromLineLayer(layer):
+def createPointsFromLineLayer(layer, density):
     points = []
     for feat in layer.getFeatures():
         geom = feat.geometry()
-        for point in geom.densifyByDistance(1000).vertices():
+        for point in geom.densifyByDistance(density).vertices():
             if point not in points:
                 points.append(point)
     return points
 
-def createPointsFromPolygon(layer):
+def createPointsFromPolygon(layer, density=1000):
     punktyList = []
 
     for feat in layer.getFeatures():
         geom = feat.geometry()
         bbox = geom.boundingBox()
-        if bbox.area() < 1000000:
+        if bbox.area() < density ** 2:
             punktyList.append(bbox.center())
         else:
             params = {
                 'TYPE':0,
                 'EXTENT':bbox,
-                'HSPACING':1000,
-                'VSPACING':1000,
+                'HSPACING':density,
+                'VSPACING':density,
                 'HOVERLAY':0,
                 'VOVERLAY':0,
                 'CRS':QgsCoordinateReferenceSystem('EPSG:2180'),

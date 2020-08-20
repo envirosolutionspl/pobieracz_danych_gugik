@@ -301,7 +301,7 @@ class PobieraczDanychGugik:
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer)
+            points = self.pointsFromVectorLayer(layer, density=1500)
 
             #zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
@@ -358,7 +358,6 @@ class PobieraczDanychGugik:
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
-            print(reply)
             if reply == QMessageBox.Yes:
                 # pobieranie w zależności od typu NMT lub NMTP
                 task = DownloadNmtTask(description='Pobieranie plików NMT/NMPT',
@@ -410,7 +409,7 @@ class PobieraczDanychGugik:
 
     # endregion
 
-    def pointsFromVectorLayer(self, layer):
+    def pointsFromVectorLayer(self, layer, density=1000):
         """tworzy punkty do zapytań na podstawie warstwy wektorowej"""
         # zamiana na 1992
         if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
@@ -423,14 +422,10 @@ class PobieraczDanychGugik:
             layer = proc['OUTPUT']
 
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
-            print("line")
-            points = utils.createPointsFromLineLayer(layer)
+            points = utils.createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            print("polygon")
-            points = utils.createPointsFromPolygon(layer)
+            points = utils.createPointsFromPolygon(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PointGeometry:
-            print("point")
             points = utils.createPointsFromPointLayer(layer)
-        print('---', len(points))
 
         return points

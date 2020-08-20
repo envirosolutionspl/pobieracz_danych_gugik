@@ -36,7 +36,6 @@ def getNmtListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    # print(resp)
     if resp[0]:
         nmtElements = c.findall(resp[1])
         nmtList = []
