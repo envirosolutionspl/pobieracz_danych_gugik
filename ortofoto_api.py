@@ -25,10 +25,11 @@ def getRequest(params):
 def retreiveFile(url, destFolder):
     r = requests.get(url)
     path = os.path.join(destFolder, url.split('/')[-1])
+    if str(r.status_code) == '404':
+        return False, "Plik nie istnieje"
     try:
         with open(path, 'wb') as f:
             f.write(r.content)
-        # print('pobrano plik ', url.split('/')[-1])
         return [True]
     except IOError:
         return False, "Błąd zapisu pliku"
