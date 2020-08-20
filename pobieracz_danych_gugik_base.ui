@@ -26,7 +26,7 @@
          <x>0</x>
          <y>-264</y>
          <width>405</width>
-         <height>1183</height>
+         <height>1157</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -459,6 +459,16 @@ nieodpłatnie przez GUGiK.</string>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
                <layout class="QGridLayout" name="gridLayout_3">
+                <item row="7" column="1">
+                 <widget class="QgsFilterLineEdit" name="nmt_mhFrom_lineEdit">
+                  <property name="text">
+                   <string>0.01</string>
+                  </property>
+                  <property name="qgisRelation" stdset="0">
+                   <string notr="true"/>
+                  </property>
+                 </widget>
+                </item>
                 <item row="1" column="1">
                  <widget class="QComboBox" name="nmt_h_cmbbx">
                   <item>
@@ -480,28 +490,38 @@ nieodpłatnie przez GUGiK.</string>
                   </property>
                  </widget>
                 </item>
+                <item row="8" column="1">
+                 <widget class="QgsFilterLineEdit" name="nmt_mhTo_lineEdit">
+                  <property name="text">
+                   <string>5.00</string>
+                  </property>
+                  <property name="qgisRelation" stdset="0">
+                   <string notr="true"/>
+                  </property>
+                 </widget>
+                </item>
                 <item row="8" column="0">
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
+                   <string>Dokładność pionowa do (w metrach):</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
                  <widget class="QLabel" name="label_17">
                   <property name="text">
                    <string>Dokładność pionowa od (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0">
+                <item row="5" column="0">
                  <widget class="QLabel" name="label_13">
                   <property name="text">
                    <string>Dokładność pozioma od (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_11">
-                  <property name="text">
-                   <string>Źródło danych:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1">
+                <item row="5" column="1">
                  <widget class="QgsFilterLineEdit" name="nmt_pixelFrom_lineEdit">
                   <property name="text">
                    <string>0.01</string>
@@ -530,7 +550,7 @@ nieodpłatnie przez GUGiK.</string>
                   </item>
                  </widget>
                 </item>
-                <item row="7" column="1">
+                <item row="6" column="1">
                  <widget class="QgsFilterLineEdit" name="nmt_pixelTo_lineEdit">
                   <property name="text">
                    <string>5.00</string>
@@ -543,33 +563,14 @@ nieodpłatnie przez GUGiK.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0">
+                <item row="6" column="0">
                  <widget class="QLabel" name="label_14">
                   <property name="text">
                    <string>Dokładność pozioma do (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="1">
-                 <widget class="QComboBox" name="nmt_source_cmbbx">
-                  <item>
-                   <property name="text">
-                    <string>wszystkie</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Zdj. cyfrowe</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Zdj. analogowe</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item row="5" column="0">
+                <item row="4" column="0">
                  <widget class="QLabel" name="label_12">
                   <property name="text">
                    <string>Cały arkusz wypełniony treścią:</string>
@@ -604,7 +605,7 @@ nieodpłatnie przez GUGiK.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="4" column="1">
                  <widget class="QComboBox" name="nmt_full_cmbbx">
                   <item>
                    <property name="text">
@@ -634,33 +635,6 @@ nieodpłatnie przez GUGiK.</string>
                  <widget class="QLabel" name="label_10">
                   <property name="text">
                    <string>Data do:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="0">
-                 <widget class="QLabel" name="label_18">
-                  <property name="text">
-                   <string>Dokładność pionowa do (w metrach):</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="8" column="1">
-                 <widget class="QgsFilterLineEdit" name="nmt_mhFrom_lineEdit">
-                  <property name="text">
-                   <string>0.01</string>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="9" column="1">
-                 <widget class="QgsFilterLineEdit" name="nmt_mhTo_lineEdit">
-                  <property name="text">
-                   <string>5.00</string>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
                   </property>
                  </widget>
                 </item>

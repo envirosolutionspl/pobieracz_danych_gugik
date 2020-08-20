@@ -7,20 +7,12 @@ URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladz
 c = re.compile("\{{1}.*\}{1}")
 
 
-def getRequest(params):
-    return service_api.getRequest(params=params, url=URL)
-
-
-def retreiveFile(url, destFolder):
-    return service_api.retreiveFile(url=url, destFolder=destFolder)
-
-
 def getNmtListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
     LAYERS = [
-        'Uk%C5%82ad%20wysoko%C5%9Bciowy%20PL-KRON86-NH',
+        # 'Układ wysokościowy PL-KRON86-NH',
         'KRON86_XYZ_GRID',
         'KRON86_XYZ_GRID_Zasiegi',
         'KRON86_ARC_INFO_GRID',
@@ -43,8 +35,8 @@ def getNmtListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = getRequest(PARAMS)
-
+    resp = service_api.getRequest(params=PARAMS, url=URL)
+    # print(resp)
     if resp[0]:
         nmtElements = c.findall(resp[1])
         nmtList = []

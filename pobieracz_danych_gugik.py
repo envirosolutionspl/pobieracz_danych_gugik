@@ -5,7 +5,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask, DownloadAvailableFilesListTask
+from .tasks import DownloadOrtofotoTask, DownloadNmtTask
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -15,7 +15,7 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 
-from . import utils, ortofoto_api
+from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api
 
 """Wersja wtyczki"""
 plugin_version = '0.2.1'
@@ -52,8 +52,10 @@ class PobieraczDanychGugik:
 
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
-        self.clickTool = QgsMapToolEmitPoint(self.canvas)
-        self.clickTool.canvasClicked.connect(self.canvas_clicked)
+        self.ortoClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.ortoClickTool.canvasClicked.connect(self.canvasOrto_clicked)
+        self.nmtClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.nmtClickTool.canvasClicked.connect(self.canvasNmt_clicked)
         # --------------------------------------------------------------------------
 
 
@@ -147,7 +149,9 @@ class PobieraczDanychGugik:
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
             self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
+            self.dockwidget.nmt_capture_btn.clicked.connect(self.nmt_capture_btn_clicked)
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
+            self.dockwidget.nmt_fromLayer_btn.clicked.connect(self.nmt_fromLayer_btn_clicked)
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -164,49 +168,26 @@ class PobieraczDanychGugik:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
+    # region ORTOFOTOMAPA
     def orto_capture_btn_clicked(self):
+        """Kliknięcie plawisza pobierania ortofotomapy przez wybór z mapy"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if path:    # pobrano ściezkę
-            self.canvas.setMapTool(self.clickTool)
+            self.canvas.setMapTool(self.ortoClickTool)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano wskazano miejsca zapisu plików')
 
     def orto_fromLayer_btn_clicked(self):
-        """na podstawie warstwy"""
+        """Kliknięcie plawisza pobierania ortofotomapy przez wybórwarstwą wektorową"""
         bledy = 0
         layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
         if layer:
-            if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
-                params = {
-                    'INPUT':layer,
-                    'TARGET_CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
-                    'OPERATION':None,
-                    'OUTPUT':'TEMPORARY_OUTPUT'}
-                proc = processing.run("qgis:reprojectlayer", params)
-                layer = proc['OUTPUT']
-
-            if layer.geometryType() == QgsWkbTypes.LineGeometry:
-                print("line")
-                points = utils.createPointsFromLineLayer(layer)
-            elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-                print("polygon")
-                points = utils.createPointsFromPolygon(layer)
-            elif layer.geometryType() == QgsWkbTypes.PointGeometry:
-                print("point")
-                points = utils.createPointsFromPointLayer(layer)
-            print('---', len(points))
-
-
-            # # pobieranie
-            # task = DownloadAvailableFilesListTask(description='Pobieranie plików ortofotomapy',
-            #                             points=points)
-            # QgsApplication.taskManager().addTask(task)
-            # QgsMessageLog.logMessage('runtask')
+            points = self.pointsFromVectorLayer(layer)
 
             #zablokowanie klawisza pobierania
-            self.dockwidget.orot_fromLayer_btn.setEnabled(False)
+            self.dockwidget.orto_fromLayer_btn.setEnabled(False)
 
             ortoList = []
             for point in points:
@@ -216,7 +197,7 @@ class PobieraczDanychGugik:
                 else:
                     bledy += 1
 
-            self.iterateAndRunTask(ortoList)
+            self.filterOrtoListAndRunTask(ortoList)
             print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
@@ -224,17 +205,18 @@ class PobieraczDanychGugik:
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano warstwy poligonowej')
-    def downloadForSinglePoint(self, point):
-        """pojedynczy punkt"""
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadOrtoForSinglePoint(self, point):
+        """Pobiera ortofotomapę dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
         ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
-        self.iterateAndRunTask(ortoList)
+        self.filterOrtoListAndRunTask(ortoList)
 
-    def iterateAndRunTask(self, ortoList):
-
+    def filterOrtoListAndRunTask(self, ortoList):
+        """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
         print("przed 'set'", len(ortoList))
 
         # usuwanie duplikatów
@@ -266,15 +248,14 @@ class PobieraczDanychGugik:
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
-
-    def canvas_clicked(self, point):
+    def canvasOrto_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
         """point - QgsPointXY"""
-        self.canvas.unsetMapTool(self.clickTool)
-        self.downloadForSinglePoint(point)
-
+        self.canvas.unsetMapTool(self.ortoClickTool)
+        self.downloadOrtoForSinglePoint(point)
 
     def filterOrtoList(self, ortoList):
-        # print(self.dockwidget.from_dateTimeEdit.date(), bool(self.dockwidget.from_dateTimeEdit.date()))
+        """Filtruje listę ortofotomap"""
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.orto_kolor_cmbbx.currentText()]
@@ -294,6 +275,162 @@ class PobieraczDanychGugik:
                 ortoList = [orto for orto in ortoList if orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
         return ortoList
 
-    def downloadFiles(self, orto, folder):
+    def downloadOrtoFile(self, orto, folder):
+        """Pobiera plik ortofotomapy"""
         QgsMessageLog.logMessage('start ' + orto.url)
-        ortofoto_api.retreiveFile(orto.url, folder)
+        service_api.retreiveFile(url=orto.url, destFolder=folder)
+
+
+    # endregion
+
+    # region NMT/NMPT
+    def nmt_capture_btn_clicked(self):
+        """Kliknięcie plawisza pobierania NMT/NMPT przez wybór z mapy"""
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if path:    # pobrano ściezkę
+            self.canvas.setMapTool(self.nmtClickTool)
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano wskazano miejsca zapisu plików')
+
+    def nmt_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
+        bledy = 0
+        layer = self.dockwidget.nmt_mapLayerComboBox.currentLayer()
+
+        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer)
+
+            #zablokowanie klawisza pobierania
+            self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
+
+            nmtList = []
+            for point in points:
+                subList = nmpt_api.getNmptListbyPoint1992(point=point) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point)
+                if subList:
+                    nmtList.extend(subList)
+                else:
+                    bledy += 1
+
+            self.filterNmtListAndRunTask(nmtList)
+            print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadNmtForSinglePoint(self, point):
+        """Pobiera NMT/NMPT dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point1992)
+
+        self.filterNmtListAndRunTask(nmtList)
+
+    def filterNmtListAndRunTask(self, nmtList):
+        """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
+        print("przed 'set'", len(nmtList))
+
+        # usuwanie duplikatów
+        nmtList = list(set(nmtList))
+        print("po 'set'", len(nmtList))
+        # filtrowanie
+        nmtList = self.filterNmtList(nmtList)
+        print("po 'filtrowaniu'", len(nmtList))
+
+        # wyswietl komunikat pytanie
+        if len(nmtList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(nmtList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            print(reply)
+            if reply == QMessageBox.Yes:
+                # pobieranie w zależności od typu NMT lub NMTP
+                task = DownloadNmtTask(description='Pobieranie plików NMT/NMPT',
+                                       nmtList=nmtList,
+                                       folder=self.dockwidget.folder_fileWidget.filePath(),
+                                       isNmpt=True if self.dockwidget.nmpt_rdbtn.isChecked() else False)
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasNmt_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.nmtClickTool)
+        self.downloadNmtForSinglePoint(point)
+
+    def filterNmtList(self, nmtList):
+        """Filtruje listę NMT/NMPT"""
+        # wybór formatu
+        if self.dockwidget.arcinfo_rdbtn.isChecked():
+            nmtList = [nmt for nmt in nmtList if nmt.format == "ARC/INFO ASCII GRID"]
+        elif self.dockwidget.xyz_rdbtn.isChecked():
+            nmtList = [nmt for nmt in nmtList if nmt.format == "ASCII XYZ GRID"]
+
+        if self.dockwidget.nmt_filter_groupBox.isChecked():
+            if not (self.dockwidget.nmt_crs_cmbbx.currentText() == 'wszystkie'):
+                nmtList = [nmt for nmt in nmtList if nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+            if not (self.dockwidget.nmt_h_cmbbx.currentText() == 'wszystkie'):
+                nmtList = [nmt for nmt in nmtList if nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_h_cmbbx.currentText()]
+            if self.dockwidget.nmt_from_dateTimeEdit.date():
+                nmtList = [nmt for nmt in nmtList if nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.nmt_to_dateTimeEdit.date():
+                nmtList = [nmt for nmt in nmtList if nmt.aktualnosc <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if not (self.dockwidget.nmt_full_cmbbx.currentText() == 'wszystkie'):
+                nmtList = [nmt for nmt in nmtList if nmt.calyArkuszWyeplnionyTrescia == self.dockwidget.nmt_full_cmbbx.currentText()]
+            if self.dockwidget.nmt_pixelFrom_lineEdit.text():
+                nmtList = [nmt for nmt in nmtList if nmt.charakterystykaPrzestrzenna >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+            if self.dockwidget.nmt_pixelTo_lineEdit.text():
+                nmtList = [nmt for nmt in nmtList if nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+            if self.dockwidget.nmt_mhFrom_lineEdit.text():
+                nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+            if self.dockwidget.nmt_mhlTo_lineEdit.text():
+                nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+        return nmtList
+
+    def downloadNmtFile(self, nmt, folder):
+        """Pobiera plik NMT/NMPT"""
+        QgsMessageLog.logMessage('start ' + nmt.url)
+        service_api.retreiveFile(url=nmt.url, destFolder=folder)
+
+    # endregion
+
+    def pointsFromVectorLayer(self, layer):
+        """tworzy punkty do zapytań na podstawie warstwy wektorowej"""
+        # zamiana na 1992
+        if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
+            params = {
+                'INPUT': layer,
+                'TARGET_CRS': QgsCoordinateReferenceSystem('EPSG:2180'),
+                'OPERATION': None,
+                'OUTPUT': 'TEMPORARY_OUTPUT'}
+            proc = processing.run("qgis:reprojectlayer", params)
+            layer = proc['OUTPUT']
+
+        if layer.geometryType() == QgsWkbTypes.LineGeometry:
+            print("line")
+            points = utils.createPointsFromLineLayer(layer)
+        elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+            print("polygon")
+            points = utils.createPointsFromPolygon(layer)
+        elif layer.geometryType() == QgsWkbTypes.PointGeometry:
+            print("point")
+            points = utils.createPointsFromPointLayer(layer)
+        print('---', len(points))
+
+        return points
