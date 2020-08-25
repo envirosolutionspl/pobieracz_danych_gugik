@@ -18,7 +18,7 @@ import os.path
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api
 
 """Wersja wtyczki"""
-plugin_version = '0.3.0'
+plugin_version = '0.3.1'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 class PobieraczDanychGugik:
@@ -398,7 +398,7 @@ class PobieraczDanychGugik:
                 nmtList = [nmt for nmt in nmtList if nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
-            if self.dockwidget.nmt_mhlTo_lineEdit.text():
+            if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
         return nmtList
 
