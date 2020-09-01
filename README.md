@@ -12,6 +12,7 @@ od wersji 0.2 wtyczka generuje dodatkowo raport CSV z informacjami dodatowymi na
 Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 - Ortofotomapy RGB/CIR
 - NMT/NMPT (od wersji 0.3)
+- LAS LIDAR (od wersji 0.4)
 
 #### Pobieranie na podstawie warstwy poligonowej
 1. Wtyczka generuje siatkę punktów wewnątrz zadanej warstwy poligonowej oraz na podstawie werteksów
@@ -27,5 +28,5 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 1. Dla każdego z punktów w warstwie pobierana jest lista dostepnych warstw
 2. Po przefiltrowaniu pobierane są wybrane przez użytkownika warstwy
 
-#####Kontakt:
+##### Kontakt:
 Michał Włoga - EnviroSolutions Sp. z o.o. http://www.envirosolutions.pl

@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-802</y>
-         <width>405</width>
-         <height>1589</height>
+         <y>0</y>
+         <width>422</width>
+         <height>780</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -128,6 +128,9 @@ nieodpłatnie przez GUGiK.</string>
          <widget class="QgsCollapsibleGroupBox" name="orto_groupBox">
           <property name="title">
            <string>Pobieranie ortofotomapy</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -385,6 +388,9 @@ nieodpłatnie przez GUGiK.</string>
          <widget class="QgsCollapsibleGroupBox" name="nmt_groupBox">
           <property name="title">
            <string>Pobieranie NMT/NMPT</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -698,6 +704,9 @@ nieodpłatnie przez GUGiK.</string>
          <widget class="QgsCollapsibleGroupBox" name="las_groupBox">
           <property name="title">
            <string>Pobieranie danych LAS (LIDAR)</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
