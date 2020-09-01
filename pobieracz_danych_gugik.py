@@ -5,7 +5,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask, DownloadNmtTask
+from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -15,7 +15,7 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 
-from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api
+from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api
 
 """Wersja wtyczki"""
 plugin_version = '0.3.1'
@@ -56,6 +56,8 @@ class PobieraczDanychGugik:
         self.ortoClickTool.canvasClicked.connect(self.canvasOrto_clicked)
         self.nmtClickTool = QgsMapToolEmitPoint(self.canvas)
         self.nmtClickTool.canvasClicked.connect(self.canvasNmt_clicked)
+        self.lasClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.lasClickTool.canvasClicked.connect(self.canvasLas_clicked)
         # --------------------------------------------------------------------------
 
 
@@ -149,9 +151,14 @@ class PobieraczDanychGugik:
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
             self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
-            self.dockwidget.nmt_capture_btn.clicked.connect(self.nmt_capture_btn_clicked)
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
+
+            self.dockwidget.nmt_capture_btn.clicked.connect(self.nmt_capture_btn_clicked)
             self.dockwidget.nmt_fromLayer_btn.clicked.connect(self.nmt_fromLayer_btn_clicked)
+
+            self.dockwidget.las_capture_btn.clicked.connect(self.las_capture_btn_clicked)
+            self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
+
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -406,6 +413,123 @@ class PobieraczDanychGugik:
         """Pobiera plik NMT/NMPT"""
         QgsMessageLog.logMessage('start ' + nmt.url)
         service_api.retreiveFile(url=nmt.url, destFolder=folder)
+
+    # endregion
+
+    # region LAS
+    def las_capture_btn_clicked(self):
+        """Kliknięcie plawisza pobierania LAS przez wybór z mapy"""
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if path:    # pobrano ściezkę
+            self.canvas.setMapTool(self.lasClickTool)
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano wskazano miejsca zapisu plików')
+
+    def las_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
+        bledy = 0
+        layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=500)
+
+            #zablokowanie klawisza pobierania
+            self.dockwidget.las_fromLayer_btn.setEnabled(False)
+
+            lasList = []
+            for point in points:
+                subList = las_api.getLasListbyPoint1992(point=point)
+                if subList:
+                    lasList.extend(subList)
+                else:
+                    bledy += 1
+
+            self.filterLasListAndRunTask(lasList)
+            print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.las_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadLasForSinglePoint(self, point):
+        """Pobiera LAS dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        lasList = las_api.getLasListbyPoint1992(point=point1992)
+
+        self.filterLasListAndRunTask(lasList)
+
+    def filterLasListAndRunTask(self, lasList):
+        """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
+        print("przed 'set'", len(lasList))
+
+        # usuwanie duplikatów
+        lasList = list(set(lasList))
+        print("po 'set'", len(lasList))
+        # filtrowanie
+        lasList = self.filterLasList(lasList)
+        print("po 'filtrowaniu'", len(lasList))
+
+        # wyswietl komunikat pytanie
+        if len(lasList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(lasList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie LAS
+                task = DownloadLasTask(description='Pobieranie plików LAS',
+                                       lasList=lasList,
+                                       folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasLas_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór LAS z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.lasClickTool)
+        self.downloadLasForSinglePoint(point)
+
+    def filterLasList(self, lasList):
+        """Filtruje listę LAS"""
+
+        if self.dockwidget.las_filter_groupBox.isChecked():
+            if not (self.dockwidget.las_crs_cmbbx.currentText() == 'wszystkie'):
+                lasList = [las for las in lasList if las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
+            if not (self.dockwidget.las_h_cmbbx.currentText() == 'wszystkie'):
+                lasList = [las for las in lasList if las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_h_cmbbx.currentText()]
+            if self.dockwidget.las_from_dateTimeEdit.date():
+                lasList = [las for las in lasList if las.aktualnosc >= self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.las_to_dateTimeEdit.date():
+                lasList = [las for las in lasList if las.aktualnosc <= self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if not (self.dockwidget.las_full_cmbbx.currentText() == 'wszystkie'):
+                lasList = [las for las in lasList if las.calyArkuszWyeplnionyTrescia == self.dockwidget.las_full_cmbbx.currentText()]
+            if self.dockwidget.las_pixelFrom_lineEdit.text():
+                lasList = [las for las in lasList if las.charakterystykaPrzestrzenna >= float(self.dockwidget.las_pixelFrom_lineEdit.text())]
+            if self.dockwidget.las_pixelTo_lineEdit.text():
+                lasList = [las for las in lasList if las.charakterystykaPrzestrzenna <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
+            if self.dockwidget.las_mhFrom_lineEdit.text():
+                lasList = [las for las in lasList if las.bladSredniWysokosci >= float(self.dockwidget.las_mhFrom_lineEdit.text())]
+            if self.dockwidget.las_mhTo_lineEdit.text():
+                lasList = [las for las in lasList if las.bladSredniWysokosci <= float(self.dockwidget.las_mhTo_lineEdit.text())]
+        return lasList
+
+    def downloadLaFile(self, las, folder):
+        """Pobiera plik LAS"""
+        QgsMessageLog.logMessage('start ' + las.url)
+        service_api.retreiveFile(url=las.url, destFolder=folder)
 
     # endregion
 
