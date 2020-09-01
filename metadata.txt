@@ -10,7 +10,11 @@ version=0.4.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
-about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie ortofotomap za pomocą wskazania punktu na mapie, poprzez warstwę poligonową albo liniową
+about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie danych za pomocą wskazania punktu na mapie, poprzez warstwę poligonową, liniową lub punktową
+  Możliwe jest pobieranie następujących danych:
+  * LAS (LIDAR) - dane skaningu laserowego
+  * ASCII GRID (NMT/NMPT) - Numeryczny Model Terenu i Numeryczny Model Pokrycia Terenu
+  * GeoTiff (ortofotomapa/CIR) - Ortofotomapa cyfrowa i Zobrazowanie w bliskiej podczerwieni
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
