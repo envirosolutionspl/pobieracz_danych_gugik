@@ -6,11 +6,13 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.0
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.4.0
+version=0.4.1
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
-about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie danych za pomocą wskazania punktu na mapie, poprzez warstwę poligonową, liniową lub punktową
+about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie danych
+  * za pomocą wskazania punktu na mapie
+  * poprzez warstwę poligonową, liniową lub punktową
   Możliwe jest pobieranie następujących danych:
   * LAS (LIDAR) - dane skaningu laserowego
   * ASCII GRID (NMT/NMPT) - Numeryczny Model Terenu i Numeryczny Model Pokrycia Terenu
@@ -25,6 +27,8 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.4.1
+  * poprawa błędu przy pobieraniu danych małym poligonem
   Wersja 0.4
   * dodanie możliwości pobierania plików LAS (LIDAR)
   Wersja 0.3.1
