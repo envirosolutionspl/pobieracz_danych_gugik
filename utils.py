@@ -35,7 +35,7 @@ def createPointsFromPolygon(layer, density=1000):
     for feat in layer.getFeatures():
         geom = feat.geometry()
         bbox = geom.boundingBox()
-        if bbox.area() < density ** 2:
+        if bbox.width() <= density or bbox.height() <= density:
             punktyList.append(bbox.center())
         else:
             params = {
