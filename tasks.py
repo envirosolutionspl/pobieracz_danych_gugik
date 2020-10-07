@@ -2,7 +2,10 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
     )
-from . import service_api
+try:
+    from . import service_api
+except ImportError:
+    import service_api
 
 class DownloadOrtofotoTask(QgsTask):
     """QgsTask pobierania ortofotomap"""
@@ -28,7 +31,9 @@ class DownloadOrtofotoTask(QgsTask):
 
         for orto in self.ortoList:
             QgsMessageLog.logMessage('start ' + orto.url)
+
             fileName = orto.url.split("/")[-1]
+            # QgsMessageLog.logMessage('1 ' + fileName + ' ' + orto.url + ' ' + self.folder)
             service_api.retreiveFile(url=orto.url, destFolder=self.folder)
             self.setProgress(self.progress() + 100 / total)
 
@@ -37,6 +42,7 @@ class DownloadOrtofotoTask(QgsTask):
 
         os.startfile(self.folder)
         if self.isCanceled():
+            QgsMessageLog.logMessage('isCanceled')
             return False
         return True
 
@@ -54,7 +60,7 @@ class DownloadOrtofotoTask(QgsTask):
             QgsMessageLog.logMessage('sukces')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('ggg')
+                QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
@@ -148,7 +154,7 @@ class DownloadNmtTask(QgsTask):
             QgsMessageLog.logMessage('sukces')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('ggg')
+                QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
@@ -246,7 +252,7 @@ class DownloadLasTask(QgsTask):
             QgsMessageLog.logMessage('sukces')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('ggg')
+                QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
@@ -348,3 +354,4 @@ class DownloadLasTask(QgsTask):
 #     def cancel(self):
 #         QgsMessageLog.logMessage('cancel')
 #         super().cancel()
+
