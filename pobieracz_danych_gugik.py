@@ -306,6 +306,7 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.nmt_mapLayerComboBox.currentLayer()
 
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=1500)
@@ -315,7 +316,7 @@ class PobieraczDanychGugik:
 
             nmtList = []
             for point in points:
-                subList = nmpt_api.getNmptListbyPoint1992(point=point) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point)
+                subList = nmpt_api.getNmptListbyPoint1992(point=point, isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point, isEvrf2007=isEvrf2007)
                 if subList:
                     nmtList.extend(subList)
                 else:
@@ -337,7 +338,8 @@ class PobieraczDanychGugik:
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point1992)
+        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
+        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992, isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point1992, isEvrf2007=isEvrf2007)
 
         self.filterNmtListAndRunTask(nmtList)
 
@@ -391,8 +393,6 @@ class PobieraczDanychGugik:
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if not (self.dockwidget.nmt_crs_cmbbx.currentText() == 'wszystkie'):
                 nmtList = [nmt for nmt in nmtList if nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
-            if not (self.dockwidget.nmt_h_cmbbx.currentText() == 'wszystkie'):
-                nmtList = [nmt for nmt in nmtList if nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_h_cmbbx.currentText()]
             if self.dockwidget.nmt_from_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_to_dateTimeEdit.date():

@@ -3,21 +3,29 @@ from . import service_api
 from .models import Nmt
 
 
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieKRON86?"
 c = re.compile("\{{1}.*\}{1}")
 
 
-def getNmtListbyPoint1992(point):
+def getNmtListbyPoint1992(point, isEvrf2007):
     x = point.x()
     y = point.y()
-
-    LAYERS = [
-        # 'Układ wysokościowy PL-KRON86-NH',
-        'KRON86_XYZ_GRID',
-        'KRON86_XYZ_GRID_Zasiegi',
-        'KRON86_ARC_INFO_GRID',
-        'KRON86_ARC_INFO_GRID_Zasiegi'
-    ]
+    if isEvrf2007:
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieEVRF2007?"
+        LAYERS = [
+            'EVRF2007_XYZ_GRID_Zasiegi',
+            'EVRF2007_XYZ_GRID',
+            'EVRF2007_ARC_INFO_GRID_ZASIEG',
+            'EVRF2007_ARC_INFO_GRID'
+        ]
+    else:
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieKRON86?"
+        LAYERS = [
+            # 'Układ wysokościowy PL-KRON86-NH',
+            'KRON86_XYZ_GRID',
+            'KRON86_XYZ_GRID_Zasiegi',
+            'KRON86_ARC_INFO_GRID',
+            'KRON86_ARC_INFO_GRID_Zasiegi'
+        ]
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
@@ -35,21 +43,27 @@ def getNmtListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+
     resp = service_api.getRequest(params=PARAMS, url=URL)
+
     if resp[0]:
-        nmtElements = c.findall(resp[1])
-        nmtList = []
-        for nmtElement in nmtElements:
-            element = nmtElement.strip("{").strip("}").split(',')
-            params = {}
-            for el in element:
-                item = el.strip().split(':')
-                val = item[1].strip('"')
-                if len(item) > 2:
-                    val = ":".join(item[1:]).strip('"')
-                params[item[0]] = val
-            nmt = Nmt(**params)
-            nmtList.append(nmt)
-        return nmtList
+        return createList(resp)
     else:
         return None
+
+
+def createList(resp):
+    nmtElements = c.findall(resp[1])
+    nmtList = []
+    for nmtElement in nmtElements:
+        element = nmtElement.strip("{").strip("}").split(',')
+        params = {}
+        for el in element:
+            item = el.strip().split(':')
+            val = item[1].strip('"')
+            if len(item) > 2:
+                val = ":".join(item[1:]).strip('"')
+            params[item[0]] = val
+        nmt = Nmt(**params)
+        nmtList.append(nmt)
+    return nmtList

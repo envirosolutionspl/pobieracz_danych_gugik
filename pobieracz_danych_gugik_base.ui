@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>422</width>
-         <height>780</height>
+         <width>405</width>
+         <height>829</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -390,7 +390,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Pobieranie NMT/NMPT</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -449,6 +449,32 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_35">
+             <property name="title">
+              <string>Układ współrzędnych wysokościowych</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_55">
+              <item>
+               <widget class="QRadioButton" name="kron86_rdbtn">
+                <property name="text">
+                 <string>PL-KRON86-NH</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="evrf2007_rdbtn">
+                <property name="text">
+                 <string>PL-EVRF2007-NH</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QgsCollapsibleGroupBox" name="nmt_filter_groupBox">
              <property name="title">
               <string>filtruj dane</string>
@@ -465,38 +491,27 @@ nieodpłatnie przez GUGiK.</string>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
                <layout class="QGridLayout" name="gridLayout_3">
-                <item row="7" column="1">
-                 <widget class="QgsFilterLineEdit" name="nmt_mhFrom_lineEdit">
+                <item row="5" column="1">
+                 <widget class="QgsFilterLineEdit" name="nmt_pixelTo_lineEdit">
                   <property name="text">
-                   <string>0.01</string>
+                   <string>5.00</string>
+                  </property>
+                  <property name="showSpinner">
+                   <bool>false</bool>
                   </property>
                   <property name="qgisRelation" stdset="0">
                    <string notr="true"/>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="QComboBox" name="nmt_h_cmbbx">
-                  <item>
-                   <property name="text">
-                    <string>wszystkie</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>PL-KRON86-NH</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_16">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_3">
                   <property name="text">
-                   <string>Układ współrzędnych wysokościowych:</string>
+                   <string>Układ współrzędnych płaskich:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="1">
+                <item row="7" column="1">
                  <widget class="QgsFilterLineEdit" name="nmt_mhTo_lineEdit">
                   <property name="text">
                    <string>5.00</string>
@@ -506,29 +521,32 @@ nieodpłatnie przez GUGiK.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="8" column="0">
+                <item row="7" column="0">
                  <widget class="QLabel" name="label_18">
                   <property name="text">
                    <string>Dokładność pionowa do (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="0">
-                 <widget class="QLabel" name="label_17">
-                  <property name="text">
-                   <string>Dokładność pionowa od (w metrach):</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
+                <item row="4" column="0">
                  <widget class="QLabel" name="label_13">
                   <property name="text">
                    <string>Dokładność pozioma od (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="1">
+                <item row="4" column="1">
                  <widget class="QgsFilterLineEdit" name="nmt_pixelFrom_lineEdit">
+                  <property name="text">
+                   <string>0.01</string>
+                  </property>
+                  <property name="qgisRelation" stdset="0">
+                   <string notr="true"/>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QgsFilterLineEdit" name="nmt_mhFrom_lineEdit">
                   <property name="text">
                    <string>0.01</string>
                   </property>
@@ -556,41 +574,35 @@ nieodpłatnie przez GUGiK.</string>
                   </item>
                  </widget>
                 </item>
-                <item row="6" column="1">
-                 <widget class="QgsFilterLineEdit" name="nmt_pixelTo_lineEdit">
+                <item row="6" column="0">
+                 <widget class="QLabel" name="label_17">
                   <property name="text">
-                   <string>5.00</string>
-                  </property>
-                  <property name="showSpinner">
-                   <bool>false</bool>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
+                   <string>Dokładność pionowa od (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="0">
+                <item row="5" column="0">
                  <widget class="QLabel" name="label_14">
                   <property name="text">
                    <string>Dokładność pozioma do (w metrach):</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="3" column="0">
                  <widget class="QLabel" name="label_12">
                   <property name="text">
                    <string>Cały arkusz wypełniony treścią:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Układ współrzędnych płaskich:</string>
+                <item row="2" column="1">
+                 <widget class="QgsDateTimeEdit" name="nmt_to_dateTimeEdit">
+                  <property name="displayFormat">
+                   <string>dd.MM.yyyy</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
+                <item row="1" column="1">
                  <widget class="QgsDateTimeEdit" name="nmt_from_dateTimeEdit">
                   <property name="date">
                    <date>
@@ -605,13 +617,6 @@ nieodpłatnie przez GUGiK.</string>
                  </widget>
                 </item>
                 <item row="3" column="1">
-                 <widget class="QgsDateTimeEdit" name="nmt_to_dateTimeEdit">
-                  <property name="displayFormat">
-                   <string>dd.MM.yyyy</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1">
                  <widget class="QComboBox" name="nmt_full_cmbbx">
                   <item>
                    <property name="text">
@@ -630,14 +635,14 @@ nieodpłatnie przez GUGiK.</string>
                   </item>
                  </widget>
                 </item>
-                <item row="2" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="label_9">
                   <property name="text">
                    <string>Data od:</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
+                <item row="2" column="0">
                  <widget class="QLabel" name="label_10">
                   <property name="text">
                    <string>Data do:</string>
