@@ -430,6 +430,7 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
         bledy = 0
         layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
+        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
@@ -439,7 +440,7 @@ class PobieraczDanychGugik:
 
             lasList = []
             for point in points:
-                subList = las_api.getLasListbyPoint1992(point=point)
+                subList = las_api.getLasListbyPoint1992(point=point, isEvrf2007=isEvrf2007)
                 if subList:
                     lasList.extend(subList)
                 else:
@@ -460,7 +461,8 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
-        lasList = las_api.getLasListbyPoint1992(point=point1992)
+        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
+        lasList = las_api.getLasListbyPoint1992(point=point1992, isEvrf2007=isEvrf2007)
 
         self.filterLasListAndRunTask(lasList)
 
@@ -508,8 +510,6 @@ class PobieraczDanychGugik:
         if self.dockwidget.las_filter_groupBox.isChecked():
             if not (self.dockwidget.las_crs_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
-            if not (self.dockwidget.las_h_cmbbx.currentText() == 'wszystkie'):
-                lasList = [las for las in lasList if las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_h_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
                 lasList = [las for las in lasList if las.aktualnosc >= self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.las_to_dateTimeEdit.date():

@@ -3,19 +3,28 @@ from . import service_api
 from .models import Las
 
 
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomNMT/WMS/SkorowidzeWUkladzieKRON86?"
+
 c = re.compile("\{{1}.*\}{1}")
 
 
-def getLasListbyPoint1992(point):
+def getLasListbyPoint1992(point, isEvrf2007):
     x = point.x()
     y = point.y()
+    if isEvrf2007:
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomNMT/WMS/SkorowidzeWUkladzieEVRF2007?"
+        LAYERS = [
+            # 'Układ wysokościowy PL-EVRF2007-NH',
+            'EVRF2007_LAS',
+            'EVRF2007_LAS_Zasiegi'
+        ]
+    else:
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomNMT/WMS/SkorowidzeWUkladzieKRON86?"
+        LAYERS = [
+            # 'Układ wysokościowy PL-KRON86-NH',
+            'KRON86_LAS',
+            'KRON86_LAS_Zasiegi'
+            ]
 
-    LAYERS = [
-        # 'Układ wysokościowy PL-KRON86-NH',
-        'KRON86_LAS',
-        'KRON86_LAS_Zasiegi'
-    ]
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
