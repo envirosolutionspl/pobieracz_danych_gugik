@@ -14,9 +14,8 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     if isEvrf2007:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeWUkladzieEVRF2007?"
         LAYERS = [
-            'EVRF2007_XYZ_GRID_Zasiegi',
-            'EVRF2007_XYZ_GRID',
-            'EVRF2007_ARC_INFO_GRID_ZASIEG',
+            'Układ wysokościowy PL-EVRF2007-NH',
+            'EVRF2007_ARC_INFO_GRID_Zasiegi',
             'EVRF2007_ARC_INFO_GRID'
         ]
     else:
