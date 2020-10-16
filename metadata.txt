@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.0
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.4.4
+version=0.5.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
