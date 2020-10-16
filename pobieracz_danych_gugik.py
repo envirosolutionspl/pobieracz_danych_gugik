@@ -5,7 +5,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask
+from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -15,11 +15,12 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 
-from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api
+from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api
 
 """Wersja wtyczki"""
-plugin_version = '0.4.4'
+plugin_version = '0.5.0'
 plugin_name = 'Pobieracz Danych GUGiK'
+
 
 class PobieraczDanychGugik:
     """QGIS Plugin Implementation."""
@@ -58,21 +59,21 @@ class PobieraczDanychGugik:
         self.nmtClickTool.canvasClicked.connect(self.canvasNmt_clicked)
         self.lasClickTool = QgsMapToolEmitPoint(self.canvas)
         self.lasClickTool.canvasClicked.connect(self.canvasLas_clicked)
+        self.reflectanceClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.reflectanceClickTool.canvasClicked.connect(self.canvasReflectance_clicked)
         # --------------------------------------------------------------------------
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
-
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
 
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
@@ -97,7 +98,6 @@ class PobieraczDanychGugik:
 
         return action
 
-
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
@@ -108,11 +108,8 @@ class PobieraczDanychGugik:
             callback=self.run,
             parent=self.iface.mainWindow())
 
-
-
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
-
 
         # disconnects
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
@@ -125,7 +122,6 @@ class PobieraczDanychGugik:
 
         self.pluginIsActive = False
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
@@ -133,12 +129,12 @@ class PobieraczDanychGugik:
             self.iface.removePluginMenu(
                 u'&EnviroSolutions',
                 action)
-            #self.iface.removeToolBarIcon(action)
+            # self.iface.removeToolBarIcon(action)
             self.toolbar.removeAction(action)
         # remove the toolbar
         del self.toolbar
 
-    #--------------------------------------------------------------------------
+    # --------------------------------------------------------------------------
 
     def run(self):
         """Run method that loads and starts the plugin"""
@@ -158,6 +154,9 @@ class PobieraczDanychGugik:
 
             self.dockwidget.las_capture_btn.clicked.connect(self.las_capture_btn_clicked)
             self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
+
+            self.dockwidget.reflectance_capture_btn.clicked.connect(self.reflectance_capture_btn_clicked)
+            self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -179,7 +178,7 @@ class PobieraczDanychGugik:
     def orto_capture_btn_clicked(self):
         """Kliknięcie plawisza pobierania ortofotomapy przez wybór z mapy"""
         path = self.dockwidget.folder_fileWidget.filePath()
-        if path:    # pobrano ściezkę
+        if path:  # pobrano ściezkę
             self.canvas.setMapTool(self.ortoClickTool)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -193,7 +192,7 @@ class PobieraczDanychGugik:
         if layer:
             points = self.pointsFromVectorLayer(layer)
 
-            #zablokowanie klawisza pobierania
+            # zablokowanie klawisza pobierania
             self.dockwidget.orto_fromLayer_btn.setEnabled(False)
 
             ortoList = []
@@ -235,13 +234,14 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if len(ortoList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(ortoList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     ortoList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
@@ -267,19 +267,26 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if
+                            orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
-                ortoList = [orto for orto in ortoList if orto.aktualnosc >= self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                ortoList = [orto for orto in ortoList if
+                            orto.aktualnosc >= self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.orto_to_dateTimeEdit.date():
-                ortoList = [orto for orto in ortoList if orto.aktualnosc <= self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                ortoList = [orto for orto in ortoList if
+                            orto.aktualnosc <= self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if not (self.dockwidget.orto_source_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.zrodloDanych == self.dockwidget.orto_source_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if
+                            orto.zrodloDanych == self.dockwidget.orto_source_cmbbx.currentText()]
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.calyArkuszWyeplnionyTrescia == self.dockwidget.orto_full_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if
+                            orto.calyArkuszWyeplnionyTrescia == self.dockwidget.orto_full_cmbbx.currentText()]
             if self.dockwidget.orto_pixelFrom_lineEdit.text():
-                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela >= float(self.dockwidget.orto_pixelFrom_lineEdit.text())]
+                ortoList = [orto for orto in ortoList if
+                            orto.wielkoscPiksela >= float(self.dockwidget.orto_pixelFrom_lineEdit.text())]
             if self.dockwidget.orto_pixelTo_lineEdit.text():
-                ortoList = [orto for orto in ortoList if orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                ortoList = [orto for orto in ortoList if
+                            orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
         return ortoList
 
     def downloadOrtoFile(self, orto, folder):
@@ -287,14 +294,13 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('start ' + orto.url)
         service_api.retreiveFile(url=orto.url, destFolder=folder)
 
-
     # endregion
 
     # region NMT/NMPT
     def nmt_capture_btn_clicked(self):
         """Kliknięcie plawisza pobierania NMT/NMPT przez wybór z mapy"""
         path = self.dockwidget.folder_fileWidget.filePath()
-        if path:    # pobrano ściezkę
+        if path:  # pobrano ściezkę
             self.canvas.setMapTool(self.nmtClickTool)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -311,12 +317,14 @@ class PobieraczDanychGugik:
         if layer:
             points = self.pointsFromVectorLayer(layer, density=1500)
 
-            #zablokowanie klawisza pobierania
+            # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
 
             nmtList = []
             for point in points:
-                subList = nmpt_api.getNmptListbyPoint1992(point=point, isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point, isEvrf2007=isEvrf2007)
+                subList = nmpt_api.getNmptListbyPoint1992(point=point,
+                                                          isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                    point=point, isEvrf2007=isEvrf2007)
                 if subList:
                     nmtList.extend(subList)
                 else:
@@ -339,7 +347,9 @@ class PobieraczDanychGugik:
                                       project=QgsProject.instance())
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
-        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992, isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(point=point1992, isEvrf2007=isEvrf2007)
+        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992,
+                                                  isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
+            point=point1992, isEvrf2007=isEvrf2007)
 
         self.filterNmtListAndRunTask(nmtList)
 
@@ -356,13 +366,14 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if len(nmtList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(nmtList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     nmtList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
@@ -392,21 +403,29 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if not (self.dockwidget.nmt_crs_cmbbx.currentText() == 'wszystkie'):
-                nmtList = [nmt for nmt in nmtList if nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
             if self.dockwidget.nmt_from_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_to_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if nmt.aktualnosc <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.aktualnosc <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if not (self.dockwidget.nmt_full_cmbbx.currentText() == 'wszystkie'):
-                nmtList = [nmt for nmt in nmtList if nmt.calyArkuszWyeplnionyTrescia == self.dockwidget.nmt_full_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.calyArkuszWyeplnionyTrescia == self.dockwidget.nmt_full_cmbbx.currentText()]
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if nmt.charakterystykaPrzestrzenna >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.charakterystykaPrzestrzenna >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
             if self.dockwidget.nmt_mhTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
         return nmtList
 
     def downloadNmtFile(self, nmt, folder):
@@ -420,7 +439,7 @@ class PobieraczDanychGugik:
     def las_capture_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór z mapy"""
         path = self.dockwidget.folder_fileWidget.filePath()
-        if path:    # pobrano ściezkę
+        if path:  # pobrano ściezkę
             self.canvas.setMapTool(self.lasClickTool)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -435,7 +454,7 @@ class PobieraczDanychGugik:
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
 
-            #zablokowanie klawisza pobierania
+            # zablokowanie klawisza pobierania
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
 
             lasList = []
@@ -479,13 +498,14 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if len(lasList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information,"Komunikat", "Nie znaleniono danych spełniających kryteria" )
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(lasList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     lasList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
@@ -509,27 +529,153 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.las_filter_groupBox.isChecked():
             if not (self.dockwidget.las_crs_cmbbx.currentText() == 'wszystkie'):
-                lasList = [las for las in lasList if las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
+                lasList = [las for las in lasList if
+                           las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
-                lasList = [las for las in lasList if las.aktualnosc >= self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                lasList = [las for las in lasList if
+                           las.aktualnosc >= self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.las_to_dateTimeEdit.date():
-                lasList = [las for las in lasList if las.aktualnosc <= self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                lasList = [las for las in lasList if
+                           las.aktualnosc <= self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if not (self.dockwidget.las_full_cmbbx.currentText() == 'wszystkie'):
-                lasList = [las for las in lasList if las.calyArkuszWyeplnionyTrescia == self.dockwidget.las_full_cmbbx.currentText()]
+                lasList = [las for las in lasList if
+                           las.calyArkuszWyeplnionyTrescia == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
-                lasList = [las for las in lasList if las.charakterystykaPrzestrzenna >= float(self.dockwidget.las_pixelFrom_lineEdit.text())]
+                lasList = [las for las in lasList if
+                           las.charakterystykaPrzestrzenna >= float(self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
-                lasList = [las for las in lasList if las.charakterystykaPrzestrzenna <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
+                lasList = [las for las in lasList if
+                           las.charakterystykaPrzestrzenna <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
-                lasList = [las for las in lasList if las.bladSredniWysokosci >= float(self.dockwidget.las_mhFrom_lineEdit.text())]
+                lasList = [las for las in lasList if
+                           las.bladSredniWysokosci >= float(self.dockwidget.las_mhFrom_lineEdit.text())]
             if self.dockwidget.las_mhTo_lineEdit.text():
-                lasList = [las for las in lasList if las.bladSredniWysokosci <= float(self.dockwidget.las_mhTo_lineEdit.text())]
+                lasList = [las for las in lasList if
+                           las.bladSredniWysokosci <= float(self.dockwidget.las_mhTo_lineEdit.text())]
         return lasList
 
     def downloadLaFile(self, las, folder):
         """Pobiera plik LAS"""
         QgsMessageLog.logMessage('start ' + las.url)
         service_api.retreiveFile(url=las.url, destFolder=folder)
+
+    # endregion
+
+    # region Reflectance
+    def reflectance_capture_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Intensywności przez wybór z mapy"""
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if path:  # pobrano ściezkę
+            self.canvas.setMapTool(self.reflectanceClickTool)
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano wskazano miejsca zapisu plików')
+
+    def reflectance_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Intensywności przez wybór warstwą wektorową"""
+        bledy = 0
+        layer = self.dockwidget.reflectance_mapLayerComboBox.currentLayer()
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.reflectance_fromLayer_btn.setEnabled(False)
+
+            reflectanceList = []
+            for point in points:
+                subList = reflectance_api.getReflectanceListbyPoint1992(point=point)
+                if subList:
+                    reflectanceList.extend(subList)
+                else:
+                    bledy += 1
+
+            self.filterReflectanceListAndRunTask(reflectanceList)
+            print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadReflectanceForSinglePoint(self, point):
+        """Pobiera Intensywność dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        reflectanceList = reflectance_api.getReflectanceListbyPoint1992(point=point1992)
+
+        self.filterReflectanceListAndRunTask(reflectanceList)
+
+    def filterReflectanceListAndRunTask(self, reflectanceList):
+        """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
+        print("przed 'set'", len(reflectanceList))
+
+        # usuwanie duplikatów
+        reflectanceList = list(set(reflectanceList))
+        print("po 'set'", len(reflectanceList))
+        # filtrowanie
+        reflectanceList = self.filterReflectanceList(reflectanceList)
+        print("po 'filtrowaniu'", len(reflectanceList))
+
+        # wyswietl komunikat pytanie
+        if len(reflectanceList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     reflectanceList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie reflectance
+                task = DownloadReflectanceTask(description='Pobieranie plików Obrazów Intensywności',
+                                               reflectanceList=reflectanceList,
+                                               folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasReflectance_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Intensywności z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.reflectanceClickTool)
+        self.downloadReflectanceForSinglePoint(point)
+
+    def filterReflectanceList(self, reflectanceList):
+        """Filtruje listę Intensywności"""
+
+        if self.dockwidget.reflectance_filter_groupBox.isChecked():
+            if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                                   reflectance.ukladWspolrzednych.split(":")[0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
+            if self.dockwidget.reflectance_from_dateTimeEdit.date():
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                                   reflectance.aktualnosc >= self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.reflectance_to_dateTimeEdit.date():
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                                   reflectance.aktualnosc <= self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                                   reflectance.wielkoscPiksela >= float(self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
+            if self.dockwidget.reflectance_pixelTo_lineEdit.text():
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                                   reflectance.wielkoscPiksela <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
+            if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
+                reflectanceList = [reflectance for reflectance in reflectanceList if
+                            reflectance.zrodloDanych == self.dockwidget.reflectance_source_cmbbx.currentText()]
+        return reflectanceList
+
+    def downloadReflectanceFile(self, reflectance, folder):
+        """Pobiera plik LAS"""
+        QgsMessageLog.logMessage('start ' + reflectance.url)
+        service_api.retreiveFile(url=reflectance.url, destFolder=folder)
 
     # endregion
 

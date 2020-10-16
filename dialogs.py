@@ -37,14 +37,19 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.nmt_from_dateTimeEdit.setAllowNull(False)
         self.nmt_to_dateTimeEdit.setAllowNull(False)
         # las
-        self.las_mapLayerComboBox.setFilters(
-            QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.las_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
         self.las_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_mhTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_from_dateTimeEdit.setAllowNull(False)
         self.las_to_dateTimeEdit.setAllowNull(False)
+        # intensywnosc
+        self.reflectance_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.reflectance_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.reflectance_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
+        self.reflectance_from_dateTimeEdit.setAllowNull(False)
+        self.reflectance_to_dateTimeEdit.setAllowNull(False)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

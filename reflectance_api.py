@@ -1,31 +1,21 @@
 import re
 from . import service_api
-from .models import Nmt
+from .models import Reflectance
 
 
 c = re.compile("\{{1}.*\}{1}")
 
 
-def getNmtListbyPoint1992(point, isEvrf2007):
+def getReflectanceListbyPoint1992(point):
     x = point.x()
     y = point.y()
-    if isEvrf2007:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieEVRF2007?"
-        LAYERS = [
-            'EVRF2007_XYZ_GRID_Zasiegi',
-            'EVRF2007_XYZ_GRID',
-            'EVRF2007_ARC_INFO_GRID_ZASIEG',
-            'EVRF2007_ARC_INFO_GRID'
+
+    URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/OI/WMS/SkorowidzeObrazowIntensywnosci?"
+    LAYERS = [
+            'SkorowidzeOI',
+            'SkorowidzeOIZasieg'
         ]
-    else:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeWUkladzieKRON86?"
-        LAYERS = [
-            # 'Układ wysokościowy PL-KRON86-NH',
-            'KRON86_XYZ_GRID',
-            'KRON86_XYZ_GRID_Zasiegi',
-            'KRON86_ARC_INFO_GRID',
-            'KRON86_ARC_INFO_GRID_Zasiegi'
-        ]
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
@@ -53,10 +43,10 @@ def getNmtListbyPoint1992(point, isEvrf2007):
 
 
 def createList(resp):
-    nmtElements = c.findall(resp[1])
-    nmtList = []
-    for nmtElement in nmtElements:
-        element = nmtElement.strip("{").strip("}").split(',')
+    reflectanceElements = c.findall(resp[1])
+    reflectanceList = []
+    for reflectanceElement in reflectanceElements:
+        element = reflectanceElement.strip("{").strip("}").split(',')
         # print(element)
         params = {}
         for el in element:
@@ -65,6 +55,6 @@ def createList(resp):
             if len(item) > 2:
                 val = ":".join(item[1:]).strip('"')
             params[item[0]] = val
-        nmt = Nmt(**params)
-        nmtList.append(nmt)
-    return nmtList
+        reflectance = Reflectance(**params)
+        reflectanceList.append(reflectance)
+    return reflectanceList

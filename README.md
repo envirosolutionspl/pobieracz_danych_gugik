@@ -13,6 +13,7 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 - Ortofotomapy RGB/CIR
 - NMT/NMPT (od wersji 0.3)
 - LAS LIDAR (od wersji 0.4)
+- Obrazy intensywności (od wersji 0.5)
 
 #### Pobieranie na podstawie warstwy poligonowej
 1. Wtyczka generuje siatkę punktów wewnątrz zadanej warstwy poligonowej oraz na podstawie werteksów

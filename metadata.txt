@@ -17,6 +17,7 @@ about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez 
   * LAS (LIDAR) - dane skaningu laserowego
   * ASCII GRID (NMT/NMPT) - Numeryczny Model Terenu i Numeryczny Model Pokrycia Terenu
   * GeoTiff (ortofotomapa/CIR) - Ortofotomapa cyfrowa i Zobrazowanie w bliskiej podczerwieni
+  * GeoTiff (obrazy intensywności) - Produkt powstały ze skaningu laserowego w formie rastrowej
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
@@ -27,6 +28,8 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.5.0
+  * dodanie możliwości pobierania Obrazów Intensywności
   Wersja 0.4.4
   * poprawa błędów
   Wersja 0.4.3
@@ -59,7 +62,7 @@ changelog=
   * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, geoportal, point cloud, chmura punktów
+tags=python, , obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, geoportal, point cloud, chmura punktów
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
