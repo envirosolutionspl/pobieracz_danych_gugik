@@ -101,6 +101,13 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
+        from .qgis_feed import QgisFeed
+        if Qgis.QGIS_VERSION_INT >= 31000:
+            print('rrr')
+            self.feed = QgisFeed()
+            self.feed.initFeed()
+
+
         icon_path = ':/plugins/pobieracz_danych_gugik/img/icon_pw2.png'
         self.add_action(
             icon_path,
