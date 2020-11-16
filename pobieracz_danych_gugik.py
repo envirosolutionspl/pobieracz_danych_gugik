@@ -33,6 +33,11 @@ class PobieraczDanychGugik:
             application at run time.
         :type iface: QgsInterface
         """
+        from .qgis_feed import QgisFeed
+        if Qgis.QGIS_VERSION_INT >= 31000:
+            self.feed = QgisFeed()
+            self.feed.initFeed()
+
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -101,11 +106,7 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        from .qgis_feed import QgisFeed
-        if Qgis.QGIS_VERSION_INT >= 31000:
-            print('rrr')
-            self.feed = QgisFeed()
-            self.feed.initFeed()
+
 
 
         icon_path = ':/plugins/pobieracz_danych_gugik/img/icon_pw2.png'
