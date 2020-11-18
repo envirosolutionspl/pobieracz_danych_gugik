@@ -18,7 +18,8 @@ class Las:
             kolor,
             numerZgloszeniaPracy,
             aktualnoscRok,
-            nazwaPliku
+            nazwaPliku,
+            idSerie
     ):
         self.url = url
         self.godlo = godlo
@@ -35,6 +36,7 @@ class Las:
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
         self.nazwaPliku = nazwaPliku
+        self.idSerie = idSerie
 
     def __eq__(self, other):
         return self.url == other.url

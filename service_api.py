@@ -6,19 +6,19 @@ def getRequest(params, url):
     try:
         r = requests.get(url=url, params=params)
     except requests.exceptions.ConnectionError:
-        print('sleep')
+        # print('sleep')
         time.sleep(0.4)
         try:
             r = requests.get(url=url, params=params)
         except requests.exceptions.ConnectionError:
-            print('blad polaczenia')
+            # print('blad polaczenia')
             return False, "Błąd połączenia"
     r_txt = r.text
     if r.status_code == 200:
-        print('ok')
+        # print('ok')
         return True, r_txt
     else:
-        print("Błąd %d" % r.status_code)
+        # print("Błąd %d" % r.status_code)
         return False, "Błąd %d" % r.status_code
 
 
