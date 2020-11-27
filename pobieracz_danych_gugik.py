@@ -5,7 +5,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask
+from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask, DownloadBdotTask
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -165,6 +165,10 @@ class PobieraczDanychGugik:
 
             self.dockwidget.reflectance_capture_btn.clicked.connect(self.reflectance_capture_btn_clicked)
             self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
+
+            self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
+            self.dockwidget.bdot_selected_woj_btn.clicked.connect(self.bdot_selected_woj_btn_clicked)
+            self.dockwidget.bdot_polska_btn.clicked.connect(self.bdot_polska_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -684,6 +688,43 @@ class PobieraczDanychGugik:
         """Pobiera plik LAS"""
         QgsMessageLog.logMessage('start ' + reflectance.url)
         service_api.retreiveFile(url=reflectance.url, destFolder=folder)
+
+    # endregion
+
+    # region BDOT10k
+    def bdot_selected_powiat_btn_clicked(self):
+        powiatName = self.dockwidget.powiat_cmbbx.currentText()
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        task = DownloadBdotTask(
+            description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            level=2,
+            teryt=teryt
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    def bdot_selected_woj_btn_clicked(self):
+        wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
+        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        task = DownloadBdotTask(
+            description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            level=1,
+            teryt=teryt
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    def bdot_polska_btn_clicked(self):
+        task = DownloadBdotTask(
+            description='Pobieranie paczki BDOT10k dla całego kraju',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            level=0,
+            teryt=None
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
 
     # endregion
 

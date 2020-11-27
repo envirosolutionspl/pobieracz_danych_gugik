@@ -26,7 +26,7 @@
          <x>0</x>
          <y>0</y>
          <width>405</width>
-         <height>838</height>
+         <height>832</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -1181,9 +1181,6 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QFormLayout" name="formLayout">
-              <item row="1" column="1">
-               <widget class="QComboBox" name="powiat_cmbbx"/>
-              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_16">
                 <property name="text">
@@ -1201,6 +1198,9 @@ nieodpłatnie przez GUGiK.</string>
                 </property>
                </widget>
               </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="powiat_cmbbx"/>
+              </item>
              </layout>
             </widget>
            </item>
@@ -1212,9 +1212,9 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="bdot_polska_btn">
+            <widget class="QPushButton" name="bdot_selected_powiat_btn">
              <property name="text">
-              <string>Pobierz dla całej Polski (ok. 9 GB)</string>
+              <string>  Pobierz dla wybranego powiatu</string>
              </property>
             </widget>
            </item>
@@ -1226,9 +1226,9 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="bdot_selected_powiat_btn">
+            <widget class="QPushButton" name="bdot_polska_btn">
              <property name="text">
-              <string>  Pobierz dla wybranego powiatu</string>
+              <string>Pobierz dla całej Polski (ok. 9 GB)</string>
              </property>
             </widget>
            </item>

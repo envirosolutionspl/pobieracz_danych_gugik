@@ -52,9 +52,11 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.reflectance_from_dateTimeEdit.setAllowNull(False)
         self.reflectance_to_dateTimeEdit.setAllowNull(False)
         # bdot10k
+        self.powiatDict = {}
         self.regionFetch = RegionFetch()
+
         self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
-        self.wojewodztwo_cmbbx.addItems(list(self.regionFetch.wojewodztwoDict.values()))
+        self.wojewodztwo_cmbbx.addItems(list(self.regionFetch.wojewodztwoDict.keys()))
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -62,5 +64,6 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def wojewodztwo_cmbbx_currentTextChanged(self, text):
         self.powiat_cmbbx.clear()
-        self.powiat_cmbbx.addItems(list(self.regionFetch.getPowiatDictByWojewodztwoName(text).values()))
+        self.powiatDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.powiat_cmbbx.addItems(list(self.powiatDict.keys()))
 

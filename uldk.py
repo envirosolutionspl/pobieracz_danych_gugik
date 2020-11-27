@@ -3,6 +3,7 @@ class RegionFetch:
     def __init__(self):
         self.wojewodztwoDict = self.__fetchWojewodztwoDict()
         self.powiatDict = self.__fetchPowiatDict()
+        self.filteredPowiatDict = {}
 
     def __fetchPowiatDict(self):
         resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt,wojewodztwo')
@@ -25,13 +26,20 @@ class RegionFetch:
             wojList = wojList[1:]
             for el in wojList:
                 split = el.split('|')
-                wojDict[split[1]] = split[0]
+                wojDict[split[0]] = split[1]
             return wojDict
         else:
             return {}
 
     def getPowiatDictByWojewodztwoName(self, name):
-        return {k: v[0] for k, v in self.powiatDict.items() if v[1] == name}
+        self.filteredPowiatDict = {v[0]: k for k, v in self.powiatDict.items() if v[1] == name}
+        return self.filteredPowiatDict
+
+    def getTerytByWojewodztwoName(self,name):
+        return self.wojewodztwoDict[name]
+
+    def getTerytByPowiatName(self,name):
+        return self.filteredPowiatDict[name]
 
 if __name__ == '__main__':
     regionFetch = RegionFetch()
