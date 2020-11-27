@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>422</width>
-         <height>780</height>
+         <width>405</width>
+         <height>838</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -977,7 +977,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Obrazy intensywności</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1163,6 +1163,72 @@ nieodpłatnie przez GUGiK.</string>
             <widget class="QPushButton" name="reflectance_fromLayer_btn">
              <property name="text">
               <string>  Pobierz warstwą wektorową</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="bdot_groupBox">
+          <property name="title">
+           <string>BDOT10k</string>
+          </property>
+          <property name="collapsed">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QFormLayout" name="formLayout">
+              <item row="1" column="1">
+               <widget class="QComboBox" name="powiat_cmbbx"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Województwo: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="wojewodztwo_cmbbx"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Powiat: </string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bdot_polska_btn">
+             <property name="text">
+              <string>Pobierz dla całej Polski (ok. 9 GB)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bdot_selected_woj_btn">
+             <property name="text">
+              <string>Pobierz dla wybranego województwa (ok. 1 GB)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bdot_selected_powiat_btn">
+             <property name="text">
+              <string>  Pobierz dla wybranego powiatu</string>
              </property>
             </widget>
            </item>
