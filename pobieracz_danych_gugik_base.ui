@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>405</width>
-         <height>832</height>
+         <width>422</width>
+         <height>780</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -977,7 +977,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Obrazy intensywności</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1175,7 +1175,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>BDOT10k</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
