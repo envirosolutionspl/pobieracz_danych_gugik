@@ -18,7 +18,7 @@ import os.path
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api
 
 """Wersja wtyczki"""
-plugin_version = '0.6.0'
+plugin_version = '0.6.1'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -33,8 +33,9 @@ class PobieraczDanychGugik:
             application at run time.
         :type iface: QgsInterface
         """
-        from .qgis_feed import QgisFeed
+
         if Qgis.QGIS_VERSION_INT >= 31000:
+            from .qgis_feed import QgisFeed
             self.feed = QgisFeed()
             self.feed.initFeed()
 
