@@ -217,7 +217,7 @@ class PobieraczDanychGugik:
                     bledy += 1
 
             self.filterOrtoListAndRunTask(ortoList)
-            print("%d zapytań się nie powiodło" % bledy)
+            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.orto_fromLayer_btn.setEnabled(True)
@@ -236,14 +236,14 @@ class PobieraczDanychGugik:
 
     def filterOrtoListAndRunTask(self, ortoList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
-        print("przed 'set'", len(ortoList))
+        # print("przed 'set'", len(ortoList))
 
         # usuwanie duplikatów
         ortoList = list(set(ortoList))
-        print("po 'set'", len(ortoList))
+        # print("po 'set'", len(ortoList))
         # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
-        print("po 'filtrowaniu'", len(ortoList))
+        # print("po 'filtrowaniu'", len(ortoList))
 
         # wyswietl komunikat pytanie
         if len(ortoList) == 0:
@@ -259,7 +259,7 @@ class PobieraczDanychGugik:
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
-            print(reply)
+
             if reply == QMessageBox.Yes:
                 # pobieranie
                 task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
@@ -344,7 +344,7 @@ class PobieraczDanychGugik:
                     bledy += 1
 
             self.filterNmtListAndRunTask(nmtList)
-            print("%d zapytań się nie powiodło" % bledy)
+            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
@@ -368,14 +368,14 @@ class PobieraczDanychGugik:
 
     def filterNmtListAndRunTask(self, nmtList):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-        print("przed 'set'", len(nmtList))
+        # print("przed 'set'", len(nmtList))
 
         # usuwanie duplikatów
         nmtList = list(set(nmtList))
-        print("po 'set'", len(nmtList))
+        # print("po 'set'", len(nmtList))
         # filtrowanie
         nmtList = self.filterNmtList(nmtList)
-        print("po 'filtrowaniu'", len(nmtList))
+        # print("po 'filtrowaniu'", len(nmtList))
 
         # wyswietl komunikat pytanie
         if len(nmtList) == 0:
@@ -479,7 +479,7 @@ class PobieraczDanychGugik:
                     bledy += 1
 
             self.filterLasListAndRunTask(lasList)
-            print("%d zapytań się nie powiodło" % bledy)
+            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.las_fromLayer_btn.setEnabled(True)
@@ -500,14 +500,14 @@ class PobieraczDanychGugik:
 
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
-        print("przed 'set'", len(lasList))
+        # print("przed 'set'", len(lasList))
 
         # usuwanie duplikatów
         lasList = list(set(lasList))
-        print("po 'set'", len(lasList))
+        # print("po 'set'", len(lasList))
         # filtrowanie
         lasList = self.filterLasList(lasList)
-        print("po 'filtrowaniu'", len(lasList))
+        # print("po 'filtrowaniu'", len(lasList))
 
         # wyswietl komunikat pytanie
         if len(lasList) == 0:
@@ -624,14 +624,14 @@ class PobieraczDanychGugik:
 
     def filterReflectanceListAndRunTask(self, reflectanceList):
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
-        print("przed 'set'", len(reflectanceList))
+        # print("przed 'set'", len(reflectanceList))
 
         # usuwanie duplikatów
         reflectanceList = list(set(reflectanceList))
-        print("po 'set'", len(reflectanceList))
+        # print("po 'set'", len(reflectanceList))
         # filtrowanie
         reflectanceList = self.filterReflectanceList(reflectanceList)
-        print("po 'filtrowaniu'", len(reflectanceList))
+        # print("po 'filtrowaniu'", len(reflectanceList))
 
         # wyswietl komunikat pytanie
         if len(reflectanceList) == 0:
