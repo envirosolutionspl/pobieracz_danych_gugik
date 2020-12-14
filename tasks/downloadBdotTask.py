@@ -2,7 +2,7 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
     )
-from .. import service_api
+from .. import service_api, utils
 
 
 class DownloadBdotTask(QgsTask):
@@ -38,7 +38,7 @@ class DownloadBdotTask(QgsTask):
         service_api.retreiveFile(url=self.url, destFolder=self.folder)
         # self.setProgress(self.progress() + 100 / total)
 
-        os.startfile(self.folder)
+        utils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True

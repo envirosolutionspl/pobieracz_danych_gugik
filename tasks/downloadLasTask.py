@@ -2,7 +2,7 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
     )
-from .. import service_api
+from .. import service_api, utils
 
 
 
@@ -37,7 +37,8 @@ class DownloadLasTask(QgsTask):
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
 
-        os.startfile(self.folder)
+        utils.openFile(self.folder)
+
         if self.isCanceled():
             return False
         return True

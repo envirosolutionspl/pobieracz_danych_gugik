@@ -1,6 +1,15 @@
 from qgis.core import QgsCoordinateReferenceSystem
-import processing
+import processing, sys, os
 from qgis.core import *
+
+def openFile(filename):
+    """otwiera folder/plik niezależnie od systemu operacyjnego"""
+    if sys.platform == "win32":
+        os.startfile(filename)
+    else:
+        import subprocess
+        opener = "open" if sys.platform == "darwin" else "xdg-open"
+        subprocess.call([opener, filename])
 
 def pointTo2180(point, sourceCrs, project):
     """zamiana układu na 1992"""
