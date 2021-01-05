@@ -19,7 +19,8 @@ class Las:
             numerZgloszeniaPracy,
             aktualnoscRok,
             nazwaPliku,
-            idSerie
+            idSerie,
+            isLaz=False
     ):
         self.url = url
         self.godlo = godlo
@@ -38,7 +39,9 @@ class Las:
         self.nazwaPliku = nazwaPliku
         self.idSerie = idSerie
         self.urlLaz = "https://opendata.geoportal.gov.pl/NumDaneWys/DanePomiaroweLAZ/" + idSerie + "/" + nazwaPliku + ".laz"
-        print(self.urlLaz)
+        if isLaz:
+            self.url = self.urlLaz
+        # print(self.urlLaz)
 
     def __eq__(self, other):
         return self.url == other.url

@@ -708,12 +708,38 @@ nieodpłatnie przez GUGiK.</string>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="las_groupBox">
           <property name="title">
-           <string>LAS (LIDAR)</string>
+           <string>LAS/LAZ (LIDAR)</string>
           </property>
           <property name="collapsed">
            <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
+		   <item>
+            <widget class="QGroupBox" name="groupBox_367">
+             <property name="title">
+              <string>Format plików</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_567">
+              <item>
+               <widget class="QRadioButton" name="las_laz_rdbtn">
+                <property name="text">
+                 <string>LAZ (kompresja)</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="las_las_rdbtn">
+                <property name="text">
+                 <string>LAS</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QGroupBox" name="groupBox_36">
              <property name="title">
