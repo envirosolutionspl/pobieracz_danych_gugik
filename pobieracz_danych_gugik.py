@@ -756,3 +756,58 @@ class PobieraczDanychGugik:
             points = utils.createPointsFromPointLayer(layer)
 
         return points
+
+    def filterDataListAndRunTask(self, dataList, dataType):
+        """Filtruje listę dostępnych plików
+
+        dataType = 'LAS' - dane LAS/LAZ
+        dataType = 'ORTOFOTO' - dane OROTOFOTO/CIR
+        dataType = 'NMT' - dane NMT/NMPT
+        dataType = 'REFLECTANCE' - dane REFLECTANCE
+
+        i uruchamia wątek QgsTask"""
+
+        if dataType == 'LAS':
+            filterFunction = self.filterLasList
+            downloadTask = DownloadLasTask
+            isNmpt = None
+        if dataType == 'ORTOFOTO':
+            filterFunction = self.filterOrtoList
+            downloadTask = DownloadOrtofotoTask
+            isNmpt = None
+        if dataType == 'NMT':
+            filterFunction = self.filterNmtList
+            downloadTask = DownloadNmtTask
+            isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+        if dataType == 'REFLECTANCE':
+            pass
+
+
+        # usuwanie duplikatów
+        dataList = list(set(dataList))
+
+        # filtrowanie
+        dataList = filterFunction(dataList)
+
+
+        # wyswietl komunikat pytanie
+        if len(dataList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     dataList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie plików
+                task = downloadTask(f'Pobieranie plików {dataType}',
+                                    dataList,
+                                    self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
