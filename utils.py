@@ -2,6 +2,21 @@ from qgis.core import QgsCoordinateReferenceSystem
 import processing, sys, os
 from qgis.core import *
 
+
+def onlyNewest(dataFilelist):
+    """filtruje listę tylko do najnowszych plików według arkuszy"""
+    aktualneDict = {}
+    for dataFile in dataFilelist:
+        godlo = dataFile.godlo
+        if godlo in aktualneDict:
+            old = aktualneDict[godlo]
+            if dataFile.aktualnosc > old.aktualnosc:
+                aktualneDict[godlo] = dataFile
+        else:
+            aktualneDict[godlo] = dataFile
+    return list(aktualneDict.values())
+
+
 def openFile(filename):
     """otwiera folder/plik niezależnie od systemu operacyjnego"""
     if sys.platform == "win32":

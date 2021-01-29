@@ -145,7 +145,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -334,6 +334,19 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="orto_newest_chkbx">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gdy zostanie znalezione więcej niż 1 zobrazowanie dla danego arkusza mapy spełniające kryteria, zostanie pobrane tylko jedno - najnowsze.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>Pobierz tylko aktualne dane</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="orto_capture_btn">
              <property name="text">
               <string>Pobierz przez wskazanie punktu na mapie</string>
@@ -486,7 +499,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -781,7 +794,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -1021,7 +1034,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>

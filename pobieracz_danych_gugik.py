@@ -190,7 +190,7 @@ class PobieraczDanychGugik:
     # region ORTOFOTOMAPA
 
     def orto_fromLayer_btn_clicked(self):
-        """Kliknięcie plawisza pobierania ortofotomapy przez wybórwarstwą wektorową"""
+        """Kliknięcie plawisza pobierania ortofotomapy przez wybór warstwą wektorową"""
 
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -274,6 +274,7 @@ class PobieraczDanychGugik:
 
     def filterOrtoList(self, ortoList):
         """Filtruje listę ortofotomap"""
+
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.orto_kolor_cmbbx.currentText()]
@@ -298,6 +299,11 @@ class PobieraczDanychGugik:
             if self.dockwidget.orto_pixelTo_lineEdit.text():
                 ortoList = [orto for orto in ortoList if
                             orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
+
+        # ograniczenie tylko do najnowszego
+        if self.dockwidget.orto_newest_chkbx.isChecked():
+            ortoList = utils.onlyNewest(ortoList)
+            print(ortoList)
         return ortoList
 
     def downloadOrtoFile(self, orto, folder):
