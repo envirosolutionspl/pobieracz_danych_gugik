@@ -714,7 +714,7 @@ nieodpłatnie przez GUGiK.</string>
            <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
-		   <item>
+           <item>
             <widget class="QGroupBox" name="groupBox_367">
              <property name="title">
               <string>Format plików</string>
@@ -732,6 +732,9 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="las_las_rdbtn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>LAS</string>
                 </property>
