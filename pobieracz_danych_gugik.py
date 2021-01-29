@@ -155,16 +155,17 @@ class PobieraczDanychGugik:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
-            self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
+            # self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
+            self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
 
-            self.dockwidget.nmt_capture_btn.clicked.connect(self.nmt_capture_btn_clicked)
+            self.dockwidget.nmt_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.nmtClickTool))
             self.dockwidget.nmt_fromLayer_btn.clicked.connect(self.nmt_fromLayer_btn_clicked)
 
-            self.dockwidget.las_capture_btn.clicked.connect(self.las_capture_btn_clicked)
+            self.dockwidget.las_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.lasClickTool))
             self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
 
-            self.dockwidget.reflectance_capture_btn.clicked.connect(self.reflectance_capture_btn_clicked)
+            self.dockwidget.reflectance_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.reflectanceClickTool))
             self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
 
             self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
@@ -188,14 +189,6 @@ class PobieraczDanychGugik:
             self.dockwidget.show()
 
     # region ORTOFOTOMAPA
-    def orto_capture_btn_clicked(self):
-        """Kliknięcie plawisza pobierania ortofotomapy przez wybór z mapy"""
-        path = self.dockwidget.folder_fileWidget.filePath()
-        if path:  # pobrano ściezkę
-            self.canvas.setMapTool(self.ortoClickTool)
-        else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano wskazano miejsca zapisu plików')
 
     def orto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania ortofotomapy przez wybórwarstwą wektorową"""
@@ -310,14 +303,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # region NMT/NMPT
-    def nmt_capture_btn_clicked(self):
-        """Kliknięcie plawisza pobierania NMT/NMPT przez wybór z mapy"""
-        path = self.dockwidget.folder_fileWidget.filePath()
-        if path:  # pobrano ściezkę
-            self.canvas.setMapTool(self.nmtClickTool)
-        else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano wskazano miejsca zapisu plików')
 
     def nmt_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
@@ -449,14 +434,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # region LAS
-    def las_capture_btn_clicked(self):
-        """Kliknięcie plawisza pobierania LAS przez wybór z mapy"""
-        path = self.dockwidget.folder_fileWidget.filePath()
-        if path:  # pobrano ściezkę
-            self.canvas.setMapTool(self.lasClickTool)
-        else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano wskazano miejsca zapisu plików')
 
     def las_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
@@ -582,14 +559,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # region Reflectance
-    def reflectance_capture_btn_clicked(self):
-        """Kliknięcie plawisza pobierania Intensywności przez wybór z mapy"""
-        path = self.dockwidget.folder_fileWidget.filePath()
-        if path:  # pobrano ściezkę
-            self.canvas.setMapTool(self.reflectanceClickTool)
-        else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano wskazano miejsca zapisu plików')
 
     def reflectance_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Intensywności przez wybór warstwą wektorową"""
@@ -701,6 +670,10 @@ class PobieraczDanychGugik:
 
     # region BDOT10k
     def bdot_selected_powiat_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
         task = DownloadBdotTask(
@@ -713,6 +686,10 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
         task = DownloadBdotTask(
@@ -725,6 +702,10 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -811,3 +792,22 @@ class PobieraczDanychGugik:
                                     self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
+
+    def capture_btn_clicked(self, clickTool):
+        """Kliknięcie plawisza pobierania danych przez wybór z mapy"""
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if self.checkSavePath(path):
+            # pobrano ściezkę
+            self.canvas.setMapTool(clickTool)
+
+    def checkSavePath(self, path):
+        if not path:
+            self.iface.messageBar().pushCritical("Ostrzeżenie:",
+                                                 'Nie wskazano wskazano miejsca zapisu plików')
+            return False
+        elif not os.path.exists(path):
+            self.iface.messageBar().pushCritical("Ostrzeżenie:",
+                                                 'Wskazano nieistniejącą ścieżkę do zapisu plików')
+            return False
+        else:
+            return True

@@ -29,6 +29,9 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.6.2
+  * Zmiana formatu pobieranych danych LiDAR z LAS na LAZ
+  * Poprawy błędów i komunikatów
   Wersja 0.6.1
   * Poprawa błędów dla wersji poniżej 3.10
   Wersja 0.6.0
