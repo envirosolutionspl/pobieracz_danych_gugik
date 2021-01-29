@@ -155,7 +155,6 @@ class PobieraczDanychGugik:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
-            # self.dockwidget.orto_capture_btn.clicked.connect(self.orto_capture_btn_clicked)
             self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
 
@@ -192,6 +191,13 @@ class PobieraczDanychGugik:
 
     def orto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania ortofotomapy przez wybórwarstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+
         bledy = 0
         layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
@@ -210,7 +216,6 @@ class PobieraczDanychGugik:
                     bledy += 1
 
             self.filterOrtoListAndRunTask(ortoList)
-            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.orto_fromLayer_btn.setEnabled(True)
@@ -306,6 +311,12 @@ class PobieraczDanychGugik:
 
     def nmt_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         bledy = 0
         layer = self.dockwidget.nmt_mapLayerComboBox.currentLayer()
 
@@ -437,6 +448,12 @@ class PobieraczDanychGugik:
 
     def las_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         bledy = 0
         layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
         isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
@@ -562,6 +579,12 @@ class PobieraczDanychGugik:
 
     def reflectance_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Intensywności przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
         bledy = 0
         layer = self.dockwidget.reflectance_mapLayerComboBox.currentLayer()
 
@@ -801,6 +824,7 @@ class PobieraczDanychGugik:
             self.canvas.setMapTool(clickTool)
 
     def checkSavePath(self, path):
+        """Sprawdza czy ścieżka jest poprawna i zwraca Boolean"""
         if not path:
             self.iface.messageBar().pushCritical("Ostrzeżenie:",
                                                  'Nie wskazano wskazano miejsca zapisu plików')
