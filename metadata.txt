@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.4
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.6.1
+version=0.7.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
@@ -29,8 +29,9 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  Wersja 0.6.2
+  Wersja 0.7.0
   * Zmiana formatu pobieranych danych LiDAR z LAS na LAZ
+  * Dodanie możliwości pobierania tylko aktualnych danych
   * Poprawy błędów i komunikatów
   Wersja 0.6.1
   * Poprawa błędów dla wersji poniżej 3.10
