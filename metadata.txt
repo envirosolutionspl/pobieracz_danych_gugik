@@ -14,11 +14,12 @@ about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez 
   * za pomocą wskazania punktu na mapie
   * poprzez warstwę poligonową, liniową lub punktową
   Możliwe jest pobieranie następujących danych:
-  * LAS (LIDAR) - dane skaningu laserowego
+  * LAZ (LIDAR) - dane skaningu laserowego
   * ASCII GRID (NMT/NMPT) - Numeryczny Model Terenu i Numeryczny Model Pokrycia Terenu
   * GeoTiff (ortofotomapa/CIR) - Ortofotomapa cyfrowa i Zobrazowanie w bliskiej podczerwieni
   * GeoTiff (obrazy intensywności) - Produkt powstały ze skaningu laserowego w formie rastrowej
   * Paczki danych BDOT10k
+  * Paczki danych BDOO
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
@@ -77,7 +78,7 @@ changelog=
   * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, geoportal, point cloud, chmura punktów
+tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
