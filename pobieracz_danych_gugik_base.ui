@@ -1277,6 +1277,48 @@ nieodpłatnie przez GUGiK.</string>
           </layout>
          </widget>
         </item>
+		<item>
+         <widget class="QgsCollapsibleGroupBox" name="bdoo_groupBox">
+          <property name="title">
+           <string>BDOO</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_155">
+                <property name="text">
+                 <string>Województwo: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="bdoo_wojewodztwo_cmbbx"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_44">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bdoo_selected_woj_btn">
+             <property name="text">
+              <string>Pobierz dla wybranego województwa (5-25 MB)</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item>
          <spacer name="verticalSpacer_3">
           <property name="orientation">

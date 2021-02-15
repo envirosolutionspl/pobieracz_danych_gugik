@@ -5,7 +5,9 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
-from .tasks import DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask, DownloadBdotTask
+from .tasks import (
+    DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
+    DownloadBdotTask, DownloadBdooTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -170,6 +172,8 @@ class PobieraczDanychGugik:
             self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
             self.dockwidget.bdot_selected_woj_btn.clicked.connect(self.bdot_selected_woj_btn_clicked)
             self.dockwidget.bdot_polska_btn.clicked.connect(self.bdot_polska_btn_clicked)
+
+            self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -740,6 +744,26 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=0,
             teryt=None
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    # endregion
+
+    # region BDOO
+
+    def bdoo_selected_woj_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
+        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        task = DownloadBdooTask(
+            description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            level=1,
+            teryt=teryt
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')

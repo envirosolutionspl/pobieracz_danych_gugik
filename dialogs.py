@@ -51,12 +51,14 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.reflectance_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.reflectance_from_dateTimeEdit.setAllowNull(False)
         self.reflectance_to_dateTimeEdit.setAllowNull(False)
-        # bdot10k
+        # bdot10k/BDOO
         self.powiatDict = {}
         self.regionFetch = RegionFetch()
 
         self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
-        self.wojewodztwo_cmbbx.addItems(list(self.regionFetch.wojewodztwoDict.keys()))
+        wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
+        self.wojewodztwo_cmbbx.addItems(wojewodztwa)
+        self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
