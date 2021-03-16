@@ -59,7 +59,6 @@ def createPointsFromPolygon(layer, density=1000):
     for feat in layer.getFeatures():
         geom = feat.geometry()
         bbox = geom.boundingBox()
-        print('bbox', bbox)
         if bbox.width() <= density or bbox.height() <= density:
             punktyList.append(bbox.center())
         else:
@@ -75,20 +74,6 @@ def createPointsFromPolygon(layer, density=1000):
             }
             proc = processing.run("qgis:creategrid", params)
             punkty = proc['OUTPUT']
-
-            # params = {
-            #     'INPUT': punkty,
-            #     'OVERLAY': layer,
-            #     'OUTPUT': 'TEMPORARY_OUTPUT'}
-            #
-            # proc = processing.run("qgis:clip", params)
-            # punkty = proc['OUTPUT']
-            #
-            # params = {
-            #     'INPUT': punkty,
-            #     'OUTPUT': 'TEMPORARY_OUTPUT'}
-            # proc = processing.run("qgis:multiparttosingleparts", params)
-            # punkty = proc['OUTPUT']
 
 
             for pointFeat in punkty.getFeatures():
