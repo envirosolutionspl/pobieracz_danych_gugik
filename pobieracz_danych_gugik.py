@@ -20,7 +20,7 @@ import os.path
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api
 
 """Wersja wtyczki"""
-plugin_version = '0.7.1'
+plugin_version = '0.7.2'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -778,10 +778,11 @@ class PobieraczDanychGugik:
                 'INPUT': layer,
                 'TARGET_CRS': QgsCoordinateReferenceSystem('EPSG:2180'),
                 'OPERATION': None,
-                'OUTPUT': 'TEMPORARY_OUTPUT'}
+                'OUTPUT': 'memory:TEMPORARY_OUTPUT'}
             proc = processing.run("qgis:reprojectlayer", params)
             layer = proc['OUTPUT']
-
+            print('d ',proc)
+            print('e ',type(layer), layer)
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
             points = utils.createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
