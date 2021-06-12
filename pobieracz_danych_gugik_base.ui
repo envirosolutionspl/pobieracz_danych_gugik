@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>422</width>
-         <height>780</height>
+         <width>405</width>
+         <height>989</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -112,17 +112,61 @@ nieodpłatnie przez GUGiK.</string>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_7">
-          <property name="text">
+         <widget class="QGroupBox" name="groupBox_pobieranie">
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="title">
+           <string>Sposób wyszukiwania danych</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QRadioButton" name="wfs_rdbtn">
+             <property name="toolTip">
+              <string>pozwala szybko wyszukiwać najaktualniejsze dane dla zadanego obszaru</string>
+             </property>
+             <property name="text">
+              <string>Usługa WFS (nowość!)</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="wms_rdbtn">
+             <property name="toolTip">
+              <string>Pozwala na pobieranie danych aktualnych i archiwalnych</string>
+             </property>
+             <property name="text">
+              <string>Usługa WMS/Geoportal</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
            <string>Scieżka zapisu plików</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QgsFileWidget" name="folder_fileWidget"/>
+           </item>
+          </layout>
          </widget>
-        </item>
-        <item>
-         <widget class="QgsFileWidget" name="folder_fileWidget"/>
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="orto_groupBox">
@@ -130,7 +174,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Ortofotomapa/CIR</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1217,9 +1261,41 @@ nieodpłatnie przez GUGiK.</string>
            <string>BDOT10k</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="title">
+              <string>Format danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QRadioButton" name="bdot_gml_rdbtn">
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="bdot_shp_rdbtn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QFormLayout" name="formLayout">
@@ -1277,15 +1353,47 @@ nieodpłatnie przez GUGiK.</string>
           </layout>
          </widget>
         </item>
-		<item>
+        <item>
          <widget class="QgsCollapsibleGroupBox" name="bdoo_groupBox">
           <property name="title">
            <string>BDOO</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="title">
+              <string>Format danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QRadioButton" name="bdoo_gml_rdbtn">
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="bdoo_shp_rdbtn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QFormLayout" name="formLayout">
