@@ -1,0 +1,1 @@
+from .wfs_service import getTypenames

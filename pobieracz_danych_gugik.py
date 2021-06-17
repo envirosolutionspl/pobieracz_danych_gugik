@@ -69,6 +69,7 @@ class PobieraczDanychGugik:
         self.lasClickTool.canvasClicked.connect(self.canvasLas_clicked)
         self.reflectanceClickTool = QgsMapToolEmitPoint(self.canvas)
         self.reflectanceClickTool.canvasClicked.connect(self.canvasReflectance_clicked)
+
         # --------------------------------------------------------------------------
 
     def add_action(
@@ -157,6 +158,8 @@ class PobieraczDanychGugik:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
+            self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
+
             self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
 
@@ -191,6 +194,13 @@ class PobieraczDanychGugik:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
+            # self.dockwidget.orto_groupBox.setVisible(False)
+
+    def btnstate(self):
+        if self.dockwidget.wfs_rdbtn.isChecked():
+            print('wfs')
+        if self.dockwidget.wms_rdbtn.isChecked():
+            print('wms')
     # region ORTOFOTOMAPA
 
     def orto_fromLayer_btn_clicked(self):
