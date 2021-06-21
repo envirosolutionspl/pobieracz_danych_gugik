@@ -194,13 +194,32 @@ class PobieraczDanychGugik:
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
 
-            # self.dockwidget.orto_groupBox.setVisible(False)
 
+
+
+
+    # region WFS
     def btnstate(self):
         if self.dockwidget.wfs_rdbtn.isChecked():
-            print('wfs')
+            self.dockwidget.wfs_groupBox.setVisible(True)
+            self.dockwidget.orto_groupBox.setVisible(False)
+            self.dockwidget.nmt_groupBox.setVisible(False)
+            self.dockwidget.las_groupBox.setVisible(False)
+            self.dockwidget.reflectance_groupBox.setVisible(False)
+            self.dockwidget.bdot_groupBox.setVisible(False)
+            self.dockwidget.bdoo_groupBox.setVisible(False)
+            # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
-            print('wms')
+            self.dockwidget.wfs_groupBox.setVisible(False)
+            self.dockwidget.orto_groupBox.setVisible(True)
+            self.dockwidget.nmt_groupBox.setVisible(True)
+            self.dockwidget.las_groupBox.setVisible(True)
+            self.dockwidget.reflectance_groupBox.setVisible(True)
+            self.dockwidget.bdot_groupBox.setVisible(True)
+            self.dockwidget.bdoo_groupBox.setVisible(True)
+            # print('wms')
+    # endregion
+
     # region ORTOFOTOMAPA
 
     def orto_fromLayer_btn_clicked(self):

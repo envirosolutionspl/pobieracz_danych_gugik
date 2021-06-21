@@ -26,7 +26,7 @@
          <x>0</x>
          <y>0</y>
          <width>405</width>
-         <height>989</height>
+         <height>1226</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -164,6 +164,104 @@ nieodpłatnie przez GUGiK.</string>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QgsFileWidget" name="folder_fileWidget"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="wfs_groupBox">
+          <property name="title">
+           <string>Usługa WFS</string>
+          </property>
+          <property name="collapsed">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Usługa pobierania: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="wfs_service_cmbbx">
+                <item>
+                 <property name="text">
+                  <string>Skorowidze ortofotomapy</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Dane: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="wfs_layer_cmbbx">
+                <item>
+                 <property name="text">
+                  <string>2020</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="wfs_capture_btn">
+             <property name="text">
+              <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>:/plugins/pobieracz_danych_gugik/img/icon.png</normaloff>:/plugins/pobieracz_danych_gugik/img/icon.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>lub</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Wybierz warstwę wektorową</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QgsMapLayerComboBox" name="wfs_mapLayerComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="wfs_fromLayer_btn">
+             <property name="text">
+              <string>  Pobierz warstwą wektorową</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
