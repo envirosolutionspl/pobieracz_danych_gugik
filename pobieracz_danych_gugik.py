@@ -159,6 +159,7 @@ class PobieraczDanychGugik:
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
             self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
+            self.dockwidget.wfs_rdbtn.toggled.emit(True)
 
             self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)

@@ -1,1 +1,1 @@
-from .wfs_service import getTypenames
+from .wfs_service import WfsFetch

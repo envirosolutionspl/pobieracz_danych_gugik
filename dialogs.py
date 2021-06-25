@@ -9,6 +9,7 @@ from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
 from qgis.core import QgsMapLayerProxyModel
 from .uldk import RegionFetch
+from .wfs import WfsFetch
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'pobieracz_danych_gugik_base.ui'))
@@ -59,6 +60,13 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
+
+        #WFS
+        self.wfsFetch = WfsFetch()
+        # self.wfsFetch.cacheTypenamesForService('orto')
+        self.wfs_service_cmbbx.clear()
+        uslugi = list(self.wfsFetch.wfsServiceDict.keys())
+        self.wfs_service_cmbbx.addItems(uslugi)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
