@@ -1,17 +1,19 @@
-
-from .utils import getTypenames
+try:
+    from .utils import getTypenames
+except ImportError:
+    from wfs.utils import getTypenames
 
 class WfsFetch:
     def __init__(self):
         self.wfsServiceDict = {
-            'orto' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
-            'trueOrto' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
-            'lidarKron' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
-            'lidarEvrf' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
-            'nmtKron' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
-            'nmtEvrf' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
-            'nmptKron' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
-            'nmptEvrf' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
+            'Ortofotomapa' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
+            'Prawdziwa Ortofotomapa' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
+            'LIDAR (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
+            'LIDAR (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
+            'NMT (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
+            'NMT (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
+            'NMPT (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
+            'NMPT (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
         }
         self.cachedTypenamesDict = {}
         self.errors = []
@@ -20,9 +22,9 @@ class WfsFetch:
     def refreshCachedTypenamesDict(self):
         self.errors = []
         for name in self.wfsServiceDict:
-            self.cacheTypenamesForService(name)
+            self.__cacheTypenamesForService(name)
 
-    def cacheTypenamesForService(self, serviceName):
+    def __cacheTypenamesForService(self, serviceName):
 
         resp = getTypenames(self.wfsServiceDict[serviceName])
         if resp[0]:
@@ -31,12 +33,24 @@ class WfsFetch:
             self.errors.append(resp[1])
             print('błąd pobierania warstw usługi WFS %s: %s' % (serviceName, resp[1]))
 
+    def getTypenamesByServiceName(self, serviceName):
+        if serviceName not in self.wfsServiceDict:
+            #podano nieistniejącą nazwę usługi
+            raise Exception('podano nieistniejącą nazwę usługi')
+        if serviceName not in self.cachedTypenamesDict:
+            #nie ma listy w cache, spróbuj pobrać
+            self.__cacheTypenamesForService(serviceName)
+            if serviceName not in self.cachedTypenamesDict:
+                # jeżeli nie udało się pobrać
+                return {}
+        return self.cachedTypenamesDict[serviceName]
+
+
 
 
 if __name__ == "__main__":
 
     wfsFetch = WfsFetch()
-    print(wfsFetch.errors)
     print(wfsFetch.cachedTypenamesDict)
-    wfsFetch.cacheTypenamesForService('trueOrto')
-    print(wfsFetch.cachedTypenamesDict)
+    resp = wfsFetch.getTypenamesByServiceName('nmtKron')
+    print(resp)

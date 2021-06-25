@@ -63,10 +63,12 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         #WFS
         self.wfsFetch = WfsFetch()
-        # self.wfsFetch.cacheTypenamesForService('orto')
         self.wfs_service_cmbbx.clear()
+        self.wfs_layer_cmbbx.clear()
+        self.wfs_service_cmbbx.currentTextChanged.connect(self.wfs_service_cmbbx_currentTextChanged)
         uslugi = list(self.wfsFetch.wfsServiceDict.keys())
         self.wfs_service_cmbbx.addItems(uslugi)
+
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -77,3 +79,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.powiatDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
         self.powiat_cmbbx.addItems(list(self.powiatDict.keys()))
 
+    def wfs_service_cmbbx_currentTextChanged(self, text):
+        self.wfs_layer_cmbbx.clear()
+        typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
+        self.wfs_layer_cmbbx.addItems(list(typenamesDict.keys()))
