@@ -7,7 +7,7 @@ from qgis.gui import *
 from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
-    DownloadBdotTask, DownloadBdooTask)
+    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -20,7 +20,7 @@ import os.path
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api
 
 """Wersja wtyczki"""
-plugin_version = '0.7.2'
+plugin_version = '0.8.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -69,6 +69,8 @@ class PobieraczDanychGugik:
         self.lasClickTool.canvasClicked.connect(self.canvasLas_clicked)
         self.reflectanceClickTool = QgsMapToolEmitPoint(self.canvas)
         self.reflectanceClickTool.canvasClicked.connect(self.canvasReflectance_clicked)
+        self.wfsClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.wfsClickTool.canvasClicked.connect(self.canvasWfs_clicked)
 
         # --------------------------------------------------------------------------
 
@@ -160,6 +162,8 @@ class PobieraczDanychGugik:
             # Eventy
             self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
             self.dockwidget.wfs_rdbtn.toggled.emit(True)
+            self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
+            self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
 
             self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
             self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
@@ -219,6 +223,98 @@ class PobieraczDanychGugik:
             self.dockwidget.bdot_groupBox.setVisible(True)
             self.dockwidget.bdoo_groupBox.setVisible(True)
             # print('wms')
+
+    def wfs_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+
+        bledy = 0
+        layer = self.dockwidget.wfs_mapLayerComboBox.currentLayer()
+        # zamiana układu na 92
+        if layer:
+            self.downloadWfsForLayer(layer)
+            # points = self.pointsFromVectorLayer(layer)
+            #
+            # # zablokowanie klawisza pobierania
+            # self.dockwidget.orto_fromLayer_btn.setEnabled(False)
+            #
+            # urlList = []
+            # for point in points:
+            #     subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
+            #     if subList:
+            #         urlList.extend(subList)
+            #     else:
+            #         bledy += 1
+            #
+            # self.filterOrtoListAndRunTask(urlList)
+            #
+            # # odblokowanie klawisza pobierania
+            self.dockwidget.wfs_fromLayer_btn.setEnabled(True)
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+    def test(self):
+        print('test')
+    def downloadWfsForLayer(self, layer):
+        """Pobiera dane WFS """
+
+
+        if (isinstance(layer, QgsPointXY)):
+            print('isinstance xy')
+            crs = QgsProject.instance().crs().authid()
+            vp = QgsVectorLayer("Point?crs=" + crs, "vectpoi", "memory")
+            feature = QgsFeature()
+            feature.setGeometry(QgsGeometry.fromPointXY(layer))
+            dp = vp.dataProvider()
+            dp.addFeature(feature)
+            layer = vp
+
+        print('aaaa', layer.crs())
+        layer1992 = utils.layerTo2180(layer=layer)
+        print('bbbb', layer1992.crs())
+
+        skorowidzeLayer = self.dockwidget.wfsFetch.getWfsListbyLayer1992(
+            layer=layer1992,
+            wfsService=self.dockwidget.wfs_service_cmbbx.currentText(),
+            typename=self.dockwidget.wfs_layer_cmbbx.currentText())
+        skorowidzeLayer.updatedFields.connect(self.test)
+        if skorowidzeLayer.isValid():
+            urls = []
+            QgsProject.instance().addMapLayer(skorowidzeLayer)
+            layerWithAttributes = QgsProject.instance().mapLayer(skorowidzeLayer.id())
+
+            for feat in layerWithAttributes.getFeatures():
+                urls.append(feat['url_do_pobrania'])
+
+            self.runWfsTask(urls)
+
+        else:
+            print('brak arkuszy')
+
+    def runWfsTask(self, urlList):
+        """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
+        task = DownloadWfsTask(description='Pobieranie plików z WFS',
+                                    urlList=urlList,
+                                    folder=self.dockwidget.folder_fileWidget.filePath())
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+
+    def canvasWfs_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.wfsClickTool)
+        self.downloadWfsForLayer(point)
+
+    def downloadWfsFile(self, orto, folder):
+        """Pobiera plik z wfs"""
+        QgsMessageLog.logMessage('start ' + orto.url)
+        service_api.retreiveFile(url=orto.url, destFolder=folder)
     # endregion
 
     # region ORTOFOTOMAPA
@@ -268,14 +364,14 @@ class PobieraczDanychGugik:
 
     def filterOrtoListAndRunTask(self, ortoList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(ortoList))
+        # print("przed 'set'", len(urlList))
 
         # usuwanie duplikatów
         ortoList = list(set(ortoList))
-        # print("po 'set'", len(ortoList))
+        # print("po 'set'", len(urlList))
         # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
-        # print("po 'filtrowaniu'", len(ortoList))
+        # print("po 'filtrowaniu'", len(urlList))
 
         # wyswietl komunikat pytanie
         if len(ortoList) == 0:

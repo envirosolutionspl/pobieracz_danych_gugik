@@ -33,6 +33,14 @@ def pointTo2180(point, sourceCrs, project):
     point1992 = xform.transform(point)
     return point1992
 
+def layerTo2180(layer):
+    """zamiana układu na 1992"""
+    proc = processing.run("native:reprojectlayer",
+                   {'INPUT': layer,
+                    'TARGET_CRS': QgsCoordinateReferenceSystem('EPSG:2180'),
+                    'OUTPUT': 'TEMPORARY_OUTPUT'})
+    return proc['OUTPUT']
+
 def createPointsFromPointLayer(layer):
     points = []
     for feat in layer.getFeatures():
