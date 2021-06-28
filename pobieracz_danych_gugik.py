@@ -238,21 +238,7 @@ class PobieraczDanychGugik:
         # zamiana układu na 92
         if layer:
             self.downloadWfsForLayer(layer)
-            # points = self.pointsFromVectorLayer(layer)
-            #
-            # # zablokowanie klawisza pobierania
-            # self.dockwidget.orto_fromLayer_btn.setEnabled(False)
-            #
-            # urlList = []
-            # for point in points:
-            #     subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
-            #     if subList:
-            #         urlList.extend(subList)
-            #     else:
-            #         bledy += 1
-            #
-            # self.filterOrtoListAndRunTask(urlList)
-            #
+
             # # odblokowanie klawisza pobierania
             self.dockwidget.wfs_fromLayer_btn.setEnabled(True)
         else:
@@ -291,10 +277,18 @@ class PobieraczDanychGugik:
             for feat in layerWithAttributes.getFeatures():
                 urls.append(feat['url_do_pobrania'])
 
-            self.runWfsTask(urls)
 
+            if urls:
+                self.runWfsTask(urls)
+            else:
+                # blad
+                QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                self.iface.messageBar().pushCritical("Błąd pobierania:",
+                                                    'Nie znaleziono danych spełniających warunki')
         else:
-            print('brak arkuszy')
+            #blad
+            self.iface.messageBar().pushCritical("Błąd pobierania:",
+                                                 'Nie znaleziono danych spełniających warunki')
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
