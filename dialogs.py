@@ -82,4 +82,4 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def wfs_service_cmbbx_currentTextChanged(self, text):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
-        self.wfs_layer_cmbbx.addItems(list(typenamesDict.keys()))
+        self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))
