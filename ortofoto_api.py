@@ -13,8 +13,8 @@ def getOrtoListbyPoint1992(point):
     LAYERS = [
         'SkorowidzeOrtofotomapyZasiegiStarsze',
         'SkorowidzeOrtofotomapyStarsze',
-        'SkorowidzeOrtofotomapyZasiegi2018',
-        'SkorowidzeOrtofotomapy2018',
+        'SkorowidzeOrtofotomapyZasiegi2021',
+        'SkorowidzeOrtofotomapy2021',
         'SkorowidzeOrtofotomapyZasiegi2019',
         'SkorowidzeOrtofotomapy2019',
         'SkorowidzeOrtofotomapyZasiegi2020',
@@ -38,7 +38,6 @@ def getOrtoListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-
     if resp[0]:
         ortos = c.findall(resp[1])
         ortofotomapaList = []

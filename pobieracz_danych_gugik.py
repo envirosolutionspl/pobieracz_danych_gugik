@@ -298,16 +298,6 @@ class PobieraczDanychGugik:
                     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
 
 
-            # if urls:
-            #
-            #     self.runWfsTask(urls)
-            # else:
-            #     # blad
-            #     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
-            #     self.iface.messageBar().pushCritical("Błąd pobierania:",
-            #                                         'Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS')
-
-
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
         task = DownloadWfsTask(description='Pobieranie plików z WFS',
@@ -371,6 +361,7 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
+
         ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
         self.filterOrtoListAndRunTask(ortoList)
 
