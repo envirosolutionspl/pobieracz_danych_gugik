@@ -284,7 +284,7 @@ class PobieraczDanychGugik:
                 # blad
                 QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
                 self.iface.messageBar().pushCritical("Błąd pobierania:",
-                                                    'Nie znaleziono danych spełniających warunki')
+                                                    'Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS')
         else:
             #blad
             self.iface.messageBar().pushCritical("Błąd pobierania:",
