@@ -98,4 +98,3 @@ def createPointsFromPolygon(layer, density=1000):
 
 
     return punktyList
-

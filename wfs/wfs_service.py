@@ -1,8 +1,10 @@
 import processing
 try:
     from .utils import getTypenames
+    from .utils import roundCoordinatesOfWkt
 except ImportError:
     from wfs.utils import getTypenames
+    from wfs.utils import roundCoordinatesOfWkt
 from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
 class WfsFetch:
     def __init__(self):
@@ -48,19 +50,21 @@ class WfsFetch:
 
 
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
-
-        print('----------',layer.crs())
         wfsUrl = self.wfsServiceDict[wfsService]
         wfsTypename = self.cachedTypenamesDict[wfsService][typename]
-        output = processing.run("native:aggregate",
+        aggregation = processing.run("native:aggregate",
                        {'INPUT': layer,
                         'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})
-        layerAggr = output['OUTPUT']
-        feat = next(layerAggr.getFeatures())
+        simplification = processing.run("native:simplifygeometries",
+                       {'INPUT': aggregation['OUTPUT'],
+                        'METHOD': 1, 'TOLERANCE': 1000, 'OUTPUT': 'TEMPORARY_OUTPUT'})
+        simpleLayer = simplification['OUTPUT']
+        feat = next(simpleLayer.getFeatures())
         geom = feat.geometry()
         wkt = geom.asWkt()
-        print('i-------', wkt)
-        # wkt =
+        wkt = roundCoordinatesOfWkt(wkt)    # zaokrąglanie współrzędnych do liczb całkowitych
+
+
         dsu = QgsDataSourceUri()
         dsu.setParam('url', wfsUrl)
         dsu.setParam('version', '2.0.0')

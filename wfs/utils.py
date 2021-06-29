@@ -1,4 +1,4 @@
-import requests
+import requests, re
 import xml.etree.ElementTree as ET
 
 def getTypenames(wfsUrl):
@@ -33,3 +33,8 @@ def getTypenames(wfsUrl):
     else:
 
         return False, "Błąd %d" % r.status_code
+
+
+def roundCoordinatesOfWkt(wkt):
+    c = re.compile(r'(\d+).(\d+)')
+    return c.sub(r'\1', wkt)
