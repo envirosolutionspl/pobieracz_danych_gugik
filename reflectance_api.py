@@ -35,7 +35,6 @@ def getReflectanceListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=URL)
-
     if resp[0]:
         return createList(resp)
     else:

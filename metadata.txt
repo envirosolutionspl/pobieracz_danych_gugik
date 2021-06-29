@@ -30,6 +30,8 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
+  Wersja 0.8.2
+  * Dodanie komunikatów do usługi WFS, poprawy błędów, aktualizacja danych usługi WMS dla ortofotomapy
   Wersja 0.8.1
   * Dodanie komunikatów, poprawy błędów
   Wersja 0.8.0
