@@ -260,9 +260,7 @@ class PobieraczDanychGugik:
             dp.addFeature(feature)
             layer = vp
 
-        print('aaaa', layer.crs())
         layer1992 = utils.layerTo2180(layer=layer)
-        print('bbbb', layer1992.crs())
 
         skorowidzeLayer = self.dockwidget.wfsFetch.getWfsListbyLayer1992(
             layer=layer1992,
@@ -277,18 +275,38 @@ class PobieraczDanychGugik:
             for feat in layerWithAttributes.getFeatures():
                 urls.append(feat['url_do_pobrania'])
 
-
-            if urls:
-                self.runWfsTask(urls)
-            else:
-                # blad
+            # wyswietl komunikat pytanie
+            if len(urls) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
+                msgbox.exec_()
                 QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
-                self.iface.messageBar().pushCritical("Błąd pobierania:",
-                                                    'Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS')
-        else:
-            #blad
-            self.iface.messageBar().pushCritical("Błąd pobierania:",
-                                                 'Nie znaleziono danych spełniających warunki')
+                return
+            else:
+                msgbox = QMessageBox(QMessageBox.Question,
+                                    "Potwierdź pobieranie",
+                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(urls))
+                msgbox.addButton(QMessageBox.Yes)
+                msgbox.addButton(QMessageBox.No)
+                msgbox.setDefaultButton(QMessageBox.No)
+                reply = msgbox.exec()
+
+                if reply == QMessageBox.Yes:
+                    # pobieranie
+                    self.runWfsTask(urls)
+                else:
+                    QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+
+
+            # if urls:
+            #
+            #     self.runWfsTask(urls)
+            # else:
+            #     # blad
+            #     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+            #     self.iface.messageBar().pushCritical("Błąd pobierania:",
+            #                                         'Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS')
+
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
