@@ -62,6 +62,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
 
         #WFS
+        self.wfs_mapLayerComboBox.setFilters(
+            QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+
         self.wfsFetch = WfsFetch()
         self.wfs_service_cmbbx.clear()
         self.wfs_layer_cmbbx.clear()
