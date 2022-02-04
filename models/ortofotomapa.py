@@ -12,7 +12,8 @@ class Ortofotomapa:
             zrodloDanych,
             kolor,
             numerZgloszeniaPracy,
-            aktualnoscRok
+            aktualnoscRok,
+            rozmiarPlikuMB=None
     ):
         self.url = url
         self.godlo = godlo
