@@ -211,8 +211,8 @@ class PobieraczDanychGugik:
             self.dockwidget.nmt_groupBox.setVisible(False)
             self.dockwidget.las_groupBox.setVisible(False)
             self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
+            self.dockwidget.bdot_groupBox.setVisible(True)
+            self.dockwidget.bdoo_groupBox.setVisible(True)
             # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
