@@ -5,11 +5,14 @@ import os, time
 def getRequest(params, url):
     try:
         r = requests.get(url=url, params=params)
+        print(r.request.url)
+
     except requests.exceptions.ConnectionError:
         # print('sleep')
         time.sleep(0.4)
         try:
             r = requests.get(url=url, params=params)
+
         except requests.exceptions.ConnectionError:
             # print('blad polaczenia')
             return False, "Błąd połączenia"
