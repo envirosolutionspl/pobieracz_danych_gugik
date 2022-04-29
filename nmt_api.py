@@ -13,27 +13,27 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     y = point.y()
     if isEvrf2007:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladEVRF2007?"
-        # LAYERS = [
-        #     'SkorowidzeNMT2019iStarsze',
-        #     'SkorowidzeNMT2020',
-        #     'SkorowidzeNMT2021'
-        # ]
+        LAYERS = [
+            'SkorowidzeNMT2019iStarsze',
+            'SkorowidzeNMT2020',
+            'SkorowidzeNMT2021'
+        ]
 
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladKRON86?"
-        # LAYERS = [
-        #     # 'Układ wysokościowy PL-KRON86-NH',
-        #     'SkorowidzeNMT2017iStarsze',
-        #     'SkorowidzeNMT2018',
-        #     'SkorowidzeNMT2019'
-        # ]
+        LAYERS = [
+            # 'Układ wysokościowy PL-KRON86-NH',
+            'SkorowidzeNMT2017iStarsze',
+            'SkorowidzeNMT2018',
+            'SkorowidzeNMT2019'
+        ]
 
-    """dynamiczne pobieranie dostępnych warstw"""
-    layersResp = utils.getQueryableLayersFromWMS(URL)
-    if layersResp[0]:
-        LAYERS = layersResp[1]
-    else:
-        return layersResp
+    # """dynamiczne pobieranie dostępnych warstw"""
+    # layersResp = utils.getQueryableLayersFromWMS(URL)
+    # if layersResp[0]:
+    #     LAYERS = layersResp[1]
+    # else:
+    #     return layersResp
 
 
     PARAMS = {
