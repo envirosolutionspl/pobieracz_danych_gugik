@@ -1,8 +1,8 @@
 import requests, re
 import xml.etree.ElementTree as ET
 
-def getTypenames(wfsUrl):
-    """Lista dostępnych warstw"""
+def getTypenamesFromWFS(wfsUrl):
+    """Lista dostępnych warstw z usługi WFS"""
     ns = {'ows': "http://www.opengis.net/ows/1.1",
           'fes': "http://www.opengis.net/fes/2.0",
           'gugik': "http://www.gugik.gov.pl",
@@ -34,7 +34,7 @@ def getTypenames(wfsUrl):
 
         return False, "Błąd %d" % r.status_code
 
-
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')
     return c.sub(r'\1', wkt)
+

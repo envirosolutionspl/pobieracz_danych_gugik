@@ -1,6 +1,6 @@
-from .utils import getTypenames
+from .utils import getTypenamesFromWFS
 
-resp = getTypenames('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze')
+resp = getTypenamesFromWFS('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze')
 print(resp[1])
 
 """

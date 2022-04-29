@@ -10,25 +10,25 @@ class Nmt:
             charakterystykaPrzestrzenna,
             format,
             bladSredniWysokosci,
-            ukladWspolrzednych,
-            ukladWysokosci,
-            calyArkuszWyeplnionyTrescia,
+            ukladWspolrzednychPoziomych,
+            ukladWspolrzednychPionowych,
+            calyArkuszWypelnionyTrescia,
             modulArchiwizacji,
-            zrodloDanych,
-            kolor,
-            numerZgloszeniaPracy,
-            aktualnoscRok,
-            nazwaPliku
+            zrodloDanych='',
+            kolor='',
+            numerZgloszeniaPracy='',
+            aktualnoscRok='',
+            nazwaPliku=''
     ):
         self.url = url
         self.godlo = godlo
-        self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y/%m/%d').date()
+        self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y-%m-%d').date()
         self.charakterystykaPrzestrzenna = float(charakterystykaPrzestrzenna.split()[0])
         self.format = format
         self.bladSredniWysokosci = float(bladSredniWysokosci)
-        self.ukladWspolrzednych = ukladWspolrzednych
-        self.ukladWysokosci = ukladWysokosci
-        self.calyArkuszWyeplnionyTrescia = calyArkuszWyeplnionyTrescia
+        self.ukladWspolrzednych = ukladWspolrzednychPoziomych
+        self.ukladWysokosci = ukladWspolrzednychPionowych
+        self.calyArkuszWyeplnionyTrescia = calyArkuszWypelnionyTrescia
         self.modulArchiwizacji = modulArchiwizacji
         self.zrodloDanych = zrodloDanych
         self.kolor = kolor

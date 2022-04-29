@@ -1,7 +1,7 @@
 import re
 from . import service_api
 from .models import Nmt
-
+from .wms import utils
 
 
 c = re.compile("\{{1}.*\}{1}")
@@ -13,21 +13,28 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     y = point.y()
 
     if isEvrf2007:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeWUkladzieEVRF2007?"
-        LAYERS = [
-            'Układ wysokościowy PL-EVRF2007-NH',
-            'EVRF2007_ARC_INFO_GRID_Zasiegi',
-            'EVRF2007_ARC_INFO_GRID'
-        ]
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladEVRF2007?"
+        # LAYERS = [
+        #     'Układ wysokościowy PL-EVRF2007-NH',
+        #     'EVRF2007_ARC_INFO_GRID_Zasiegi',
+        #     'EVRF2007_ARC_INFO_GRID'
+        # ]
     else:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeWUkladzieKRON86?"
-        LAYERS = [
-            # 'Układ wysokościowy PL-KRON86-NH',
-            'KRON86_XYZ_GRID',
-            'KRON86_XYZ_GRID_Zasiegi',
-            'KRON86_ARC_INFO_GRID',
-            'KRON86_ARC_INFO_GRID_Zasiegi'
-        ]
+        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86?"
+        # LAYERS = [
+        #     # 'Układ wysokościowy PL-KRON86-NH',
+        #     'SkorowidzeNMPT2017iStarsze',
+        #     'SkorowidzeNMPT2018',
+        #     'SkorowidzeNMPT2019'
+        # ]
+
+    """dynamiczne pobieranie dostępnych warstw"""
+    layersResp = utils.getQueryableLayersFromWMS(URL)
+    if layersResp[0]:
+        LAYERS = layersResp[1]
+    else:
+        return layersResp
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',

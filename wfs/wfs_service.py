@@ -1,9 +1,9 @@
 import processing
 try:
-    from .utils import getTypenames
+    from .utils import getTypenamesFromWFS
     from .utils import roundCoordinatesOfWkt
 except ImportError:
-    from wfs.utils import getTypenames
+    from wfs.utils import getTypenamesFromWFS
     from wfs.utils import roundCoordinatesOfWkt
 from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
 class WfsFetch:
@@ -29,7 +29,7 @@ class WfsFetch:
 
     def __cacheTypenamesForService(self, serviceName):
 
-        resp = getTypenames(self.wfsServiceDict[serviceName])
+        resp = getTypenamesFromWFS(self.wfsServiceDict[serviceName])
         if resp[0]:
             self.cachedTypenamesDict[serviceName] = resp[1]
         else:
