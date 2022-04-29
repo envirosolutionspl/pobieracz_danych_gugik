@@ -470,11 +470,11 @@ class PobieraczDanychGugik:
 
             nmtList = []
             for point in points:
-                subList = nmpt_api.getNmptListbyPoint1992(point=point,
+                resp = nmpt_api.getNmptListbyPoint1992(point=point,
                                                           isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
                     point=point, isEvrf2007=isEvrf2007)
-                if subList:
-                    nmtList.extend(subList)
+                if resp[0]:
+                    nmtList.extend(resp[1])
                 else:
                     bledy += 1
 
@@ -495,11 +495,14 @@ class PobieraczDanychGugik:
                                       project=QgsProject.instance())
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
-        nmtList = nmpt_api.getNmptListbyPoint1992(point=point1992,
+        resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
                                                   isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
             point=point1992, isEvrf2007=isEvrf2007)
-
-        self.filterNmtListAndRunTask(nmtList)
+        if resp[0]:
+            nmtList = resp[1]
+            self.filterNmtListAndRunTask(nmtList)
+        else:
+            self.iface.messageBar().pushCritical("Błąd pobierania", f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
 
     def filterNmtListAndRunTask(self, nmtList):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""

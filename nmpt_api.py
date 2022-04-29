@@ -8,6 +8,7 @@ c = re.compile("\{{1}.*\}{1}")
 
 
 def getNmptListbyPoint1992(point, isEvrf2007):
+    """Pobiera listę dostępnych danych NMPT dla punktu o współrzędnych w układzie PUWG1992"""
     x = point.x()
     y = point.y()
 
@@ -60,6 +61,6 @@ def getNmptListbyPoint1992(point, isEvrf2007):
                 params[item[0]] = val
             nmt = Nmt(**params)
             nmtList.append(nmt)
-        return nmtList
+        return True, nmtList
     else:
-        return None
+        return resp

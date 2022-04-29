@@ -7,6 +7,7 @@ c = re.compile("\{{1}.*\}{1}")
 
 
 def getNmtListbyPoint1992(point, isEvrf2007):
+    """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
     x = point.x()
     y = point.y()
     if isEvrf2007:
@@ -45,11 +46,11 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=URL)
-
+    print('====ccvb====', resp)
     if resp[0]:
-        return createList(resp)
+        return True, createList(resp)
     else:
-        return None
+        return resp
 
 
 def createList(resp):
