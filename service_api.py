@@ -28,6 +28,7 @@ def getRequest(params, url):
 def retreiveFile(url, destFolder):
 
     path = os.path.join(destFolder, url.split('/')[-1])
+    print(path)
     try:
         r = requests.get(url)
         if str(r.status_code) == '404':

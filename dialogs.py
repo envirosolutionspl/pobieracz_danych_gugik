@@ -61,6 +61,19 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
 
+        # PRG
+        self.powiatDict_prg = {}
+        self.gminaDict_prg = {}
+        # self.prg_wojewodztwo_cmbbx.clear()
+        # self.prg_powiat_cmbbx.clear()
+        # self.prg_gmina_cmbbx.clear()
+        self.prg_wojewodztwo_cmbbx.currentTextChanged.connect(self.prg_wojewodztwo_cmbbx_currentTextChanged)
+        self.prg_powiat_cmbbx.currentTextChanged.connect(self.prg_powiat_cmbbx_currentTextChanged)
+        # self.prg_gmina_cmbbx.currentTextChanged.connect(self.prg_gmina_cmbbx_currentTextChanged)
+        prg_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
+        self.prg_wojewodztwo_cmbbx.addItems(prg_wojewodztwa)
+
+
         #WFS
         self.wfs_mapLayerComboBox.setFilters(
             QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
@@ -72,6 +85,15 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         uslugi = list(self.wfsFetch.wfsServiceDict.keys())
         self.wfs_service_cmbbx.addItems(uslugi)
 
+        #WFS EGiB
+        self.powiatDict_wfs_egib = {}
+        # self.powiatDict_wfs_egib = self.regionFetch.getAllPowiatNameWithTeryt()
+        # self.wfs_egib_powiat_cmbbx.addItems(list(self.powiatDict_wfs_egib.values()))
+
+        self.wfs_egib_wojewodztwo_cmbbx.currentTextChanged.connect(self.wfs_wojewodztwo_cmbbx_currentTextChanged)
+        wfs_egib_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
+        self.wfs_egib_wojewodztwo_cmbbx.addItems(wfs_egib_wojewodztwa)
+
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -82,7 +104,29 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.powiatDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
         self.powiat_cmbbx.addItems(list(self.powiatDict.keys()))
 
+    def wfs_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.wfs_egib_powiat_cmbbx.clear()
+        self.powiatDict_wfs_egib = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.wfs_egib_powiat_cmbbx.addItems(list(self.powiatDict_wfs_egib.keys()))
+
     def wfs_service_cmbbx_currentTextChanged(self, text):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
         self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))
+
+    def prg_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.prg_powiat_cmbbx.clear()
+        self.powiatDict_prg = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        print("zamiana woj ", text)
+        self.prg_powiat_cmbbx.addItems(list(self.powiatDict_prg.keys()))
+
+    def prg_powiat_cmbbx_currentTextChanged(self, text):
+        self.prg_gmina_cmbbx.clear()
+        self.gminaDict_prg = self.regionFetch.getGminaDictByPowiatName(text)
+        print("zmiana powiatu ", text)
+        self.prg_gmina_cmbbx.addItems(list(self.gminaDict_prg.keys()))
+
+    # def prg_gmina_cmbbx_currentTextChanged(self, text):
+    #     self.prg_gmina_cmbbx.clear()
+    #     print("Zmiana gmina ", text)
+

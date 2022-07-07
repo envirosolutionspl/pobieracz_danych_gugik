@@ -3,7 +3,22 @@ class RegionFetch:
     def __init__(self):
         self.wojewodztwoDict = self.__fetchWojewodztwoDict()
         self.powiatDict = self.__fetchPowiatDict()
+        self.gminaDict = self.__fetchGminaDict()
         self.filteredPowiatDict = {}
+        self.filteredGminaDict = {}
+
+    def __fetchGminaDict(self):
+        resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,powiat,teryt,wojewodztwo')
+        gmList = resp.text.strip().split('\n')
+        gmDict = {}
+        if len(gmList) and gmList[0] == '0':
+             gmList = gmList[1:]
+             for el in gmList:
+                split = el.split('|')
+                gmDict[split[2]] = split[0], split[1], split[3]
+             return gmDict
+        else:
+            return {}
 
     def __fetchPowiatDict(self):
         resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt,wojewodztwo')
@@ -41,8 +56,20 @@ class RegionFetch:
     def getTerytByPowiatName(self,name):
         return self.filteredPowiatDict[name]
 
+    def getGminaDictByPowiatName(self, name_powiat):
+        self.filteredGminaDict = {}
+        for k, v in self.gminaDict.items():
+            if v[1] == name_powiat:
+                self.filteredGminaDict[v[0]] = k, name_powiat
+        return self.filteredGminaDict
+
 if __name__ == '__main__':
     regionFetch = RegionFetch()
     print(regionFetch.wojewodztwoDict)
     print(regionFetch.powiatDict)
     print(regionFetch.getPowiatDictByWojewodztwoName('Lubelskie'))
+    #print(regionFetch.gminaDict)
+    print(regionFetch.getGminaDictByPowiatName('warszawski zachodni'))
+    print(regionFetch.getGminaDictByPowiatName('włoszczowski'))
+
+

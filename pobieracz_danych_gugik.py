@@ -7,7 +7,7 @@ from qgis.gui import *
 from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
-    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask)
+    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -183,6 +183,12 @@ class PobieraczDanychGugik:
 
             self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
 
+            self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
+
+            self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
+
+            self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
+
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -211,8 +217,12 @@ class PobieraczDanychGugik:
             self.dockwidget.nmt_groupBox.setVisible(False)
             self.dockwidget.las_groupBox.setVisible(False)
             self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(True)
-            self.dockwidget.bdoo_groupBox.setVisible(True)
+            self.dockwidget.bdot_groupBox.setVisible(False)
+            self.dockwidget.bdoo_groupBox.setVisible(False)
+            self.dockwidget.wfs_egib_groupBox.setVisible(True)
+            self.dockwidget.prng_groupBox.setVisible(False)
+            self.dockwidget.prg_groupBox.setVisible(False)
+            self.dockwidget.model3d_groupBox.setVisible(False)
             # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -222,6 +232,10 @@ class PobieraczDanychGugik:
             self.dockwidget.reflectance_groupBox.setVisible(True)
             self.dockwidget.bdot_groupBox.setVisible(True)
             self.dockwidget.bdoo_groupBox.setVisible(True)
+            self.dockwidget.wfs_egib_groupBox.setVisible(False)
+            self.dockwidget.prng_groupBox.setVisible(True)
+            self.dockwidget.prg_groupBox.setVisible(True)
+            self.dockwidget.model3d_groupBox.setVisible(True)
             # print('wms')
 
     def wfs_fromLayer_btn_clicked(self):
@@ -895,6 +909,98 @@ class PobieraczDanychGugik:
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=1,
+            teryt=teryt
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    # endregion PRNG
+    def prng_selected_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        rodzaj = None
+        format_danych = None
+
+        if self.dockwidget.prng_miejsco_rdbtn.isChecked():
+            rodzaj = "MIEJSCOWOSCI"
+        elif self.dockwidget.prng_fizjog_rdbtn.isChecked():
+            rodzaj = "OBIEKTY_FIZJOGRAFICZNE"
+        elif self.dockwidget.prng_swiat_rdbtn.isChecked():
+            rodzaj = "SWIAT"
+
+        if self.dockwidget.prng_gml_rdbtn.isChecked():
+            format_danych = "GML"
+        elif self.dockwidget.prng_shp_rdbtn.isChecked():
+            format_danych = "SHP"
+        elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
+            format_danych = "XLSX"
+
+
+        task = DownloadPrngTask(
+            description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            rodzaj=rodzaj,
+            format_danych=format_danych
+        )
+
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+    # endregion
+
+    # endregion PRG
+    def prg_selected_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        # rodzaj = None
+        # format_danych = None
+        #
+        # if self.dockwidget.prng_miejsco_rdbtn.isChecked():
+        #     rodzaj = "MIEJSCOWOSCI"
+        # elif self.dockwidget.prng_fizjog_rdbtn.isChecked():
+        #     rodzaj = "OBIEKTY_FIZJOGRAFICZNE"
+        # elif self.dockwidget.prng_swiat_rdbtn.isChecked():
+        #     rodzaj = "SWIAT"
+        #
+        # if self.dockwidget.prng_gml_rdbtn.isChecked():
+        #     format_danych = "GML"
+        # elif self.dockwidget.prng_shp_rdbtn.isChecked():
+        #     format_danych = "SHP"
+        # elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
+        #     format_danych = "XLSX"
+
+
+        # task = DownloadPrngTask(
+        #     description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
+        #     folder=self.dockwidget.folder_fileWidget.filePath(),
+        #     rodzaj=rodzaj,
+        #     format_danych=format_danych
+        # )
+
+    #     QgsApplication.taskManager().addTask(task)
+    #     QgsMessageLog.logMessage('runtask')
+    # endregion
+
+    # endregion modele 3D
+    # endregion
+
+    # region EGiB WFS
+    def wfs_egib_selected_pow_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        print(powiatName)
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        # dict_teryt_name = self.dockwidget.regionFetch.getAllPowiatNameWithTeryt()
+        # teryt = list(dict_teryt_name.keys())[list(dict_teryt_name.values()).index(powiatName)]
+        task = DownloadWfsEgibTask(
+            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt
         )
         QgsApplication.taskManager().addTask(task)
