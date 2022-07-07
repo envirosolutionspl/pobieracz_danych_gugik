@@ -3,9 +3,7 @@ from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
     )
 from .. import service_api, utils
-
-
-
+from ..wfs import WfsEgib
 
 
 class DownloadWfsEgibTask(QgsTask):
@@ -29,7 +27,9 @@ class DownloadWfsEgibTask(QgsTask):
         self.wfs = list(dictionary.values())[list(dictionary.keys()).index(teryt)]
         print(teryt, " ", self.wfs)
 
-        #self.wfsEgib = WfsEgib()
+        self.wfsEgib = WfsEgib()
+        self.wfsEgib.main('https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', self.folder)
+
 
     # def run(self):
     #     """Here you implement your heavy lifting.
