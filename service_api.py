@@ -26,8 +26,13 @@ def getRequest(params, url):
 
 
 def retreiveFile(url, destFolder):
+    file_name = url.split('/')[-1]
 
-    path = os.path.join(destFolder, url.split('/')[-1])
+    if file_name.find("?") > 0:
+        file_name = (file_name.split('?')[-1].replace('=', '_')) + '.zip'
+
+    path = os.path.join(destFolder, file_name)
+
     print(path)
     try:
         r = requests.get(url)
@@ -43,8 +48,9 @@ def retreiveFile(url, destFolder):
         retreiveFile(url, destFolder)
         return [True]
 
+
 if __name__ == '__main__':
-    url="https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
+    url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
     destFolder = "D:/test/orto"
     # r = retreiveFile(url, destFolder)
     # r = requests.get(url)

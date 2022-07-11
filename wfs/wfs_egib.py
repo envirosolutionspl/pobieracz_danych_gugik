@@ -97,7 +97,7 @@ class WfsEgib:
         # dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', '2471': 'https://wms.sip.piekary.pl/piekary-egib?service=WFS&request=GetCapabilities'}
         # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
         # dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities'}
-        # dictionary = {'0811': 'https://zary.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities'}
+        dictionary = {'2613': 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities'}
         # dictionary = {'1465': 'https://wms2.um.warszawa.pl/geoserver/wfs/wms?service=WFS&request=GetCapabilities'}
         num_error_exists_file = 0
         for teryt,wfs in dictionary.items():

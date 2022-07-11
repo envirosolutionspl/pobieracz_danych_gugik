@@ -64,15 +64,21 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # PRG
         self.powiatDict_prg = {}
         self.gminaDict_prg = {}
-        # self.prg_wojewodztwo_cmbbx.clear()
-        # self.prg_powiat_cmbbx.clear()
-        # self.prg_gmina_cmbbx.clear()
         self.prg_wojewodztwo_cmbbx.currentTextChanged.connect(self.prg_wojewodztwo_cmbbx_currentTextChanged)
         self.prg_powiat_cmbbx.currentTextChanged.connect(self.prg_powiat_cmbbx_currentTextChanged)
-        # self.prg_gmina_cmbbx.currentTextChanged.connect(self.prg_gmina_cmbbx_currentTextChanged)
         prg_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.prg_wojewodztwo_cmbbx.addItems(prg_wojewodztwa)
 
+        # if self.prg_groupBox.setCollapsed(True):
+            # if self.radioButton_adres_gmin.isChecked():
+            #     print("sacdsc")
+            #     self.prg_gml_rdbtn.setCheckable(False)
+            # elif self.radioButton_adres_powiat.isChecked():
+            #     self.prg_gml_rdbtn.setCheckable(False)
+            # elif (self.radioButton_adres_wojew.isChecked() or self.radioButton_adres_wojew.isChecked() or self.radioButton_jend_admin_wojew.isChecked()):
+            #     self.prg_gml_rdbtn.setCheckable(False)
+            # elif self.radioButton_adres_kraj.isChecked() or self.radioButton_granice_spec.isChecked() or self.radioButton_jedn_admin_kraj.isChecked():
+            #     self.prg_gml_rdbtn.setCheckable(True)
 
         #WFS
         self.wfs_mapLayerComboBox.setFilters(
@@ -117,16 +123,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def prg_wojewodztwo_cmbbx_currentTextChanged(self, text):
         self.prg_powiat_cmbbx.clear()
         self.powiatDict_prg = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        print("zamiana woj ", text)
         self.prg_powiat_cmbbx.addItems(list(self.powiatDict_prg.keys()))
 
     def prg_powiat_cmbbx_currentTextChanged(self, text):
         self.prg_gmina_cmbbx.clear()
         self.gminaDict_prg = self.regionFetch.getGminaDictByPowiatName(text)
-        print("zmiana powiatu ", text)
         self.prg_gmina_cmbbx.addItems(list(self.gminaDict_prg.keys()))
-
-    # def prg_gmina_cmbbx_currentTextChanged(self, text):
-    #     self.prg_gmina_cmbbx.clear()
-    #     print("Zmiana gmina ", text)
-

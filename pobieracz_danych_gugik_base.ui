@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>403</width>
+    <width>417</width>
     <height>824</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>389</width>
+         <width>403</width>
          <height>794</height>
         </rect>
        </property>
@@ -1693,29 +1693,97 @@ nieodpłatnie przez GUGiK.</string>
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="prg_groupBox">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="title">
            <string>PRG</string>
           </property>
           <property name="collapsed">
            <bool>false</bool>
           </property>
+          <property name="saveCollapsedState">
+           <bool>true</bool>
+          </property>
           <property name="saveCheckedState">
            <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
+            <widget class="QGroupBox" name="groupBox_8">
+             <property name="title">
+              <string>Format danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QRadioButton" name="prg_shp_rdbtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="prg_gml_rdbtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="mouseTracking">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="verticalGroupBox">
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
              <property name="title">
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
              <layout class="QVBoxLayout" name="verticalLayout_8">
               <item>
                <widget class="QRadioButton" name="radioButton_adres_gmin">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="acceptDrops">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>adresy i ulice wg gmin</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -1726,6 +1794,9 @@ nieodpłatnie przez GUGiK.</string>
                <widget class="QRadioButton" name="radioButton_adres_powiat">
                 <property name="text">
                  <string>adresy i ulice wg powiatów</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1771,45 +1842,17 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_8">
-             <property name="title">
-              <string>Format danych</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QRadioButton" name="prg_shp_rdbtn">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>SHP</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="prg_gml_rdbtn">
-                <property name="text">
-                 <string>GML</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
             <widget class="QWidget" name="widget_4" native="true">
              <layout class="QFormLayout" name="formLayout_4">
               <item row="3" column="1">
-               <widget class="QComboBox" name="prg_gmina_cmbbx"/>
+               <widget class="QComboBox" name="prg_gmina_cmbbx">
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="3" column="0">
                <widget class="QLabel" name="label_159">
@@ -1819,7 +1862,17 @@ nieodpłatnie przez GUGiK.</string>
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QComboBox" name="prg_powiat_cmbbx"/>
+               <widget class="QComboBox" name="prg_powiat_cmbbx">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="duplicatesEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_160">
@@ -1836,7 +1889,14 @@ nieodpłatnie przez GUGiK.</string>
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="prg_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="prg_wojewodztwo_cmbbx">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>

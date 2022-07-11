@@ -7,7 +7,7 @@ from qgis.gui import *
 from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
-    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask)
+    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask, DownloadPrgTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -112,9 +112,6 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-
-
-
         icon_path = ':/plugins/pobieracz_danych_gugik/img/icon_pw2.png'
         self.add_action(
             icon_path,
@@ -174,7 +171,8 @@ class PobieraczDanychGugik:
             self.dockwidget.las_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.lasClickTool))
             self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
 
-            self.dockwidget.reflectance_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.reflectanceClickTool))
+            self.dockwidget.reflectance_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.reflectanceClickTool))
             self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
 
             self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
@@ -185,6 +183,8 @@ class PobieraczDanychGugik:
 
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
+            self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState)
+            self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
             self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
@@ -204,10 +204,6 @@ class PobieraczDanychGugik:
             # show the dockwidget
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
             self.dockwidget.show()
-
-
-
-
 
     # region WFS
     def btnstate(self):
@@ -246,7 +242,6 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-
         bledy = 0
         layer = self.dockwidget.wfs_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
@@ -258,11 +253,12 @@ class PobieraczDanychGugik:
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
+
     def test(self):
         print('test')
+
     def downloadWfsForLayer(self, layer):
         """Pobiera dane WFS """
-
 
         if (isinstance(layer, QgsPointXY)):
             print('isinstance xy')
@@ -298,8 +294,9 @@ class PobieraczDanychGugik:
                 return
             else:
                 msgbox = QMessageBox(QMessageBox.Question,
-                                    "Potwierdź pobieranie",
-                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(urls))
+                                     "Potwierdź pobieranie",
+                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                         urls))
                 msgbox.addButton(QMessageBox.Yes)
                 msgbox.addButton(QMessageBox.No)
                 msgbox.setDefaultButton(QMessageBox.No)
@@ -311,15 +308,13 @@ class PobieraczDanychGugik:
                 else:
                     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
 
-
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
         task = DownloadWfsTask(description='Pobieranie plików z WFS',
-                                    urlList=urlList,
-                                    folder=self.dockwidget.folder_fileWidget.filePath())
+                               urlList=urlList,
+                               folder=self.dockwidget.folder_fileWidget.filePath())
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
-
 
     def canvasWfs_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
@@ -331,6 +326,7 @@ class PobieraczDanychGugik:
         """Pobiera plik z wfs"""
         QgsMessageLog.logMessage('start ' + orto.url)
         service_api.retreiveFile(url=orto.url, destFolder=folder)
+
     # endregion
 
     # region ORTOFOTOMAPA
@@ -342,7 +338,6 @@ class PobieraczDanychGugik:
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
-
 
         bledy = 0
         layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
@@ -485,7 +480,7 @@ class PobieraczDanychGugik:
             nmtList = []
             for point in points:
                 resp = nmpt_api.getNmptListbyPoint1992(point=point,
-                                                          isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                                                       isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
                     point=point, isEvrf2007=isEvrf2007)
                 if resp[0]:
                     nmtList.extend(resp[1])
@@ -510,13 +505,14 @@ class PobieraczDanychGugik:
         isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
         resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
-                                                  isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                                               isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
             point=point1992, isEvrf2007=isEvrf2007)
         if resp[0]:
             nmtList = resp[1]
             self.filterNmtListAndRunTask(nmtList)
         else:
-            self.iface.messageBar().pushCritical("Błąd pobierania", f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
+            self.iface.messageBar().pushCritical("Błąd pobierania",
+                                                 f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
 
     def filterNmtListAndRunTask(self, nmtList):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
@@ -822,7 +818,8 @@ class PobieraczDanychGugik:
         if self.dockwidget.reflectance_filter_groupBox.isChecked():
             if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.ukladWspolrzednych.split(":")[0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
+                                   reflectance.ukladWspolrzednych.split(":")[
+                                       0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
             if self.dockwidget.reflectance_from_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
                                    reflectance.aktualnosc >= self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date()]
@@ -831,13 +828,14 @@ class PobieraczDanychGugik:
                                    reflectance.aktualnosc <= self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.wielkoscPiksela >= float(self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
+                                   reflectance.wielkoscPiksela >= float(
+                                       self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
                                    reflectance.wielkoscPiksela <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                            reflectance.zrodloDanych == self.dockwidget.reflectance_source_cmbbx.currentText()]
+                                   reflectance.zrodloDanych == self.dockwidget.reflectance_source_cmbbx.currentText()]
         return reflectanceList
 
     def downloadReflectanceFile(self, reflectance, folder):
@@ -937,7 +935,6 @@ class PobieraczDanychGugik:
         elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
             format_danych = "XLSX"
 
-
         task = DownloadPrngTask(
             description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -947,41 +944,74 @@ class PobieraczDanychGugik:
 
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # endregion PRG
+
+    def radioButtonState(self):
+        self.dockwidget.radioButton_adres_kraj.setEnabled(True)
+        self.dockwidget.radioButton_granice_spec.setEnabled(True)
+        self.dockwidget.radioButton_jedn_admin_kraj.setEnabled(True)
+
+        if self.dockwidget.prg_gml_rdbtn.isChecked():
+            self.dockwidget.radioButton_adres_kraj.setChecked(True)
+            self.dockwidget.radioButton_adres_gmin.setEnabled(False)
+            self.dockwidget.radioButton_adres_powiat.setEnabled(False)
+            self.dockwidget.radioButton_adres_wojew.setEnabled(False)
+            self.dockwidget.radioButton_adres_wojew.setEnabled(False)
+            self.dockwidget.radioButton_jend_admin_wojew.setEnabled(False)
+        else:
+            self.dockwidget.radioButton_adres_gmin.setChecked(True)
+            self.dockwidget.radioButton_adres_gmin.setEnabled(True)
+            self.dockwidget.radioButton_adres_powiat.setEnabled(True)
+            self.dockwidget.radioButton_adres_wojew.setEnabled(True)
+            self.dockwidget.radioButton_adres_wojew.setEnabled(True)
+            self.dockwidget.radioButton_jend_admin_wojew.setEnabled(True)
+
     def prg_selected_btn_clicked(self):
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
-            return False
+            return
+        prg_format_danych = ''
 
-        # rodzaj = None
-        # format_danych = None
-        #
-        # if self.dockwidget.prng_miejsco_rdbtn.isChecked():
-        #     rodzaj = "MIEJSCOWOSCI"
-        # elif self.dockwidget.prng_fizjog_rdbtn.isChecked():
-        #     rodzaj = "OBIEKTY_FIZJOGRAFICZNE"
-        # elif self.dockwidget.prng_swiat_rdbtn.isChecked():
-        #     rodzaj = "SWIAT"
-        #
-        # if self.dockwidget.prng_gml_rdbtn.isChecked():
-        #     format_danych = "GML"
-        # elif self.dockwidget.prng_shp_rdbtn.isChecked():
-        #     format_danych = "SHP"
-        # elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
-        #     format_danych = "XLSX"
+        if self.dockwidget.prg_shp_rdbtn.isChecked():
+            prg_format_danych = 'shp'
+        elif self.dockwidget.prg_gml_rdbtn.isChecked():
+            prg_format_danych = 'gml'
 
+        if self.dockwidget.radioButton_adres_gmin.isChecked():
+            gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
+            teryt = self.dockwidget.regionFetch.getTerytByGminaName(gmina_name)
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
+        elif self.dockwidget.radioButton_adres_powiat.isChecked():
+            powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
+            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
+        elif self.dockwidget.radioButton_adres_wojew.isChecked():
+            wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
+            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
+        elif self.dockwidget.radioButton_adres_kraj.isChecked():
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?adresy_zbiorcze_{prg_format_danych}"
+        elif self.dockwidget.radioButton_granice_spec.isChecked():
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?granice_specjalne_{prg_format_danych}"
+        elif self.dockwidget.radioButton_jend_admin_wojew.isChecked():
+            wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
+            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
+        elif self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
+            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
 
-        # task = DownloadPrngTask(
-        #     description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
-        #     folder=self.dockwidget.folder_fileWidget.filePath(),
-        #     rodzaj=rodzaj,
-        #     format_danych=format_danych
-        # )
+        task = DownloadPrgTask(
+            description=f'Pobieranie danych z Państwowego Rejestru Granic',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            url=self.url
+        )
 
-    #     QgsApplication.taskManager().addTask(task)
-    #     QgsMessageLog.logMessage('runtask')
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # endregion modele 3D
@@ -1019,8 +1049,8 @@ class PobieraczDanychGugik:
                 'OUTPUT': 'memory:TEMPORARY_OUTPUT'}
             proc = processing.run("qgis:reprojectlayer", params)
             layer = proc['OUTPUT']
-            print('d ',proc)
-            print('e ',type(layer), layer)
+            print('d ', proc)
+            print('e ', type(layer), layer)
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
             points = utils.createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
@@ -1055,13 +1085,11 @@ class PobieraczDanychGugik:
         if dataType == 'REFLECTANCE':
             pass
 
-
         # usuwanie duplikatów
         dataList = list(set(dataList))
 
         # filtrowanie
         dataList = filterFunction(dataList)
-
 
         # wyswietl komunikat pytanie
         if len(dataList) == 0:
