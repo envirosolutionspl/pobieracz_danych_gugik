@@ -295,6 +295,9 @@ nieodpłatnie przez GUGiK.</string>
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="wfs_egib_groupBox">
+          <property name="toolTip">
+           <string>WFS dla Ewidencji gruntów i budynków</string>
+          </property>
           <property name="title">
            <string>Dane EGiB dla powiatu</string>
           </property>
@@ -1760,13 +1763,13 @@ nieodpłatnie przez GUGiK.</string>
            <string>Państwowy Rejestr Granic</string>
           </property>
           <property name="styleSheet">
-           <string notr="true"> QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}</string>
           </property>
           <property name="title">
            <string>PRG</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="saveCollapsedState">
            <bool>true</bool>
@@ -1845,8 +1848,11 @@ nieodpłatnie przez GUGiK.</string>
                 <property name="acceptDrops">
                  <bool>false</bool>
                 </property>
+                <property name="toolTip">
+                 <string>adresy i ulice według gmin</string>
+                </property>
                 <property name="text">
-                 <string>adresy i ulice wg gmin</string>
+                 <string>adresy - gminy</string>
                 </property>
                 <property name="checkable">
                  <bool>true</bool>
@@ -1858,8 +1864,11 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_adres_powiat">
+                <property name="toolTip">
+                 <string>adresy i ulice według powiatów</string>
+                </property>
                 <property name="text">
-                 <string>adresy i ulice wg powiatów</string>
+                 <string>adresy - powiaty</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -1868,39 +1877,54 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_adres_wojew">
+                <property name="toolTip">
+                 <string>adresy i ulice według województw</string>
+                </property>
                 <property name="text">
-                 <string>adresy i ulice wg województw</string>
+                 <string>adresy - województwa</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_adres_kraj">
-                <property name="text">
+                <property name="toolTip">
                  <string>adresy i ulice dla całego kraju</string>
+                </property>
+                <property name="text">
+                 <string>adresy - Polska</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_granice_spec">
-                <property name="text">
+                <property name="toolTip">
                  <string>granice specjalne dla całego kraju</string>
                 </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="radioButton_jend_admin_wojew">
                 <property name="text">
-                 <string>jednostki administracyjne dla wybrango województwa</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
+                 <string>granice spec. - Polska</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_jedn_admin_kraj">
+                <property name="toolTip">
+                 <string>jednostki administracyjne dla całego kraju</string>
+                </property>
                 <property name="text">
-                 <string>jednostki administarcyjne dla całego kraju</string>
+                 <string>jedn. adm. - Polska</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_jend_admin_wojew">
+                <property name="toolTip">
+                 <string>jednostki administracyjne dla wybrango województwa</string>
+                </property>
+                <property name="text">
+                 <string>jedn. adm. - województwa</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
