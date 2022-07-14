@@ -61,11 +61,11 @@ class RegionFetch:
         return self.wojewodztwoDict[name]
 
     def getTerytByPowiatName(self,name):
-        print("teryt ", self.filteredPowiatDict[name])
+        # print("teryt ", self.filteredPowiatDict[name])
         return self.filteredPowiatDict[name]
 
     def getTerytByGminaName(self,name):
-        print("teryt ", self.filteredGminaDict[name])
+        # print("teryt ", self.filteredGminaDict[name])
         return self.filteredGminaDict[name]
 
 if __name__ == '__main__':

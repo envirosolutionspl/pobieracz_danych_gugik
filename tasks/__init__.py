@@ -8,3 +8,4 @@ from .downloadWfsTask import DownloadWfsTask
 from .downloadWfsEgibTask import DownloadWfsEgibTask
 from .downloadPrngTask import DownloadPrngTask
 from .downloadPrgTask import DownloadPrgTask
+from .downloadModel3dTask import DownloadModel3dTask

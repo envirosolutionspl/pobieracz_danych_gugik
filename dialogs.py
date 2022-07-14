@@ -69,16 +69,12 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         prg_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.prg_wojewodztwo_cmbbx.addItems(prg_wojewodztwa)
 
-        # if self.prg_groupBox.setCollapsed(True):
-            # if self.radioButton_adres_gmin.isChecked():
-            #     print("sacdsc")
-            #     self.prg_gml_rdbtn.setCheckable(False)
-            # elif self.radioButton_adres_powiat.isChecked():
-            #     self.prg_gml_rdbtn.setCheckable(False)
-            # elif (self.radioButton_adres_wojew.isChecked() or self.radioButton_adres_wojew.isChecked() or self.radioButton_jend_admin_wojew.isChecked()):
-            #     self.prg_gml_rdbtn.setCheckable(False)
-            # elif self.radioButton_adres_kraj.isChecked() or self.radioButton_granice_spec.isChecked() or self.radioButton_jedn_admin_kraj.isChecked():
-            #     self.prg_gml_rdbtn.setCheckable(True)
+        # modele 3D
+        self.powiatDict_model3d = {}
+
+        self.model3d_wojewodztwo_cmbbx.currentTextChanged.connect(self.model3d_wojewodztwo_cmbbx_currentTextChanged)
+        model3d_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
+        self.model3d_wojewodztwo_cmbbx.addItems(model3d_wojewodztwa)
 
         #WFS
         self.wfs_mapLayerComboBox.setFilters(
@@ -129,3 +125,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.prg_gmina_cmbbx.clear()
         self.gminaDict_prg = self.regionFetch.getGminaDictByPowiatName(text)
         self.prg_gmina_cmbbx.addItems(list(self.gminaDict_prg.keys()))
+
+    def model3d_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.model3d_powiat_cmbbx.clear()
+        self.powiatDict_model3d = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.model3d_powiat_cmbbx.addItems(list(self.powiatDict_model3d.keys()))

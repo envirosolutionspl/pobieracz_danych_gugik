@@ -1,7 +1,6 @@
 import requests
 import os, time
 
-
 def getRequest(params, url):
     try:
         r = requests.get(url=url, params=params)
@@ -28,8 +27,10 @@ def getRequest(params, url):
 def retreiveFile(url, destFolder):
     file_name = url.split('/')[-1]
 
-    if file_name.find("?") > 0:
+    if '?' in file_name:
         file_name = (file_name.split('?')[-1].replace('=', '_')) + '.zip'
+    elif 'Budynki3D' in url:
+        file_name = "Budynki_3D_" + file_name
 
     path = os.path.join(destFolder, file_name)
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from PyQt5.uic.properties import QtWidgets
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
@@ -7,7 +7,8 @@ from qgis.gui import *
 from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
-    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask, DownloadPrgTask)
+    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
+    DownloadPrgTask, DownloadModel3dTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -157,6 +158,16 @@ class PobieraczDanychGugik:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
             # Eventy
+
+            self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
+            self.dockwidget.wms_rdbtn.toggled.emit(True)
+
+            self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
+            self.dockwidget.paczka_rdbtn.toggled.emit(True)
+
+            self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
+            self.dockwidget.inne_rdbtn.toggled.emit(True)
+
             self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
             self.dockwidget.wfs_rdbtn.toggled.emit(True)
             self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
@@ -187,6 +198,8 @@ class PobieraczDanychGugik:
             self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
+            self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
+
             self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
@@ -215,7 +228,7 @@ class PobieraczDanychGugik:
             self.dockwidget.reflectance_groupBox.setVisible(False)
             self.dockwidget.bdot_groupBox.setVisible(False)
             self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(True)
+            self.dockwidget.wfs_egib_groupBox.setVisible(False)
             self.dockwidget.prng_groupBox.setVisible(False)
             self.dockwidget.prg_groupBox.setVisible(False)
             self.dockwidget.model3d_groupBox.setVisible(False)
@@ -226,13 +239,39 @@ class PobieraczDanychGugik:
             self.dockwidget.nmt_groupBox.setVisible(True)
             self.dockwidget.las_groupBox.setVisible(True)
             self.dockwidget.reflectance_groupBox.setVisible(True)
+            self.dockwidget.bdot_groupBox.setVisible(False)
+            self.dockwidget.bdoo_groupBox.setVisible(False)
+            self.dockwidget.wfs_egib_groupBox.setVisible(False)
+            self.dockwidget.prng_groupBox.setVisible(False)
+            self.dockwidget.prg_groupBox.setVisible(False)
+            self.dockwidget.model3d_groupBox.setVisible(False)
+            # print('wms')
+        if self.dockwidget.paczka_rdbtn.isChecked():
+            self.dockwidget.wfs_groupBox.setVisible(False)
+            self.dockwidget.orto_groupBox.setVisible(False)
+            self.dockwidget.nmt_groupBox.setVisible(False)
+            self.dockwidget.las_groupBox.setVisible(False)
+            self.dockwidget.reflectance_groupBox.setVisible(False)
             self.dockwidget.bdot_groupBox.setVisible(True)
             self.dockwidget.bdoo_groupBox.setVisible(True)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
+            self.dockwidget.wfs_egib_groupBox.setVisible(True)
             self.dockwidget.prng_groupBox.setVisible(True)
             self.dockwidget.prg_groupBox.setVisible(True)
             self.dockwidget.model3d_groupBox.setVisible(True)
-            # print('wms')
+            # print('paczka danych')
+        if self.dockwidget.inne_rdbtn.isChecked():
+            self.dockwidget.wfs_groupBox.setVisible(False)
+            self.dockwidget.orto_groupBox.setVisible(False)
+            self.dockwidget.nmt_groupBox.setVisible(False)
+            self.dockwidget.las_groupBox.setVisible(False)
+            self.dockwidget.reflectance_groupBox.setVisible(False)
+            self.dockwidget.bdot_groupBox.setVisible(False)
+            self.dockwidget.bdoo_groupBox.setVisible(False)
+            self.dockwidget.wfs_egib_groupBox.setVisible(False)
+            self.dockwidget.prng_groupBox.setVisible(False)
+            self.dockwidget.prg_groupBox.setVisible(False)
+            self.dockwidget.model3d_groupBox.setVisible(False)
+            # print('inne dane')
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
@@ -895,7 +934,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # region BDOO
-
     def bdoo_selected_woj_btn_clicked(self):
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -948,7 +986,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # endregion PRG
-
     def radioButtonState(self):
         self.dockwidget.radioButton_adres_kraj.setEnabled(True)
         self.dockwidget.radioButton_granice_spec.setEnabled(True)
@@ -1015,6 +1052,44 @@ class PobieraczDanychGugik:
     # endregion
 
     # endregion modele 3D
+    def model3d_selected_powiat_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        standard = None
+        if self.dockwidget.model3d_lod1_rdbtn.isChecked():
+            standard = "LOD1"
+        elif self.dockwidget.model3d_lod2_rdbtn.isChecked():
+            standard = "LOD2"
+
+        od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
+        do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
+        roznica = do_data - od_data
+
+        data_lista = []
+        if roznica < 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
+                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
+            msgbox.exec_()
+            return False
+        else:
+            for rok in range(int(od_data), int(do_data) + 1):
+                data_lista.append(rok)
+
+        powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        task = DownloadModel3dTask(
+            description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            teryt_powiat=teryt_powiat,
+            teryt_wojewodztwo=teryt_powiat[0:2],
+            standard=standard,
+            data_lista=data_lista
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region EGiB WFS
