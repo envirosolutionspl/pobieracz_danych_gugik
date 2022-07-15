@@ -1101,8 +1101,6 @@ class PobieraczDanychGugik:
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
         print(powiatName)
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        # dict_teryt_name = self.dockwidget.regionFetch.getAllPowiatNameWithTeryt()
-        # teryt = list(dict_teryt_name.keys())[list(dict_teryt_name.values()).index(powiatName)]
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1110,7 +1108,6 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
-
     # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):
