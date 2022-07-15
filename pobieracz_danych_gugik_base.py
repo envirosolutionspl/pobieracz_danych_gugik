@@ -883,7 +883,7 @@ class Ui_PobieraczDanychDockWidgetBase(object):
         self.verticalLayout_7.addWidget(self.prg_selected_btn)
         self.verticalLayout_2.addWidget(self.prg_groupBox)
         self.model3d_groupBox = QgsCollapsibleGroupBox(self.scrollAreaWidgetContents)
-        self.model3d_groupBox.setCollapsed(False)
+        self.model3d_groupBox.setCollapsed(True)
         self.model3d_groupBox.setObjectName("model3d_groupBox")
         self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.model3d_groupBox)
         self.verticalLayout_9.setObjectName("verticalLayout_9")

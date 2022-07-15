@@ -43,8 +43,6 @@ def retreiveFile(url, destFolder):
 
     elif 'PRG' in url:
         file_name = "PRG_" + file_name
-    elif 'PRNG' in url:
-        file_name = "PRNG_" + file_name
     elif 'bdot10k' in url:
         file_name = "bdot10k_" + file_name
     elif 'bdoo' in url:

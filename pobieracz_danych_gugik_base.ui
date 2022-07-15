@@ -2014,7 +2014,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Modele 3D budynków</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>

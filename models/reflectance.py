@@ -18,7 +18,7 @@ class Reflectance:
     ):
         self.url = url
         self.godlo = godlo
-        self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y/%m/%d').date()
+        self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y-%m-%d').date()
         self.wielkoscPiksela = float(wielkoscPiksela)
         self.ukladWspolrzednych = ukladWspolrzednych
         self.modulArchiwizacji = modulArchiwizacji

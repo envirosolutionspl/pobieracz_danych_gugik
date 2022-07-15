@@ -85,12 +85,13 @@ class DownloadNmtTask(QgsTask):
                 'uklad_wspolrzednych_wysokosciowych',
                 'caly_arkusz_wypelniony_trescia',
                 'numer_zgloszenia_pracy',
-                'aktualnosc_rok'
+                'aktualnosc_rok',
+                'zrodlo_danych'
             ]
             csvFile.write(','.join(naglowki)+'\n')
             for nmt in self.nmtList:
                 fileName = nmt.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
                     nmt.format,
                     nmt.godlo,
@@ -101,5 +102,6 @@ class DownloadNmtTask(QgsTask):
                     nmt.ukladWysokosci,
                     nmt.calyArkuszWyeplnionyTrescia,
                     nmt.numerZgloszeniaPracy,
-                    nmt.aktualnoscRok
+                    nmt.aktualnoscRok,
+                    nmt.zrDanych
                 ))

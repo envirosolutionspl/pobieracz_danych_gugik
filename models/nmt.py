@@ -14,7 +14,7 @@ class Nmt:
             ukladWspolrzednychPionowych,
             calyArkuszWypelnionyTrescia,
             modulArchiwizacji,
-            zrodloDanych='',
+            zrDanych='',
             kolor='',
             numerZgloszeniaPracy='',
             aktualnoscRok='',
@@ -30,7 +30,7 @@ class Nmt:
         self.ukladWysokosci = ukladWspolrzednychPionowych
         self.calyArkuszWyeplnionyTrescia = calyArkuszWypelnionyTrescia
         self.modulArchiwizacji = modulArchiwizacji
-        self.zrodloDanych = zrodloDanych
+        self.zrDanych = zrDanych
         self.kolor = kolor
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
