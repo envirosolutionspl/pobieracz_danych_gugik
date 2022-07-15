@@ -296,7 +296,7 @@ nieodpłatnie przez GUGiK.</string>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="wfs_egib_groupBox">
           <property name="toolTip">
-           <string>WFS dla Ewidencji gruntów i budynków</string>
+           <string>WFS dla Ewidencji Gruntów i Budynków</string>
           </property>
           <property name="title">
            <string>Dane EGiB dla powiatu</string>
@@ -1763,13 +1763,13 @@ nieodpłatnie przez GUGiK.</string>
            <string>Państwowy Rejestr Granic</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px} QgsCollapsibleGroupBoxBasic { border: none; }</string>
           </property>
           <property name="title">
            <string>PRG</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="saveCollapsedState">
            <bool>true</bool>
@@ -2014,7 +2014,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Modele 3D budynków</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
@@ -2027,20 +2027,14 @@ nieodpłatnie przez GUGiK.</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
-               <widget class="QRadioButton" name="model3d_lod1_rdbtn">
+               <widget class="QCheckBox" name="model3d_lod1_rdbtn">
                 <property name="text">
                  <string>LOD1</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="model3d_lod2_rdbtn">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+               <widget class="QCheckBox" name="model3d_lod2_rdbtn">
                 <property name="text">
                  <string>LOD2</string>
                 </property>

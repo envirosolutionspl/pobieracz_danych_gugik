@@ -13,31 +13,31 @@ class DownloadModel3dTask(QgsTask):
     def __init__(self, description, folder, teryt_powiat, teryt_wojewodztwo, standard, data_lista):
 
         super().__init__(description, QgsTask.CanCancel)
-        self.liczba_dobrych_url = []
-        self.list_url = []
         self.folder = folder
         self.exception = None
         self.teryt_powiat = teryt_powiat
         self.teryt_wojewodztwo = teryt_wojewodztwo
         self.standard = standard
         self.data_lista = data_lista
+        self.liczba_dobrych_url = []
 
     def run(self):
-
+        list_url = []
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         # total = len(self.nmtList)
 
-        for rok in self.data_lista:
-            url1 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{self.standard}/{rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}.zip"
-            url2 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{self.standard}/{rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}_gml.zip"
-            url3 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{self.standard}/{self.teryt_powiat}_gml.zip"
-            url4 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{self.standard}/{self.teryt_powiat}.zip"
-            self.list_url.append(url1)
-            self.list_url.append(url2)
-            self.list_url.append(url3)
-            self.list_url.append(url4)
+        for standard in self.standard:
+            for rok in self.data_lista:
+                url1 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{standard}/{rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}.zip"
+                url2 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{standard}/{rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}_gml.zip"
+                list_url.append(url1)
+                list_url.append(url2)
+            url3 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{standard}/{self.teryt_powiat}_gml.zip"
+            url4 = f"https://opendata.geoportal.gov.pl/InneDane/Budynki3D/{standard}/{self.teryt_powiat}.zip"
+            list_url.append(url3)
+            list_url.append(url4)
 
-        for url in self.list_url:
+        for url in list_url:
             r = requests.get(url)
             if str(r.status_code) == '200':
                 self.liczba_dobrych_url.append(url)
@@ -50,6 +50,7 @@ class DownloadModel3dTask(QgsTask):
         if len(self.liczba_dobrych_url) == 0:
             return False
         else:
+            # print("liczba_dobrych_url", len(self.liczba_dobrych_url))
             utils.openFile(self.folder)
             if self.isCanceled():
                 return False

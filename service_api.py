@@ -29,8 +29,26 @@ def retreiveFile(url, destFolder):
 
     if '?' in file_name:
         file_name = (file_name.split('?')[-1].replace('=', '_')) + '.zip'
-    elif 'Budynki3D' in url:
-        file_name = "Budynki_3D_" + file_name
+    else:
+        pass
+
+    if 'Budynki3D' in url:
+        if 'LOD1' in url:
+            file_name = "Budynki_3D_LOD1_" + file_name
+        elif 'LOD2' in url:
+            file_name = "Budynki_3D_LOD2_" + file_name
+
+        if len(url.split('/')) == 9:
+            file_name = url.split('/')[6] + '_' + file_name
+
+    elif 'PRG' in url:
+        file_name = "PRG_" + file_name
+    elif 'PRNG' in url:
+        file_name = "PRNG_" + file_name
+    elif 'bdot10k' in url:
+        file_name = "bdot10k_" + file_name
+    elif 'bdoo' in url:
+        file_name = "bdoo_" + file_name
 
     path = os.path.join(destFolder, file_name)
 

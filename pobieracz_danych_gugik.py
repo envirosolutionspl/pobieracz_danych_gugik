@@ -195,7 +195,14 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
             self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState)
-            self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
+            # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
+            self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty)
+            self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa)
+            self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa)
+            self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj)
+            self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj)
+            self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj)
+            self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina)
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
             self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
@@ -1006,6 +1013,27 @@ class PobieraczDanychGugik:
             self.dockwidget.radioButton_adres_wojew.setEnabled(True)
             self.dockwidget.radioButton_jend_admin_wojew.setEnabled(True)
 
+    def radioButton_gmina(self):
+        if self.dockwidget.radioButton_adres_gmin.isChecked():
+            self.dockwidget.prg_gmina_cmbbx.setEnabled(True)
+            self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
+            self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+    def radioButton_powiaty(self):
+        if self.dockwidget.radioButton_adres_powiat.isChecked():
+            self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
+            self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
+            self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+    def radioButton_wojewodztwa(self):
+        if self.dockwidget.radioButton_adres_wojew.isChecked() or self.dockwidget.radioButton_jend_admin_wojew.isChecked():
+            self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
+            self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
+            self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+    def radioButton_kraj(self):
+        if self.dockwidget.radioButton_adres_kraj.isChecked() or self.dockwidget.radioButton_granice_spec.isChecked() or self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
+            self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
+            self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
+            self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(False)
+
     def prg_selected_btn_clicked(self):
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1057,11 +1085,18 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-        standard = None
-        if self.dockwidget.model3d_lod1_rdbtn.isChecked():
-            standard = "LOD1"
-        elif self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            standard = "LOD2"
+        standard = []
+        if self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
+            standard = ["LOD1"]
+        elif self.dockwidget.model3d_lod2_rdbtn.isChecked() and not self.dockwidget.model3d_lod1_rdbtn.isChecked():
+            standard = ["LOD2"]
+        elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
+            standard = ["LOD1", "LOD2"]
+        elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
+                                 f"Nie wybrano standardu")
+            msgbox.exec_()
+            return False
 
         od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
         do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
