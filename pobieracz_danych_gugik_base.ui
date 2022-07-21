@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>535</width>
-         <height>815</height>
+         <width>518</width>
+         <height>847</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2212,7 +2212,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Zestawienia Zbiorcze EGiB</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
@@ -2367,11 +2367,14 @@ nieodpłatnie przez GUGiK.</string>
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="tyflologiczne_groupBox">
+          <property name="toolTip">
+           <string>Mapy dla niewidomych i słabowidzących</string>
+          </property>
           <property name="title">
            <string>Opracowania tyflologiczne </string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
@@ -2403,9 +2406,6 @@ nieodpłatnie przez GUGiK.</string>
                 <property name="acceptDrops">
                  <bool>false</bool>
                 </property>
-                <property name="toolTip">
-                 <string>adresy i ulice według gmin</string>
-                </property>
                 <property name="text">
                  <string>Atlas Świata - sitodruk wypukły (2012)</string>
                 </property>
@@ -2419,9 +2419,6 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_atlas_europa">
-                <property name="toolTip">
-                 <string>adresy i ulice według powiatów</string>
-                </property>
                 <property name="text">
                  <string>Atlas Europy - papier puchnący (2006)</string>
                 </property>
@@ -2432,9 +2429,6 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_atlas_polska_1">
-                <property name="toolTip">
-                 <string>adresy i ulice według województw</string>
-                </property>
                 <property name="text">
                  <string>Atlas Polski - termoformowanie (2020)</string>
                 </property>
@@ -2442,9 +2436,6 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_atlas_polska_2">
-                <property name="toolTip">
-                 <string>adresy i ulice dla całego kraju</string>
-                </property>
                 <property name="text">
                  <string>Atlas Polski - papier puchnący (2004)</string>
                 </property>
@@ -2452,9 +2443,6 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_atlas_polska_3">
-                <property name="toolTip">
-                 <string>granice specjalne dla całego kraju</string>
-                </property>
                 <property name="text">
                  <string>Atlas Polski - papier puchnący (2020)</string>
                 </property>
@@ -2462,9 +2450,6 @@ nieodpłatnie przez GUGiK.</string>
               </item>
               <item>
                <widget class="QRadioButton" name="radioButton_atlas_warszawa">
-                <property name="toolTip">
-                 <string>jednostki administracyjne dla całego kraju</string>
-                </property>
                 <property name="text">
                  <string>Atlas Warszawy - papier puchnący (2005)</string>
                 </property>
@@ -2496,7 +2481,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Osnowa geodezyjna </string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
@@ -2505,7 +2490,7 @@ nieodpłatnie przez GUGiK.</string>
               <string>Podstawowa Osnowa Geodezyjna</string>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_18">
               <item>

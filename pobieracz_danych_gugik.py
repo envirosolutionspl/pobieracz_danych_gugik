@@ -8,7 +8,7 @@ from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
-    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask)
+    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -213,6 +213,8 @@ class PobieraczDanychGugik:
             self.dockwidget.wojew_egib_excel_rdbtn.toggled.connect(self.radioButton_wojewodztwa_egib_excel)
             self.dockwidget.kraj_egib_excel_rdbtn.toggled.connect(self.radioButton_kraj_egib_excel)
             self.dockwidget.egib_excel_selected_btn.clicked.connect(self.egib_excel_selected_btn_clicked)
+
+            self.dockwidget.tyflologiczne_selected_btn.clicked.connect(self.tyflologiczne_selected_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1217,10 +1219,35 @@ class PobieraczDanychGugik:
 
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
-
     # endregion
 
     # region opracowania tyflologiczne
+    def tyflologiczne_selected_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return
+
+        if self.dockwidget.radioButton_atlas_swiata.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_SWIATA/atlas_swiata_2012_sitodruk.ZIP"
+        elif self.dockwidget.radioButton_atlas_europa.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_EUROPY/atlas_europy_2006_puchnacy.ZIP"
+        elif self.dockwidget.radioButton_atlas_polska_1.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_termoformowanie.ZIP"
+        elif self.dockwidget.radioButton_atlas_polska_2.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2004_puchnacy.ZIP"
+        elif self.dockwidget.radioButton_atlas_polska_3.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_puchnacy.ZIP"
+        elif self.dockwidget.radioButton_atlas_warszawa.isChecked():
+            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_WARSZAWY/atlas_warszawy_2005_puchnacy.ZIP"
+
+        task = DownloadOpracowaniaTyflologiczneTask(
+            description=f'Pobieranie danych z Opracowań Tyflologicznych',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            url=self.url
+        )
+
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
     # endregion
 
     # region podstawowa osnowa geodezyjna
