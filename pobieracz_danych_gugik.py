@@ -8,7 +8,7 @@ from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
-    DownloadPrgTask, DownloadModel3dTask)
+    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -194,20 +194,25 @@ class PobieraczDanychGugik:
 
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
-            self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState)
+            self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
             # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
-            self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty)
-            self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa)
-            self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa)
-            self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj)
-            self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj)
-            self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj)
-            self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina)
+            self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
+            self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
+            self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
+            self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj_PRG)
+            self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj_PRG)
+            self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj_PRG)
+            self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina_PRG)
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
             self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
 
             self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
+
+            self.dockwidget.powiat_egib_excel_rdbtn.toggled.connect(self.radioButton_powiaty_egib_excel)
+            self.dockwidget.wojew_egib_excel_rdbtn.toggled.connect(self.radioButton_wojewodztwa_egib_excel)
+            self.dockwidget.kraj_egib_excel_rdbtn.toggled.connect(self.radioButton_kraj_egib_excel)
+            self.dockwidget.egib_excel_selected_btn.clicked.connect(self.egib_excel_selected_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -239,6 +244,12 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_groupBox.setVisible(False)
             self.dockwidget.prg_groupBox.setVisible(False)
             self.dockwidget.model3d_groupBox.setVisible(False)
+            self.dockwidget.egib_excel_groupBox.setVisible(False)
+            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
+            self.dockwidget.osnowa_groupBox.setVisible(False)
+            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
+            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
+            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -252,6 +263,12 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_groupBox.setVisible(False)
             self.dockwidget.prg_groupBox.setVisible(False)
             self.dockwidget.model3d_groupBox.setVisible(False)
+            self.dockwidget.egib_excel_groupBox.setVisible(False)
+            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
+            self.dockwidget.osnowa_groupBox.setVisible(False)
+            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
+            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
+            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             # print('wms')
         if self.dockwidget.paczka_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -265,6 +282,12 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_groupBox.setVisible(True)
             self.dockwidget.prg_groupBox.setVisible(True)
             self.dockwidget.model3d_groupBox.setVisible(True)
+            self.dockwidget.egib_excel_groupBox.setVisible(False)
+            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
+            self.dockwidget.osnowa_groupBox.setVisible(False)
+            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
+            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
+            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             # print('paczka danych')
         if self.dockwidget.inne_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -278,6 +301,12 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_groupBox.setVisible(False)
             self.dockwidget.prg_groupBox.setVisible(False)
             self.dockwidget.model3d_groupBox.setVisible(False)
+            self.dockwidget.egib_excel_groupBox.setVisible(True)
+            self.dockwidget.tyflologiczne_groupBox.setVisible(True)
+            self.dockwidget.osnowa_groupBox.setVisible(True)
+            self.dockwidget.aerotriangulacja_groupBox.setVisible(True)
+            self.dockwidget.linie_mozaikowania_groupBox.setVisible(True)
+            self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
             # print('inne dane')
 
     def wfs_fromLayer_btn_clicked(self):
@@ -993,7 +1022,7 @@ class PobieraczDanychGugik:
     # endregion
 
     # endregion PRG
-    def radioButtonState(self):
+    def radioButtonState_PRG(self):
         self.dockwidget.radioButton_adres_kraj.setEnabled(True)
         self.dockwidget.radioButton_granice_spec.setEnabled(True)
         self.dockwidget.radioButton_jedn_admin_kraj.setEnabled(True)
@@ -1013,22 +1042,22 @@ class PobieraczDanychGugik:
             self.dockwidget.radioButton_adres_wojew.setEnabled(True)
             self.dockwidget.radioButton_jend_admin_wojew.setEnabled(True)
 
-    def radioButton_gmina(self):
+    def radioButton_gmina_PRG(self):
         if self.dockwidget.radioButton_adres_gmin.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(True)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
-    def radioButton_powiaty(self):
+    def radioButton_powiaty_PRG(self):
         if self.dockwidget.radioButton_adres_powiat.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
-    def radioButton_wojewodztwa(self):
+    def radioButton_wojewodztwa_PRG(self):
         if self.dockwidget.radioButton_adres_wojew.isChecked() or self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
-    def radioButton_kraj(self):
+    def radioButton_kraj_PRG(self):
         if self.dockwidget.radioButton_adres_kraj.isChecked() or self.dockwidget.radioButton_granice_spec.isChecked() or self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
@@ -1144,6 +1173,59 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
     # endregion
+
+    # region zestawienia zbiorcze EGiB
+
+    def radioButton_powiaty_egib_excel(self):
+        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
+            self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
+            self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(True)
+    def radioButton_wojewodztwa_egib_excel(self):
+        if self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
+            self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(False)
+            self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(True)
+    def radioButton_kraj_egib_excel(self):
+        if self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
+            self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(False)
+            self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(False)
+
+    def egib_excel_selected_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return
+        egib_excel_zakres_danych = ''
+
+        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'powiat'
+        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'wojew'
+        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'kraj'
+
+        rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
+        powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+
+        task = DownloadEgibExcelTask(
+            description=f'Pobieranie danych z Zestawień Zbiorczych EGiB',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            egib_excel_zakres_danych=egib_excel_zakres_danych,
+            rok=rok,
+            teryt_powiat=teryt_powiat,
+            teryt_wojewodztwo=teryt_powiat[0:2]
+        )
+
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    # endregion
+
+    # region opracowania tyflologiczne
+    # endregion
+
+    # region podstawowa osnowa geodezyjna
+    # endregion
+
 
     def pointsFromVectorLayer(self, layer, density=1000):
         """tworzy punkty do zapytań na podstawie warstwy wektorowej"""

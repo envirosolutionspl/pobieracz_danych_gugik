@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
-    <height>824</height>
+    <width>549</width>
+    <height>845</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,8 +25,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>375</width>
-         <height>794</height>
+         <width>535</width>
+         <height>815</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -145,7 +145,7 @@ nieodpłatnie przez GUGiK.</string>
              <item row="1" column="1">
               <widget class="QRadioButton" name="inne_rdbtn">
                <property name="enabled">
-                <bool>false</bool>
+                <bool>true</bool>
                </property>
                <property name="text">
                 <string>Inne dane</string>
@@ -295,6 +295,9 @@ nieodpłatnie przez GUGiK.</string>
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="wfs_egib_groupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="toolTip">
            <string>WFS dla Ewidencji Gruntów i Budynków</string>
           </property>
@@ -1763,7 +1766,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Państwowy Rejestr Granic</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px} QgsCollapsibleGroupBoxBasic { border: none; }</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -2194,6 +2197,685 @@ nieodpłatnie przez GUGiK.</string>
             <widget class="QPushButton" name="model3d_selected_powiat_btn">
              <property name="text">
               <string>  Pobierz dla wybranego powiatu</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="egib_excel_groupBox">
+          <property name="toolTip">
+           <string>Zestawienia Zbiorcze Ewidencji Gruntów i Budynków</string>
+          </property>
+          <property name="title">
+           <string>Zestawienia Zbiorcze EGiB</string>
+          </property>
+          <property name="collapsed">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QGroupBox" name="groupBox_12">
+             <property name="title">
+              <string>Zakres zestawień</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_13">
+              <item>
+               <widget class="QRadioButton" name="powiat_egib_excel_rdbtn">
+                <property name="text">
+                 <string>powiatowe</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="wojew_egib_excel_rdbtn">
+                <property name="text">
+                 <string>wojewódzkie</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="kraj_egib_excel_rdbtn">
+                <property name="text">
+                 <string>krajowe</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_13">
+             <property name="title">
+              <string>Data</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_14">
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Rok:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="egib_excel_dateEdit_comboBox"/>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Preferred</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_5" native="true">
+             <layout class="QFormLayout" name="formLayout_11">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_26">
+                <property name="text">
+                 <string>Województwo: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="egib_excel_wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Powiat: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="egib_excel_powiat_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="egib_excel_selected_btn">
+             <property name="text">
+              <string>  Pobierz wybrane dane</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="tyflologiczne_groupBox">
+          <property name="title">
+           <string>Opracowania tyflologiczne </string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QGroupBox" name="verticalGroupBox_2">
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="title">
+              <string>Rodzaj danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_swiata">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="acceptDrops">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>adresy i ulice według gmin</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Świata - sitodruk wypukły (2012)</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_europa">
+                <property name="toolTip">
+                 <string>adresy i ulice według powiatów</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Europy - papier puchnący (2006)</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_polska_1">
+                <property name="toolTip">
+                 <string>adresy i ulice według województw</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Polski - termoformowanie (2020)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_polska_2">
+                <property name="toolTip">
+                 <string>adresy i ulice dla całego kraju</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Polski - papier puchnący (2004)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_polska_3">
+                <property name="toolTip">
+                 <string>granice specjalne dla całego kraju</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Polski - papier puchnący (2020)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_atlas_warszawa">
+                <property name="toolTip">
+                 <string>jednostki administracyjne dla całego kraju</string>
+                </property>
+                <property name="text">
+                 <string>Atlas Warszawy - papier puchnący (2005)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="tyflologiczne_selected_btn">
+             <property name="text">
+              <string>  Pobierz wybrane dane</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="osnowa_groupBox">
+          <property name="title">
+           <string>Osnowa geodezyjna </string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <item>
+            <widget class="QgsCollapsibleGroupBox" name="osnowa_podstawowa_groupBox">
+             <property name="title">
+              <string>Podstawowa Osnowa Geodezyjna</string>
+             </property>
+             <property name="collapsed">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="QGroupBox" name="groupBox_24">
+                <property name="title">
+                 <string>Typ osnowy</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_25">
+                 <item>
+                  <widget class="QCheckBox" name="osnowa_H_rdbtn">
+                   <property name="text">
+                    <string>wysokościowa</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="osnowa_XY_rdbtn">
+                   <property name="text">
+                    <string>pozioma</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_11" native="true">
+                <layout class="QFormLayout" name="formLayout_17">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_50">
+                   <property name="text">
+                    <string>Województwo: </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QComboBox" name="osnowa_wojewodztwo_cmbbx">
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_51">
+                   <property name="text">
+                    <string>Powiat: </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="osnowa_powiat_cmbbx">
+                   <property name="editable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_12">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="osnowa_selected_btn">
+                <property name="text">
+                 <string>  Pobierz dla wybranego powiatu</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QgsCollapsibleGroupBox" name="osnowa_arch_groupBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="title">
+              <string>Archiwalne Kartoteki Osnów</string>
+             </property>
+             <property name="collapsed">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_19">
+              <item>
+               <widget class="QGroupBox" name="groupBox_26">
+                <property name="title">
+                 <string>Rodzaj katalogów</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_27">
+                 <item>
+                  <widget class="QRadioButton" name="niwelacyjne_rdbtn">
+                   <property name="text">
+                    <string>niwelacyjne Kronsztadt60</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="kartotekowe_rdbtn">
+                   <property name="text">
+                    <string>kartotekowe w układzie 1942</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="osnowa_arch_capture_btn">
+                <property name="text">
+                 <string>Pobierz przez wskazanie punktu na mapie</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="Line" name="line_13">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>lub</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>Wybierz warstwę wektorową</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="osnowa_arch_mapLayerComboBox"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="osnowa_arch_fromLayer_btn">
+                <property name="text">
+                 <string>  Pobierz warstwą wektorową</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="aerotriangulacja_groupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Aerotriangulacja</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QPushButton" name="aerotriangulacja_capture_btn">
+             <property name="text">
+              <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_9">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>lub</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_29">
+             <property name="text">
+              <string>Wybierz warstwę wektorową</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="aerotriangulacja_mapLayerComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="aerotriangulacja_fromLayer_btn">
+             <property name="text">
+              <string>  Pobierz warstwą wektorową</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="linie_mozaikowania_groupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Linie mozaikowania </string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_15">
+           <item>
+            <widget class="QPushButton" name="linie_mozaikowania_capture_btn">
+             <property name="text">
+              <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_10">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_30">
+             <property name="text">
+              <string>lub</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_31">
+             <property name="text">
+              <string>Wybierz warstwę wektorową</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="linie_mozaikowania_mapLayerComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="linie_mozaikowania_arch_fromLayer_btn">
+             <property name="text">
+              <string>  Pobierz warstwą wektorową</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="wizualizacja_karto_groupBox">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="title">
+           <string>Wizualizacja kartograficzna BDOT10k </string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_16">
+           <item>
+            <widget class="QGroupBox" name="groupBox_22">
+             <property name="title">
+              <string>Skala</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QRadioButton" name="wizualizacja_karto_10_rdbtn">
+                <property name="text">
+                 <string>1:10 000</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="wizualizacja_karto_25_rdbtn">
+                <property name="text">
+                 <string>1:25 000</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="wizualizacja_karto_capture_btn">
+             <property name="text">
+              <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_11">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_33">
+             <property name="text">
+              <string>lub</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_32">
+             <property name="text">
+              <string>Wybierz warstwę wektorową</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="wizualizacja_karto_mapLayerComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="wizualizacja_karto_fromLayer_btn">
+             <property name="text">
+              <string>  Pobierz warstwą wektorową</string>
              </property>
             </widget>
            </item>

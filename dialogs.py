@@ -96,6 +96,14 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         wfs_egib_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.wfs_egib_wojewodztwo_cmbbx.addItems(wfs_egib_wojewodztwa)
 
+        # zestawienia zbiorcze EGiB
+        self.powiatDict_egib_excel = {}
+        self.egib_excel_wojewodztwo_cmbbx.currentTextChanged.connect(self.egib_excel_wojewodztwo_cmbbx_currentTextChanged)
+        egib_excel_wojewodztwo = list(self.regionFetch.wojewodztwoDict.keys())
+        self.egib_excel_wojewodztwo_cmbbx.addItems(egib_excel_wojewodztwo)
+
+        rokDict_egib_excel = ['2020', '2021', '2022']
+        self.egib_excel_dateEdit_comboBox.addItems(rokDict_egib_excel)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
@@ -130,3 +138,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.model3d_powiat_cmbbx.clear()
         self.powiatDict_model3d = self.regionFetch.getPowiatDictByWojewodztwoName(text)
         self.model3d_powiat_cmbbx.addItems(list(self.powiatDict_model3d.keys()))
+
+    def egib_excel_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.egib_excel_powiat_cmbbx.clear()
+        self.powiatDict_egib_excel = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.egib_excel_powiat_cmbbx.addItems(list(self.powiatDict_egib_excel.keys()))
