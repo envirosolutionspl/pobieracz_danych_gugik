@@ -105,6 +105,12 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         rokDict_egib_excel = ['2020', '2021', '2022']
         self.egib_excel_dateEdit_comboBox.addItems(rokDict_egib_excel)
 
+        # podstawowa osnowa geodezyjna
+        self.powiatDict_osnowa = {}
+        self.osnowa_wojewodztwo_cmbbx.currentTextChanged.connect(self.osnowa_wojewodztwo_cmbbx_currentTextChanged)
+        osnowa_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
+        self.osnowa_wojewodztwo_cmbbx.addItems(osnowa_wojewodztwa)
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
@@ -143,3 +149,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.egib_excel_powiat_cmbbx.clear()
         self.powiatDict_egib_excel = self.regionFetch.getPowiatDictByWojewodztwoName(text)
         self.egib_excel_powiat_cmbbx.addItems(list(self.powiatDict_egib_excel.keys()))
+
+    def osnowa_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.osnowa_powiat_cmbbx.clear()
+        self.powiatDict_osnowa = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.osnowa_powiat_cmbbx.addItems(list(self.powiatDict_osnowa.keys()))
+

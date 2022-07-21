@@ -11,3 +11,4 @@ from .downloadPrgTask import DownloadPrgTask
 from .downloadModel3dTask import DownloadModel3dTask
 from .downloadEgibExcelTask import DownloadEgibExcelTask
 from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologiczneTask
+from .downloadOsnowaTask import DownloadOsnowaTask

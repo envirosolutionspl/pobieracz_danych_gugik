@@ -8,7 +8,8 @@ from qgis.core import *
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
-    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask)
+    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
+    DownloadOsnowaTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -215,6 +216,8 @@ class PobieraczDanychGugik:
             self.dockwidget.egib_excel_selected_btn.clicked.connect(self.egib_excel_selected_btn_clicked)
 
             self.dockwidget.tyflologiczne_selected_btn.clicked.connect(self.tyflologiczne_selected_btn_clicked)
+
+            self.dockwidget.osnowa_selected_btn.clicked.connect(self.osnowa_selected_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1155,7 +1158,6 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
-
     # endregion
 
     # region EGiB WFS
@@ -1177,7 +1179,6 @@ class PobieraczDanychGugik:
     # endregion
 
     # region zestawienia zbiorcze EGiB
-
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
@@ -1251,6 +1252,34 @@ class PobieraczDanychGugik:
     # endregion
 
     # region podstawowa osnowa geodezyjna
+    def osnowa_selected_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        typ = []
+        if self.dockwidget.osnowa_H_rdbtn.isChecked() and not self.dockwidget.osnowa_XY_rdbtn.isChecked():
+            typ = ["H"]
+        elif self.dockwidget.osnowa_XY_rdbtn.isChecked() and not self.dockwidget.osnowa_H_rdbtn.isChecked():
+            typ = ["XY"]
+        elif self.dockwidget.osnowa_H_rdbtn.isChecked() and self.dockwidget.osnowa_XY_rdbtn.isChecked():
+            typ = ["H", "XY"]
+        elif not self.dockwidget.osnowa_H_rdbtn.isChecked() and not self.dockwidget.osnowa_XY_rdbtn.isChecked():
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
+                                 f"Nie wybrano typu osnowy")
+            msgbox.exec_()
+            return False
+
+        powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        task = DownloadOsnowaTask(
+            description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            teryt_powiat=teryt_powiat,
+            typ=typ
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
     # endregion
 
 

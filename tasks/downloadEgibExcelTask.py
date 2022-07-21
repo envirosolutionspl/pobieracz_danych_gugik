@@ -65,10 +65,10 @@ class DownloadEgibExcelTask(QgsTask):
                 service_api.retreiveFile(url=url, destFolder=self.folder)
                 # self.setProgress(self.progress() + 100 / total)
 
-                utils.openFile(self.folder)
-                if self.isCanceled():
-                    return False
-                return True
+        utils.openFile(self.folder)
+        if self.isCanceled():
+            return False
+        return True
 
 
     def finished(self, result):
