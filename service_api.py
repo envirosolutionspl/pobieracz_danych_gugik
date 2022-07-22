@@ -46,7 +46,7 @@ def retreiveFile(url, destFolder):
     elif 'bdot10k' in url:
         file_name = "bdot10k_" + file_name
     elif 'bdoo' in url:
-        file_name = "bdoo_" + file_name
+        file_name = "bdoo_" + 'rok' + url.split('/')[4] + '_' + file_name
     elif 'ZestawieniaZbiorczeEGiB' in url:
         file_name = "ZestawieniaZbiorczeEGiB_" + 'rok' + url.split('/')[4] + '_' + file_name
     elif 'osnowa' in url:

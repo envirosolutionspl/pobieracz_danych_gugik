@@ -192,6 +192,8 @@ class PobieraczDanychGugik:
             self.dockwidget.bdot_polska_btn.clicked.connect(self.bdot_polska_btn_clicked)
 
             self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
+            self.dockwidget.bdoo_selected_polska_btn.clicked.connect(self.bdoo_selected_polska_btn_clicked)
+
 
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
@@ -1004,13 +1006,31 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
+        rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
         task = DownloadBdooTask(
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=1,
+            rok=rok,
             teryt=teryt
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    def bdoo_selected_polska_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
+        task = DownloadBdooTask(
+            description='Pobieranie paczki BDOO dla całego kraju',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            level=0,
+            rok=rok,
+            teryt=None
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')

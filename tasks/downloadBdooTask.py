@@ -8,7 +8,7 @@ from .. import service_api, utils
 class DownloadBdooTask(QgsTask):
     """QgsTask pobierania BDOO"""
 
-    def __init__(self, description, folder, level=1, teryt=None):
+    def __init__(self, description, folder, level, rok, teryt=None):
         """
         level:
         0 - cały kraj
@@ -21,10 +21,9 @@ class DownloadBdooTask(QgsTask):
         # self.iterations = 0
         self.exception = None
         if level == 0:
-            pass
-            # self.url = "https://opendata.geoportal.gov.pl/bdot10k/Polska_GML.zip"
+            self.url = f"https://opendata.geoportal.gov.pl/bdoo/{rok}/Polska_BDOO.zip"
         elif level == 1:
-            self.url = f"http://opendata.geoportal.gov.pl/bdoo/PL.PZGiK.201.{teryt}.zip"
+            self.url = f"http://opendata.geoportal.gov.pl/bdoo/{rok}/PL.PZGiK.201.{teryt}.zip"
         elif level == 2:
             pass
             # self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_GML.zip"

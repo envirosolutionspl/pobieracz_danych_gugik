@@ -55,11 +55,14 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # bdot10k/BDOO
         self.powiatDict = {}
         self.regionFetch = RegionFetch()
-
         self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
         wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.wojewodztwo_cmbbx.addItems(wojewodztwa)
+
+        # bdoo
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
+        rokDict_bdoo = ['2015', '2021', '2022']
+        self.bdoo_dateEdit_comboBox.addItems(rokDict_bdoo)
 
         # PRG
         self.powiatDict_prg = {}
