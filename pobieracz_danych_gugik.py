@@ -931,12 +931,20 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
+        format_danych = None
+
+        if self.dockwidget.bdot_gml_rdbtn.isChecked():
+            format_danych = "GML"
+        elif self.dockwidget.bdot_shp_rdbtn.isChecked():
+            format_danych = "SHP"
+
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=2,
+            format_danych=format_danych,
             teryt=teryt
         )
         QgsApplication.taskManager().addTask(task)
@@ -947,12 +955,20 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
+        format_danych = None
+
+        if self.dockwidget.bdot_gml_rdbtn.isChecked():
+            format_danych = "GML"
+        elif self.dockwidget.bdot_shp_rdbtn.isChecked():
+            format_danych = "SHP"
+
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
         task = DownloadBdotTask(
             description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=1,
+            format_danych=format_danych,
             teryt=teryt
         )
         QgsApplication.taskManager().addTask(task)
@@ -963,10 +979,18 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
+        format_danych = None
+
+        if self.dockwidget.bdot_gml_rdbtn.isChecked():
+            format_danych = "GML"
+        elif self.dockwidget.bdot_shp_rdbtn.isChecked():
+            format_danych = "SHP"
+
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=0,
+            format_danych=format_danych,
             teryt=None
         )
         QgsApplication.taskManager().addTask(task)

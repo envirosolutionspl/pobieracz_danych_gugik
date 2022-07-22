@@ -8,7 +8,7 @@ from .. import service_api, utils
 class DownloadBdotTask(QgsTask):
     """QgsTask pobierania BDOT10k"""
 
-    def __init__(self, description, folder, level, teryt=None):
+    def __init__(self, description, folder, level, format_danych, teryt=None):
         """
         level:
         0 - cały kraj
@@ -20,12 +20,22 @@ class DownloadBdotTask(QgsTask):
         # self.total = 0
         # self.iterations = 0
         self.exception = None
-        if level == 0:
-            self.url = "https://opendata.geoportal.gov.pl/bdot10k/Polska_GML.zip"
-        elif level == 1:
-            self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt}/{teryt}_GML.zip"
-        elif level == 2:
-            self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_GML.zip"
+        self.format_danych=format_danych
+
+        if format_danych == 'GML':
+            if level == 0:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/Polska_{format_danych}.zip"
+            elif level == 1:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt}/{teryt}_{format_danych}.zip"
+            elif level == 2:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_{format_danych}.zip"
+        elif format_danych == 'SHP':
+            if level == 0:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/Polska_{format_danych}.zip"
+            elif level == 1:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/{teryt}/{teryt}_{format_danych}.zip"
+            elif level == 2:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip"
 
     def run(self):
 
