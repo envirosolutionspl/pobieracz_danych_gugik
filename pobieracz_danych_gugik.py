@@ -527,7 +527,7 @@ class PobieraczDanychGugik:
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
             ortoList = utils.onlyNewest(ortoList)
-            print(ortoList)
+            # print(ortoList)
         return ortoList
 
     def downloadOrtoFile(self, orto, folder):
