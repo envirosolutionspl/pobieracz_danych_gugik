@@ -3,22 +3,38 @@ import os, time
 import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
-
+import urllib3
 
 class WfsEgib:
     def save_xml(self, folder, url):
 
+        # r = requests.get(url)
+        # root = etree.parse(r, etree.HTMLParser())
+        # print(root)
+
         try:
             r = requests.get(url)
+            # root = etree.parse(r, etree.HTMLParser())
+            # print(etree.tostring(root))
             if str(r.status_code) == '404':
                 print("Plik nie istnieje " + url)
-            try:
+            else:
                 with open(folder + 'egib_wfs.xml', 'wb') as f:
                     f.write(r.content)
-            except IOError:
-                print("Błąd zapisu pliku " + url)
+        except requests.exceptions.SSLError:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
+            print("Czy chcesz pobrać dane na własną odpowiedzialność?")
+            r = requests.get(url, verify=False)
+            if str(r.status_code) == '404':
+                print("Plik nie istnieje " + url)
+            else:
+                with open(folder + 'egib_wfs.xml', 'wb') as f:
+                    f.write(r.content)
+        except IOError:
+            print("Błąd zapisu pliku " + url)
         except requests.exceptions.ConnectionError:
-            print(" cos nie tak z requests " + url)
+            print("cos nie tak z requests " + url)
 
     def praca_na_xml(self, folder, url):
         self.save_xml(folder, url)
@@ -31,6 +47,14 @@ class WfsEgib:
 
         tree = ET.parse(folder + 'egib_wfs.xml')
         root = tree.getroot()
+
+        print(root)
+        for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns):
+            print(child.text)
+            if 'ewns' in child.text:
+                print("znalaziono ewns")
+                ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
+        print('ns', ns)
 
         name_layers = []
         for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
@@ -67,14 +91,30 @@ class WfsEgib:
 
                 if str(r.status_code) == '404':
                     print("Plik nie istnieje" + teryt + '_' + layer)
-                try:
+                else:
                     with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
                         f.write(r.content)
                     size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     if size <= 1000:  # 341:
                         print('Za mały rozmiar pliku : 1kb lub 0kb')
-                except IOError:
-                    print("Błąd zapisu pliku" + teryt + '_' + layer)
+            except IOError:
+                print("Błąd zapisu pliku" + teryt + '_' + layer)
+            # except requests.exceptions.SSLError:
+            #     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            #     print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
+            #     print("Czy chcesz pobrać dane na własną odpowiedzialność?")
+            #     r = requests.get(url, verify=False)
+            #     if str(r.status_code) == '404':
+            #         print("Plik nie istnieje" + teryt + '_' + layer)
+            #     try:
+            #         with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+            #             f.write(r.content)
+            #         size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+            #         if size <= 1000:  # 341:
+            #             print('Za mały rozmiar pliku : 1kb lub 0kb')
+            #     except IOError:
+            #         print("Błąd zapisu pliku" + teryt + '_' + layer)
+
                     # return False
 
                     # size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
@@ -483,8 +523,6 @@ if __name__ == '__main__':
                    '2416': 'https://ikerg.zawiercie.powiat.pl/powiatzawiercianski-egib?service=WFS&request=GetCapabilities'}
     # dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', '2471': 'https://wms.sip.piekary.pl/piekary-egib?service=WFS&request=GetCapabilities'}
     # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
-    # dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities'}
-    # dictionary = {'2613': 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities'}
-    # dictionary = {'1465': 'https://wms2.um.warszawa.pl/geoserver/wfs/wms?service=WFS&request=GetCapabilities'}
     folder = "C:\moje_pliki\Praktyki\EnviroSolution\poprawa wtyczek\probne/"
+    # print(wfsEgib.main("1206", 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', folder))
     print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))

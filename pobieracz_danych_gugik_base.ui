@@ -957,7 +957,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>LAS/LAZ (LIDAR)</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1572,7 +1572,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>BDOO</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
