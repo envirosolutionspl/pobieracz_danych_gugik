@@ -56,6 +56,11 @@ class WfsEgib:
                 ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
         print('ns', ns)
 
+        # name_layers = []
+        # for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+        #     name = child.find('xmlns:Name', ns)
+        #     name_layers.append(name.text)
+
         name_layers = []
         for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
             name = child.find('xmlns:Name', ns)
@@ -523,6 +528,8 @@ if __name__ == '__main__':
                    '2416': 'https://ikerg.zawiercie.powiat.pl/powiatzawiercianski-egib?service=WFS&request=GetCapabilities'}
     # dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', '2471': 'https://wms.sip.piekary.pl/piekary-egib?service=WFS&request=GetCapabilities'}
     # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
-    folder = "C:\moje_pliki\Praktyki\EnviroSolution\poprawa wtyczek\probne/"
+    folder = "C:\wtyczka aktualizacja\probne/"
     # print(wfsEgib.main("1206", 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', folder))
-    print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
+    # print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
+    print(wfsEgib.main("2613", 'https://wms.powiatstarogard.pl/iip/ows?service=WFS&request=GetCapabilities', folder))
+

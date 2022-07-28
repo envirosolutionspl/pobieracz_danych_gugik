@@ -9,7 +9,7 @@ from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
-    DownloadOsnowaTask)
+    DownloadOsnowaTask, DownloadAerotriangulacjaTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -19,7 +19,7 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 
-from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api
+from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api
 
 """Wersja wtyczki"""
 plugin_version = '0.9.2'
@@ -73,6 +73,9 @@ class PobieraczDanychGugik:
         self.reflectanceClickTool.canvasClicked.connect(self.canvasReflectance_clicked)
         self.wfsClickTool = QgsMapToolEmitPoint(self.canvas)
         self.wfsClickTool.canvasClicked.connect(self.canvasWfs_clicked)
+        self.aerotriangulacjaClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacja_clicked)
+
 
         # --------------------------------------------------------------------------
 
@@ -220,6 +223,11 @@ class PobieraczDanychGugik:
             self.dockwidget.tyflologiczne_selected_btn.clicked.connect(self.tyflologiczne_selected_btn_clicked)
 
             self.dockwidget.osnowa_selected_btn.clicked.connect(self.osnowa_selected_btn_clicked)
+
+            self.dockwidget.aerotriangulacja_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
+            self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
+
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1324,6 +1332,97 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+    # endregion
+
+    # region areotriangulacja
+    def aerotriangulacja_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        bledy = 0
+        layer = self.dockwidget.aerotriangulacja_mapLayerComboBox.currentLayer()
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=500)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
+
+            aerotriangulacjaList = []
+            for point in points:
+                subList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point)
+                if subList:
+                    aerotriangulacjaList.extend(subList)
+                else:
+                    bledy += 1
+            print("list: ", aerotriangulacjaList)
+            self.filterReflectanceListAndRunTask(aerotriangulacjaList)
+            print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadAerotriangulacjiForSinglePoint(self, point):
+        """Pobiera Aerotriangulacji dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        print("okokokokok")
+        aerotriangulacjaList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point1992)
+
+        self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
+
+    def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
+        """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
+        # print("przed 'set'", len(reflectanceList))
+
+        # usuwanie duplikatów
+        print("okokokokok")
+        aerotriangulacjaList = list(set(aerotriangulacjaList))
+        print("po 'set'", len(aerotriangulacjaList))
+
+        # wyswietl komunikat pytanie
+        if len(aerotriangulacjaList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     aerotriangulacjaList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie areotriangulacji
+                task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
+                                               aerotriangulacjaList=aerotriangulacjaList,
+                                               folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasAerotriangulacja_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
+        self.downloadAerotriangulacjiForSinglePoint(point)
+
+
+    def downloadAerotrangulacjaFile(self, aerotrangulacja, folder):
+        """Pobiera plik LAS"""
+        QgsMessageLog.logMessage('start ' + aerotrangulacja.url)
+        service_api.retreiveFile(url=aerotrangulacja.url, destFolder=folder)
+
     # endregion
 
 

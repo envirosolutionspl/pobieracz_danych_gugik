@@ -114,6 +114,10 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         osnowa_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.osnowa_wojewodztwo_cmbbx.addItems(osnowa_wojewodztwa)
 
+
+        # areotriangulacja
+        self.aerotriangulacja_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
