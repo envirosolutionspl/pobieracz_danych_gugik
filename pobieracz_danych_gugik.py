@@ -9,7 +9,7 @@ from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
-    DownloadOsnowaTask, DownloadAerotriangulacjaTask)
+    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -19,7 +19,8 @@ from .resources import *
 from .dialogs import PobieraczDanychDockWidget
 import os.path
 
-from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api
+from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
+    mozaika_api
 
 """Wersja wtyczki"""
 plugin_version = '0.9.2'
@@ -75,6 +76,8 @@ class PobieraczDanychGugik:
         self.wfsClickTool.canvasClicked.connect(self.canvasWfs_clicked)
         self.aerotriangulacjaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacja_clicked)
+        self.mozaikaClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaika_clicked)
 
 
         # --------------------------------------------------------------------------
@@ -228,6 +231,9 @@ class PobieraczDanychGugik:
                 lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
             self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
 
+            self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.mozaikaClickTool))
+            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(self.linie_mozaikowania_arch_fromLayer_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1416,6 +1422,88 @@ class PobieraczDanychGugik:
 
     # endregion
 
+    # region linie mozaikowania
+    def linie_mozaikowania_arch_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        bledy = 0
+        layer = self.dockwidget.linie_mozaikowania_mapLayerComboBox.currentLayer()
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(False)
+
+            mozaikaList = []
+            for point in points:
+                subList = mozaika_api.getMozaikaListbyPoint1992(point=point)
+                if subList:
+                    mozaikaList.extend(subList)
+                else:
+                    bledy += 1
+            # print("list: ", mozaikaList)
+            self.filterMozaikaListAndRunTask(mozaikaList)
+            # print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadMozaikaForSinglePoint(self, point):
+        """Pobiera Linie Mozaikowania dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        mozaikaList = mozaika_api.getMozaikaListbyPoint1992(point=point1992)
+
+        self.filterMozaikaListAndRunTask(mozaikaList)
+
+    def filterMozaikaListAndRunTask(self, mozaikaList):
+        """Filtruje listę dostępnych plików Linii Mozaikowania i uruchamia wątek QgsTask"""
+
+        # usuwanie duplikatów
+        mozaikaList = list(set(mozaikaList))
+        # print("po 'set'", len(mozaikaList))
+
+        # wyswietl komunikat pytanie
+        if len(mozaikaList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                 "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     mozaikaList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie linii mozaikowania
+                task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
+                                                    mozaikaList=mozaikaList,
+                                                    folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasMozaika_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Linii Mozaikowania z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.mozaikaClickTool)
+        self.downloadMozaikaForSinglePoint(point)
+
+        # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):
         """tworzy punkty do zapytań na podstawie warstwy wektorowej"""

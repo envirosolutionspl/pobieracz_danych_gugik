@@ -118,6 +118,10 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # areotriangulacja
         self.aerotriangulacja_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
 
+        # linie mozaikowania
+        self.linie_mozaikowania_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()

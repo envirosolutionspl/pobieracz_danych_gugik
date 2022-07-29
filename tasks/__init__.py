@@ -13,3 +13,4 @@ from .downloadEgibExcelTask import DownloadEgibExcelTask
 from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologiczneTask
 from .downloadOsnowaTask import DownloadOsnowaTask
 from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask
+from .downloadMozaikaTask import DownloadMozaikaTask
