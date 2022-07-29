@@ -10,6 +10,10 @@ c = re.compile("\{{1}.*\}{1}")
 def getAerotriangulacjaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania areotriangulacji na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
+
+
+
+
     x = point.x()
     y = point.y()
     LAYERS = [

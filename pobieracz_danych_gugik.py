@@ -9,7 +9,7 @@ from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
-    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask)
+    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadwizKartoTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -20,7 +20,7 @@ from .dialogs import PobieraczDanychDockWidget
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api
+    mozaika_api, wizualizacja_karto_api
 
 """Wersja wtyczki"""
 plugin_version = '0.9.2'
@@ -78,6 +78,8 @@ class PobieraczDanychGugik:
         self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacja_clicked)
         self.mozaikaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaika_clicked)
+        self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.wizualizacja_kartoClickTool.canvasClicked.connect(self.canvasWizualizacja_karto_clicked)
 
 
         # --------------------------------------------------------------------------
@@ -234,6 +236,11 @@ class PobieraczDanychGugik:
             self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.mozaikaClickTool))
             self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(self.linie_mozaikowania_arch_fromLayer_btn_clicked)
+
+            self.dockwidget.wizualizacja_karto_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.wizualizacja_kartoClickTool))
+            self.dockwidget.wizualizacja_karto_fromLayer_btn.clicked.connect(self.wizualizacja_karto_fromLayer_btn_clicked)
+
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1502,8 +1509,92 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.mozaikaClickTool)
         self.downloadMozaikaForSinglePoint(point)
+    # endregion
 
-        # endregion
+    # region wizualizacja kartograficzna BDOT10k
+    def wizualizacja_karto_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Wizualizacji kartograficznej BDOT10k przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        bledy = 0
+        layer = self.dockwidget.wizualizacja_karto_mapLayerComboBox.currentLayer()
+        skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(False)
+
+            wizKartoList = []
+            for point in points:
+                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point, skala_10000=skala_10000)
+                if subList:
+                    wizKartoList.extend(subList)
+                else:
+                    bledy += 1
+            print("list: ", wizKartoList)
+            self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
+            # print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadWizualizacjaKartoForSinglePoint(self, point):
+        """Pobiera Wizualizacji Kartograficznej BDOT10k dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
+        wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point1992,
+                                                                                 skala_10000=skala_10000)
+        print("vrgrt: ", wizKartoList)
+        self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
+
+    def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
+        """Filtruje listę dostępnych plików Wizualizacji Kartograficznej BDOT10k i uruchamia wątek QgsTask"""
+
+        # usuwanie duplikatów
+        wizKartoList = list(set(wizKartoList))
+        # print("po 'set'", len(mozaikaList))
+
+        # wyswietl komunikat pytanie
+        if len(wizKartoList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                 "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     wizKartoList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie wizualizacji kartograficznej BDOT10k
+                task = DownloadwizKartoTask(description='Pobieranie danych pdf o wizualizacji kartograficznej BDOT10k',
+                                           wizKartoList=wizKartoList,
+                                           folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasWizualizacja_karto_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Wizualizacji Kartograficznej BDOT10k z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
+        self.downloadWizualizacjaKartoForSinglePoint(point)
+    # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):
         """tworzy punkty do zapytań na podstawie warstwy wektorowej"""

@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-149</y>
+         <y>-6</y>
          <width>480</width>
-         <height>861</height>
+         <height>718</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2767,7 +2767,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Linie mozaikowania </string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
@@ -2893,7 +2893,7 @@ nieodpłatnie przez GUGiK.</string>
             </widget>
            </item>
            <item>
-            <widget class="QComboBox" name="wizualizacja_karto_mapLayerComboBox"/>
+            <widget class="QgsMapLayerComboBox" name="wizualizacja_karto_mapLayerComboBox"/>
            </item>
            <item>
             <widget class="QPushButton" name="wizualizacja_karto_fromLayer_btn">

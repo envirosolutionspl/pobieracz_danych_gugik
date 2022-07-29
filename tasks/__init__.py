@@ -14,3 +14,4 @@ from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologicz
 from .downloadOsnowaTask import DownloadOsnowaTask
 from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask
 from .downloadMozaikaTask import DownloadMozaikaTask
+from .downloadwizKartoTask import DownloadwizKartoTask

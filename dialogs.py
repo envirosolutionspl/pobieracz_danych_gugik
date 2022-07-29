@@ -121,6 +121,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # linie mozaikowania
         self.linie_mozaikowania_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
 
+        # wizualizacja karograficzna BDOT10k
+        self.wizualizacja_karto_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
