@@ -1347,7 +1347,7 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.aerotriangulacja_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
+            points = self.pointsFromVectorLayer(layer, density=1000)
 
             # zablokowanie klawisza pobierania
             self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
@@ -1359,9 +1359,9 @@ class PobieraczDanychGugik:
                     aerotriangulacjaList.extend(subList)
                 else:
                     bledy += 1
-            print("list: ", aerotriangulacjaList)
+            # print("list: ", aerotriangulacjaList)
             self.filterReflectanceListAndRunTask(aerotriangulacjaList)
-            print("%d zapytań się nie powiodło" % bledy)
+            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
@@ -1375,19 +1375,16 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
-        print("okokokokok")
         aerotriangulacjaList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point1992)
 
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
 
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(reflectanceList))
 
         # usuwanie duplikatów
-        print("okokokokok")
         aerotriangulacjaList = list(set(aerotriangulacjaList))
-        print("po 'set'", len(aerotriangulacjaList))
+        # print("po 'set'", len(aerotriangulacjaList))
 
         # wyswietl komunikat pytanie
         if len(aerotriangulacjaList) == 0:
@@ -1416,12 +1413,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
         self.downloadAerotriangulacjiForSinglePoint(point)
-
-
-    def downloadAerotrangulacjaFile(self, aerotrangulacja, folder):
-        """Pobiera plik LAS"""
-        QgsMessageLog.logMessage('start ' + aerotrangulacja.url)
-        service_api.retreiveFile(url=aerotrangulacja.url, destFolder=folder)
 
     # endregion
 

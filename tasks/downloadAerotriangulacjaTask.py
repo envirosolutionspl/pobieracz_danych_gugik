@@ -70,15 +70,17 @@ class DownloadAerotriangulacjaTask(QgsTask):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         with open(os.path.join(self.folder, 'pobieracz_aerotriangulacja_%s.txt' % date), 'w') as csvFile:
             naglowki = [
-                'nazwa_pliku',
+                'Nazwa pliku',
                 'Identyfikator aerotriangulacji',
-                'Numer zgłoszenia'
+                'Numer zgłoszenia',
+                'Rok'
             ]
             csvFile.write(','.join(naglowki)+'\n')
             for aerotriangulacja in self.aerotriangulacjaList:
                 fileName = aerotriangulacja.url.split("/")[-1]
-                csvFile.write('%s,%s,%s\n' % (
+                csvFile.write('%s,%s,%s,%s\n' % (
                     fileName,
                     aerotriangulacja.id,
-                    aerotriangulacja.zgloszenie
+                    aerotriangulacja.zgloszenie,
+                    aerotriangulacja.zgloszenie.split('.')[3]
                 ))

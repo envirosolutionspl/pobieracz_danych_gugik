@@ -33,7 +33,6 @@ def getAerotriangulacjaListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    print("resp: ", resp)
     if resp[0]:
         aeros = c.findall(resp[1])
         aerotriangulacjaList = []
