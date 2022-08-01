@@ -4,3 +4,4 @@ from .las import Las
 from .reflectance import Reflectance
 from .aerotriangulacja import Aerotriangulacja
 from .linie_mozaikowania import Linie_mozaikowania
+from .wizualizacja_karto import Wizualizacja_karto

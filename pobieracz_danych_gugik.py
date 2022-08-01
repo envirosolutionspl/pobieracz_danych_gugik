@@ -873,7 +873,7 @@ class PobieraczDanychGugik:
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
         reflectanceList = reflectance_api.getReflectanceListbyPoint1992(point=point1992)
-
+        # print("reflectanceList: ", list(reflectanceList))
         self.filterReflectanceListAndRunTask(reflectanceList)
 
     def filterReflectanceListAndRunTask(self, reflectanceList):
@@ -1525,7 +1525,7 @@ class PobieraczDanychGugik:
         skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            points = self.pointsFromVectorLayer(layer, density=500)
 
             # zablokowanie klawisza pobierania
             self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(False)
@@ -1537,7 +1537,7 @@ class PobieraczDanychGugik:
                     wizKartoList.extend(subList)
                 else:
                     bledy += 1
-            print("list: ", wizKartoList)
+            # print("list: ", wizKartoList)
             self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
             # print("%d zapytań się nie powiodło" % bledy)
 
@@ -1556,7 +1556,6 @@ class PobieraczDanychGugik:
         skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point1992,
                                                                                  skala_10000=skala_10000)
-        print("vrgrt: ", wizKartoList)
         self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):

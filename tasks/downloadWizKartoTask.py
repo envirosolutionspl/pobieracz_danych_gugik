@@ -1,9 +1,8 @@
 import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
-    )
+)
 from .. import service_api, utils
-
 
 
 class DownloadwizKartoTask(QgsTask):
@@ -34,7 +33,7 @@ class DownloadwizKartoTask(QgsTask):
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
-        # self.createCsvReport()
+        self.createCsvReport()
 
         utils.openFile(self.folder)
 
@@ -65,37 +64,23 @@ class DownloadwizKartoTask(QgsTask):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    # def createCsvReport(self):
-    #     date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    #     csvFilename = 'pobieracz_las_%s.txt' % date
-    #
-    #     with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
-    #         naglowki = [
-    #             'nazwa_pliku',
-    #             'format',
-    #             'godlo',
-    #             'aktualnosc',
-    #             'dokladnosc_pozioma',
-    #             'dokladnosc_pionowa',
-    #             'uklad_wspolrzednych_plaskich',
-    #             'uklad_wspolrzednych_wysokosciowych',
-    #             'caly_arkusz_wypelniony_trescia',
-    #             'numer_zgloszenia_pracy',
-    #             'aktualnosc_rok'
-    #         ]
-    #         csvFile.write(','.join(naglowki)+'\n')
-    #         for las in self.lasList:
-    #             fileName = las.url.split("/")[-1]
-    #             csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-    #                 fileName,
-    #                 las.format,
-    #                 las.godlo,
-    #                 las.aktualnosc,
-    #                 las.charakterystykaPrzestrzenna,
-    #                 las.bladSredniWysokosci,
-    #                 las.ukladWspolrzednych,
-    #                 las.ukladWysokosci,
-    #                 las.calyArkuszWyeplnionyTrescia,
-    #                 las.numerZgloszeniaPracy,
-    #                 las.aktualnoscRok
-    #             ))
+    def createCsvReport(self):
+        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        csvFilename = 'pobieracz_wizualizacja_kartograficzna_BDOT10k_%s.txt' % date
+
+        with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
+            naglowki = [
+                'nazwa_pliku',
+                'Data',
+                'Skala',
+                'Godło'
+            ]
+            csvFile.write(','.join(naglowki) + '\n')
+            for wizKarto in self.wizKartoList:
+                fileName = wizKarto.url.split("/")[-1]
+                csvFile.write('%s,%s,%s,%s\n' % (
+                    fileName,
+                    wizKarto.data,
+                    wizKarto.skala,
+                    wizKarto.godlo
+                ))

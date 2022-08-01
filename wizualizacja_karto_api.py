@@ -1,5 +1,7 @@
 import re
 from . import service_api
+from .models import Wizualizacja_karto
+
 
 def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     """Zwraca listę dostępnych do pobrania areotriangulacji na podstawie
@@ -18,7 +20,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
 
     else:
         LAYERS = [
-            'Mapy25'
+            'Mapy25k'
         ]
 
     PARAMS = {
@@ -28,7 +30,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'layers': ','.join(LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
+        'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50),
         'width': '101',
         'height': '101',
         'format': 'image/png',
@@ -39,13 +41,32 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-
+    url_wzorzec = re.compile(r'http.+.pdf')
+    data_wzorzec = re.compile("(\d{4}-\d{1,2}-\d{1,2})")
+    # print(resp)
     if resp[0]:
-        print(resp[1])
-        wzorzec = re.compile(r'http.+.pdf')
-        resp = wzorzec.findall(resp[1])[0]
-        # print(resp)
-        return resp
+        wizKartoElementsUrl = url_wzorzec.findall(resp[1])
+        wizKartoList = []
+        params = {}
+        id = 0
+        for wizKartoElement in wizKartoElementsUrl:
+            godlo = wizKartoElement.split('/')[-1].split('.')[0]
+            wizKartoElementsData = data_wzorzec.findall(resp[1])[id]
+            if skala_10000:
+                skala = '1:10000'
+            else:
+                skala = '1:25000'
+            id = id + 1
+            params["url"] = wizKartoElement
+            params["data"] = wizKartoElementsData
+            params["godlo"] = godlo
+            params["skala"] = skala
+            wizualizacja_karto = Wizualizacja_karto(**params)
+            wizKartoList.append(wizualizacja_karto)
+        # print("wizKartoElement: ", wizKartoElement)
+        # print("wizKartoElementsData: ", wizKartoElementsData)
+        # print("godlo: ", godlo)
+        # print("slownik: ", params)
+        return wizKartoList
     else:
         return None
-
