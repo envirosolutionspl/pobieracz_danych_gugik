@@ -43,7 +43,6 @@ def getReflectanceListbyPoint1992(point):
 
 def createList(resp):
     reflectanceElements = c.findall(resp[1])
-    print("reflectanceElements: ", reflectanceElements)
     reflectanceList = []
     for reflectanceElement in reflectanceElements:
         element = reflectanceElement.strip("{").strip("}").split(',')
@@ -57,5 +56,4 @@ def createList(resp):
             params[item[0]] = val
         reflectance = Reflectance(**params)
         reflectanceList.append(reflectance)
-    print("reflectanceList: ", params)
     return reflectanceList

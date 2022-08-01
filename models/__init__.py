@@ -5,3 +5,4 @@ from .reflectance import Reflectance
 from .aerotriangulacja import Aerotriangulacja
 from .linie_mozaikowania import Linie_mozaikowania
 from .wizualizacja_karto import Wizualizacja_karto
+from .kartoteki_osnow import Kartoteki_osnow

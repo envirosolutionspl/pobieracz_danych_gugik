@@ -124,6 +124,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # wizualizacja karograficzna BDOT10k
         self.wizualizacja_karto_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
 
+        # archiwalne kartoteki osnów
+        self.osnowa_arch_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

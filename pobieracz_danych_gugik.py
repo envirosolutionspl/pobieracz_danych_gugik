@@ -9,7 +9,8 @@ from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
-    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadwizKartoTask)
+    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
+    DownloadKartotekiOsnowTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -20,7 +21,7 @@ from .dialogs import PobieraczDanychDockWidget
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api
 
 """Wersja wtyczki"""
 plugin_version = '0.9.2'
@@ -80,7 +81,8 @@ class PobieraczDanychGugik:
         self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaika_clicked)
         self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(self.canvas)
         self.wizualizacja_kartoClickTool.canvasClicked.connect(self.canvasWizualizacja_karto_clicked)
-
+        self.kartoteki_osnowClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartoteki_osnow_clicked)
 
         # --------------------------------------------------------------------------
 
@@ -202,7 +204,6 @@ class PobieraczDanychGugik:
             self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
             self.dockwidget.bdoo_selected_polska_btn.clicked.connect(self.bdoo_selected_polska_btn_clicked)
 
-
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
             self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
@@ -235,12 +236,17 @@ class PobieraczDanychGugik:
 
             self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.mozaikaClickTool))
-            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(self.linie_mozaikowania_arch_fromLayer_btn_clicked)
+            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(
+                self.linie_mozaikowania_arch_fromLayer_btn_clicked)
 
             self.dockwidget.wizualizacja_karto_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.wizualizacja_kartoClickTool))
-            self.dockwidget.wizualizacja_karto_fromLayer_btn.clicked.connect(self.wizualizacja_karto_fromLayer_btn_clicked)
+            self.dockwidget.wizualizacja_karto_fromLayer_btn.clicked.connect(
+                self.wizualizacja_karto_fromLayer_btn_clicked)
 
+            self.dockwidget.osnowa_arch_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.kartoteki_osnowClickTool))
+            self.dockwidget.osnowa_arch_fromLayer_btn.clicked.connect(self.osnowa_arch_fromLayer_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -1117,16 +1123,19 @@ class PobieraczDanychGugik:
             self.dockwidget.prg_gmina_cmbbx.setEnabled(True)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+
     def radioButton_powiaty_PRG(self):
         if self.dockwidget.radioButton_adres_powiat.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+
     def radioButton_wojewodztwa_PRG(self):
         if self.dockwidget.radioButton_adres_wojew.isChecked() or self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
+
     def radioButton_kraj_PRG(self):
         if self.dockwidget.radioButton_adres_kraj.isChecked() or self.dockwidget.radioButton_granice_spec.isChecked() or self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
@@ -1223,6 +1232,7 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region EGiB WFS
@@ -1241,6 +1251,7 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region zestawienia zbiorcze EGiB
@@ -1248,10 +1259,12 @@ class PobieraczDanychGugik:
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
             self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(True)
+
     def radioButton_wojewodztwa_egib_excel(self):
         if self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(False)
             self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(True)
+
     def radioButton_kraj_egib_excel(self):
         if self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(False)
@@ -1285,6 +1298,7 @@ class PobieraczDanychGugik:
 
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region opracowania tyflologiczne
@@ -1314,6 +1328,7 @@ class PobieraczDanychGugik:
 
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region podstawowa osnowa geodezyjna
@@ -1345,6 +1360,7 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
     # endregion
 
     # region areotriangulacja
@@ -1416,8 +1432,8 @@ class PobieraczDanychGugik:
             if reply == QMessageBox.Yes:
                 # pobieranie areotriangulacji
                 task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
-                                               aerotriangulacjaList=aerotriangulacjaList,
-                                               folder=self.dockwidget.folder_fileWidget.filePath())
+                                                    aerotriangulacjaList=aerotriangulacjaList,
+                                                    folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1499,8 +1515,8 @@ class PobieraczDanychGugik:
             if reply == QMessageBox.Yes:
                 # pobieranie linii mozaikowania
                 task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
-                                                    mozaikaList=mozaikaList,
-                                                    folder=self.dockwidget.folder_fileWidget.filePath())
+                                           mozaikaList=mozaikaList,
+                                           folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1509,6 +1525,7 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.mozaikaClickTool)
         self.downloadMozaikaForSinglePoint(point)
+
     # endregion
 
     # region wizualizacja kartograficzna BDOT10k
@@ -1532,7 +1549,8 @@ class PobieraczDanychGugik:
 
             wizKartoList = []
             for point in points:
-                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point, skala_10000=skala_10000)
+                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point,
+                                                                                     skala_10000=skala_10000)
                 if subList:
                     wizKartoList.extend(subList)
                 else:
@@ -1555,7 +1573,7 @@ class PobieraczDanychGugik:
                                       project=QgsProject.instance())
         skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point1992,
-                                                                                 skala_10000=skala_10000)
+                                                                                  skala_10000=skala_10000)
         self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
@@ -1582,9 +1600,9 @@ class PobieraczDanychGugik:
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
                 # pobieranie wizualizacji kartograficznej BDOT10k
-                task = DownloadwizKartoTask(description='Pobieranie danych pdf o wizualizacji kartograficznej BDOT10k',
-                                           wizKartoList=wizKartoList,
-                                           folder=self.dockwidget.folder_fileWidget.filePath())
+                task = DownloadWizKartoTask(description='Pobieranie danych pdf o wizualizacji kartograficznej BDOT10k',
+                                            wizKartoList=wizKartoList,
+                                            folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1593,6 +1611,91 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
+
+    # endregion
+
+    # region archiwalne kartoteki osnów geodezyjnych
+    def osnowa_arch_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Archiwalnych kartotek osnów geodezyjnych przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        bledy = 0
+        layer = self.dockwidget.osnowa_arch_mapLayerComboBox.currentLayer()
+        katalog_niwelacyjne = True if self.dockwidget.niwelacyjne_rdbtn.isChecked() else False
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=500)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(False)
+
+            kartotekiOsnowList = []
+            for point in points:
+                subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point, katalog_niwelacyjne=katalog_niwelacyjne)
+                if subList:
+                    kartotekiOsnowList.extend(subList)
+                else:
+                    bledy += 1
+            # print("list: ", wizKartoList)
+            self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
+            # print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadKartotekiOsnowForSinglePoint(self, point):
+        """Pobiera Archiwalne kartoteki osnów geodezyjnych dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        katalog_niwelacyjne = True if self.dockwidget.niwelacyjne_rdbtn.isChecked() else False
+        kartotekiOsnowList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point1992,
+                                                                                  katalog_niwelacyjne=katalog_niwelacyjne)
+        self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
+
+    def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
+        """Filtruje listę dostępnych plików Archiwalnych kartotek osnów i uruchamia wątek QgsTask"""
+
+        # usuwanie duplikatów
+        kartotekiOsnowList = list(set(kartotekiOsnowList))
+        # print("po 'set'", len(mozaikaList))
+
+        # wyswietl komunikat pytanie
+        if len(kartotekiOsnowList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                 "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     kartotekiOsnowList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie wizualizacji kartograficznej BDOT10k
+                task = DownloadKartotekiOsnowTask(description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
+                                           kartotekiOsnowList=kartotekiOsnowList,
+                                           folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasKartoteki_osnow_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Archiwalnych kartotek osnów geodezyjnych z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.kartoteki_osnowClickTool)
+        self.downloadKartotekiOsnowForSinglePoint(point)
     # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):

@@ -4,12 +4,10 @@ from .models import Wizualizacja_karto
 
 
 def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
-    """Zwraca listę dostępnych do pobrania areotriangulacji na podstawie
+    """Zwraca listę dostępnych do pobrania wizualizacji kartograficznych BDOT10k na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
-    c = re.compile("\{{1}.*\}{1}")
 
     URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?"
 

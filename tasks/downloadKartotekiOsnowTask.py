@@ -5,12 +5,12 @@ from qgis.core import (
 from .. import service_api, utils
 
 
-class DownloadWizKartoTask(QgsTask):
-    """QgsTask pobierania wizualizacji kartograficznej BDOT10k"""
+class DownloadKartotekiOsnowTask(QgsTask):
+    """QgsTask pobierania archiwalnych kartotek osnów"""
 
-    def __init__(self, description, wizKartoList, folder):
+    def __init__(self, description, kartotekiOsnowList, folder):
         super().__init__(description, QgsTask.CanCancel)
-        self.wizKartoList = wizKartoList
+        self.kartotekiOsnowList = kartotekiOsnowList
         self.folder = folder
         self.total = 0
         self.exception = None
@@ -24,12 +24,12 @@ class DownloadWizKartoTask(QgsTask):
         internally and raise them in self.finished
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        total = len(self.wizKartoList)
+        total = len(self.kartotekiOsnowList)
 
-        for wizKarto in self.wizKartoList:
-            QgsMessageLog.logMessage('start ' + wizKarto.url)
-            fileName = wizKarto.url.split("/")[-1]
-            service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder)
+        for kartotekaOsnow in self.kartotekiOsnowList:
+            QgsMessageLog.logMessage('start ' + kartotekaOsnow.url)
+            fileName = kartotekaOsnow.url.split("/")[-1]
+            service_api.retreiveFile(url=kartotekaOsnow.url, destFolder=self.folder)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
@@ -66,21 +66,19 @@ class DownloadWizKartoTask(QgsTask):
 
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        csvFilename = 'pobieracz_wizualizacja_kartograficzna_BDOT10k_%s.txt' % date
+        csvFilename = 'pobieracz_archiwalnych_katalogów_osnów_geodezyjnych_%s.txt' % date
 
         with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
             naglowki = [
                 'nazwa_pliku',
-                'Data',
-                'Skala',
-                'Godło'
+                'rodzaj_katalogu',
+                'Godlo'
             ]
             csvFile.write(','.join(naglowki) + '\n')
-            for wizKarto in self.wizKartoList:
-                fileName = wizKarto.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s\n' % (
+            for kartotekaOsnow in self.kartotekiOsnowList:
+                fileName = kartotekaOsnow.url.split("/")[-1]
+                csvFile.write('%s,%s,%s\n' % (
                     fileName,
-                    wizKarto.data,
-                    wizKarto.skala,
-                    wizKarto.godlo
+                    kartotekaOsnow.rodzaj_katalogu,
+                    kartotekaOsnow.godlo
                 ))

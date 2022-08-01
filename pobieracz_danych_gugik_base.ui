@@ -24,7 +24,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-6</y>
          <width>480</width>
          <height>718</height>
         </rect>
@@ -2611,7 +2611,7 @@ nieodpłatnie przez GUGiK.</string>
            <item>
             <widget class="QgsCollapsibleGroupBox" name="osnowa_arch_groupBox">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="title">
               <string>Archiwalne Kartoteki Osnów</string>
@@ -2684,7 +2684,7 @@ nieodpłatnie przez GUGiK.</string>
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="osnowa_arch_mapLayerComboBox"/>
+               <widget class="QgsMapLayerComboBox" name="osnowa_arch_mapLayerComboBox"/>
               </item>
               <item>
                <widget class="QPushButton" name="osnowa_arch_fromLayer_btn">
