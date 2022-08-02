@@ -1,6 +1,7 @@
 import requests
 import os, time
 
+
 def getRequest(params, url):
     try:
         r = requests.get(url=url, params=params)
@@ -43,15 +44,16 @@ def retreiveFile(url, destFolder):
 
     elif 'PRG' in url:
         file_name = "PRG_" + file_name
-    elif 'bdot10k' in url:
+    elif 'bdot10k' in url and not 'Archiwum' in url:
         file_name = "bdot10k_" + file_name
+    elif 'Archiwum' in url and 'bdot10k' in url:
+        file_name = "archiwalne_bdot10k_" + url.split('/')[5] + '_' + file_name
     elif 'bdoo' in url:
         file_name = "bdoo_" + 'rok' + url.split('/')[4] + '_' + file_name
     elif 'ZestawieniaZbiorczeEGiB' in url:
         file_name = "ZestawieniaZbiorczeEGiB_" + 'rok' + url.split('/')[4] + '_' + file_name
     elif 'osnowa' in url:
         file_name = "podstawowa_osnowa_" + file_name
-
 
     path = os.path.join(destFolder, file_name)
 

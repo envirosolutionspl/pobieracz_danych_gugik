@@ -127,6 +127,15 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # archiwalne kartoteki osnów
         self.osnowa_arch_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
 
+        # bdot10k/BDOO
+        self.powiatArchiwalneBDOTDict = {}
+        self.archiwalne_wojewodztwo_cmbbx.currentTextChanged.connect(self.archiwalne_wojewodztwo_cmbbx_currentTextChanged)
+        wojewodztwaArchiwalneBDOT = list(self.regionFetch.wojewodztwoDict.keys())
+        self.archiwalne_wojewodztwo_cmbbx.addItems(wojewodztwaArchiwalneBDOT)
+
+        rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']
+        self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()
@@ -170,4 +179,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.osnowa_powiat_cmbbx.clear()
         self.powiatDict_osnowa = self.regionFetch.getPowiatDictByWojewodztwoName(text)
         self.osnowa_powiat_cmbbx.addItems(list(self.powiatDict_osnowa.keys()))
+
+    def archiwalne_wojewodztwo_cmbbx_currentTextChanged(self, text):
+        self.archiwalne_powiat_cmbbx.clear()
+        self.powiatArchiwalneBDOTDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
+        self.archiwalne_powiat_cmbbx.addItems(list(self.powiatArchiwalneBDOTDict.keys()))
 

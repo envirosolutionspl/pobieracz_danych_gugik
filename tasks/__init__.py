@@ -16,3 +16,4 @@ from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask
 from .downloadMozaikaTask import DownloadMozaikaTask
 from .downloadWizKartoTask import DownloadWizKartoTask
 from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask
+from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask

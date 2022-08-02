@@ -10,7 +10,7 @@ from .tasks import (
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
-    DownloadKartotekiOsnowTask)
+    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -248,6 +248,8 @@ class PobieraczDanychGugik:
                 lambda: self.capture_btn_clicked(self.kartoteki_osnowClickTool))
             self.dockwidget.osnowa_arch_fromLayer_btn.clicked.connect(self.osnowa_arch_fromLayer_btn_clicked)
 
+            self.dockwidget.archiwalne_bdot_selected_powiat_btn.clicked.connect(self.archiwalne_bdot_selected_powiat_btn_clicked)
+
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
@@ -284,6 +286,7 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
+            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
             # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -303,6 +306,7 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
+            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
             # print('wms')
         if self.dockwidget.paczka_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -322,6 +326,7 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
+            self.dockwidget.archiwalne_bdot_groupBox.setVisible(True)
             # print('paczka danych')
         if self.dockwidget.inne_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -341,6 +346,7 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_groupBox.setVisible(True)
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(True)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
+            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
             # print('inne dane')
 
     def wfs_fromLayer_btn_clicked(self):
@@ -1696,6 +1702,33 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.kartoteki_osnowClickTool)
         self.downloadKartotekiOsnowForSinglePoint(point)
+    # endregion
+
+    # region dane archiwalne BDOT10k
+    def archiwalne_bdot_selected_powiat_btn_clicked(self):
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        format_danych = None
+
+        if self.dockwidget.archiwalne_bdot_gml_rdbtn.isChecked():
+            format_danych = "GML"
+        elif self.dockwidget.archiwalne_bdot_shp_rdbtn.isChecked():
+            format_danych = "SHP"
+
+        powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
+        task = DownloadArchiwalnyBdotTask(
+            description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            format_danych=format_danych,
+            teryt=teryt,
+            rok=rok
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
     # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):
