@@ -10,7 +10,7 @@ from .tasks import (
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
-    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask)
+    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask)
 import asyncio, processing
 
 # Initialize Qt resources from file resources.py
@@ -21,7 +21,7 @@ from .dialogs import PobieraczDanychDockWidget
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
 
 """Wersja wtyczki"""
 plugin_version = '0.9.2'
@@ -83,6 +83,8 @@ class PobieraczDanychGugik:
         self.wizualizacja_kartoClickTool.canvasClicked.connect(self.canvasWizualizacja_karto_clicked)
         self.kartoteki_osnowClickTool = QgsMapToolEmitPoint(self.canvas)
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartoteki_osnow_clicked)
+        self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjecia_lotnicze_clicked)
 
         # --------------------------------------------------------------------------
 
@@ -248,7 +250,12 @@ class PobieraczDanychGugik:
                 lambda: self.capture_btn_clicked(self.kartoteki_osnowClickTool))
             self.dockwidget.osnowa_arch_fromLayer_btn.clicked.connect(self.osnowa_arch_fromLayer_btn_clicked)
 
-            self.dockwidget.archiwalne_bdot_selected_powiat_btn.clicked.connect(self.archiwalne_bdot_selected_powiat_btn_clicked)
+            self.dockwidget.archiwalne_bdot_selected_powiat_btn.clicked.connect(
+                self.archiwalne_bdot_selected_powiat_btn_clicked)
+
+            self.dockwidget.zdjecia_lotnicze_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.zdjecia_lotniczeClickTool))
+            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.clicked.connect(self.zdjecia_lotnicze_fromLayer_btn_clicked)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
@@ -287,6 +294,7 @@ class PobieraczDanychGugik:
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
+            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
             # print('wfs')
         if self.dockwidget.wms_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -307,6 +315,7 @@ class PobieraczDanychGugik:
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
+            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
             # print('wms')
         if self.dockwidget.paczka_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -327,6 +336,7 @@ class PobieraczDanychGugik:
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
             self.dockwidget.archiwalne_bdot_groupBox.setVisible(True)
+            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
             # print('paczka danych')
         if self.dockwidget.inne_rdbtn.isChecked():
             self.dockwidget.wfs_groupBox.setVisible(False)
@@ -347,6 +357,7 @@ class PobieraczDanychGugik:
             self.dockwidget.linie_mozaikowania_groupBox.setVisible(True)
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
             self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
+            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(True)
             # print('inne dane')
 
     def wfs_fromLayer_btn_clicked(self):
@@ -1395,7 +1406,7 @@ class PobieraczDanychGugik:
                 else:
                     bledy += 1
             # print("list: ", aerotriangulacjaList)
-            self.filterReflectanceListAndRunTask(aerotriangulacjaList)
+            self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
             # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
@@ -1641,7 +1652,8 @@ class PobieraczDanychGugik:
 
             kartotekiOsnowList = []
             for point in points:
-                subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point, katalog_niwelacyjne=katalog_niwelacyjne)
+                subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
+                                                                               katalog_niwelacyjne=katalog_niwelacyjne)
                 if subList:
                     kartotekiOsnowList.extend(subList)
                 else:
@@ -1691,9 +1703,10 @@ class PobieraczDanychGugik:
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
                 # pobieranie wizualizacji kartograficznej BDOT10k
-                task = DownloadKartotekiOsnowTask(description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
-                                           kartotekiOsnowList=kartotekiOsnowList,
-                                           folder=self.dockwidget.folder_fileWidget.filePath())
+                task = DownloadKartotekiOsnowTask(
+                    description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
+                    kartotekiOsnowList=kartotekiOsnowList,
+                    folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1702,6 +1715,7 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.kartoteki_osnowClickTool)
         self.downloadKartotekiOsnowForSinglePoint(point)
+
     # endregion
 
     # region dane archiwalne BDOT10k
@@ -1729,6 +1743,96 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
+    # endregion
+
+    # region zdjęcia lotnicze
+    def zdjecia_lotnicze_fromLayer_btn_clicked(self):
+        """Kliknięcie plawisza pobierania Zdjęć Lotniczych przez wybór warstwą wektorową"""
+
+        # sprawdzanie ścieżki zapisu
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+
+        bledy = 0
+        layer = self.dockwidget.zdjecia_lotnicze_mapLayerComboBox.currentLayer()
+
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+
+            # zablokowanie klawisza pobierania
+            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(False)
+
+            zdjeciaLotniczeList = []
+            for point in points:
+                subList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point)
+                if subList:
+                    zdjeciaLotniczeList.extend(subList)
+                else:
+                    bledy += 1
+            # print("list: ", zdjeciaLotniczeList)
+            self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
+            # print("%d zapytań się nie powiodło" % bledy)
+
+            # odblokowanie klawisza pobierania
+            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
+
+        else:
+            self.iface.messageBar().pushWarning("Ostrzeżenie:",
+                                                'Nie wskazano warstwy wektorowej')
+
+    def downloadZdjeciaLotniczeForSinglePoint(self, point):
+        """Pobiera Zdjecia Lotnicze dla pojedynczego punktu"""
+        point1992 = utils.pointTo2180(point=point,
+                                      sourceCrs=QgsProject.instance().crs(),
+                                      project=QgsProject.instance())
+        zdjeciaLotniczeList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point1992)
+
+        self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
+
+    def filterZdjeciaLotniczeListAndRunTask(self, zdjeciaLotniczeList):
+        """Filtruje listę dostępnych plików Zdjęć Lotniczych i uruchamia wątek QgsTask"""
+
+        # usuwanie duplikatów
+        zdjeciaLotniczeList = list(set(zdjeciaLotniczeList))
+        # print("po 'set'", len(zdjeciaLotniczeList))
+
+        zdjeciaLotniczeList_brak_url =[]
+        for zdj in zdjeciaLotniczeList:
+            if zdj.url == "":
+                zdjeciaLotniczeList_brak_url.append(zdj)
+                zdjeciaLotniczeList.remove(zdj)
+
+        # wyswietl komunikat pytanie
+        if len(zdjeciaLotniczeList) == 0:
+            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+            msgbox.exec_()
+            return
+        else:
+            msgbox = QMessageBox(QMessageBox.Question,
+                                 "Potwierdź pobieranie",
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     zdjeciaLotniczeList))
+            msgbox.addButton(QMessageBox.Yes)
+            msgbox.addButton(QMessageBox.No)
+            msgbox.setDefaultButton(QMessageBox.No)
+            reply = msgbox.exec()
+            if reply == QMessageBox.Yes:
+                # pobieranie zdjęć lotniczych
+                task = DownloadZdjeciaLotniczeTask(description='Pobieranie plików zdjęć lotniczych',
+                                                   zdjeciaLotniczeList=zdjeciaLotniczeList,
+                                                   zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
+                                                   folder=self.dockwidget.folder_fileWidget.filePath())
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+    def canvasZdjecia_lotnicze_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
+        """point - QgsPointXY"""
+        self.canvas.unsetMapTool(self.zdjecia_lotniczeClickTool)
+        self.downloadZdjeciaLotniczeForSinglePoint(point)
+
     # endregion
 
     def pointsFromVectorLayer(self, layer, density=1000):

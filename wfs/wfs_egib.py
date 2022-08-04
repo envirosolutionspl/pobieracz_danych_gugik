@@ -530,6 +530,6 @@ if __name__ == '__main__':
     # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
     folder = "C:\wtyczka aktualizacja\probne/"
     # print(wfsEgib.main("1206", 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', folder))
-    # print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
-    print(wfsEgib.main("2613", 'https://wms.powiatstarogard.pl/iip/ows?service=WFS&request=GetCapabilities', folder))
+    print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
+    # print(wfsEgib.main("2613", 'https://wms.powiatstarogard.pl/iip/ows?service=WFS&request=GetCapabilities', folder))
 

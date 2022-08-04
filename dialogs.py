@@ -136,6 +136,10 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']
         self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
 
+        # zdjęcia lotnicze
+        self.zdjecia_lotnicze_mapLayerComboBox.setFilters(
+            QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+
     def closeEvent(self, event):
         self.closingPlugin.emit()
         event.accept()

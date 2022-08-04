@@ -1,15 +1,17 @@
 import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog,
-    )
+)
 from .. import service_api, utils
 
-class DownloadAerotriangulacjaTask(QgsTask):
-    """QgsTask pobierania areotriangulacji"""
 
-    def __init__(self, description, aerotriangulacjaList, folder):
+class DownloadZdjeciaLotniczeTask(QgsTask):
+    """QgsTask pobierania intensywności"""
+
+    def __init__(self, description, zdjeciaLotniczeList, zdjeciaLotniczeList_brak_url, folder):
         super().__init__(description, QgsTask.CanCancel)
-        self.aerotriangulacjaList = aerotriangulacjaList
+        self.zdjeciaLotniczeList = zdjeciaLotniczeList
+        self.zdjeciaLotniczeList_brak_url = zdjeciaLotniczeList_brak_url
         self.folder = folder
         self.total = 0
         self.iterations = 0
@@ -24,15 +26,16 @@ class DownloadAerotriangulacjaTask(QgsTask):
         internally and raise them in self.finished
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        total = len(self.aerotriangulacjaList)
+        total = len(self.zdjeciaLotniczeList)
 
-        for areo in self.aerotriangulacjaList:
-            QgsMessageLog.logMessage('start ' + areo.url)
+        for zdj in self.zdjeciaLotniczeList:
+            QgsMessageLog.logMessage('start ' + zdj.url)
 
             # fileName = reflectance.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=areo.url, destFolder=self.folder)
+            service_api.retreiveFile(url=zdj.url, destFolder=self.folder)
             self.setProgress(self.progress() + 100 / total)
+            print("url: ", zdj.url)
 
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
@@ -67,20 +70,39 @@ class DownloadAerotriangulacjaTask(QgsTask):
         super().cancel()
 
     def createCsvReport(self):
+        for zdj in self.zdjeciaLotniczeList_brak_url:
+            zdj.url = "brak zdjęcia"
+        for zdj in self.zdjeciaLotniczeList:
+            zdj.url = "jest dostępne zdjęcie"
+        zdjeciaLotniczeList_all = self.zdjeciaLotniczeList + self.zdjeciaLotniczeList_brak_url
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_aerotriangulacja_%s.txt' % date), 'w') as csvFile:
+        with open(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze_%s.txt' % date), 'w') as csvFile:
             naglowki = [
-                'Nazwa pliku',
-                'Identyfikator aerotriangulacji',
-                'Numer zgłoszenia',
-                'Rok'
+                'nazwa_pliku',
+                'numer_szeregu',
+                'numer_zdjęcia',
+                'rok_wykonania',
+                'data_nalotu',
+                'charakterystyka_przestrzenna',
+                'przestrzeń_barwna',
+                'źrodło_danych',
+                'numer_zgłoszenia',
+                'karta_pracy',
+                'dostępność danych'
             ]
             csvFile.write(','.join(naglowki)+'\n')
-            for aerotriangulacja in self.aerotriangulacjaList:
-                fileName = aerotriangulacja.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s\n' % (
+            for zdj in zdjeciaLotniczeList_all:
+                fileName = zdj.url.split("/")[-1]
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
-                    aerotriangulacja.id,
-                    aerotriangulacja.zgloszenie,
-                    aerotriangulacja.zgloszenie.split('.')[3]
+                    zdj.nrSzeregu,
+                    zdj.nrZdjecia,
+                    zdj.rokWykonania,
+                    zdj.dataNalotu,
+                    zdj.charakterystykaPrzestrzenna,
+                    zdj.przestrzenBarwna,
+                    zdj.zrodloDanych,
+                    zdj.nrZgloszenia,
+                    zdj.kartaPracy,
+                    zdj.url
                 ))

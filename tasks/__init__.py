@@ -17,3 +17,4 @@ from .downloadMozaikaTask import DownloadMozaikaTask
 from .downloadWizKartoTask import DownloadWizKartoTask
 from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask
 from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask
+from .downloadZdjeciaLotniczeTask import DownloadZdjeciaLotniczeTask
