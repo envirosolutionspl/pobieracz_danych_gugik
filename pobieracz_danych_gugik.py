@@ -374,7 +374,7 @@ class PobieraczDanychGugik:
         if layer:
             self.downloadWfsForLayer(layer)
 
-            # # odblokowanie klawisza pobierania
+            # odblokowanie klawisza pobierania
             self.dockwidget.wfs_fromLayer_btn.setEnabled(True)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -895,9 +895,15 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
+        # zablokowanie klawisza pobierania
+        # self.dockwidget.reflectance_capture_btn.setEnabled(False)
+
         reflectanceList = reflectance_api.getReflectanceListbyPoint1992(point=point1992)
         # print("reflectanceList: ", list(reflectanceList))
         self.filterReflectanceListAndRunTask(reflectanceList)
+
+        # odblokowanie klawisza pobierania
+        # self.dockwidget.reflectance_capture_btn.setEnabled(True)
 
     def filterReflectanceListAndRunTask(self, reflectanceList):
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
@@ -986,6 +992,7 @@ class PobieraczDanychGugik:
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1844,11 +1851,6 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
                                        zdjecie.zrodloDanych == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
-
-        # ograniczenie tylko do najnowszego
-        # if self.dockwidget.orto_newest_chkbx.isChecked():
-        #     ortoList = utils.onlyNewest(ortoList)
-        #     # print(ortoList)
 
         return zdjeciaLotniczeList
 

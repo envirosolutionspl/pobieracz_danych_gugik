@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-335</y>
+         <y>-61</y>
          <width>384</width>
-         <height>1042</height>
+         <height>766</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -2654,6 +2654,10 @@ nieodpłatnie przez GUGiK.</string>
                 <property name="text">
                  <string>Pobierz przez wskazanie punktu na mapie</string>
                 </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>img/icon.png</normaloff>img/icon.png</iconset>
+                </property>
                </widget>
               </item>
               <item>
@@ -2716,6 +2720,10 @@ nieodpłatnie przez GUGiK.</string>
              <property name="text">
               <string>Pobierz przez wskazanie punktu na mapie</string>
              </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>img/icon.png</normaloff>img/icon.png</iconset>
+             </property>
             </widget>
            </item>
            <item>
@@ -2774,6 +2782,10 @@ nieodpłatnie przez GUGiK.</string>
             <widget class="QPushButton" name="linie_mozaikowania_capture_btn">
              <property name="text">
               <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>img/icon.png</normaloff>img/icon.png</iconset>
              </property>
             </widget>
            </item>
@@ -2862,6 +2874,10 @@ nieodpłatnie przez GUGiK.</string>
             <widget class="QPushButton" name="wizualizacja_karto_capture_btn">
              <property name="text">
               <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>img/icon.png</normaloff>img/icon.png</iconset>
              </property>
             </widget>
            </item>
@@ -3082,7 +3098,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Zdjęcia lotnicze</string>
           </property>
           <property name="collapsed">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_22">
            <item>
@@ -3100,7 +3116,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_23">
               <item>
@@ -3209,6 +3225,10 @@ nieodpłatnie przez GUGiK.</string>
             <widget class="QPushButton" name="zdjecia_lotnicze_capture_btn">
              <property name="text">
               <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>img/icon.png</normaloff>img/icon.png</iconset>
              </property>
             </widget>
            </item>
