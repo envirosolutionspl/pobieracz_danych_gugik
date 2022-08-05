@@ -10,7 +10,7 @@ except:
 c = re.compile("\{{1}.*\}{1}")
 
 
-def getLasListbyPoint1992(point, isEvrf2007, isLaz=False):
+def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
     x = point.x()
     y = point.y()
     if isEvrf2007:
@@ -56,7 +56,7 @@ def getLasListbyPoint1992(point, isEvrf2007, isLaz=False):
                 if len(item) > 2:
                     val = ":".join(item[1:]).strip('"')
                 params[item[0]] = val
-            params['isLaz'] = isLaz
+            # params['isLaz'] = isLaz
             las = Las(**params)
             lasList.append(las)
         return lasList
@@ -66,6 +66,6 @@ def getLasListbyPoint1992(point, isEvrf2007, isLaz=False):
 
 if __name__ == '__main__':
     from qgis.core import QgsPoint
-    print(getLasListbyPoint1992(QgsPoint(504189, 380335), isLaz=True))
+    print(getLasListbyPoint1992(QgsPoint(504189, 380335))) #, isLaz=True
 # https://opendata.geoportal.gov.pl/NumDaneWys/DanePomiarowe/5020/5020_452318_M-34-52-C-d-1-3-2.las
 # https://opendata.geoportal.gov.pl/NumDaneWys/DanePomiaroweLAZ/5020/5020_452318_M-34-52-C-d-1-3-2.laz

@@ -746,8 +746,8 @@ class PobieraczDanychGugik:
             for point in points:
                 subList = las_api.getLasListbyPoint1992(
                     point=point,
-                    isEvrf2007=isEvrf2007,
-                    isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
+                    isEvrf2007=isEvrf2007)
+                    # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
                 if subList:
                     lasList.extend(subList)
                 else:
@@ -771,8 +771,8 @@ class PobieraczDanychGugik:
         isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
         lasList = las_api.getLasListbyPoint1992(
             point=point1992,
-            isEvrf2007=isEvrf2007,
-            isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
+            isEvrf2007=isEvrf2007
+            # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
         )
 
         self.filterLasListAndRunTask(lasList)
