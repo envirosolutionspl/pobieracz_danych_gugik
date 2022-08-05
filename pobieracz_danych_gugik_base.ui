@@ -24,9 +24,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-61</y>
-         <width>380</width>
-         <height>766</height>
+         <y>-335</y>
+         <width>384</width>
+         <height>1042</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -372,7 +372,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -1804,7 +1804,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Państwowy Rejestr Granic</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -3082,9 +3082,129 @@ nieodpłatnie przez GUGiK.</string>
            <string>Zdjęcia lotnicze</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_22">
+           <item>
+            <widget class="QgsCollapsibleGroupBox" name="zdjecia_lotnicze_filter_groupBox">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="title">
+              <string>filtruj dane</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+             <property name="collapsed">
+              <bool>false</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_23">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_48">
+                  <property name="text">
+                   <string>Data nalotu od:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QgsDateTimeEdit" name="zdjecia_lotnicze_from_dateTimeEdit">
+                  <property name="date">
+                   <date>
+                    <year>1995</year>
+                    <month>1</month>
+                    <day>1</day>
+                   </date>
+                  </property>
+                  <property name="displayFormat">
+                   <string>dd.MM.yyyy</string>
+                  </property>
+                  <property name="calendarPopup">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QComboBox" name="zdjecia_lotnicze_source_cmbbx">
+                  <item>
+                   <property name="text">
+                    <string>wszystkie</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Zdj. cyfrowe</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Zdj. analogowe</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="zdjecia_lotnicze_kolor_cmbbx">
+                  <item>
+                   <property name="text">
+                    <string>wszystkie</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>RGB</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>CIR</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>B/W</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_56">
+                  <property name="text">
+                   <string>Kolor</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_49">
+                  <property name="text">
+                   <string>Data nalotu do:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QgsDateTimeEdit" name="zdjecia_lotnicze_to_dateTimeEdit">
+                  <property name="displayFormat">
+                   <string>dd.MM.yyyy</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_54">
+                  <property name="text">
+                   <string>Źródło danych:</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QPushButton" name="zdjecia_lotnicze_capture_btn">
              <property name="text">

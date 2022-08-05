@@ -139,6 +139,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # zdjęcia lotnicze
         self.zdjecia_lotnicze_mapLayerComboBox.setFilters(
             QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.zdjecia_lotnicze_from_dateTimeEdit.setAllowNull(False)
+        self.zdjecia_lotnicze_to_dateTimeEdit.setAllowNull(False)
 
     def closeEvent(self, event):
         self.closingPlugin.emit()

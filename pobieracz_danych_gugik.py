@@ -1797,10 +1797,11 @@ class PobieraczDanychGugik:
         # usuwanie duplikatów
         zdjeciaLotniczeList = list(set(zdjeciaLotniczeList))
         # print("po 'set'", len(zdjeciaLotniczeList))
+        zdjeciaLotniczeList = self.filterzdjeciaLotniczeList(zdjeciaLotniczeList)
 
-        zdjeciaLotniczeList_brak_url =[]
+        zdjeciaLotniczeList_brak_url = []
         for zdj in zdjeciaLotniczeList:
-            if zdj.url == "":
+            if zdj.url == "brak zdjęcia":
                 zdjeciaLotniczeList_brak_url.append(zdj)
                 zdjeciaLotniczeList.remove(zdj)
 
@@ -1826,6 +1827,30 @@ class PobieraczDanychGugik:
                                                    folder=self.dockwidget.folder_fileWidget.filePath())
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
+
+    def filterzdjeciaLotniczeList(self, zdjeciaLotniczeList):
+        """Filtruje listę zdjęć lotniczych"""
+
+        if self.dockwidget.zdjecia_lotnicze_filter_groupBox.isChecked():
+            if not (self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText() == 'wszystkie'):
+                zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
+                                       zdjecie.kolor == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
+            if self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.date():
+                zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
+                                       zdjecie.dataNalotu >= self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.date():
+                zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
+                                       zdjecie.dataNalotu <= self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if not (self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText() == 'wszystkie'):
+                zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
+                                       zdjecie.zrodloDanych == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
+
+        # ograniczenie tylko do najnowszego
+        # if self.dockwidget.orto_newest_chkbx.isChecked():
+        #     ortoList = utils.onlyNewest(ortoList)
+        #     # print(ortoList)
+
+        return zdjeciaLotniczeList
 
     def canvasZdjecia_lotnicze_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""

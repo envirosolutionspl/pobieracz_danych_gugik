@@ -70,10 +70,6 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         super().cancel()
 
     def createCsvReport(self):
-        for zdj in self.zdjeciaLotniczeList_brak_url:
-            zdj.url = "brak zdjęcia"
-        for zdj in self.zdjeciaLotniczeList:
-            zdj.url = "jest dostępne zdjęcie"
         zdjeciaLotniczeList_all = self.zdjeciaLotniczeList + self.zdjeciaLotniczeList_brak_url
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         with open(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze_%s.txt' % date), 'w') as csvFile:
@@ -84,25 +80,23 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
                 'rok_wykonania',
                 'data_nalotu',
                 'charakterystyka_przestrzenna',
-                'przestrzeń_barwna',
+                'kolor',
                 'źrodło_danych',
                 'numer_zgłoszenia',
-                'karta_pracy',
-                'dostępność danych'
+                'karta_pracy'
             ]
             csvFile.write(','.join(naglowki)+'\n')
             for zdj in zdjeciaLotniczeList_all:
                 fileName = zdj.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
                     zdj.nrSzeregu,
                     zdj.nrZdjecia,
                     zdj.rokWykonania,
                     zdj.dataNalotu,
                     zdj.charakterystykaPrzestrzenna,
-                    zdj.przestrzenBarwna,
+                    zdj.kolor,
                     zdj.zrodloDanych,
                     zdj.nrZgloszenia,
-                    zdj.kartaPracy,
-                    zdj.url
+                    zdj.kartaPracy
                 ))
