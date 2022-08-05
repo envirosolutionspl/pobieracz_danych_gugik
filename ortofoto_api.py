@@ -17,8 +17,8 @@ def getOrtoListbyPoint1992(point):
         'SkorowidzeOrtofotomapyStarsze',
         'SkorowidzeOrtofotomapyZasiegi2021',
         'SkorowidzeOrtofotomapy2021',
-        'SkorowidzeOrtofotomapyZasiegi2019',
-        'SkorowidzeOrtofotomapy2019',
+        'SkorowidzeOrtofotomapyZasiegi2022',
+        'SkorowidzeOrtofotomapy2022',
         'SkorowidzeOrtofotomapyZasiegi2020',
         'SkorowidzeOrtofotomapy2020'
     ]
