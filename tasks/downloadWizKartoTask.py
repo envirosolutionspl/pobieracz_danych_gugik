@@ -8,12 +8,13 @@ from .. import service_api, utils
 class DownloadWizKartoTask(QgsTask):
     """QgsTask pobierania wizualizacji kartograficznej BDOT10k"""
 
-    def __init__(self, description, wizKartoList, folder):
+    def __init__(self, description, wizKartoList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.wizKartoList = wizKartoList
         self.folder = folder
         self.total = 0
         self.exception = None
+        self.iface = iface
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -53,9 +54,14 @@ class DownloadWizKartoTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane wizualizacji kartograficznej BDOT10k zostały pobrane.")
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
+
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception

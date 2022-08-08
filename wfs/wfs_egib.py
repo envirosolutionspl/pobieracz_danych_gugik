@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 import urllib3
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
 
 class WfsEgib:
     def save_xml(self, folder, url):
@@ -134,17 +135,28 @@ class WfsEgib:
 
     def main(self, teryt, wfs, folder):
 
-        num_error_exists_file = 0
-        try:
-            path = os.path.join(folder, teryt + "_wfs_egib/")
-            os.mkdir(path)
-        except FileExistsError:
-            while FileExistsError is True:
-                num_error_exists_file = num_error_exists_file + 1
-                path = os.path.join(folder, teryt + "_wfs_egib_" + str(num_error_exists_file) + "/")
-                os.mkdir(path)
-        print("Directory '% s' created" % path)
-        self.save_gml(path, wfs, teryt)
+        dsu = QgsDataSourceUri()
+        dsu.setParam('url', 'https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/0461?')
+        layer = QgsVectorLayer(dsu.uri(), "EGiB", "WFS")
+        QgsProject.instance().addMapLayer(layer)
+        # dsu.setParam('url', 'https://wms.powiatstarogard.pl/iip/ows')
+        dsu.setParam('request', 'getFeature')
+        dsu.setParam('version', '1.1.0')
+        dsu.setParam('service', 'WFS')
+        dsu.setParam('srsname', 'EPSG:2180')
+        dsu.setParam('typename', 'ms:uzytki')
+
+        # num_error_exists_file = 0
+        # try:
+        #     path = os.path.join(folder, teryt + "_wfs_egib/")
+        #     os.mkdir(path)
+        # except FileExistsError:
+        #     while FileExistsError is True:
+        #         num_error_exists_file = num_error_exists_file + 1
+        #         path = os.path.join(folder, teryt + "_wfs_egib_" + str(num_error_exists_file) + "/")
+        #         os.mkdir(path)
+        # print("Directory '% s' created" % path)
+        # self.save_gml(path, wfs, teryt)
 
 if __name__ == '__main__':
     wfsEgib = WfsEgib()

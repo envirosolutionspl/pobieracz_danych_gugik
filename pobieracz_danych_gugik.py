@@ -1626,7 +1626,8 @@ class PobieraczDanychGugik:
                 # pobieranie wizualizacji kartograficznej BDOT10k
                 task = DownloadWizKartoTask(description='Pobieranie danych pdf o wizualizacji kartograficznej BDOT10k',
                                             wizKartoList=wizKartoList,
-                                            folder=self.dockwidget.folder_fileWidget.filePath())
+                                            folder=self.dockwidget.folder_fileWidget.filePath(),
+                                            iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1956,3 +1957,5 @@ class PobieraczDanychGugik:
             return False
         else:
             return True
+
+
