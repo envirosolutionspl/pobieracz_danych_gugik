@@ -4,12 +4,13 @@ from qgis.core import (
 )
 from .. import service_api, utils
 from ..wfs import WfsEgib
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider
 
 
 class DownloadWfsEgibTask(QgsTask):
     """QgsTask pobierania WFS EGiB"""
 
-    def __init__(self, description, folder, teryt):
+    def __init__(self, description, folder, teryt, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.wfsEgib = None
@@ -18,6 +19,7 @@ class DownloadWfsEgibTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.teryt = teryt
+        self.iface = iface
 
         # f = open("/dictionary_powiat_wfs.txt", "r")
         # print(f.read())
@@ -414,6 +416,10 @@ class DownloadWfsEgibTask(QgsTask):
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         QgsMessageLog.logMessage('start ' + self.wfs)
+
+        # uri = "https://raciborz.geoportal2.pl/map/geoportal/wfs.php?request=getFeature&version=1.1.0&service=WFS&typename=ewns:budynki"
+        # layer = QgsVectorLayer(uri, "my wfs layer", "WFS")
+        # QgsProject.instance().addMapLayer(layer)
 
         self.wfsEgib = WfsEgib()
         self.wfsEgib.main(self.teryt, self.wfs, self.folder)

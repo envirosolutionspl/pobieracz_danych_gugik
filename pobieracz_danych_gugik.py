@@ -1271,7 +1271,8 @@ class PobieraczDanychGugik:
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt=teryt
+            teryt=teryt,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')

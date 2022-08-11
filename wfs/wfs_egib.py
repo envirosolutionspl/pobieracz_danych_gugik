@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 import urllib3
-from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider
+import re
 
 class WfsEgib:
     def save_xml(self, folder, url):
@@ -37,8 +38,22 @@ class WfsEgib:
         except requests.exceptions.ConnectionError:
             print("cos nie tak z requests " + url)
 
-    def praca_na_xml(self, folder, url):
+    def praca_na_xml(self, folder, url, teryt):
         self.save_xml(folder, url)
+
+        # print("url2: ", url)
+        # data = open(folder + 'egib_wfs.xml', "r")
+        # data = data.read()
+        # string = '<Name>(.+?)</Name>'
+        # for word in data.split():
+        #     # print("word: ", word)
+        #     layer = re.search(string, word)
+        #     # print("layer: ", layer)
+        #     if layer is not None:
+        #         uri = f"{url.split('?')[0]}?request=getFeature&version=1.1.0&service=WFS&typename={layer.group(1)}"
+        #         print("layer_uri: ", uri)
+        #         layer = QgsVectorLayer(uri, teryt+"_"+layer.group(1), "WFS")
+        #         QgsProject.instance().addMapLayer(layer)
 
         ns = etree.parse(folder + 'egib_wfs.xml').getroot().nsmap
         # ns['xmlns:xlink'] = ns.pop('xlink')
@@ -50,22 +65,35 @@ class WfsEgib:
         root = tree.getroot()
 
         print(root)
-        for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns):
-            print(child.text)
-            if 'ewns' in child.text:
-                print("znalaziono ewns")
+        name_layers = []
+        for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+            name = child.find('xmlns:Name', ns)
+            # print("name.text: ", name.text)
+            if 'ewns' in name.text:
+                # print("znalaziono ewns")
                 ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
-        print('ns', ns)
+                # print("ewns: ", name.text)
+                name_layers.append(name.text)
+            else:
+                name_layers.append(name.text)
+
+        for layer in name_layers:
+            uri = f"{url.split('?')[0]}?request=getFeature&version=1.1.0&service=WFS&typename={layer}"
+            print("layer_uri: ", uri)
+            vlayer = QgsVectorLayer(uri, teryt+"_"+layer, "WFS")
+            QgsProject.instance().addMapLayer(vlayer)
+
+        # print('ns', ns)
 
         # name_layers = []
         # for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
         #     name = child.find('xmlns:Name', ns)
         #     name_layers.append(name.text)
 
-        name_layers = []
-        for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-            name = child.find('xmlns:Name', ns)
-            name_layers.append(name.text)
+        # name_layers = []
+        # for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+        #     name = child.find('xmlns:Name', ns)
+        #     name_layers.append(name.text)
 
         # dla powiatów, które posiadają zdefiniowany prefix wfs
         # for child in root.findall('./wfs:FeatureTypeList/wfs:FeatureType', ns):
@@ -80,31 +108,32 @@ class WfsEgib:
         #         name = featureType.find('wfs:Name', ns)
         #         name_layers.append(name.text)
 
-        return name_layers
+        # return name_layers
 
     def save_gml(self, folder, url, teryt):
-        name_layers = self.praca_na_xml(folder, url)
+        self.praca_na_xml(folder, url, teryt)
+        # name_layers = self.praca_na_xml(folder, url)
         # print(name_layers)
-        url_main = url.split('?')[0]
-
-        for layer in name_layers:
-            url_gml = url_main + '?request=getFeature&version=1.1.0&service=WFS&typename=' + layer
-            print(url_gml)
-            sleep(1)
-            try:
-                r = requests.get(url_gml)
-                # while True:
-
-                if str(r.status_code) == '404':
-                    print("Plik nie istnieje" + teryt + '_' + layer)
-                else:
-                    with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
-                        f.write(r.content)
-                    size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-                    if size <= 1000:  # 341:
-                        print('Za mały rozmiar pliku : 1kb lub 0kb')
-            except IOError:
-                print("Błąd zapisu pliku" + teryt + '_' + layer)
+        # url_main = url.split('?')[0]
+        #
+        # for layer in name_layers:
+        #     url_gml = url_main + '?request=getFeature&version=1.1.0&service=WFS&typename=' + layer
+        #     print(url_gml)
+        #     sleep(1)
+        #     try:
+        #         r = requests.get(url_gml)
+        #         # while True:
+        #
+        #         if str(r.status_code) == '404':
+        #             print("Plik nie istnieje" + teryt + '_' + layer)
+        #         else:
+        #             with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+        #                 f.write(r.content)
+        #             size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+        #             if size <= 1000:  # 341:
+        #                 print('Za mały rozmiar pliku : 1kb lub 0kb')
+        #     except IOError:
+        #         print("Błąd zapisu pliku" + teryt + '_' + layer)
             # except requests.exceptions.SSLError:
             #     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
             #     print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
@@ -130,33 +159,26 @@ class WfsEgib:
                     # else:
                     #     return False
 
-            except requests.exceptions.ConnectionError:
-                print("Błąd requests dla warstwy " + teryt + '_' + layer)
+            # except requests.exceptions.ConnectionError:
+            #     print("Błąd requests dla warstwy " + teryt + '_' + layer)
 
     def main(self, teryt, wfs, folder):
 
-        dsu = QgsDataSourceUri()
-        dsu.setParam('url', 'https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/0461?')
-        layer = QgsVectorLayer(dsu.uri(), "EGiB", "WFS")
-        QgsProject.instance().addMapLayer(layer)
-        # dsu.setParam('url', 'https://wms.powiatstarogard.pl/iip/ows')
-        dsu.setParam('request', 'getFeature')
-        dsu.setParam('version', '1.1.0')
-        dsu.setParam('service', 'WFS')
-        dsu.setParam('srsname', 'EPSG:2180')
-        dsu.setParam('typename', 'ms:uzytki')
+        # uri = "https://wloclawek.geoportal2.pl/map/geoportal/wfs.php?request=getFeature&version=1.1.0&service=WFS&typename=ewns:osnowa_p"
+        # layer = QgsVectorLayer(uri, "my wfs layer", "WFS")
+        # QgsProject.instance().addMapLayer(layer)
 
-        # num_error_exists_file = 0
-        # try:
-        #     path = os.path.join(folder, teryt + "_wfs_egib/")
-        #     os.mkdir(path)
-        # except FileExistsError:
-        #     while FileExistsError is True:
-        #         num_error_exists_file = num_error_exists_file + 1
-        #         path = os.path.join(folder, teryt + "_wfs_egib_" + str(num_error_exists_file) + "/")
-        #         os.mkdir(path)
-        # print("Directory '% s' created" % path)
-        # self.save_gml(path, wfs, teryt)
+        num_error_exists_file = 0
+        try:
+            path = os.path.join(folder, teryt + "_wfs_egib/")
+            os.mkdir(path)
+        except FileExistsError:
+            while FileExistsError is True:
+                num_error_exists_file = num_error_exists_file + 1
+                path = os.path.join(folder, teryt + "_wfs_egib_" + str(num_error_exists_file) + "/")
+                os.mkdir(path)
+        print("Directory '% s' created" % path)
+        self.save_gml(path, wfs, teryt)
 
 if __name__ == '__main__':
     wfsEgib = WfsEgib()
