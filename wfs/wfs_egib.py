@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 import urllib3
-from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider, QgsVectorFileWriter, QgsCoordinateTransformContext
 import re
 
 class WfsEgib:
@@ -66,22 +66,58 @@ class WfsEgib:
 
         print(root)
         name_layers = []
+        setWgs84BoundingBoxEast = []
+        setWgs84BoundingBoxSouth = []
+        setWgs84BoundingBoxWest = []
+        setWgs84BoundingBoxNorth  = []
+
+        if 'ewns' in root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns).text:
+            print("znalaziono ewns")
+            ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
+            print("ewns: ", root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns))
+
         for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
             name = child.find('xmlns:Name', ns)
+            print("name.text: ", name.text)
             # print("name.text: ", name.text)
-            if 'ewns' in name.text:
-                # print("znalaziono ewns")
-                ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
-                # print("ewns: ", name.text)
-                name_layers.append(name.text)
-            else:
-                name_layers.append(name.text)
+            name_layers.append(name.text)
+            print("name_layers: ", name_layers)
 
-        for layer in name_layers:
-            uri = f"{url.split('?')[0]}?request=getFeature&version=1.1.0&service=WFS&typename={layer}"
-            print("layer_uri: ", uri)
-            vlayer = QgsVectorLayer(uri, teryt+"_"+layer, "WFS")
-            QgsProject.instance().addMapLayer(vlayer)
+        if 'ewns' in name_layers[0]:
+            prefix = 'ewns'
+        elif 'ms' in name_layers[0]:
+            prefix = 'ms'
+        else:
+            prefix = None
+
+        print("prefix: ", prefix)
+
+        for bbox in root.findall('./xmlns:WGS84BoundingBox', ns):
+            for lowercorner in bbox.findall('./xmlns:LowerCorner', ns):
+                setWgs84BoundingBoxEast.append(lowercorner.text.split(' ')[0])
+                setWgs84BoundingBoxSouth.append(lowercorner.text.split(' ')[1])
+            for uppercorner in bbox.findall('./xmlns:UpperCorner', ns):
+                setWgs84BoundingBoxWest.append(uppercorner.text.split(' ')[0])
+                setWgs84BoundingBoxNorth.append(uppercorner.text.split(' ')[1])
+
+        print("ns: ", ns)
+
+        # for layer in name_layers:
+        #     if 'ewns' in layer:
+        #         uri = f"{url.split('?')[0]}?request=getFeature&version=1.1.0&service=WFS&typename={layer}"
+        #         print("layer_uri: ", uri)
+        #         vlayer = QgsVectorLayer(uri, teryt + "_" + layer, "WFS")
+        #         # QgsProject.instance().addMapLayer(vlayer)
+        #         print("path: ", folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+        #         QgsVectorFileWriter.writeAsVectorFormat(vlayer, (folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml').absoluteFilePath(), 'utf-8', layer.crs().isGeographic(), driverName='GML')
+        #         # ', "UTF-8", "epsg:2180"
+        #         return name_layers is None
+        #     else:
+        #         return name_layers
+
+
+
+
 
         # print('ns', ns)
 
@@ -108,49 +144,67 @@ class WfsEgib:
         #         name = featureType.find('wfs:Name', ns)
         #         name_layers.append(name.text)
 
-        # return name_layers
+        return name_layers, setWgs84BoundingBoxEast, setWgs84BoundingBoxSouth, setWgs84BoundingBoxWest, setWgs84BoundingBoxNorth, prefix
 
     def save_gml(self, folder, url, teryt):
-        self.praca_na_xml(folder, url, teryt)
-        # name_layers = self.praca_na_xml(folder, url)
-        # print(name_layers)
-        # url_main = url.split('?')[0]
-        #
-        # for layer in name_layers:
-        #     url_gml = url_main + '?request=getFeature&version=1.1.0&service=WFS&typename=' + layer
-        #     print(url_gml)
-        #     sleep(1)
-        #     try:
-        #         r = requests.get(url_gml)
-        #         # while True:
-        #
-        #         if str(r.status_code) == '404':
-        #             print("Plik nie istnieje" + teryt + '_' + layer)
-        #         else:
-        #             with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
-        #                 f.write(r.content)
-        #             size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-        #             if size <= 1000:  # 341:
-        #                 print('Za mały rozmiar pliku : 1kb lub 0kb')
-        #     except IOError:
-        #         print("Błąd zapisu pliku" + teryt + '_' + layer)
-            # except requests.exceptions.SSLError:
-            #     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            #     print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
-            #     print("Czy chcesz pobrać dane na własną odpowiedzialność?")
-            #     r = requests.get(url, verify=False)
-            #     if str(r.status_code) == '404':
-            #         print("Plik nie istnieje" + teryt + '_' + layer)
-            #     try:
-            #         with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
-            #             f.write(r.content)
-            #         size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-            #         if size <= 1000:  # 341:
-            #             print('Za mały rozmiar pliku : 1kb lub 0kb')
-            #     except IOError:
-            #         print("Błąd zapisu pliku" + teryt + '_' + layer)
+        # self.praca_na_xml(folder, url, teryt)
+        name_layers, setWgs84BoundingBoxEast, setWgs84BoundingBoxSouth, setWgs84BoundingBoxWest, setWgs84BoundingBoxNorth, prefix = self.praca_na_xml(folder, url, teryt)
 
-                    # return False
+        # if name_layers is None:
+        #     return 0
+
+        print(name_layers)
+        url_main = url.split('?')[0]
+
+        for layer in name_layers:
+            if len(setWgs84BoundingBoxEast) < 1:
+                if prefix == 'ewns':
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ewns,http%3A%2F%2Fxsd.geoportal2.pl%2Fewns)"
+                elif prefix == 'ms':
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ms,http%3A%2F%2Fmapserver.gis.umn.edu%2Fmapserver)"
+                else:
+                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer
+            else:
+                if prefix == 'ewns':
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ewns,http%3A%2F%2Fxsd.geoportal2.pl%2Fewns)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+                elif prefix == 'ms':
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ms,http%3A%2F%2Fmapserver.gis.umn.edu%2Fmapserver)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+                else:
+                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+
+            print(url_gml)
+            sleep(1)
+            try:
+                r = requests.get(url_gml)
+                # while True:
+
+                if str(r.status_code) == '404':
+                    print("Plik nie istnieje" + teryt + '_' + layer)
+                else:
+                    with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+                        f.write(r.content)
+                    size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+                    if size <= 1000:  # 341:
+                        print('Za mały rozmiar pliku : 1kb lub 0kb')
+            except IOError:
+                print("Błąd zapisu pliku" + teryt + '_' + layer)
+            except requests.exceptions.SSLError:
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
+                print("Czy chcesz pobrać dane na własną odpowiedzialność?")
+                r = requests.get(url, verify=False)
+                if str(r.status_code) == '404':
+                    print("Plik nie istnieje" + teryt + '_' + layer)
+                try:
+                    with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+                        f.write(r.content)
+                    size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+                    if size <= 1000:  # 341:
+                        print('Za mały rozmiar pliku : 1kb lub 0kb')
+                except IOError:
+                    print("Błąd zapisu pliku" + teryt + '_' + layer)
+
+                    return False
 
                     # size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     # if size == 341:
@@ -159,8 +213,8 @@ class WfsEgib:
                     # else:
                     #     return False
 
-            # except requests.exceptions.ConnectionError:
-            #     print("Błąd requests dla warstwy " + teryt + '_' + layer)
+            except requests.exceptions.ConnectionError:
+                print("Błąd requests dla warstwy " + teryt + '_' + layer)
 
     def main(self, teryt, wfs, folder):
 
