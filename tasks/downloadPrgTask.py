@@ -8,12 +8,13 @@ from .. import service_api, utils
 class DownloadPrgTask(QgsTask):
     """QgsTask pobierania PRG"""
 
-    def __init__(self, description, folder, url):
+    def __init__(self, description, folder, url, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.exception = None
         self.url = url
+        self.iface = iface
 
     def run(self):
 
@@ -35,12 +36,16 @@ class DownloadPrgTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane PRG zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane PRG nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

@@ -6,9 +6,9 @@ from .. import service_api, utils
 
 
 class DownloadZdjeciaLotniczeTask(QgsTask):
-    """QgsTask pobierania intensywności"""
+    """QgsTask pobierania zdjęć lotniczych"""
 
-    def __init__(self, description, zdjeciaLotniczeList, zdjeciaLotniczeList_brak_url, folder):
+    def __init__(self, description, zdjeciaLotniczeList, zdjeciaLotniczeList_brak_url, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.zdjeciaLotniczeList = zdjeciaLotniczeList
         self.zdjeciaLotniczeList_brak_url = zdjeciaLotniczeList_brak_url
@@ -16,6 +16,7 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         self.total = 0
         self.iterations = 0
         self.exception = None
+        self.iface = iface
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -58,12 +59,16 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane zdjęć lotniczych zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane zdjęć lotniczych nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

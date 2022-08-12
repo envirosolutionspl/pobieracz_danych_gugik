@@ -8,7 +8,7 @@ from .. import service_api, utils
 class DownloadBdotTask(QgsTask):
     """QgsTask pobierania BDOT10k"""
 
-    def __init__(self, description, folder, level, format_danych, teryt=None):
+    def __init__(self, description, folder, level, format_danych, teryt, iface):
         """
         level:
         0 - cały kraj
@@ -21,6 +21,7 @@ class DownloadBdotTask(QgsTask):
         # self.iterations = 0
         self.exception = None
         self.format_danych=format_danych
+        self.iface = iface
 
         if format_danych == 'GML':
             if level == 0:
@@ -57,12 +58,16 @@ class DownloadBdotTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane BDOT10k zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane BDOT10k nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

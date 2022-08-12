@@ -8,12 +8,13 @@ import requests
 class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
 
-    def __init__(self, description, folder, format_danych, teryt, rok):
+    def __init__(self, description, folder, format_danych, teryt, rok, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.page_exist = None
         self.folder = folder
         self.exception = None
         self.url = f"https://opendata.geoportal.gov.pl/Archiwum/bdot10k/{rok}/{format_danych}/{teryt[0:2]}/{teryt}_{format_danych}.zip"
+        self.iface = iface
 
     def run(self):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
@@ -43,12 +44,16 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane archiwalnej bazy BDOT10k zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane archiwalnej bazy BDOT10k nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

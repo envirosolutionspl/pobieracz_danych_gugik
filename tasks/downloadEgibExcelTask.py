@@ -8,7 +8,7 @@ import requests
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
 
-    def __init__(self, description, folder, egib_excel_zakres_danych, rok, teryt_powiat, teryt_wojewodztwo):
+    def __init__(self, description, folder, egib_excel_zakres_danych, rok, teryt_powiat, teryt_wojewodztwo, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
@@ -17,6 +17,7 @@ class DownloadEgibExcelTask(QgsTask):
         self.rok = rok
         self.teryt_powiat = teryt_powiat
         self.teryt_wojewodztwo = teryt_wojewodztwo
+        self.iface = iface
 
         self.dic_nazwa_teryt_wojewodztwa = {'02_dolnoslaskie': '02',
                                             '04_kujawsko-pomorskie': '04',
@@ -75,12 +76,17 @@ class DownloadEgibExcelTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane zestawień zbiorczych EGiB nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

@@ -8,7 +8,7 @@ from .. import service_api, utils
 class DownloadBdooTask(QgsTask):
     """QgsTask pobierania BDOO"""
 
-    def __init__(self, description, folder, level, rok, teryt=None):
+    def __init__(self, description, folder, level, rok, teryt, iface):
         """
         level:
         0 - cały kraj
@@ -27,6 +27,8 @@ class DownloadBdooTask(QgsTask):
         elif level == 2:
             pass
             # self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_GML.zip"
+
+        self.iface = iface
 
     def run(self):
 
@@ -48,12 +50,16 @@ class DownloadBdooTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane BDOO zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane BDOO nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

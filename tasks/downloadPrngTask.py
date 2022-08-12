@@ -8,14 +8,14 @@ from .. import service_api, utils
 class DownloadPrngTask(QgsTask):
     """QgsTask pobierania PRNG"""
 
-    def __init__(self, description, folder, rodzaj, format_danych):
+    def __init__(self, description, folder, rodzaj, format_danych, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.rodzaj = rodzaj
         self.format_danych = format_danych
         self.exception = None
-
+        self.iface = iface
         self.url = f"https://opendata.geoportal.gov.pl/prng/PRNG_{self.rodzaj}_{self.format_danych}.zip"
 
     def run(self):
@@ -38,12 +38,16 @@ class DownloadPrngTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane PRNG zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane PRNG nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

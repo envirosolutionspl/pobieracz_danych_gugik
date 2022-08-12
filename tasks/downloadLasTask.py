@@ -9,13 +9,14 @@ from .. import service_api, utils
 class DownloadLasTask(QgsTask):
     """QgsTask pobierania LAS"""
 
-    def __init__(self, description, lasList, folder):
+    def __init__(self, description, lasList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.lasList = lasList
         self.folder = folder
         self.total = 0
         self.iterations = 0
         self.exception = None
+        self.iface = iface
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -55,12 +56,16 @@ class DownloadLasTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane LAS zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane LAS nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

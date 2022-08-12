@@ -56,8 +56,7 @@ class DownloadWizKartoTask(QgsTask):
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushSuccess("Sukces",
                                                 "Udało się! Dane wizualizacji kartograficznej BDOT10k zostały pobrane.")
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane.")
+
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
@@ -65,6 +64,8 @@ class DownloadWizKartoTask(QgsTask):
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                            "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

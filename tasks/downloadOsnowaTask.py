@@ -9,13 +9,14 @@ import requests
 class DownloadOsnowaTask(QgsTask):
     """QgsTask pobierania PRG"""
 
-    def __init__(self, description, folder, teryt_powiat, typ):
+    def __init__(self, description, folder, teryt_powiat, typ, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.exception = None
         self.teryt_powiat = teryt_powiat
         self.typ = typ
+        self.iface = iface
 
     def run(self):
         list_url = []
@@ -41,12 +42,16 @@ class DownloadOsnowaTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane podstawowej osnowy geodezyjnej zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane podstawowej osnowy geodezyjnej nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

@@ -7,13 +7,14 @@ from .. import service_api, utils
 class DownloadOrtofotoTask(QgsTask):
     """QgsTask pobierania ortofotomap"""
 
-    def __init__(self, description, ortoList, folder):
+    def __init__(self, description, ortoList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.ortoList = ortoList
         self.folder = folder
         self.total = 0
         self.iterations = 0
         self.exception = None
+        self.iface = iface
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -55,12 +56,16 @@ class DownloadOrtofotoTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane z ortofotomapy zostały pobrane.")
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane z ortofotomapy nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

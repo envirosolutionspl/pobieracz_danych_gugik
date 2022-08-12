@@ -7,12 +7,13 @@ from .. import service_api, utils
 class DownloadOpracowaniaTyflologiczneTask(QgsTask):
     """QgsTask pobierania opracowań tyflologicznych"""
 
-    def __init__(self, description, folder, url):
+    def __init__(self, description, folder, url, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.exception = None
         self.url = url
+        self.iface = iface
 
     def run(self):
 
@@ -34,12 +35,17 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
 
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane opracowania tyflologicznego zostały pobrane.")
+
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane opracowania tyflologicznego nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

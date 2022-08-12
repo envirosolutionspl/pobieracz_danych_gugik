@@ -10,7 +10,7 @@ import requests
 class DownloadModel3dTask(QgsTask):
     """QgsTask pobierania PRG"""
 
-    def __init__(self, description, folder, teryt_powiat, teryt_wojewodztwo, standard, data_lista):
+    def __init__(self, description, folder, teryt_powiat, teryt_wojewodztwo, standard, data_lista, iface):
 
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
@@ -20,6 +20,7 @@ class DownloadModel3dTask(QgsTask):
         self.standard = standard
         self.data_lista = data_lista
         self.liczba_dobrych_url = []
+        self.iface = iface
 
     def run(self):
         list_url = []
@@ -62,14 +63,23 @@ class DownloadModel3dTask(QgsTask):
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", f"Pobrano {len(self.liczba_dobrych_url)} pliki z danymi")
             msgbox.exec_()
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushSuccess("Sukces",
+                                                "Udało się! Dane modelu 3D budynków zostały pobrane.")
         else:
-            if self.exception is None:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+            if len(self.liczba_dobrych_url) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                     "Nie znaleniono danych spełniających kryteria")
                 msgbox.exec_()
+            else:
+                self.iface.messageBar().pushWarning("Błąd",
+                                                    "Dane modelu 3D budynków nie zostały pobrane.")
+
+            if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

@@ -438,7 +438,8 @@ class PobieraczDanychGugik:
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
         task = DownloadWfsTask(description='Pobieranie plików z WFS',
                                urlList=urlList,
-                               folder=self.dockwidget.folder_fileWidget.filePath())
+                               folder=self.dockwidget.folder_fileWidget.filePath(),
+                               iface=self.iface)
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
@@ -530,7 +531,8 @@ class PobieraczDanychGugik:
                 # pobieranie
                 task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
                                             ortoList=ortoList,
-                                            folder=self.dockwidget.folder_fileWidget.filePath())
+                                            folder=self.dockwidget.folder_fileWidget.filePath(),
+                                            iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -670,7 +672,8 @@ class PobieraczDanychGugik:
                 task = DownloadNmtTask(description='Pobieranie plików NMT/NMPT',
                                        nmtList=nmtList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
-                                       isNmpt=True if self.dockwidget.nmpt_rdbtn.isChecked() else False)
+                                       isNmpt=True if self.dockwidget.nmpt_rdbtn.isChecked() else False,
+                                       iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -806,7 +809,8 @@ class PobieraczDanychGugik:
                 # pobieranie LAS
                 task = DownloadLasTask(description='Pobieranie plików LAS',
                                        lasList=lasList,
-                                       folder=self.dockwidget.folder_fileWidget.filePath())
+                                       folder=self.dockwidget.folder_fileWidget.filePath(),
+                                       iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -934,7 +938,8 @@ class PobieraczDanychGugik:
                 # pobieranie reflectance
                 task = DownloadReflectanceTask(description='Pobieranie plików Obrazów Intensywności',
                                                reflectanceList=reflectanceList,
-                                               folder=self.dockwidget.folder_fileWidget.filePath())
+                                               folder=self.dockwidget.folder_fileWidget.filePath(),
+                                               iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -998,7 +1003,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=2,
             format_danych=format_danych,
-            teryt=teryt
+            teryt=teryt,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1022,7 +1028,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=1,
             format_danych=format_danych,
-            teryt=teryt
+            teryt=teryt,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1044,7 +1051,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=0,
             format_danych=format_danych,
-            teryt=None
+            teryt=None,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1065,7 +1073,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=1,
             rok=rok,
-            teryt=teryt
+            teryt=teryt,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1081,7 +1090,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             level=0,
             rok=rok,
-            teryt=None
+            teryt=None,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1113,7 +1123,8 @@ class PobieraczDanychGugik:
             description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             rodzaj=rodzaj,
-            format_danych=format_danych
+            format_danych=format_danych,
+            iface=self.iface
         )
 
         QgsApplication.taskManager().addTask(task)
@@ -1203,7 +1214,8 @@ class PobieraczDanychGugik:
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
             folder=self.dockwidget.folder_fileWidget.filePath(),
-            url=self.url
+            url=self.url,
+            iface=self.iface
         )
 
         QgsApplication.taskManager().addTask(task)
@@ -1252,7 +1264,8 @@ class PobieraczDanychGugik:
             teryt_powiat=teryt_powiat,
             teryt_wojewodztwo=teryt_powiat[0:2],
             standard=standard,
-            data_lista=data_lista
+            data_lista=data_lista,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1318,7 +1331,8 @@ class PobieraczDanychGugik:
             egib_excel_zakres_danych=egib_excel_zakres_danych,
             rok=rok,
             teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2]
+            teryt_wojewodztwo=teryt_powiat[0:2],
+            iface=self.iface
         )
 
         QgsApplication.taskManager().addTask(task)
@@ -1348,7 +1362,8 @@ class PobieraczDanychGugik:
         task = DownloadOpracowaniaTyflologiczneTask(
             description=f'Pobieranie danych z Opracowań Tyflologicznych',
             folder=self.dockwidget.folder_fileWidget.filePath(),
-            url=self.url
+            url=self.url,
+            iface=self.iface
         )
 
         QgsApplication.taskManager().addTask(task)
@@ -1381,7 +1396,8 @@ class PobieraczDanychGugik:
             description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt_powiat=teryt_powiat,
-            typ=typ
+            typ=typ,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1458,7 +1474,8 @@ class PobieraczDanychGugik:
                 # pobieranie areotriangulacji
                 task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
                                                     aerotriangulacjaList=aerotriangulacjaList,
-                                                    folder=self.dockwidget.folder_fileWidget.filePath())
+                                                    folder=self.dockwidget.folder_fileWidget.filePath(),
+                                                    iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1541,7 +1558,8 @@ class PobieraczDanychGugik:
                 # pobieranie linii mozaikowania
                 task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
                                            mozaikaList=mozaikaList,
-                                           folder=self.dockwidget.folder_fileWidget.filePath())
+                                           folder=self.dockwidget.folder_fileWidget.filePath(),
+                                           iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1715,7 +1733,8 @@ class PobieraczDanychGugik:
                 task = DownloadKartotekiOsnowTask(
                     description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
                     kartotekiOsnowList=kartotekiOsnowList,
-                    folder=self.dockwidget.folder_fileWidget.filePath())
+                    folder=self.dockwidget.folder_fileWidget.filePath(),
+                    iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1748,7 +1767,8 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             format_danych=format_danych,
             teryt=teryt,
-            rok=rok
+            rok=rok,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
@@ -1833,7 +1853,8 @@ class PobieraczDanychGugik:
                 task = DownloadZdjeciaLotniczeTask(description='Pobieranie plików zdjęć lotniczych',
                                                    zdjeciaLotniczeList=zdjeciaLotniczeList,
                                                    zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
-                                                   folder=self.dockwidget.folder_fileWidget.filePath())
+                                                   folder=self.dockwidget.folder_fileWidget.filePath(),
+                                                   iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
