@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
-    <height>747</height>
+    <width>416</width>
+    <height>919</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,8 +28,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>404</width>
-         <height>717</height>
+         <width>396</width>
+         <height>877</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -297,64 +297,6 @@ nieodpłatnie przez GUGiK.</string>
          </widget>
         </item>
         <item>
-         <widget class="QgsCollapsibleGroupBox" name="wfs_egib_groupBox">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="toolTip">
-           <string>WFS dla Ewidencji Gruntów i Budynków</string>
-          </property>
-          <property name="title">
-           <string>Dane EGiB dla powiatu</string>
-          </property>
-          <property name="collapsed">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QWidget" name="widget_2" native="true">
-             <layout class="QFormLayout" name="formLayout_2">
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_156">
-                <property name="text">
-                 <string>Powiat: </string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx"/>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_157">
-                <property name="text">
-                 <string>Województwo:</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="Line" name="line_45">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="wfs_egib_selected_pow_btn">
-             <property name="text">
-              <string>  Pobierz dla wybranego powiatu</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
          <widget class="QgsCollapsibleGroupBox" name="orto_groupBox">
           <property name="title">
            <string>Ortofotomapa/CIR</string>
@@ -375,7 +317,7 @@ nieodpłatnie przez GUGiK.</string>
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -960,7 +902,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>kompresja danych LAS</string>
           </property>
           <property name="title">
-           <string>LAZ (LIDAR)</string>
+           <string>LAS/LAZ (LIDAR)</string>
           </property>
           <property name="collapsed">
            <bool>true</bool>
@@ -1721,7 +1663,7 @@ nieodpłatnie przez GUGiK.</string>
                 <item>
                  <widget class="QRadioButton" name="prng_miejsco_rdbtn">
                   <property name="text">
-                   <string>nazwy geog. miejscowości RP</string>
+                   <string>nazwy geog. miejscowości RP  (20-30 MB)</string>
                   </property>
                   <property name="checked">
                    <bool>true</bool>
@@ -1734,7 +1676,7 @@ nieodpłatnie przez GUGiK.</string>
                    <bool>true</bool>
                   </property>
                   <property name="text">
-                   <string>nazwy geog. obiektów fizjograficznych RP</string>
+                   <string>nazwy geog. obiektów fizjograficznych RP  (25-30 MB)</string>
                   </property>
                  </widget>
                 </item>
@@ -1744,7 +1686,7 @@ nieodpłatnie przez GUGiK.</string>
                    <bool>true</bool>
                   </property>
                   <property name="text">
-                   <string>polskie nazwy geog. świata</string>
+                   <string>polskie nazwy geog. świata  (ok. 2 MB)</string>
                   </property>
                   <property name="checked">
                    <bool>false</bool>
@@ -1824,7 +1766,7 @@ nieodpłatnie przez GUGiK.</string>
            <string>Państwowy Rejestr Granic</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;} QgsCollapsibleGroupBoxBasic { border: none; }</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -1942,7 +1884,7 @@ nieodpłatnie przez GUGiK.</string>
                  <string>adresy i ulice według województw</string>
                 </property>
                 <property name="text">
-                 <string>adresy - województwa</string>
+                 <string>adresy - województwa  (ok. 10-40 MB)</string>
                 </property>
                </widget>
               </item>
@@ -1952,7 +1894,7 @@ nieodpłatnie przez GUGiK.</string>
                  <string>adresy i ulice dla całego kraju</string>
                 </property>
                 <property name="text">
-                 <string>adresy - Polska</string>
+                 <string>adresy - Polska (shp 300 MB / gml 920 MB)</string>
                 </property>
                </widget>
               </item>
@@ -1962,7 +1904,7 @@ nieodpłatnie przez GUGiK.</string>
                  <string>granice specjalne dla całego kraju</string>
                 </property>
                 <property name="text">
-                 <string>granice spec. - Polska</string>
+                 <string>granice spec. - Polska (shp 700 MB / gml 870 MB)</string>
                 </property>
                </widget>
               </item>
@@ -1972,7 +1914,7 @@ nieodpłatnie przez GUGiK.</string>
                  <string>jednostki administracyjne dla całego kraju</string>
                 </property>
                 <property name="text">
-                 <string>jedn. adm. - Polska</string>
+                 <string>jedn. adm. - Polska (ok. 350 MB)</string>
                 </property>
                </widget>
               </item>
@@ -1982,7 +1924,7 @@ nieodpłatnie przez GUGiK.</string>
                  <string>jednostki administracyjne dla wybrango województwa</string>
                 </property>
                 <property name="text">
-                 <string>jedn. adm. - województwa</string>
+                 <string>jedn. adm. - województwa (ok. 10-50 MB)</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -2253,6 +2195,64 @@ nieodpłatnie przez GUGiK.</string>
            </item>
            <item>
             <widget class="QPushButton" name="model3d_selected_powiat_btn">
+             <property name="text">
+              <string>  Pobierz dla wybranego powiatu</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="wfs_egib_groupBox">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="toolTip">
+           <string>WFS dla Ewidencji Gruntów i Budynków</string>
+          </property>
+          <property name="title">
+           <string>EGiB dla powiatu</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QFormLayout" name="formLayout_2">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_156">
+                <property name="text">
+                 <string>Powiat: </string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
+              </item>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_157">
+                <property name="text">
+                 <string>Województwo:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_45">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="wfs_egib_selected_pow_btn">
              <property name="text">
               <string>  Pobierz dla wybranego powiatu</string>
              </property>

@@ -1,6 +1,6 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog,
+    QgsApplication, QgsTask, QgsMessageLog, Qgis
     )
 from .. import service_api, utils
 
@@ -56,9 +56,8 @@ class DownloadAerotriangulacjaTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-
-            self.iface.messageBar().pushSuccess("Sukces",
-                                                "Udało się! Dane areotriangulacji zostały pobrane.")
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane o areotriangulacji zostały pobrane.",
+                                                level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
@@ -66,7 +65,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane areotriangulacji nie zostały pobrane.")
+                                                "Dane o areotriangulacji nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

@@ -34,7 +34,7 @@ class WfsEgib:
                 with open(folder + 'egib_wfs.xml', 'wb') as f:
                     f.write(r.content)
         except IOError:
-            print("Błąd zapisu pliku " + url)
+            print("Błądddddd zapisu pliku " + url)
         except requests.exceptions.ConnectionError:
             print("cos nie tak z requests " + url)
 
@@ -55,7 +55,11 @@ class WfsEgib:
         #         layer = QgsVectorLayer(uri, teryt+"_"+layer.group(1), "WFS")
         #         QgsProject.instance().addMapLayer(layer)
 
-        ns = etree.parse(folder + 'egib_wfs.xml').getroot().nsmap
+        ns = etree.parse(folder + 'egib_wfs.xml')
+
+        # pi = ns.xpath("//processing-instruction()")[0]
+        # ns = pi.parseXSL()
+        ns = ns.getroot().nsmap
         # ns['xmlns:xlink'] = ns.pop('xlink')
         if None in ns:
             ns['xmlns'] = ns.pop(None)
@@ -73,7 +77,7 @@ class WfsEgib:
 
         if 'ewns' in root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns).text:
             print("znalaziono ewns")
-            ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
+            # ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
             print("ewns: ", root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns))
 
         for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
@@ -87,6 +91,8 @@ class WfsEgib:
             prefix = 'ewns'
         elif 'ms' in name_layers[0]:
             prefix = 'ms'
+        # elif 'wms_chorzow_dzialki' in name_layers[0]:
+        #     prefix = 'wms_chorzow_dzialki'
         else:
             prefix = None
 
@@ -157,20 +163,22 @@ class WfsEgib:
         url_main = url.split('?')[0]
 
         for layer in name_layers:
-            if len(setWgs84BoundingBoxEast) < 1:
-                if prefix == 'ewns':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ewns,http%3A%2F%2Fxsd.geoportal2.pl%2Fewns)"
-                elif prefix == 'ms':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ms,http%3A%2F%2Fmapserver.gis.umn.edu%2Fmapserver)"
-                else:
-                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer
+            # if len(setWgs84BoundingBoxEast) < 1:
+            if prefix == 'ewns:':
+                url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns) "
+            elif prefix == 'ms:':
+                url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver) "
+            # elif prefix == 'wms_chorzow_dzialki':
+            #     url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms, http://e-odgik.chorzow.eu/arcgis/services/wms/chorzow_dzialki/MapServer/WFSServer) "
             else:
-                if prefix == 'ewns':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ewns,http%3A%2F%2Fxsd.geoportal2.pl%2Fewns)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
-                elif prefix == 'ms':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ms,http%3A%2F%2Fmapserver.gis.umn.edu%2Fmapserver)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
-                else:
-                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+                url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&srsName=urn:ogc:def:crs:EPSG::2180&typename=' + layer
+            # else:
+            #     if prefix == 'ewns':
+            #         url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+            #     elif prefix == 'ms':
+            #         url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::4326&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)" + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
+            #     else:
+            #         url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer + '&bbox=' + setWgs84BoundingBoxEast + ',' + setWgs84BoundingBoxSouth + ',' + setWgs84BoundingBoxWest + ',' + setWgs84BoundingBoxNorth
 
             print(url_gml)
             sleep(1)
@@ -187,7 +195,12 @@ class WfsEgib:
                     if size <= 1000:  # 341:
                         print('Za mały rozmiar pliku : 1kb lub 0kb')
             except IOError:
-                print("Błąd zapisu pliku" + teryt + '_' + layer)
+                print("Błądąąąą zapisu pliku" + teryt + '_' + layer)
+                # uri = url_gml
+                # layer = QgsVectorLayer(uri, layer, "WFS")
+                # QgsProject.instance().addMapLayer(layer)
+                # aa = str(layer.split(':')[-1])
+                # QgsVectorFileWriter.writeAsVectorFormat(layer, str(folder + teryt + '_' + aa + '_egib_wfs_gml.gml'), 'utf-8', driverName='GML')
             except requests.exceptions.SSLError:
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
                 print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
@@ -217,10 +230,6 @@ class WfsEgib:
                 print("Błąd requests dla warstwy " + teryt + '_' + layer)
 
     def main(self, teryt, wfs, folder):
-
-        # uri = "https://wloclawek.geoportal2.pl/map/geoportal/wfs.php?request=getFeature&version=1.1.0&service=WFS&typename=ewns:osnowa_p"
-        # layer = QgsVectorLayer(uri, "my wfs layer", "WFS")
-        # QgsProject.instance().addMapLayer(layer)
 
         num_error_exists_file = 0
         try:

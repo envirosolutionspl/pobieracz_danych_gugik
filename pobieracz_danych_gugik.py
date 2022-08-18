@@ -370,6 +370,10 @@ class PobieraczDanychGugik:
 
         bledy = 0
         layer = self.dockwidget.wfs_mapLayerComboBox.currentLayer()
+
+        # zablokowanie klawisza pobierania
+        self.dockwidget.wfs_fromLayer_btn.setEnabled(False)
+
         # zamiana układu na 92
         if layer:
             self.downloadWfsForLayer(layer)
@@ -1279,7 +1283,7 @@ class PobieraczDanychGugik:
             return False
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
-        print(powiatName)
+        # print(powiatName)
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',

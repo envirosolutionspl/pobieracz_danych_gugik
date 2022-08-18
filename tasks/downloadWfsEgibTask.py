@@ -1,6 +1,6 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog,
+    QgsApplication, QgsTask, QgsMessageLog, Qgis
 )
 from .. import service_api, utils
 from ..wfs import WfsEgib
@@ -443,8 +443,8 @@ class DownloadWfsEgibTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            # self.iface.messageBar().pushSuccess("Sukces",
-            #                                     "Udało się! Dane EGiB dla powiatu zostały pobrane.")
+            # self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
+            #                                     level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')

@@ -1,6 +1,6 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog
+    QgsApplication, QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
@@ -63,8 +63,8 @@ class DownloadModel3dTask(QgsTask):
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", f"Pobrano {len(self.liczba_dobrych_url)} pliki z danymi")
             msgbox.exec_()
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushSuccess("Sukces",
-                                                "Udało się! Dane modelu 3D budynków zostały pobrane.")
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane modelu 3D budynków zostały pobrane.",
+                                                level=Qgis.Success, duration=0)
         else:
             if len(self.liczba_dobrych_url) == 0:
                 msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
