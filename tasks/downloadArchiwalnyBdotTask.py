@@ -2,6 +2,7 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog, Qgis
 )
+from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
 import requests
 

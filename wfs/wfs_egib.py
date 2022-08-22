@@ -1,3 +1,4 @@
+import urllib
 import requests
 import os, time
 import xml.etree.ElementTree as ET
@@ -6,6 +7,12 @@ from lxml import etree
 import urllib3
 from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider, QgsVectorFileWriter, QgsCoordinateTransformContext
 import re
+from owslib.wfs import WebFeatureService
+# import urllib2
+from xml.etree import ElementTree
+from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
+
 
 class WfsEgib:
     def save_xml(self, folder, url):
@@ -24,7 +31,7 @@ class WfsEgib:
                 with open(folder + 'egib_wfs.xml', 'wb') as f:
                     f.write(r.content)
         except requests.exceptions.SSLError:
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            disable_warnings(InsecureRequestWarning)
             print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
             print("Czy chcesz pobrać dane na własną odpowiedzialność?")
             r = requests.get(url, verify=False)
@@ -77,7 +84,7 @@ class WfsEgib:
 
         if 'ewns' in root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns).text:
             print("znalaziono ewns")
-            # ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
+            ns['ewns'] = 'http://xsd.geoportal2.pl/ewns'
             print("ewns: ", root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns))
 
         for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
@@ -87,9 +94,9 @@ class WfsEgib:
             name_layers.append(name.text)
             print("name_layers: ", name_layers)
 
-        if 'ewns' in name_layers[0]:
+        if 'ewns:' in name_layers[0]:
             prefix = 'ewns'
-        elif 'ms' in name_layers[0]:
+        elif 'ms:' in name_layers[0]:
             prefix = 'ms'
         # elif 'wms_chorzow_dzialki' in name_layers[0]:
         #     prefix = 'wms_chorzow_dzialki'
@@ -97,6 +104,8 @@ class WfsEgib:
             prefix = None
 
         print("prefix: ", prefix)
+
+        print('ns: ', ns)
 
         for bbox in root.findall('./xmlns:WGS84BoundingBox', ns):
             for lowercorner in bbox.findall('./xmlns:LowerCorner', ns):
@@ -106,14 +115,14 @@ class WfsEgib:
                 setWgs84BoundingBoxWest.append(uppercorner.text.split(' ')[0])
                 setWgs84BoundingBoxNorth.append(uppercorner.text.split(' ')[1])
 
-        print("ns: ", ns)
+        # print("setWgs84BoundingBoxNorth: ", setWgs84BoundingBoxNorth)
 
         # for layer in name_layers:
         #     if 'ewns' in layer:
         #         uri = f"{url.split('?')[0]}?request=getFeature&version=1.1.0&service=WFS&typename={layer}"
         #         print("layer_uri: ", uri)
         #         vlayer = QgsVectorLayer(uri, teryt + "_" + layer, "WFS")
-        #         # QgsProject.instance().addMapLayer(vlayer)
+        #         QgsProject.instance().addMapLayer(vlayer)
         #         print("path: ", folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
         #         QgsVectorFileWriter.writeAsVectorFormat(vlayer, (folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml').absoluteFilePath(), 'utf-8', layer.crs().isGeographic(), driverName='GML')
         #         # ', "UTF-8", "epsg:2180"
@@ -155,7 +164,7 @@ class WfsEgib:
     def save_gml(self, folder, url, teryt):
         # self.praca_na_xml(folder, url, teryt)
         name_layers, setWgs84BoundingBoxEast, setWgs84BoundingBoxSouth, setWgs84BoundingBoxWest, setWgs84BoundingBoxNorth, prefix = self.praca_na_xml(folder, url, teryt)
-
+        print("prefix: ", prefix)
         # if name_layers is None:
         #     return 0
 
@@ -164,12 +173,10 @@ class WfsEgib:
 
         for layer in name_layers:
             # if len(setWgs84BoundingBoxEast) < 1:
-            if prefix == 'ewns:':
-                url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns) "
-            elif prefix == 'ms:':
-                url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver) "
-            # elif prefix == 'wms_chorzow_dzialki':
-            #     url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms, http://e-odgik.chorzow.eu/arcgis/services/wms/chorzow_dzialki/MapServer/WFSServer) "
+            if prefix == 'ewns':
+                url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
+            elif prefix == 'ms':
+                url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms,http%3A%2F%2Fmapserver.gis.umn.edu%2Fmapserver)"
             else:
                 url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&srsName=urn:ogc:def:crs:EPSG::2180&typename=' + layer
             # else:
@@ -191,40 +198,35 @@ class WfsEgib:
                 else:
                     with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
                         f.write(r.content)
+                        print(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     if size <= 1000:  # 341:
                         print('Za mały rozmiar pliku : 1kb lub 0kb')
-            except IOError:
-                print("Błądąąąą zapisu pliku" + teryt + '_' + layer)
-                # uri = url_gml
-                # layer = QgsVectorLayer(uri, layer, "WFS")
-                # QgsProject.instance().addMapLayer(layer)
-                # aa = str(layer.split(':')[-1])
-                # QgsVectorFileWriter.writeAsVectorFormat(layer, str(folder + teryt + '_' + aa + '_egib_wfs_gml.gml'), 'utf-8', driverName='GML')
+
             except requests.exceptions.SSLError:
-                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                disable_warnings(InsecureRequestWarning)
                 print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
                 print("Czy chcesz pobrać dane na własną odpowiedzialność?")
                 r = requests.get(url, verify=False)
                 if str(r.status_code) == '404':
                     print("Plik nie istnieje" + teryt + '_' + layer)
-                try:
+                else:
                     with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
                         f.write(r.content)
                     size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     if size <= 1000:  # 341:
                         print('Za mały rozmiar pliku : 1kb lub 0kb')
-                except IOError:
-                    print("Błąd zapisu pliku" + teryt + '_' + layer)
 
-                    return False
+            except IOError:
+                print("Błądąąąą zapisu pliku" + teryt + '_' + layer)
+                print(folder)
+                print(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
 
-                    # size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-                    # if size == 341:
-                    #     print('Za mały rozmiar pliku : 1kb')
-                    #     return True
-                    # else:
-                    #     return False
+                # uri = url_gml
+                # layer = QgsVectorLayer(uri, layer, "WFS")
+                # QgsProject.instance().addMapLayer(layer)
+                # aa = str(layer.split(':')[-1])
+                # QgsVectorFileWriter.writeAsVectorFormat(layer, str(folder + teryt + '_' + aa + '_egib_wfs_gml.gml'), 'utf-8', driverName='GML')
 
             except requests.exceptions.ConnectionError:
                 print("Błąd requests dla warstwy " + teryt + '_' + layer)
@@ -627,6 +629,6 @@ if __name__ == '__main__':
     # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
     folder = "C:\wtyczka aktualizacja\probne/"
     # print(wfsEgib.main("1206", 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', folder))
-    print(wfsEgib.main("2613", 'https://wloszczowa.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
+    print(wfsEgib.main("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
     # print(wfsEgib.main("2613", 'https://wms.powiatstarogard.pl/iip/ows?service=WFS&request=GetCapabilities', folder))
 
