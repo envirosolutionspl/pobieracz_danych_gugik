@@ -115,7 +115,7 @@ class DownloadWfsEgibTask(QgsTask):
                       '1816': 'https://powiatrzeszowski.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities',
                       '0210': 'https://iegib.powiatluban.pl/luban-egib?service=WFS&request=GetCapabilities',
                       '1611': 'https://mapy.powiatstrzelecki.pl/ggp?service=WFS&request=GetCapabilities',
-                      '1204': 'https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/1204?service=WFS&request=GetCapabilities',
+                      '1204': 'https://dabrowski-wms.webewid.pl/iip/ows?service=WFS&request=GetCapabilities',
                       '0406': 'https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/0406?service=WFS&request=GetCapabilities',
                       '0402': 'https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/0402?service=WFS&request=GetCapabilities',
                       '3061': 'https://ikerg.um.kalisz.pl/kalisz-egib?service=WFS&request=GetCapabilities',

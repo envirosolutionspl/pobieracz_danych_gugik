@@ -24,7 +24,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
 
 """Wersja wtyczki"""
-plugin_version = '0.9.2'
+plugin_version = '1.0.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -720,6 +720,11 @@ class PobieraczDanychGugik:
             if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
                            nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+
+        # ograniczenie tylko do najnowszego
+        if self.dockwidget.nmt_newest_chkbx.isChecked():
+            nmtList = utils.onlyNewest(nmtList)
+            print(nmtList)
         return nmtList
 
     def downloadNmtFile(self, nmt, folder):
@@ -1001,7 +1006,9 @@ class PobieraczDanychGugik:
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1027,6 +1034,9 @@ class PobieraczDanychGugik:
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadBdotTask(
             description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1049,7 +1059,9 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
-
+        self.iface.messageBar().pushMessage("Informacja",
+                                            'Pobieranie paczki BDOT10k dla całego kraju',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1072,6 +1084,9 @@ class PobieraczDanychGugik:
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadBdooTask(
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1089,6 +1104,9 @@ class PobieraczDanychGugik:
             return False
 
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
+        self.iface.messageBar().pushMessage("Informacja",
+                                            'Pobieranie paczki BDOO dla całego kraju',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadBdooTask(
             description='Pobieranie paczki BDOO dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1111,10 +1129,15 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.prng_miejsco_rdbtn.isChecked():
             rodzaj = "MIEJSCOWOSCI"
+            description = 'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych - nazwy miejscowości RP'
         elif self.dockwidget.prng_fizjog_rdbtn.isChecked():
             rodzaj = "OBIEKTY_FIZJOGRAFICZNE"
+            description = 'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych - nazwy obiektów ' \
+                          'fizjografocznych RP '
         elif self.dockwidget.prng_swiat_rdbtn.isChecked():
             rodzaj = "SWIAT"
+            description = 'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych - polskie nazwy geograficzne ' \
+                          'świata '
 
         if self.dockwidget.prng_gml_rdbtn.isChecked():
             format_danych = "GML"
@@ -1122,9 +1145,11 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
         elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
             format_danych = "XLSX"
-
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'{description} w formacie {format_danych}',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadPrngTask(
-            description=f'Pobieranie danych z Państwowego Rejestru Nazw Geograficznych',
+            description=f'{description} w formacie {format_danych}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             rodzaj=rodzaj,
             format_danych=format_danych,
@@ -1196,24 +1221,33 @@ class PobieraczDanychGugik:
             gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
             teryt = self.dockwidget.regionFetch.getTerytByGminaName(gmina_name)
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_powiat.isChecked():
             powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
             teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z powiatu {powiat_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
             teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_kraj.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?adresy_zbiorcze_{prg_format_danych}"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_granice_spec.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?granice_specjalne_{prg_format_danych}"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - granice specjalne z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
             teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
+            description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
+
+        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=-1)
 
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
@@ -1262,6 +1296,8 @@ class PobieraczDanychGugik:
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        self.iface.messageBar().pushMessage("Informacja", f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
+                                            level=Qgis.Info, duration=-1)
         task = DownloadModel3dTask(
             description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1329,8 +1365,12 @@ class PobieraczDanychGugik:
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
 
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
+                                            level=Qgis.Info, duration=-1)
+
         task = DownloadEgibExcelTask(
-            description=f'Pobieranie danych z Zestawień Zbiorczych EGiB',
+            description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             egib_excel_zakres_danych=egib_excel_zakres_danych,
             rok=rok,
@@ -1352,19 +1392,29 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.radioButton_atlas_swiata.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_SWIATA/atlas_swiata_2012_sitodruk.ZIP"
+            atlas_rodzaj = f'atlas świata sitodruk z roku 2012'
         elif self.dockwidget.radioButton_atlas_europa.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_EUROPY/atlas_europy_2006_puchnacy.ZIP"
+            atlas_rodzaj = f'atlas Europy puchnący z roku 2006'
         elif self.dockwidget.radioButton_atlas_polska_1.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_termoformowanie.ZIP"
+            atlas_rodzaj = f'atlas Polski termoformowanie z roku 2020'
         elif self.dockwidget.radioButton_atlas_polska_2.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2004_puchnacy.ZIP"
+            atlas_rodzaj = f'atlas Polski puchnący z roku 2004'
         elif self.dockwidget.radioButton_atlas_polska_3.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_puchnacy.ZIP"
+            atlas_rodzaj = f'atlas Polski puchnący z roku 2020'
         elif self.dockwidget.radioButton_atlas_warszawa.isChecked():
             self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_WARSZAWY/atlas_warszawy_2005_puchnacy.ZIP"
+            atlas_rodzaj = f'atlas Warszawy puchnący z roku 2005'
+
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
+                                            level=Qgis.Info, duration=-1)
 
         task = DownloadOpracowaniaTyflologiczneTask(
-            description=f'Pobieranie danych z Opracowań Tyflologicznych',
+            description=f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             url=self.url,
             iface=self.iface
@@ -1396,8 +1446,13 @@ class PobieraczDanychGugik:
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
+                                            level=Qgis.Info, duration=-1)
+
         task = DownloadOsnowaTask(
-            description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej',
+            description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt_powiat=teryt_powiat,
             typ=typ,
@@ -1766,8 +1821,13 @@ class PobieraczDanychGugik:
         powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
         rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
+
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
+                                            level=Qgis.Info, duration=-1)
+
         task = DownloadArchiwalnyBdotTask(
-            description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt})',
+            description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             format_danych=format_danych,
             teryt=teryt,

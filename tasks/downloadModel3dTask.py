@@ -25,7 +25,6 @@ class DownloadModel3dTask(QgsTask):
     def run(self):
         list_url = []
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        # total = len(self.nmtList)
 
         for standard in self.standard:
             for rok in self.data_lista:

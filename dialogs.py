@@ -61,7 +61,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # bdoo
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
-        rokDict_bdoo = ['2015', '2021', '2022']
+        rokDict_bdoo = ['2022', '2021', '2015']
         self.bdoo_dateEdit_comboBox.addItems(rokDict_bdoo)
 
         # PRG
@@ -105,7 +105,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         egib_excel_wojewodztwo = list(self.regionFetch.wojewodztwoDict.keys())
         self.egib_excel_wojewodztwo_cmbbx.addItems(egib_excel_wojewodztwo)
 
-        rokDict_egib_excel = ['2020', '2021', '2022']
+        rokDict_egib_excel = ['2022', '2021', '2020']
         self.egib_excel_dateEdit_comboBox.addItems(rokDict_egib_excel)
 
         # podstawowa osnowa geodezyjna
@@ -133,7 +133,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         wojewodztwaArchiwalneBDOT = list(self.regionFetch.wojewodztwoDict.keys())
         self.archiwalne_wojewodztwo_cmbbx.addItems(wojewodztwaArchiwalneBDOT)
 
-        rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']
+        rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
         self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
 
         # zdjęcia lotnicze

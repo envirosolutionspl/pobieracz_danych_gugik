@@ -1,3 +1,4 @@
+import ssl
 import urllib
 import requests
 import os, time
@@ -5,11 +6,14 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 import urllib3
-from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider, QgsVectorFileWriter, QgsCoordinateTransformContext
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsDataProvider, QgsVectorFileWriter, \
+    QgsCoordinateTransformContext
 import re
 from owslib.wfs import WebFeatureService
 # import urllib2
 from xml.etree import ElementTree
+
+from requests.utils import DEFAULT_CA_BUNDLE_PATH
 from urllib3.exceptions import InsecureRequestWarning
 from urllib3 import disable_warnings
 
@@ -80,7 +84,7 @@ class WfsEgib:
         setWgs84BoundingBoxEast = []
         setWgs84BoundingBoxSouth = []
         setWgs84BoundingBoxWest = []
-        setWgs84BoundingBoxNorth  = []
+        setWgs84BoundingBoxNorth = []
 
         if 'ewns' in root.find('./xmlns:FeatureTypeList/xmlns:FeatureType/xmlns:Name', ns).text:
             print("znalaziono ewns")
@@ -130,10 +134,6 @@ class WfsEgib:
         #     else:
         #         return name_layers
 
-
-
-
-
         # print('ns', ns)
 
         # name_layers = []
@@ -163,7 +163,8 @@ class WfsEgib:
 
     def save_gml(self, folder, url, teryt):
         # self.praca_na_xml(folder, url, teryt)
-        name_layers, setWgs84BoundingBoxEast, setWgs84BoundingBoxSouth, setWgs84BoundingBoxWest, setWgs84BoundingBoxNorth, prefix = self.praca_na_xml(folder, url, teryt)
+        name_layers, setWgs84BoundingBoxEast, setWgs84BoundingBoxSouth, setWgs84BoundingBoxWest, setWgs84BoundingBoxNorth, prefix = self.praca_na_xml(
+            folder, url, teryt)
         print("prefix: ", prefix)
         # if name_layers is None:
         #     return 0
@@ -190,7 +191,7 @@ class WfsEgib:
             print(url_gml)
             sleep(1)
             try:
-                r = requests.get(url_gml)
+                r = requests.get(url_gml, verify=True)
                 # while True:
 
                 if str(r.status_code) == '404':
@@ -200,22 +201,51 @@ class WfsEgib:
                         f.write(r.content)
                         print(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
                     size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-                    if size <= 1000:  # 341:
-                        print('Za mały rozmiar pliku : 1kb lub 0kb')
+                    if size <= 8000:
+                        print('Za mały rozmiar pliku : 1kb lub 0kb lub 8kb')
 
             except requests.exceptions.SSLError:
-                disable_warnings(InsecureRequestWarning)
+
+                # ret = QtWidgets.QMessageBox.question(
+                #     self,
+                #     "Certificate validation error",
+                #     "The following SSL validation errors have been reported:\n\n%s\n" \
+                #     "This may indicate a problem with the server and/or its certificate.\n\n" \
+                #     "Do you wish to continue anyway?" % errorString,
+                #     QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                # )
+                #
+                # if ret == QtWidgets.QMessageBox.Yes:
+                #     self.logMessage("Ignoring SSL errors", Qgis.Warning)
+                #     reply.ignoreSslErrors()
+                # else:
+                #     self.httpRequestAborted = True
+
                 print("Weryfikacja certyfikatu strony nie powiodła się. Nie można uzyskać lokalnego certyfikatu wystawcy.")
                 print("Czy chcesz pobrać dane na własną odpowiedzialność?")
-                r = requests.get(url, verify=False)
-                if str(r.status_code) == '404':
-                    print("Plik nie istnieje" + teryt + '_' + layer)
-                else:
-                    with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
-                        f.write(r.content)
-                    size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-                    if size <= 1000:  # 341:
-                        print('Za mały rozmiar pliku : 1kb lub 0kb')
+
+
+                # requests.packages.urllib3.disable_warnings()
+                # requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+                # ssl.SSLContext.verify_mode = property(lambda self: ssl.CERT_NONE, lambda self, newval: None)
+                disable_warnings(InsecureRequestWarning)
+                # print('CURL_CA_BUNDLE: ', os.environ['CURL_CA_BUNDLE'])
+                try:
+                    os.environ['CURL_CA_BUNDLE'] = ""
+                    # os.environ['REQUESTS_CA_BUNDLE'] = ''
+                    r = requests.get(url, verify=False)
+                    if str(r.status_code) == '404':
+                        print("Plik nie istnieje" + teryt + '_' + layer)
+                    else:
+                        with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+                            f.write(r.content)
+                        size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+                        if size <= 8000:
+                            print('Za mały rozmiar pliku : 1kb lub 0kb lub 8kb')
+                            # layer = QgsVectorLayer(url_gml, teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml', "WFS")
+                            # QgsProject.instance().addMapLayer(layer)
+                finally:
+                    del os.environ['CURL_CA_BUNDLE']
 
             except IOError:
                 print("Błądąąąą zapisu pliku" + teryt + '_' + layer)
@@ -231,8 +261,14 @@ class WfsEgib:
             except requests.exceptions.ConnectionError:
                 print("Błąd requests dla warstwy " + teryt + '_' + layer)
 
-    def main(self, teryt, wfs, folder):
+            # finally:
+            #     if os.environ['CURL_CA_BUNDLE'] == "":
+            #         del os.environ['CURL_CA_BUNDLE']
+            #         del os.environ['REQUESTS_CA_BUNDLE']
 
+
+    def main(self, teryt, wfs, folder):
+        # del os.environ['CURL_CA_BUNDLE']
         num_error_exists_file = 0
         try:
             path = os.path.join(folder, teryt + "_wfs_egib/")
@@ -244,6 +280,7 @@ class WfsEgib:
                 os.mkdir(path)
         print("Directory '% s' created" % path)
         self.save_gml(path, wfs, teryt)
+
 
 if __name__ == '__main__':
     wfsEgib = WfsEgib()
@@ -629,6 +666,6 @@ if __name__ == '__main__':
     # dictionary = {'1206': 'http://wfs.geoportal.zory.pl/gugik?service=WFS&request=GetCapabilities'}
     folder = "C:\wtyczka aktualizacja\probne/"
     # print(wfsEgib.main("1206", 'https://wms.powiat.krakow.pl:1518/iip/ows?service=WFS&request=GetCapabilities', folder))
-    print(wfsEgib.main("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities', folder))
+    print(wfsEgib.main("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php?service=WFS&request=GetCapabilities',
+                       folder))
     # print(wfsEgib.main("2613", 'https://wms.powiatstarogard.pl/iip/ows?service=WFS&request=GetCapabilities', folder))
-
