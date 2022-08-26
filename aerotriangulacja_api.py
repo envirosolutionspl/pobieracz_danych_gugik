@@ -26,7 +26,7 @@ def getAerotriangulacjaListbyPoint1992(point):
         'layers': ','.join(LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
+        'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
         'width': '101',
         'height': '101',
         'format': 'image/png',

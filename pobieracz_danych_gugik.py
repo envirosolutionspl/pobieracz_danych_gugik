@@ -1571,6 +1571,7 @@ class PobieraczDanychGugik:
                     mozaikaList.extend(subList)
                 else:
                     bledy += 1
+
             # print("list: ", mozaikaList)
             self.filterMozaikaListAndRunTask(mozaikaList)
             # print("%d zapytań się nie powiodło" % bledy)

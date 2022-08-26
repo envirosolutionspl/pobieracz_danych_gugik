@@ -12,6 +12,8 @@ def getMozaikaListbyPoint1992(point):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
+    print("x: ", x)
+    print("y: ", y)
     LAYERS = [
         'SkorowidzLiniiMozaikowania'
     ]
@@ -22,7 +24,7 @@ def getMozaikaListbyPoint1992(point):
         'layers': ','.join(LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
+        'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
         'width': '101',
         'height': '101',
         'format': 'image/png',
@@ -47,6 +49,7 @@ def getMozaikaListbyPoint1992(point):
                 params[item[0]] = val
             linie_mozaikowania = Linie_mozaikowania(**params)
             mozaikaList.append(linie_mozaikowania)
+        # print("mozaikaList: ", mozaikaList)
         return mozaikaList
     else:
         return None
