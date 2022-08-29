@@ -23,7 +23,7 @@ about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez 
   * Paczki danych PRNG
   * Paczki danych PRG
   * Paczki danych modeli 3D budynków
-  * Paczki danych EGiB
+  * Paczki danych EGiB (wersja beta)
   * Paczki archiwalnych danych BDOT10k
   * XLS (zestawienia zbiorcze EGiB)
   * PDF/TIFF/JPG/CDR (opracowania tyflologiczne) - mapy dla niewidomych i słabowidzących
@@ -48,7 +48,7 @@ changelog=
   * dodanie możliwości pobrania paczki PRNG 
   * dodanie możliwości pobrania paczki PRG
   * dodanie możliwości pobrania paczki modeli 3D budynków
-  * dodanie możliwości pobrania powiatowych paczek EGiB
+  * dodanie możliwości pobrania powiatowych paczek EGiB (wersja beta)
   * dodanie możliwości pobrania archiwalnych paczek danych BDOT10k
   * dodanie możliwości pobrania zbiorczych danych EGiB
   * dodanie możliwości pobrania opracowań tyflologicznych

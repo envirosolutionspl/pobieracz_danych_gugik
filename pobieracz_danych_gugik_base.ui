@@ -1596,7 +1596,7 @@
            <string/>
           </property>
           <property name="title">
-           <string>EGiB dla powiatu</string>
+           <string>EGiB dla powiatu (wersja beta)</string>
           </property>
           <property name="collapsed">
            <bool>true</bool>

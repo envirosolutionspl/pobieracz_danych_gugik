@@ -869,7 +869,7 @@ class PobieraczDanychGugik:
     # region Reflectance
 
     def reflectance_fromLayer_btn_clicked(self):
-        """Kliknięcie plawisza pobierania Intensywności przez wybór warstwą wektorową"""
+        """Kliknięcie klawisza pobierania Intensywności przez wybór warstwą wektorową"""
 
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -993,6 +993,7 @@ class PobieraczDanychGugik:
 
     # region BDOT10k
     def bdot_selected_powiat_btn_clicked(self):
+        """Pobiera paczkę danych BDOT10k dla powiatu"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1033,6 +1034,7 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
+        """Pobiera paczkę danych BDOT10k dla województwa"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1074,6 +1076,7 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
+        """Pobiera paczkę danych BDOT10k dla całej Polski"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1102,6 +1105,7 @@ class PobieraczDanychGugik:
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
+        """Pobiera paczkę danych BDOO dla województwa"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1136,6 +1140,7 @@ class PobieraczDanychGugik:
         QgsMessageLog.logMessage('runtask')
 
     def bdoo_selected_polska_btn_clicked(self):
+        """Pobiera paczkę danych BDOO dla całej Polski"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1157,6 +1162,7 @@ class PobieraczDanychGugik:
 
     # endregion PRNG
     def prng_selected_btn_clicked(self):
+        """Pobiera paczkę danych PRNG"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1182,6 +1188,7 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
         elif self.dockwidget.prng_xlsx_rdbtn.isChecked():
             format_danych = "XLSX"
+
         self.iface.messageBar().pushMessage("Informacja",
                                             f'{description} w formacie {format_danych}',
                                             level=Qgis.Info, duration=-1)
@@ -1200,6 +1207,7 @@ class PobieraczDanychGugik:
 
     # endregion PRG
     def radioButtonState_PRG(self):
+        """Ustala dostępność rodzaju danych PRG na podstawie formatu danych"""
         self.dockwidget.radioButton_adres_kraj.setEnabled(True)
         self.dockwidget.radioButton_granice_spec.setEnabled(True)
         self.dockwidget.radioButton_jedn_admin_kraj.setEnabled(True)
@@ -1220,30 +1228,35 @@ class PobieraczDanychGugik:
             self.dockwidget.radioButton_jend_admin_wojew.setEnabled(True)
 
     def radioButton_gmina_PRG(self):
+        """Ustala dostępność rodzaju danych PRG dla danych gminy"""
         if self.dockwidget.radioButton_adres_gmin.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(True)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
 
     def radioButton_powiaty_PRG(self):
+        """Ustala dostępność rodzaju danych PRG dla danych powiatowych"""
         if self.dockwidget.radioButton_adres_powiat.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(True)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
 
     def radioButton_wojewodztwa_PRG(self):
+        """Ustala dostępność rodzaju danych PRG dla danych wojewódzkich"""
         if self.dockwidget.radioButton_adres_wojew.isChecked() or self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(True)
 
     def radioButton_kraj_PRG(self):
+        """Ustala dostępność rodzaju danych PRG dla danych krajowych"""
         if self.dockwidget.radioButton_adres_kraj.isChecked() or self.dockwidget.radioButton_granice_spec.isChecked() or self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.dockwidget.prg_gmina_cmbbx.setEnabled(False)
             self.dockwidget.prg_powiat_cmbbx.setEnabled(False)
             self.dockwidget.prg_wojewodztwo_cmbbx.setEnabled(False)
 
     def prg_selected_btn_clicked(self):
+        """Pobiera paczkę danych PRG"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1300,6 +1313,7 @@ class PobieraczDanychGugik:
 
     # endregion modele 3D
     def model3d_selected_powiat_btn_clicked(self):
+        """Pobiera paczkę danych modulu 3D budynków"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1362,6 +1376,7 @@ class PobieraczDanychGugik:
 
     # region EGiB WFS
     def wfs_egib_selected_pow_btn_clicked(self):
+        """Pobiera paczkę danych WFS EGiB dla powiatów"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1413,6 +1428,7 @@ class PobieraczDanychGugik:
             self.dockwidget.egib_excel_wojewodztwo_cmbbx.setEnabled(False)
 
     def egib_excel_selected_btn_clicked(self):
+        """Pobiera excela z Zestawieniami Zbiorczymi EGiB"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1462,6 +1478,7 @@ class PobieraczDanychGugik:
 
     # region opracowania tyflologiczne
     def tyflologiczne_selected_btn_clicked(self):
+        """Pobiera opracowania tyflologiczne"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1503,6 +1520,7 @@ class PobieraczDanychGugik:
 
     # region podstawowa osnowa geodezyjna
     def osnowa_selected_btn_clicked(self):
+        """Pobiera podstawową osnowę geodezyjną"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1896,6 +1914,7 @@ class PobieraczDanychGugik:
 
     # region dane archiwalne BDOT10k
     def archiwalne_bdot_selected_powiat_btn_clicked(self):
+        """Pobiera paczkę archiwalnych danych BDOT10k dla powiatów"""
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False

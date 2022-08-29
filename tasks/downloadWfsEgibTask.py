@@ -416,7 +416,7 @@ class DownloadWfsEgibTask(QgsTask):
         QgsMessageLog.logMessage('start ' + self.wfs)
 
         self.wfsEgib = WfsEgib()
-        self.name_error = self.wfsEgib.main(self.teryt, self.wfs, self.folder)
+        self.name_error = self.wfsEgib.egib_wfs(self.teryt, self.wfs, self.folder)
         # service_api.retreiveFile(self.wfs, destFolder=self.folder)
 
         utils.openFile(self.folder)
@@ -435,6 +435,10 @@ class DownloadWfsEgibTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
+
+        """W ramach powiatu mogą wystąpić prawidłowe warswy oraz nieprawidłowe - ta informacja zostanie przedstawiona 
+        użytkownikowi w osobnym okienku"""
+
         if result and self.name_error == "brak":
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
@@ -444,13 +448,12 @@ class DownloadWfsEgibTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
                 # self.iface.messageBar().pushMessage("Error", self.name_error, level=Qgis.Critical, duration=0)
                 QgsMessageLog.logMessage("ERROR " + self.name_error)
+
                 msgbox = QMessageBox(QMessageBox.Critical, "Error", self.name_error)
                 msgbox.exec_()
             else:
                 QgsMessageLog.logMessage(self.exception)
                 raise self.exception
-
-
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

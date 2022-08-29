@@ -10,7 +10,8 @@ from lxml.etree import XMLSyntaxError
 class WfsEgib:
 
     def save_xml(self, folder, url, teryt):
-
+        """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
+        """W przypadku błędów przekazuje ich opis"""
         try:
             r = requests.get(url)
             if str(r.status_code) == '404':
@@ -30,7 +31,9 @@ class WfsEgib:
 
         return name_error
 
-    def praca_na_xml(self, folder, url, teryt):
+    def work_on_xml(self, folder, url, teryt):
+        """Pracuje na pliku XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
+        """Zwraca listę warstw EGiB dostępnych dla wybranego powiatu"""
         name_error = self.save_xml(folder, url, teryt)
         name_layers = None
         prefix = None
@@ -70,7 +73,10 @@ class WfsEgib:
         return name_error, name_layers, prefix
 
     def save_gml(self, folder, url, teryt):
-        name_error, name_layers, prefix = self.praca_na_xml(folder, url, teryt)
+        """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty"""
+        """W przypadku błędów przekazuje ich opis"""
+
+        name_error, name_layers, prefix = self.work_on_xml(folder, url, teryt)
 
         if name_error == "brak":
             url_main = url.split('?')[0]
@@ -127,7 +133,8 @@ class WfsEgib:
 
         return name_error
 
-    def main(self, teryt, wfs, folder):
+    def egib_wfs(self, teryt, wfs, folder):
+        """Tworzy nowy folder dla plików XML"""
 
         wfs = wfs + "?service=WFS&request=GetCapabilities"
         num_error_exists_file = 0
@@ -527,7 +534,7 @@ if __name__ == '__main__':
                   '0802': 'https://wms.powiatkrosnienski.pl/krosno-egib',
                   '2416': 'https://ikerg.zawiercie.powiat.pl/powiatzawiercianski-egib'}
     folder = "C:\wtyczka aktualizacja\probne/"
-# print(wfsEgib.main("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php', folder))
+# print(wfsEgib.egib_wfs("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php', folder))
 
 # for k, v in dictionary.items():
-#     print(wfsEgib.main(k, v, folder))
+#     print(wfsEgib.egib_wfs(k, v, folder))

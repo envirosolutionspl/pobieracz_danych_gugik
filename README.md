@@ -19,7 +19,7 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 - Paczki danych PRNG (od wersji 1.0)
 - Paczki danych PRG (od wersji 1.0)
 - Paczki danych modeli 3D budynków - powiatowe (od wersji 1.0)
-- Paczki danych EGiB - powiatowe (od wersji 1.0)
+- Paczki danych EGiB - powiatowe (wersja beta od wersji 1.0)
 - Paczki archiwalnych danych BDOT10k - wojewódzkie (od wersji 1.0)
 
 #### Dodatowe dane
