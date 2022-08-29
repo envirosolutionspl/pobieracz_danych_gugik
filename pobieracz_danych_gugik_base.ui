@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>412</width>
-    <height>919</height>
+    <width>401</width>
+    <height>926</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,13 +23,16 @@
       <property name="widgetResizable">
        <bool>true</bool>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>392</width>
-         <height>877</height>
+         <width>381</width>
+         <height>884</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -67,24 +70,38 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label">
-            <property name="font">
-             <font>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>Wtyczka pozwala na pobranie
-danych przestrzennych udostępnianych
-nieodpłatnie przez GUGiK.</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_57">
+              <property name="text">
+               <string>Wtyczka pozwala na pobranie</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_58">
+              <property name="text">
+               <string>danych przestrzennych udostępnianych</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_59">
+              <property name="text">
+               <string>nieodpłatnie przez GUGiK.</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QLabel" name="label_4">
@@ -1786,6 +1803,12 @@ nieodpłatnie przez GUGiK.</string>
            </item>
            <item>
             <widget class="QPushButton" name="bdoo_selected_polska_btn">
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="acceptDrops">
+              <bool>true</bool>
+             </property>
              <property name="text">
               <string>Pobierz dla całej Polski (ok. 150 MB)</string>
              </property>
@@ -1950,7 +1973,7 @@ nieodpłatnie przez GUGiK.</string>
            <string/>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -3515,29 +3538,6 @@ nieodpłatnie przez GUGiK.</string>
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Maximum</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -3548,10 +3548,17 @@ nieodpłatnie przez GUGiK.</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>16777215</height>
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -3568,22 +3575,35 @@ nieodpłatnie przez GUGiK.</string>
            <number>5</number>
           </property>
           <property name="bottomMargin">
-           <number>0</number>
+           <number>5</number>
           </property>
+          <item>
+           <widget class="QLabel" name="label_55">
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item>
            <layout class="QGridLayout" name="gridLayout_2">
             <property name="spacing">
              <number>6</number>
             </property>
-            <item row="2" column="0">
-             <widget class="QLabel" name="lbl_email">
+            <item row="1" column="0">
+             <widget class="QLabel" name="lbl_copyrights">
               <property name="font">
                <font>
                 <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
-               <string>&lt;a href=&quot;mailto:office@envirosolutions.pl&quot;&gt;office@envirosolutions.pl&lt;/a&gt;</string>
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;© 2022 &lt;a href=&quot;http://www.envirosolutions.pl/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;EnviroSolutions Sp. z o.o.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="textFormat">
                <enum>Qt::RichText</enum>
@@ -3614,15 +3634,15 @@ nieodpłatnie przez GUGiK.</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="lbl_copyrights">
+            <item row="2" column="0">
+             <widget class="QLabel" name="lbl_email">
               <property name="font">
                <font>
                 <pointsize>8</pointsize>
                </font>
               </property>
               <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;© 2022 &lt;a href=&quot;http://www.envirosolutions.pl/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;EnviroSolutions Sp. z o.o.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               <string>&lt;a href=&quot;mailto:office@envirosolutions.pl&quot;&gt;office@envirosolutions.pl&lt;/a&gt;</string>
               </property>
               <property name="textFormat">
                <enum>Qt::RichText</enum>
@@ -3659,6 +3679,9 @@ nieodpłatnie przez GUGiK.</string>
               <pointsize>19</pointsize>
              </font>
             </property>
+            <property name="mouseTracking">
+             <bool>true</bool>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3674,19 +3697,6 @@ nieodpłatnie przez GUGiK.</string>
            </widget>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>

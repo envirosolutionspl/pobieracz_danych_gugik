@@ -170,6 +170,7 @@ class PobieraczDanychGugik:
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
                 self.dockwidget = PobieraczDanychDockWidget()
+
             # Eventy
 
             self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
@@ -358,7 +359,6 @@ class PobieraczDanychGugik:
             self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
             self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
             self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(True)
-            # print('inne dane')
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
@@ -1005,7 +1005,19 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+
+        i=0
+        try:
+            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        except KeyError:
+            while i < 3:
+                teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error", f"Błąd wczytania słownika dla powiatu {powiatName} ({teryt}). "
+                                                                    f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
+
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
                                             level=Qgis.Info, duration=-1)
@@ -1034,6 +1046,19 @@ class PobieraczDanychGugik:
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+
+        i=0
+        try:
+            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        except KeyError:
+            while i < 3:
+                teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error", f"Błąd wczytania słownika dla powiatu {wojewodztwoName} ({teryt}). "
+                                                                    f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
+
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
                                             level=Qgis.Info, duration=-1)
@@ -1083,7 +1108,19 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+
+        i=0
+        try:
+            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        except KeyError:
+            while i < 3:
+                teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error", f"Błąd wczytania słownika dla powiatu {wojewodztwoName} ({teryt}). "
+                                                                    f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
+
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
                                             level=Qgis.Info, duration=-1)
@@ -1295,7 +1332,18 @@ class PobieraczDanychGugik:
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
-        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+
+        i=0
+        try:
+            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        except KeyError:
+            while i < 3:
+                teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error", f"Błąd wczytania słownika dla powiatu {powiat_name} ({teryt_powiat}). "
+                                                                    f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
         self.iface.messageBar().pushMessage("Informacja", f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
                                             level=Qgis.Info, duration=-1)
         task = DownloadModel3dTask(
@@ -1319,8 +1367,24 @@ class PobieraczDanychGugik:
             return False
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
-        # print(powiatName)
-        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+
+        i = 0
+        try:
+            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        except KeyError:
+            while i < 3:
+                teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error",
+                                     f"Błąd wczytania słownika dla powiatu {powiatName} ({teryt}). "
+                                     f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
+
+        self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+                                            level=Qgis.Info, duration=-1)
+
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1363,7 +1427,19 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+
+        i=0
+        try:
+            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        except KeyError:
+            while i < 3:
+                teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error", f"Błąd wczytania słownika dla powiatu {powiatName} ({teryt_powiat}). "
+                                                                    f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
+
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1445,7 +1521,19 @@ class PobieraczDanychGugik:
             return False
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
-        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+
+        i = 0
+        try:
+            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        except KeyError:
+            while i < 3:
+                teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+                i = i + 1
+            else:
+                msgbox = QMessageBox(QMessageBox.Critical, "Error",
+                                     f"Błąd wczytania słownika dla powiatu {powiat_name} ({teryt_powiat}). "
+                                     f"\n\n Wybierz z listy inny powiat, a potem ponownie wybierz powiat dla którego chcesz pobrać dane.")
+                msgbox.exec_()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
