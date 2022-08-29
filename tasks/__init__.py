@@ -5,3 +5,16 @@ from .downloadReflectanceTask import DownloadReflectanceTask
 from .downloadBdotTask import DownloadBdotTask
 from .downloadBdooTask import DownloadBdooTask
 from .downloadWfsTask import DownloadWfsTask
+from .downloadWfsEgibTask import DownloadWfsEgibTask
+from .downloadPrngTask import DownloadPrngTask
+from .downloadPrgTask import DownloadPrgTask
+from .downloadModel3dTask import DownloadModel3dTask
+from .downloadEgibExcelTask import DownloadEgibExcelTask
+from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologiczneTask
+from .downloadOsnowaTask import DownloadOsnowaTask
+from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask
+from .downloadMozaikaTask import DownloadMozaikaTask
+from .downloadWizKartoTask import DownloadWizKartoTask
+from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask
+from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask
+from .downloadZdjeciaLotniczeTask import DownloadZdjeciaLotniczeTask

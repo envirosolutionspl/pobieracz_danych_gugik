@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.4
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=0.9.3
+version=1.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
@@ -20,6 +20,20 @@ about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez 
   * GeoTiff (obrazy intensywności) - Produkt powstały ze skaningu laserowego w formie rastrowej
   * Paczki danych BDOT10k
   * Paczki danych BDOO
+  * Paczki danych PRNG
+  * Paczki danych PRG
+  * Paczki danych modeli 3D budynków
+  * Paczki danych EGiB (wersja beta)
+  * Paczki archiwalnych danych BDOT10k
+  * XLS (zestawienia zbiorcze EGiB)
+  * PDF/TIFF/JPG/CDR (opracowania tyflologiczne) - mapy dla niewidomych i słabowidzących
+  * Osnowy geodezyjnej
+	- XLS/PDF (podstawowa osnowa geodezyjna)
+	- TIFF/PDF (archiwalne kartoteki osnów)
+  * ASC/CSF/ISPM (aerotriangulacja)
+  * SHZ (linie mozaikowania)
+  * PDF (wizualizacja kartograficzna BDOT10k)
+  * JPG (zdjęcia lotnicze)
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
@@ -30,8 +44,19 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  Wersja 0.9.3
-  * Poprawa parametrów usług WMS
+  Wersja 1.0
+  * dodanie możliwości pobrania paczki PRNG 
+  * dodanie możliwości pobrania paczki PRG
+  * dodanie możliwości pobrania paczki modeli 3D budynków
+  * dodanie możliwości pobrania powiatowych paczek EGiB (wersja beta)
+  * dodanie możliwości pobrania archiwalnych paczek danych BDOT10k
+  * dodanie możliwości pobrania zbiorczych danych EGiB
+  * dodanie możliwości pobrania opracowań tyflologicznych
+  * dodanie możliwości pobrania podstawowej osnowy geodezyjnej oraz archiwalnej kartoteki osnów
+  * dodanie możliwości pobrania aerotriangulacji i linii mozaikowania
+  * dodanie możliwości pobrania wizualizacji kartograficznej BDOT10k
+  * dodanie możliwości pobrania zdjęć lotniczych
+  * aktualizacja funkcjonalności pobrania paczki danych BDOO
   Wersja 0.9.2
   * Poprawa adresów i parametrów usług WMS
   Wersja 0.9.1
@@ -94,7 +119,7 @@ changelog=
   * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów
+tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów, egib, ewidencja gruntów i budynków, prng, państwowy rejestr nazw geograficznych, prg, państwowy rejestr granic, modele 3d budynkow, budynki 3d, egib, zestawienia zbiorcze egib, opracowania tyflologiczne, osnowa, osnowa geodezyjna, archiwalne kartoteki osnów, aerotriangulacja, linie mozaikowania, mozaikowanie, zjęcia lotnicze, wizualizacja kartograficzna
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins

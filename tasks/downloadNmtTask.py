@@ -1,6 +1,6 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog,
+    QgsApplication, QgsTask, QgsMessageLog, Qgis
     )
 from .. import service_api, utils
 
@@ -8,7 +8,7 @@ from .. import service_api, utils
 class DownloadNmtTask(QgsTask):
     """QgsTask pobierania NMT/NMPT"""
 
-    def __init__(self, description, nmtList, folder, isNmpt):
+    def __init__(self, description, nmtList, folder, isNmpt, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.nmtList = nmtList
         self.folder = folder
@@ -16,6 +16,7 @@ class DownloadNmtTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.isNmpt = isNmpt
+        self.iface = iface
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -54,12 +55,17 @@ class DownloadNmtTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane NMT/NMPT zostały pobrane.",
+                                                level=Qgis.Success, duration=0)
+
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
+            self.iface.messageBar().pushWarning("Błąd",
+                                                "Dane NMT/NMPT nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

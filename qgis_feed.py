@@ -11,7 +11,6 @@ class QgisFeed:
         self.parser.fetched.connect(self.registerFeed)
 
     def registerFeed(self):
-        QgsMessageLog.logMessage('asdasdas33')
         for key in self.s.allKeys():
             if self.envirosolutionsFeedPattern.match(key):
                 finalKey = re.sub(r'(\d+)', r'9999\1', key.replace('httpsqgisfeedenvirosolutionspl', 'httpsfeedqgisorg'))

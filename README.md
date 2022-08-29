@@ -15,7 +15,24 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 - LAS/LAZ LIDAR (od wersji 0.4)
 - Obrazy intensywności (od wersji 0.5)
 - Paczki danych BDOT10k - powiatowe, wojewódzkie lub krajowa (od wersji 0.6)
-- Paczki danych BDOO - wojewódzkie (od wersji 0.7)
+- Paczki danych BDOO - wojewódzkie lub krajowe (od wersji 1.0)
+- Paczki danych PRNG (od wersji 1.0)
+- Paczki danych PRG (od wersji 1.0)
+- Paczki danych modeli 3D budynków - powiatowe (od wersji 1.0)
+- Paczki danych EGiB - powiatowe (wersja beta od wersji 1.0)
+- Paczki archiwalnych danych BDOT10k - wojewódzkie (od wersji 1.0)
+
+#### Dodatowe dane
+Wtyczka pozwala także na pobranie dodatkowych danych udostępnionych przed GUGiK:
+- Zestawienia zbiorcze EGiB - arkusz kalkulacyjny excel (od wersji 1.0)
+- Opracowania tyflologiczne - mapy dla niewidomych i słabowidzących, format: pdf, tiff, jpg, cdr (od wersji 1.0)
+- Osnowa geodezyjna (od wersji 1.0)
+	- Podstawowa Osnowa Geodezyjna - format: pdf, xls
+	- Archiwalne Kartoteki Osnów  - format: tiff, pdf
+- Aerotriangulacja - format m.in: pdf, csf, asc, ispm (od wersji 1.0)
+- Linie mozaikowania - format shz (od wersji 1.0)
+- Wizualizacja kartograficzna BDOT10k - format pdf (od wersji 1.0)
+- Zdjęcia lotnicze - format jpg (od wersji 1.0)
 
 #### Pobieranie na podstawie warstwy poligonowej
 1. Wtyczka generuje siatkę punktów wewnątrz zadanej warstwy poligonowej oraz na podstawie werteksów

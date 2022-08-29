@@ -16,7 +16,7 @@ class Las:
             modulArchiwizacji,
             numerZgloszeniaPracy,
             aktualnoscRok,
-            isLaz=False
+            # isLaz=False
     ):
         self.url = url
         self.godlo = godlo

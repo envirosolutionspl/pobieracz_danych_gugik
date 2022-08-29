@@ -4,12 +4,12 @@ from qgis.core import (
     )
 from .. import service_api, utils
 
-class DownloadReflectanceTask(QgsTask):
+class DownloadMozaikaTask(QgsTask):
     """QgsTask pobierania intensywności"""
 
-    def __init__(self, description, reflectanceList, folder, iface):
+    def __init__(self, description, mozaikaList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
-        self.reflectanceList = reflectanceList
+        self.mozaikaList = mozaikaList
         self.folder = folder
         self.total = 0
         self.iterations = 0
@@ -25,14 +25,14 @@ class DownloadReflectanceTask(QgsTask):
         internally and raise them in self.finished
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        total = len(self.reflectanceList)
+        total = len(self.mozaikaList)
 
-        for reflectance in self.reflectanceList:
-            QgsMessageLog.logMessage('start ' + reflectance.url)
+        for mozaika in self.mozaikaList:
+            QgsMessageLog.logMessage('start ' + mozaika.url)
 
             # fileName = reflectance.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=reflectance.url, destFolder=self.folder)
+            service_api.retreiveFile(url=mozaika.url, destFolder=self.folder)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
@@ -56,8 +56,9 @@ class DownloadReflectanceTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane obrazów intensywności zostały pobrane.",
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane linii mozaikowania zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
+
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
@@ -65,7 +66,7 @@ class DownloadReflectanceTask(QgsTask):
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane obrazów intensywności nie zostały pobrane.")
+                                                "Dane linii mozaikowania nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
@@ -73,33 +74,19 @@ class DownloadReflectanceTask(QgsTask):
 
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_intensywnosc_%s.txt' % date), 'w') as csvFile:
+        with open(os.path.join(self.folder, 'pobieracz_linie_mozaikowania_%s.txt' % date), 'w') as csvFile:
             naglowki = [
-                'nazwa_pliku',
-                'godlo',
-                'aktualnosc',
-                'wielkosc_piksela',
-                'uklad_wspolrzednych',
-                'modul_archiwizacji',
-                'zrodlo_danych',
-                'metoda_zapisu',
-                'zakres intensywnosci',
-                'numer_zgloszenia_pracy',
-                'aktualnosc_rok'
+                'Nazwa pliku',
+                'Identyfikator Linii Mozaikowania',
+                'Numer zgłoszenia',
+                'Rok'
             ]
             csvFile.write(','.join(naglowki)+'\n')
-            for reflectance in self.reflectanceList:
-                fileName = reflectance.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+            for mozaika in self.mozaikaList:
+                fileName = mozaika.url.split("/")[-1]
+                csvFile.write('%s,%s,%s,%s\n' % (
                     fileName,
-                    reflectance.godlo,
-                    reflectance.aktualnosc,
-                    reflectance.wielkoscPiksela,
-                    reflectance.ukladWspolrzednych,
-                    reflectance.modulArchiwizacji,
-                    reflectance.zrodloDanych,
-                    reflectance.metodaZapisu,
-                    reflectance.zakresIntensywnosci,
-                    reflectance.numerZgloszeniaPracy,
-                    reflectance.aktualnoscRok
+                    mozaika.id,
+                    mozaika.zgloszenie,
+                    mozaika.zgloszenie.split('.')[3]
                 ))

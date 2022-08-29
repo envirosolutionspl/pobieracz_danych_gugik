@@ -31,6 +31,7 @@ def pointTo2180(point, sourceCrs, project):
     crsDest = QgsCoordinateReferenceSystem(2180)  # PL 1992
     xform = QgsCoordinateTransform(sourceCrs, crsDest, project)
     point1992 = xform.transform(point)
+
     return point1992
 
 def layerTo2180(layer):
