@@ -29,6 +29,8 @@ class WfsEgib:
         except Exception:
             name_error = f"- (teryt: {teryt}) Nieznany błąd. URL do pliku \n{url}"
 
+        name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
+
         return name_error
 
     def work_on_xml(self, folder, url, teryt):

@@ -446,10 +446,11 @@ class DownloadWfsEgibTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-                # self.iface.messageBar().pushMessage("Error", self.name_error, level=Qgis.Critical, duration=0)
-                QgsMessageLog.logMessage("ERROR " + self.name_error)
 
-                msgbox = QMessageBox(QMessageBox.Critical, "Error", self.name_error)
+                msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
+                # icon_window = QIcon()
+                # icon_window.addPixmap(QPixmap("..."), QIcon.Normal)
+                # msgbox.setWindowIcon(icon_window)
                 msgbox.exec_()
             else:
                 QgsMessageLog.logMessage(self.exception)
