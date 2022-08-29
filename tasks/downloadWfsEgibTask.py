@@ -5,12 +5,13 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
 from ..wfs import WfsEgib
+from PyQt5.QtGui import QPixmap, QIcon
 
 
 class DownloadWfsEgibTask(QgsTask):
     """QgsTask pobierania WFS EGiB"""
 
-    def __init__(self, description, folder, teryt, iface):
+    def __init__(self, description, folder, teryt, iface, plugin_dir):
 
         super().__init__(description, QgsTask.CanCancel)
         self.name_error = ""
@@ -21,6 +22,7 @@ class DownloadWfsEgibTask(QgsTask):
         self.exception = None
         self.teryt = teryt
         self.iface = iface
+        self.plugin_dir = plugin_dir
 
         dictionary = {'1206': 'https://wms.powiat.krakow.pl:1518/iip/ows',
                       '2471': 'https://wms.sip.piekary.pl/piekary-egib',
@@ -448,10 +450,9 @@ class DownloadWfsEgibTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
 
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
-                # icon_window = QIcon()
-                # icon_window.addPixmap(QPixmap("..."), QIcon.Normal)
-                # msgbox.setWindowIcon(icon_window)
+                msgbox.setIconPixmap(QPixmap(self.plugin_dir + "\img\lightbulb.png"))
                 msgbox.exec_()
+
             else:
                 QgsMessageLog.logMessage(self.exception)
                 raise self.exception
