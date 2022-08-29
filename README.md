@@ -23,7 +23,7 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 - Paczki archiwalnych danych BDOT10k - wojewódzkie (od wersji 1.0)
 
 #### Dodatowe dane
-Wtyczka pozwala także na pobranie danych nieprzestrzennych udostępnionych przed GUGiK:
+Wtyczka pozwala także na pobranie dodatkowych danych udostępnionych przed GUGiK:
 - Zestawienia zbiorcze EGiB - arkusz kalkulacyjny excel (od wersji 1.0)
 - Opracowania tyflologiczne - mapy dla niewidomych i słabowidzących, format: pdf, tiff, jpg, cdr (od wersji 1.0)
 - Osnowa geodezyjna (od wersji 1.0)

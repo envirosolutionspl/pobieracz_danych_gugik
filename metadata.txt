@@ -119,7 +119,7 @@ changelog=
   * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów
+tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów, egib, ewidencja gruntów i budynków, prng, państwowy rejestr nazw geograficznych, prg, państwowy rejestr granic, modele 3d budynkow, budynki 3d, egib, zestawienia zbiorcze egib, opracowania tyflologiczne, osnowa, osnowa geodezyjna, archiwalne kartoteki osnów, aerotriangulacja, linie mozaikowania, mozaikowanie, zjęcia lotnicze, wizualizacja kartograficzna
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
