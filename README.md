@@ -10,9 +10,9 @@ od wersji 0.2 wtyczka generuje dodatkowo raport CSV z informacjami dodatowymi na
 
 #### Dostępne warstwy
 Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
-- Ortofotomapy RGB/CIR
+- Ortofotomapy RGB/CIR -  ortofotomapa cyfrowa i zobrazowanie w bliskiej podczerwieni
 - NMT/NMPT (od wersji 0.3)
-- LAS/LAZ LIDAR (od wersji 0.4)
+- LAZ LIDAR (od wersji 0.4)
 - Obrazy intensywności (od wersji 0.5)
 - Paczki danych BDOT10k - powiatowe, wojewódzkie lub krajowa (od wersji 0.6)
 - Paczki danych BDOO - wojewódzkie lub krajowe (od wersji 1.0)
@@ -24,15 +24,15 @@ Wtyczka pozwala na pobieranie nastepujących warstw dla obszaru Polski:
 
 #### Dodatowe dane
 Wtyczka pozwala także na pobranie dodatkowych danych udostępnionych przed GUGiK:
-- Zestawienia zbiorcze EGiB - arkusz kalkulacyjny excel (od wersji 1.0)
-- Opracowania tyflologiczne - mapy dla niewidomych i słabowidzących, format: pdf, tiff, jpg, cdr (od wersji 1.0)
+- Zestawienia zbiorcze EGiB - arkusz kalkulacyjny excel, XLS (od wersji 1.0)
+- Opracowania tyflologiczne - mapy dla niewidomych i słabowidzących, PDF/TIFF/JPG/CDR (od wersji 1.0)
 - Osnowa geodezyjna (od wersji 1.0)
-	- Podstawowa Osnowa Geodezyjna - format: pdf, xls
-	- Archiwalne Kartoteki Osnów  - format: tiff, pdf
-- Aerotriangulacja - format m.in: pdf, csf, asc, ispm (od wersji 1.0)
-- Linie mozaikowania - format shz (od wersji 1.0)
-- Wizualizacja kartograficzna BDOT10k - format pdf (od wersji 1.0)
-- Zdjęcia lotnicze - format jpg (od wersji 1.0)
+	- Podstawowa Osnowa Geodezyjna - XLS/PDF
+	- Archiwalne Kartoteki Osnów  - TIFF/PDF
+- Aerotriangulacja - format m.in: ASC/CSF/ISPM/PDF (od wersji 1.0)
+- Linie mozaikowania - SHZ (od wersji 1.0)
+- Wizualizacja kartograficzna BDOT10k - PDF (od wersji 1.0)
+- Zdjęcia lotnicze - JPG (od wersji 1.0)
 
 #### Pobieranie na podstawie warstwy poligonowej
 1. Wtyczka generuje siatkę punktów wewnątrz zadanej warstwy poligonowej oraz na podstawie werteksów

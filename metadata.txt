@@ -10,30 +10,35 @@ version=1.0
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
-about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK. Możliwe jest pobieranie danych
-  * za pomocą wskazania punktu na mapie
-  * poprzez warstwę poligonową, liniową lub punktową
+about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK.
+  Możliwe jest pobieranie:
+  * danych za pomocą wskazania punktu na mapie
+  * danych poprzez warstwę poligonową, liniową lub punktową
+  * paczki danych dla wybranej jednostki podziału terytorialnego
+
   Możliwe jest pobieranie następujących danych:
   * LAZ (LIDAR) - dane skaningu laserowego
   * ASCII GRID (NMT/NMPT) - Numeryczny Model Terenu i Numeryczny Model Pokrycia Terenu
   * GeoTiff (ortofotomapa/CIR) - Ortofotomapa cyfrowa i Zobrazowanie w bliskiej podczerwieni
   * GeoTiff (obrazy intensywności) - Produkt powstały ze skaningu laserowego w formie rastrowej
-  * Paczki danych BDOT10k
-  * Paczki danych BDOO
-  * Paczki danych PRNG
-  * Paczki danych PRG
-  * Paczki danych modeli 3D budynków
+  * Paczki danych BDOT10k (ZIP)
+  * Paczki danych BDOO (ZIP)
+
+  W najnowszej wersji 1.0. dodano również możliwość pobierania następujących danych:
+  * Paczki danych PRNG (ZIP)
+  * Paczki danych PRG (ZIP)
+  * Paczki danych modeli 3D budynków (ZIP)
   * Paczki danych EGiB (wersja beta)
-  * Paczki archiwalnych danych BDOT10k
-  * XLS (zestawienia zbiorcze EGiB)
-  * PDF/TIFF/JPG/CDR (opracowania tyflologiczne) - mapy dla niewidomych i słabowidzących
+  * Paczki archiwalnych danych BDOT10k (ZIP)
+  * Zestawienia zbiorcze EGiB) (XLS)
+  * Opracowania tyflologiczne (PDF/TIFF/JPG/CDR) - mapy dla niewidomych i słabowidzących
   * Osnowy geodezyjnej
-	- XLS/PDF (podstawowa osnowa geodezyjna)
-	- TIFF/PDF (archiwalne kartoteki osnów)
-  * ASC/CSF/ISPM (aerotriangulacja)
-  * SHZ (linie mozaikowania)
-  * PDF (wizualizacja kartograficzna BDOT10k)
-  * JPG (zdjęcia lotnicze)
+    - Podstawowa osnowa geodezyjna (XLS/PDF)
+    - Archiwalne kartoteki osnów (TIFF/PDF)
+  * Aerotriangulacji (ASC/CSF/ISPM)
+  * Linii mozaikowania (SHZ)
+  * Wizualizacji kartograficznej BDOT10k (PDF)
+  * Zdjęć lotniczych (JPG)
 
 tracker=https://github.com/envirosolutionspl/pobieracz_danych_gugik/issues
 repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
@@ -119,7 +124,7 @@ changelog=
   * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
-tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów, egib, ewidencja gruntów i budynków, prng, państwowy rejestr nazw geograficznych, prg, państwowy rejestr granic, modele 3d budynkow, budynki 3d, egib, zestawienia zbiorcze egib, opracowania tyflologiczne, osnowa, osnowa geodezyjna, archiwalne kartoteki osnów, aerotriangulacja, linie mozaikowania, mozaikowanie, zjęcia lotnicze, wizualizacja kartograficzna
+tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów, egib, ewidencja gruntów i budynków, prng, państwowy rejestr nazw geograficznych, prg, państwowy rejestr granic, modele 3d budynkow, budynki 3d, egib, zestawienia zbiorcze egib, opracowania tyflologiczne, osnowa, osnowa geodezyjna, archiwalne kartoteki osnów, aerotriangulacja, linie mozaikowania, mozaikowanie, zdjęcia lotnicze, wizualizacja kartograficzna
 
 homepage=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 category=Plugins
