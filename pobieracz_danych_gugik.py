@@ -24,7 +24,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
 
 """Wersja wtyczki"""
-plugin_version = '1.0.1'
+plugin_version = '1.0.2'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -518,8 +518,7 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if len(ortoList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria").exec_()
             return
         else:
             msgbox = QMessageBox(QMessageBox.Question,

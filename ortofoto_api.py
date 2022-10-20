@@ -56,4 +56,4 @@ def getOrtoListbyPoint1992(point):
             ortofotomapaList.append(ortofotomapa)
         return ortofotomapaList
     else:
-        return None
+        return []
