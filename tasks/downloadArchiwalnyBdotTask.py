@@ -21,7 +21,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         # total = len(self.nmtList)
 
-        r = requests.get(self.url)
+        r = requests.get(self.url, verify=False)
         if str(r.status_code) == '404':
             self.page_exist = 'NO'
             return False

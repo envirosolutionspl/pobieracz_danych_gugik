@@ -38,7 +38,7 @@ class DownloadModel3dTask(QgsTask):
             list_url.append(url4)
 
         for url in list_url:
-            r = requests.get(url)
+            r = requests.get(url, verify=False)
             if str(r.status_code) == '200':
                 self.liczba_dobrych_url.append(url)
                 QgsMessageLog.logMessage('pobieram ' + url)

@@ -13,7 +13,7 @@ class WfsEgib:
         """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
         """W przypadku błędów przekazuje ich opis"""
         try:
-            r = requests.get(url)
+            r = requests.get(url, verify=False)
             if str(r.status_code) == '404':
                 name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
             else:

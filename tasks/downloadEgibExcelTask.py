@@ -58,7 +58,7 @@ class DownloadEgibExcelTask(QgsTask):
         list_url.append(url_czesc + '.xls')
 
         for url in list_url:
-            r = requests.get(url)
+            r = requests.get(url, verify=False)
             if str(r.status_code) == '200':
                 QgsMessageLog.logMessage('pobieram ' + url)
                 # fileName = self.url.split("/")[-2]

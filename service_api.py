@@ -4,14 +4,14 @@ import os, time
 
 def getRequest(params, url):
     try:
-        r = requests.get(url=url, params=params)
-        print(r.request.url)
+        r = requests.get(url=url, params=params, verify=False)
+        # print(r.request.url)
 
     except requests.exceptions.ConnectionError:
         # print('sleep')
         time.sleep(0.4)
         try:
-            r = requests.get(url=url, params=params)
+            r = requests.get(url=url, params=params, verify=False)
 
         except requests.exceptions.ConnectionError:
             # print('blad polaczenia')
@@ -57,9 +57,9 @@ def retreiveFile(url, destFolder):
 
     path = os.path.join(destFolder, file_name)
 
-    print(path)
+    # print(path)
     try:
-        r = requests.get(url)
+        r = requests.get(url, verify=False)
         if str(r.status_code) == '404':
             return False, "Plik nie istnieje"
         try:
@@ -76,6 +76,4 @@ def retreiveFile(url, destFolder):
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
     destFolder = "D:/test/orto"
-    # r = retreiveFile(url, destFolder)
-    # r = requests.get(url)
     print(retreiveFile(url=url, destFolder=destFolder))

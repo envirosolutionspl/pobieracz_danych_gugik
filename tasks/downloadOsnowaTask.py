@@ -25,7 +25,7 @@ class DownloadOsnowaTask(QgsTask):
 
         for typ in self.typ:
             url = f"https://integracja.gugik.gov.pl/osnowa/?teryt={self.teryt_powiat}&typ={typ}"
-            r = requests.get(url)
+            r = requests.get(url, verify=False)
             if str(r.status_code) == '200':
                 QgsMessageLog.logMessage('pobieram ' + url)
                 # fileName = self.url.split("/")[-2]

@@ -17,7 +17,7 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        r = requests.get(url=wfsUrl, params=PARAMS)
+        r = requests.get(url=wfsUrl, params=PARAMS, verify=False)
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
     r_txt = r.text

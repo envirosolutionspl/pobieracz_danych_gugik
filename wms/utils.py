@@ -14,7 +14,7 @@ def getQueryableLayersFromWMS(wmsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        r = requests.get(url=wmsUrl, params=PARAMS)
+        r = requests.get(url=wmsUrl, params=PARAMS, verify=False)
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
     r_txt = r.text
@@ -22,7 +22,6 @@ def getQueryableLayersFromWMS(wmsUrl):
         queryableLayers = []
         root = ET.fromstring(r_txt)
         for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', ns):
-            print('layer')
             nameET = layerET.find('./xmlns:Name', ns)
             if nameET is not None:
                 queryableLayers.append(nameET.text)
