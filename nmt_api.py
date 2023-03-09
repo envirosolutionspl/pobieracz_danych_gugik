@@ -16,7 +16,8 @@ def getNmtListbyPoint1992(point, isEvrf2007):
         LAYERS = [
             'SkorowidzeNMT2019iStarsze',
             'SkorowidzeNMT2020',
-            'SkorowidzeNMT2021'
+            'SkorowidzeNMT2021',
+            'SkorowidzeNMT2022'
         ]
 
     else:

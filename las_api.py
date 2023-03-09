@@ -17,7 +17,7 @@ def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladEVRF2007?"
         LAYERS = [
             # 'Układ wysokościowy PL-EVRF2007-NH',
-            'SkorowidzeLIDAR2019iStarsze', 'SkorowidzeLIDAR2020', 'SkorowidzeLIDAR2021'
+            'SkorowidzeLIDAR2019iStarsze', 'SkorowidzeLIDAR2020', 'SkorowidzeLIDAR2021', 'SkorowidzeLIDAR2022'
         ]
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladKRON86?"

@@ -17,7 +17,8 @@ def getNmptListbyPoint1992(point, isEvrf2007):
         LAYERS = [
             'SkorowidzeNMPT2019iStarsze',
             'SkorowidzeNMPT2020',
-            'SkorowidzeNMPT2021'
+            'SkorowidzeNMPT2021',
+            'SkorowidzeNMPT2022'
         ]
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86?"
