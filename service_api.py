@@ -19,7 +19,7 @@ def getRequest(params, url):
     r_txt = r.text
     if r.status_code == 200:
         # print('ok')
-        print(r_txt)
+        # print(r_txt)
         return True, r_txt
     else:
         # print("Błąd %d" % r.status_code)
