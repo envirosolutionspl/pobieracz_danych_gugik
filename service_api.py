@@ -5,7 +5,7 @@ import os, time
 def getRequest(params, url):
     try:
         r = requests.get(url=url, params=params, verify=False)
-        print(r.request.url)
+        # print(r.request.url)
 
     except requests.exceptions.ConnectionError:
         # print('sleep')
