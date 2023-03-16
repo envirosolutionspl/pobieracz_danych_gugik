@@ -11,8 +11,10 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
     x = point.x()
     y = point.y()
+    URL2 = None
     if isEvrf2007:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladEVRF2007?"
+        URL2 = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SheetsGrid5mEVRF2007?"
         LAYERS = [
             'SkorowidzeNMT2019iStarsze',
             'SkorowidzeNMT2020',
@@ -56,9 +58,17 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=URL)
-
-    if resp[0]:
-        return True, createList(resp)
+    # obsługa drugiego URLa do danych NMT
+    resp2 = (False, None)
+    if URL2 is not None:
+        resp2 = service_api.getRequest(params=PARAMS, url=URL2)
+    if resp[0] or resp2[0]:
+        lista = []
+        if resp[0]:
+            lista += createList(resp)
+        if resp2[0]:
+            lista += createList(resp2)
+        return True,  lista
     else:
         return resp
 
