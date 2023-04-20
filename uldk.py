@@ -1,3 +1,4 @@
+from  .wfs.httpsAdapter import get_legacy_session
 import requests
 class RegionFetch:
     def __init__(self):
@@ -8,7 +9,7 @@ class RegionFetch:
         self.filteredGminaDict = {}
 
     def __fetchGminaDict(self):
-        resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,powiat,teryt,wojewodztwo', verify=False)
+        resp = get_legacy_session().get('https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,powiat,teryt,wojewodztwo', verify=False)
         gmList = resp.text.strip().split('\n')
         gmDict = {}
         if len(gmList) and gmList[0] == '0':
@@ -21,7 +22,7 @@ class RegionFetch:
             return {}
 
     def __fetchPowiatDict(self):
-        resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt,wojewodztwo', verify=False)
+        resp = get_legacy_session().get('https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt,wojewodztwo', verify=False)
         powList = resp.text.strip().split('\n')
         powDict = {}
         if len(powList) and powList[0] == '0':
@@ -34,7 +35,7 @@ class RegionFetch:
             return {}
 
     def __fetchWojewodztwoDict(self):
-        resp = requests.get('https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt', verify=False)
+        resp = get_legacy_session().get('https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt', verify=False)
         wojList = resp.text.strip().split('\n')
         wojDict = {}
         if len(wojList) and wojList[0] == '0':

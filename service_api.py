@@ -1,17 +1,19 @@
+from  .wfs.httpsAdapter import get_legacy_session
+
 import requests
 import os, time
 
 
 def getRequest(params, url):
     try:
-        r = requests.get(url=url, params=params, verify=False)
+        r = get_legacy_session().get(url=url, params=params, verify=False)
         # print(r.request.url)
 
     except requests.exceptions.ConnectionError:
         # print('sleep')
         time.sleep(0.4)
         try:
-            r = requests.get(url=url, params=params, verify=False)
+            r = get_legacy_session().get(url=url, params=params, verify=False)
 
         except requests.exceptions.ConnectionError:
             # print('blad polaczenia')
@@ -60,7 +62,7 @@ def retreiveFile(url, destFolder):
 
     # print(path)
     try:
-        r = requests.get(url, verify=False)
+        r = get_legacy_session().get(url, verify=False)
         if str(r.status_code) == '404':
             return False, "Plik nie istnieje"
         try:

@@ -1,5 +1,6 @@
 import requests, re
 import xml.etree.ElementTree as ET
+from .httpsAdapter import get_legacy_session
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -17,7 +18,8 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        r = requests.get(url=wfsUrl, params=PARAMS, verify=False)
+        #r = requests.get(url=wfsUrl, params=PARAMS, verify=False)
+        r = get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False)
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
     r_txt = r.text
