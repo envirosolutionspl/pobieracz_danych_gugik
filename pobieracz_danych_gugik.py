@@ -260,6 +260,7 @@ class PobieraczDanychGugik:
                                                 'Nie wskazano warstwy wektorowej')
     def test(self):
         print('test')
+        print('............................')
     def downloadWfsForLayer(self, layer):
         """Pobiera dane WFS """
 
