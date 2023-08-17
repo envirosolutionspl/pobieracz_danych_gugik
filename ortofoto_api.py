@@ -40,8 +40,6 @@ def getOrtoListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    print(resp)
-    print(URL, PARAMS)
     if resp[0]:
         ortos = c.findall(resp[1])
         ortofotomapaList = []

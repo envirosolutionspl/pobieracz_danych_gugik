@@ -24,7 +24,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
 
 """Wersja wtyczki"""
-plugin_version = '1.0.6'
+plugin_version = '1.0.7'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
