@@ -19,8 +19,8 @@ def getOrtoListbyPoint1992(point):
         'SkorowidzeOrtofotomapy2021',
         'SkorowidzeOrtofotomapyZasiegi2022',
         'SkorowidzeOrtofotomapy2022',
-        'SkorowidzeOrtofotomapyZasiegi2020',
-        'SkorowidzeOrtofotomapy2020'
+        'SkorowidzeOrtofotomapyZasiegi2023',
+        'SkorowidzeOrtofotomapy2023'
     ]
     PARAMS = {
         'SERVICE': 'WMS',
@@ -40,6 +40,8 @@ def getOrtoListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
+    print(resp)
+    print(URL, PARAMS)
     if resp[0]:
         ortos = c.findall(resp[1])
         ortofotomapaList = []
