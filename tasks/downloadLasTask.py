@@ -30,9 +30,12 @@ class DownloadLasTask(QgsTask):
         total = len(self.lasList)
 
         for las in self.lasList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + las.url)
             fileName = las.url.split("/")[-1]
-            service_api.retreiveFile(url=las.url, destFolder=self.folder)
+            service_api.retreiveFile(url=las.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
@@ -40,8 +43,6 @@ class DownloadLasTask(QgsTask):
 
         utils.openFile(self.folder)
 
-        if self.isCanceled():
-            return False
         return True
 
     def finished(self, result):

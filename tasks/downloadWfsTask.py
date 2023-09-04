@@ -29,19 +29,19 @@ class DownloadWfsTask(QgsTask):
         total = len(self.urlList)
 
         for url in self.urlList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             fileName = url.split("/")[-1]
             QgsMessageLog.logMessage('start ' + fileName)
 
-            service_api.retreiveFile(url=url, destFolder=self.folder)
+            service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
         # self.createCsvReport()
         #
         utils.openFile(self.folder)
-        if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
-            return False
         return True
 
     def finished(self, result):

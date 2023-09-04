@@ -28,7 +28,7 @@ def getRequest(params, url):
         return False, "Błąd %d" % r.status_code
 
 
-def retreiveFile(url, destFolder):
+def retreiveFile(url, destFolder, obj):
     file_name = url.split('/')[-1]
 
     if '?' in file_name:
@@ -62,15 +62,28 @@ def retreiveFile(url, destFolder):
 
     # print(path)
     try:
-        r = get_legacy_session().get(url, verify=False)
+        r = get_legacy_session().get(url, verify=False, stream=True)
         if str(r.status_code) == '404':
             return False, "Plik nie istnieje"
+        saved = True        
         try:
             with open(path, 'wb') as f:
-                f.write(r.content)
-            return [True]
+                for chunk in r.iter_content(chunk_size=8192):
+                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwaniew trakcie pobierania"""
+                    if obj.isCanceled():
+                        r.close()  # przerwanie pobierania
+                        saved = False
+                        break
+                    f.write(chunk)
         except IOError:
             return False, "Błąd zapisu pliku"
+        
+        if saved:      
+            return [True]
+        else:
+            os.remove(path)   # usunięcie pliku który się nie pobrał
+            return False, "Pobieranie przerwane"
+        
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
         return [True]

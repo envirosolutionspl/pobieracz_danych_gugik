@@ -60,10 +60,13 @@ class DownloadEgibExcelTask(QgsTask):
         for url in list_url:
             r = requests.get(url, verify=False)
             if str(r.status_code) == '200':
+                if self.isCanceled():
+                    QgsMessageLog.logMessage('isCanceled')
+                    return False
                 QgsMessageLog.logMessage('pobieram ' + url)
                 # fileName = self.url.split("/")[-2]
                 # print(self.folder)
-                service_api.retreiveFile(url=url, destFolder=self.folder)
+                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
                 # self.setProgress(self.progress() + 100 / total)
 
         utils.openFile(self.folder)

@@ -26,22 +26,20 @@ class DownloadOrtofotoTask(QgsTask):
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         total = len(self.ortoList)
-
         for orto in self.ortoList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + orto.url)
 
             fileName = orto.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + orto.url + ' ' + self.folder)
-            service_api.retreiveFile(url=orto.url, destFolder=self.folder)
+            service_api.retreiveFile(url=orto.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
 
         utils.openFile(self.folder)
-        if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
-            return False
         return True
 
     def finished(self, result):

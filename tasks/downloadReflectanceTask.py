@@ -28,20 +28,20 @@ class DownloadReflectanceTask(QgsTask):
         total = len(self.reflectanceList)
 
         for reflectance in self.reflectanceList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + reflectance.url)
 
             # fileName = reflectance.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=reflectance.url, destFolder=self.folder)
+            service_api.retreiveFile(url=reflectance.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
 
         utils.openFile(self.folder)
-        if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
-            return False
         return True
 
     def finished(self, result):

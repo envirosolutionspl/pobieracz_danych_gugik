@@ -28,9 +28,12 @@ class DownloadKartotekiOsnowTask(QgsTask):
         total = len(self.kartotekiOsnowList)
 
         for kartotekaOsnow in self.kartotekiOsnowList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + kartotekaOsnow.url)
             fileName = kartotekaOsnow.url.split("/")[-1]
-            service_api.retreiveFile(url=kartotekaOsnow.url, destFolder=self.folder)
+            service_api.retreiveFile(url=kartotekaOsnow.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
@@ -38,8 +41,6 @@ class DownloadKartotekiOsnowTask(QgsTask):
 
         utils.openFile(self.folder)
 
-        if self.isCanceled():
-            return False
         return True
 
     def finished(self, result):

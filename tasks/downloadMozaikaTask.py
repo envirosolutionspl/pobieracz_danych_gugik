@@ -28,6 +28,9 @@ class DownloadMozaikaTask(QgsTask):
         total = len(self.mozaikaList)
 
         for mozaika in self.mozaikaList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + mozaika.url)
 
             # fileName = reflectance.url.split("/")[-1]
@@ -39,9 +42,7 @@ class DownloadMozaikaTask(QgsTask):
         self.createCsvReport()
 
         utils.openFile(self.folder)
-        if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
-            return False
+
         return True
 
     def finished(self, result):

@@ -30,11 +30,14 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         total = len(self.zdjeciaLotniczeList)
 
         for zdj in self.zdjeciaLotniczeList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + zdj.url)
 
             # fileName = reflectance.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=zdj.url, destFolder=self.folder)
+            service_api.retreiveFile(url=zdj.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             print("url: ", zdj.url)
 
@@ -42,9 +45,6 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         self.createCsvReport()
 
         utils.openFile(self.folder)
-        if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
-            return False
         return True
 
     def finished(self, result):

@@ -26,7 +26,7 @@ class DownloadPrngTask(QgsTask):
 
         QgsMessageLog.logMessage('pobieram ' + self.url)
         # fileName = self.url.split("/")[-1]
-        service_api.retreiveFile(url=self.url, destFolder=self.folder)
+        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         # self.setProgress(self.progress() + 100 / total)
 
         utils.openFile(self.folder)

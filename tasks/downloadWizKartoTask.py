@@ -28,9 +28,12 @@ class DownloadWizKartoTask(QgsTask):
         total = len(self.wizKartoList)
 
         for wizKarto in self.wizKartoList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + wizKarto.url)
             fileName = wizKarto.url.split("/")[-1]
-            service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder)
+            service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
@@ -38,8 +41,6 @@ class DownloadWizKartoTask(QgsTask):
 
         utils.openFile(self.folder)
 
-        if self.isCanceled():
-            return False
         return True
 
     def finished(self, result):

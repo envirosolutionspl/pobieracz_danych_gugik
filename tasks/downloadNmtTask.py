@@ -30,9 +30,12 @@ class DownloadNmtTask(QgsTask):
         total = len(self.nmtList)
 
         for nmt in self.nmtList:
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
             QgsMessageLog.logMessage('start ' + nmt.url)
             fileName = nmt.url.split("/")[-1]
-            service_api.retreiveFile(url=nmt.url, destFolder=self.folder)
+            service_api.retreiveFile(url=nmt.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem

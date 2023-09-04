@@ -23,7 +23,7 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
         QgsMessageLog.logMessage('pobieram ' + self.url)
         # fileName = self.url.split("/")[-2]
         print(self.folder)
-        service_api.retreiveFile(url=self.url, destFolder=self.folder)
+        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         # self.setProgress(self.progress() + 100 / total)
 
         utils.openFile(self.folder)
