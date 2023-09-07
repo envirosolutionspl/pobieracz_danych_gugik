@@ -15,6 +15,7 @@ import asyncio, processing
 
 # Initialize Qt resources from file resources.py
 from .resources import *
+import requests
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
@@ -168,8 +169,13 @@ class PobieraczDanychGugik:
             self.pluginIsActive = True
 
             if self.dockwidget == None:
-                # Create the dockwidget (after translation) and keep reference
-                self.dockwidget = PobieraczDanychDockWidget()
+                try:
+                    # Create the dockwidget (after translation) and keep reference
+                    self.dockwidget = PobieraczDanychDockWidget()
+                except requests.exceptions.ConnectionError:
+                    self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem')
+                    self.pluginIsActive = False
+                    return
 
             # Eventy
 
