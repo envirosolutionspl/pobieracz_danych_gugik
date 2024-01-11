@@ -44,7 +44,7 @@ Wtyczka pozwala także na pobranie dodatkowych danych udostępnionych przed GUGi
 2. Dla każdego z wygenerowanych punktów pobierana jest lista dostepnych warstw
 3. Po przefiltrowaniu pobierane są wybrane przez użytkownika warstwy
 
-**UWAGA:** Na niestandardowych wersjach programu QGIS, możliwe są błędy importu bibliotek.
+**UWAGA:** Na niestandardowych wersjach programu QGIS (np. Flatpak, Snap), możliwe są błędy importu bibliotek.
 Jeżeli wystąpi taka sytuacja, należy zgodnie z instrukcją producenta oprogramowania doinstalować bibliotekę/i.
 
 #### Pobieranie na podstawie warstwy punktowej
