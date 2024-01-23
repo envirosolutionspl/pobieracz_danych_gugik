@@ -2,6 +2,7 @@
 import re
 from . import service_api
 from .models import ZdjeciaLotnicze
+from bs4 import BeautifulSoup
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
@@ -9,25 +10,21 @@ c = re.compile("\{{1}.*\}{1}")
 
 
 def getZdjeciaLotniczeListbyPoint1992(point):
+
     """Zwraca listę dostępnych do pobrania zdjęć lotniczych na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
 
     x = point.x()
     y = point.y()
-    LAYERS = [
-        'Zdjecia_lotnicze_1991-1995',
-        'Zdjecia_lotnicze_1996-2000',
-        'Zdjecia_lotnicze_2001-2005',
-        'Zdjecia_lotnicze_2006-2010',
-        'Zdjecia_lotnicze_2011-2015',
-        'Zdjecia_lotnicze_2016-2020',
-        'Zdjecia_lotnicze_2021-2022'
-    ]
+
+    layers = service_api.getAllLayers(url=URL,service='WMS')
+    print(layers)
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.1.1',
-        'layers': ','.join(LAYERS),
+        'layers': ','.join(layers),
         'styles': '',
         'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
@@ -35,7 +32,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(LAYERS),
+        'query_layers': ','.join(layers),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'

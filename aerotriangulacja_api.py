@@ -12,13 +12,12 @@ def getAerotriangulacjaListbyPoint1992(point):
     zapytania GetFeatureInfo z usługi WMS"""
 
 
-
-
     x = point.x()
     y = point.y()
     LAYERS = [
         'SkorowidzAerotriangulacji'
     ]
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',

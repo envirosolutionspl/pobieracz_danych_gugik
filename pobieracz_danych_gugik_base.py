@@ -1543,7 +1543,7 @@ class Ui_PobieraczDanychDockWidgetBase(object):
         self.label_48.setObjectName("label_48")
         self.gridLayout_5.addWidget(self.label_48, 1, 0, 1, 1)
         self.zdjecia_lotnicze_from_dateTimeEdit = QgsDateTimeEdit(self.zdjecia_lotnicze_filter_groupBox)
-        self.zdjecia_lotnicze_from_dateTimeEdit.setDate(QtCore.QDate(1995, 1, 1))
+        self.zdjecia_lotnicze_from_dateTimeEdit.setDate(QtCore.QDate(1951, 1, 1))
         self.zdjecia_lotnicze_from_dateTimeEdit.setCalendarPopup(True)
         self.zdjecia_lotnicze_from_dateTimeEdit.setObjectName("zdjecia_lotnicze_from_dateTimeEdit")
         self.gridLayout_5.addWidget(self.zdjecia_lotnicze_from_dateTimeEdit, 1, 1, 1, 1)
