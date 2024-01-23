@@ -14,10 +14,20 @@ def getNmptListbyPoint1992(point, isEvrf2007):
 
     if isEvrf2007:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladEVRF2007?"
-        layers = service_api.getAllLayers(url=URL, service='WMS')
+        LAYERS = [
+            'SkorowidzeNMPT2019iStarsze',
+            'SkorowidzeNMPT2020',
+            'SkorowidzeNMPT2021',
+            'SkorowidzeNMPT2022'
+        ]
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86?"
-        layers = service_api.getAllLayers(url=URL, service='WMS')
+        LAYERS = [
+            # 'Układ wysokościowy PL-KRON86-NH',
+            'SkorowidzeNMPT2017iStarsze',
+            'SkorowidzeNMPT2018',
+            'SkorowidzeNMPT2019'
+        ]
 
     # """dynamiczne pobieranie dostępnych warstw"""
     # layersResp = utils.getQueryableLayersFromWMS(URL)
@@ -30,7 +40,7 @@ def getNmptListbyPoint1992(point, isEvrf2007):
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.3.0',
-        'layers': ','.join(layers),
+        'layers': ','.join(LAYERS),
         'styles': '',
         'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
@@ -38,7 +48,7 @@ def getNmptListbyPoint1992(point, isEvrf2007):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(layers),
+        'query_layers': ','.join(LAYERS),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'

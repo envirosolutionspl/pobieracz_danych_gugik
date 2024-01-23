@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.4
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=1.0.9
+version=1.0.8
 author=EnviroSolutions Sp. z o.o. - Michał Włoga
 email=office@envirosolutions.pl
 
@@ -49,95 +49,93 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  Wersja 1.0.9
-  * Wprowadzenie dynamicznych list warstw
-#  Wersja 1.0.8
-#  * Poprawy błędów
-#  Wersja 1.0.7
-#  * Poprawa adresów i parametrów usług WMS ortofotomapy
-#  Wersja 1.0.6
-#  * Naprawiony problem z OpenSSL
-#  Wersja 1.0.5
-#  * dodanie warstw z NMT 5m w układzie EVRF2007 przy pobieraniu metodą WMS
-#  Wersja 1.0.4
-#  * dodanie warstw z NMT, NMPT, LAZ z roku 2022 przy pobieraniu metodą WMS
-#  Wersja 1.0.3
-#  * usunięcie weryfikacji SSL do serwera geoportal.gov.pl
-#  Wersja 1.0.1
-#  * drobne poprawki
-#  Wersja 1.0
-#  * dodanie możliwości pobrania paczki PRNG 
-#  * dodanie możliwości pobrania paczki PRG
-#  * dodanie możliwości pobrania paczki modeli 3D budynków
-#  * dodanie możliwości pobrania powiatowych paczek EGiB (wersja beta)
-#  * dodanie możliwości pobrania archiwalnych paczek danych BDOT10k
-#  * dodanie możliwości pobrania zbiorczych danych EGiB
-#  * dodanie możliwości pobrania opracowań tyflologicznych
-#  * dodanie możliwości pobrania podstawowej osnowy geodezyjnej oraz archiwalnej kartoteki osnów
-#  * dodanie możliwości pobrania aerotriangulacji i linii mozaikowania
-#  * dodanie możliwości pobrania wizualizacji kartograficznej BDOT10k
-#  * dodanie możliwości pobrania zdjęć lotniczych
-#  * aktualizacja funkcjonalności pobrania paczki danych BDOO
-#  Wersja 0.9.2
-#  * Poprawa adresów i parametrów usług WMS
-#  Wersja 0.9.1
-#  * Naprawa pobierania plików LAZ przez WMS (geoportal)
-#  Wersja 0.9.0
-#  * Poprawy błędów związanych ze zmianą API GUGiK
-#  Wersja 0.8.2
-#  * Dodanie komunikatów do usługi WFS, poprawy błędów, aktualizacja danych usługi WMS dla ortofotomapy
-#  Wersja 0.8.1
-#  * Dodanie komunikatów, poprawy błędów
-#  Wersja 0.8.0
-#  * Dodanie mozliwości pobierania danych na podstawie usług WFS skorowidzowych
-#  Wersja 0.7.2
-#  * Poprawa błędów uniemozliwiających wyszukiwanie danych według poligonu w starszych wersjach QGIS (np. 3.4)
-#  Wersja 0.7.1
-#  * Dodanie możliwości pobierania paczek wojewódzkich BDOO
-#  Wersja 0.7.0
-#  * Zmiana formatu pobieranych danych LiDAR z LAS na LAZ
-#  * Dodanie możliwości pobierania tylko aktualnych danych
-#  * Poprawy błędów i komunikatów
-#  Wersja 0.6.1
-#  * Poprawa błędów dla wersji poniżej 3.10
-#  Wersja 0.6.0
-#  * dodanie możliwości pobierania paczek danych BDOT10k - powiatowe, wojewódzkie lub krajowa
-#  Wersja 0.5.2
-#  * dostosowanie wtyczki do zmian po stronie serwera dla danych LiDAR
-#  Wersja 0.5.1
-#  * dodanie wiadomości o nowościach GIS
-#  Wersja 0.5.0
-#  * dodanie możliwości pobierania Obrazów Intensywności
-#  Wersja 0.4.4
-#  * poprawa błędów
-#  Wersja 0.4.3
-#  * poprawa błędów
-#  * dodanie możliwości pobierania NMPT i LAS w układzie EVRF2007
-#  Wersja 0.4.2
-#  * poprawa błędów
-#  * dodanie możliwości pobierania NMT w układzie EVRF2007
-#  Wersja 0.4.1
-#  * poprawa błędu przy pobieraniu danych małym poligonem
-#  Wersja 0.4
-#  * dodanie możliwości pobierania plików LAS (LIDAR)
-#  Wersja 0.3.1
-#  * poprawy błędów
-#  Wersja 0.3
-#  * dodanie możliwości pobierania danych warstwą punktową
-#  * dodanie możliwości filtrowania ortofotomapy czarnobiałej (B/W)
-#  * dodanie możliwości pobierania NMT/NMPT
-#  * pomijanie pobierania pustych plików (gdy serwer nie zwraca pliku pod adresem)
-#  Wersja 0.2.1
-#  * optymalizacja przetwarzania poligonów
-#  * pobieranie plików jedynie wewnątrz warstwy w przypadku warstwy poligonowej wieloobiektowej
-#  Wersja 0.2
-#  * dodanie możliwości pobierania za pomocą warstwy liniowej
-#  * generowanie raportu CSV z pobierania
-#  * poprawienie skuteczności pobierania obiektów poligonem
-#  Wersja 0.1.1
-#  * poprawki błędów. Dla bboxów poligonów pon. 100ha pobieranie centroidą
-#  Wersja 0.1
-#  * pobieranie plików oftofotomapy RGB/CIR
+  Wersja 1.0.8
+  * Poprawy błędów
+  Wersja 1.0.7
+  * Poprawa adresów i parametrów usług WMS ortofotomapy
+  Wersja 1.0.6
+  * Naprawiony problem z OpenSSL
+  Wersja 1.0.5
+  * dodanie warstw z NMT 5m w układzie EVRF2007 przy pobieraniu metodą WMS
+  Wersja 1.0.4
+  * dodanie warstw z NMT, NMPT, LAZ z roku 2022 przy pobieraniu metodą WMS
+  Wersja 1.0.3
+  * usunięcie weryfikacji SSL do serwera geoportal.gov.pl
+  Wersja 1.0.1
+  * drobne poprawki
+  Wersja 1.0
+  * dodanie możliwości pobrania paczki PRNG 
+  * dodanie możliwości pobrania paczki PRG
+  * dodanie możliwości pobrania paczki modeli 3D budynków
+  * dodanie możliwości pobrania powiatowych paczek EGiB (wersja beta)
+  * dodanie możliwości pobrania archiwalnych paczek danych BDOT10k
+  * dodanie możliwości pobrania zbiorczych danych EGiB
+  * dodanie możliwości pobrania opracowań tyflologicznych
+  * dodanie możliwości pobrania podstawowej osnowy geodezyjnej oraz archiwalnej kartoteki osnów
+  * dodanie możliwości pobrania aerotriangulacji i linii mozaikowania
+  * dodanie możliwości pobrania wizualizacji kartograficznej BDOT10k
+  * dodanie możliwości pobrania zdjęć lotniczych
+  * aktualizacja funkcjonalności pobrania paczki danych BDOO
+  Wersja 0.9.2
+  * Poprawa adresów i parametrów usług WMS
+  Wersja 0.9.1
+  * Naprawa pobierania plików LAZ przez WMS (geoportal)
+  Wersja 0.9.0
+  * Poprawy błędów związanych ze zmianą API GUGiK
+  Wersja 0.8.2
+  * Dodanie komunikatów do usługi WFS, poprawy błędów, aktualizacja danych usługi WMS dla ortofotomapy
+  Wersja 0.8.1
+  * Dodanie komunikatów, poprawy błędów
+  Wersja 0.8.0
+  * Dodanie mozliwości pobierania danych na podstawie usług WFS skorowidzowych
+  Wersja 0.7.2
+  * Poprawa błędów uniemozliwiających wyszukiwanie danych według poligonu w starszych wersjach QGIS (np. 3.4)
+  Wersja 0.7.1
+  * Dodanie możliwości pobierania paczek wojewódzkich BDOO
+  Wersja 0.7.0
+  * Zmiana formatu pobieranych danych LiDAR z LAS na LAZ
+  * Dodanie możliwości pobierania tylko aktualnych danych
+  * Poprawy błędów i komunikatów
+  Wersja 0.6.1
+  * Poprawa błędów dla wersji poniżej 3.10
+  Wersja 0.6.0
+  * dodanie możliwości pobierania paczek danych BDOT10k - powiatowe, wojewódzkie lub krajowa
+  Wersja 0.5.2
+  * dostosowanie wtyczki do zmian po stronie serwera dla danych LiDAR
+  Wersja 0.5.1
+  * dodanie wiadomości o nowościach GIS
+  Wersja 0.5.0
+  * dodanie możliwości pobierania Obrazów Intensywności
+  Wersja 0.4.4
+  * poprawa błędów
+  Wersja 0.4.3
+  * poprawa błędów
+  * dodanie możliwości pobierania NMPT i LAS w układzie EVRF2007
+  Wersja 0.4.2
+  * poprawa błędów
+  * dodanie możliwości pobierania NMT w układzie EVRF2007
+  Wersja 0.4.1
+  * poprawa błędu przy pobieraniu danych małym poligonem
+  Wersja 0.4
+  * dodanie możliwości pobierania plików LAS (LIDAR)
+  Wersja 0.3.1
+  * poprawy błędów
+  Wersja 0.3
+  * dodanie możliwości pobierania danych warstwą punktową
+  * dodanie możliwości filtrowania ortofotomapy czarnobiałej (B/W)
+  * dodanie możliwości pobierania NMT/NMPT
+  * pomijanie pobierania pustych plików (gdy serwer nie zwraca pliku pod adresem)
+  Wersja 0.2.1
+  * optymalizacja przetwarzania poligonów
+  * pobieranie plików jedynie wewnątrz warstwy w przypadku warstwy poligonowej wieloobiektowej
+  Wersja 0.2
+  * dodanie możliwości pobierania za pomocą warstwy liniowej
+  * generowanie raportu CSV z pobierania
+  * poprawienie skuteczności pobierania obiektów poligonem
+  Wersja 0.1.1
+  * poprawki błędów. Dla bboxów poligonów pon. 100ha pobieranie centroidą
+  Wersja 0.1
+  * pobieranie plików oftofotomapy RGB/CIR
 
 # Tags are comma separated with spaces allowed
 tags=python, obrazy intensywności, reflectance, intensywność, ortofotomapy, ortofotomapa, GUGiK, EnviroSolutions, dane, otwarte dane, open data, Polska, Poland, pobieranie, pobieracz, ortophotomap, lidar, las, laz, geotiff, grid, nmt, nmpt, dem, dtm, bdot, bdot10k, bdoo, geoportal, point cloud, chmura punktów, egib, ewidencja gruntów i budynków, prng, państwowy rejestr nazw geograficznych, prg, państwowy rejestr granic, modele 3d budynkow, budynki 3d, egib, zestawienia zbiorcze egib, opracowania tyflologiczne, osnowa, osnowa geodezyjna, archiwalne kartoteki osnów, aerotriangulacja, linie mozaikowania, mozaikowanie, zdjęcia lotnicze, wizualizacja kartograficzna
