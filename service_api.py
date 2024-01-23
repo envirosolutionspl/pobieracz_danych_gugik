@@ -1,5 +1,5 @@
 from  .wfs.httpsAdapter import get_legacy_session
-
+import lxml.etree as ET
 import requests
 import os, time
 
@@ -65,7 +65,7 @@ def retreiveFile(url, destFolder, obj):
         r = get_legacy_session().get(url, verify=False, stream=True)
         if str(r.status_code) == '404':
             return False, "Plik nie istnieje"
-        saved = True        
+        saved = True
         try:
             with open(path, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=8192):
@@ -77,17 +77,32 @@ def retreiveFile(url, destFolder, obj):
                     f.write(chunk)
         except IOError:
             return False, "Błąd zapisu pliku"
-        
-        if saved:      
+
+        if saved:
             return [True]
         else:
             os.remove(path)   # usunięcie pliku który się nie pobrał
             return False, "Pobieranie przerwane"
-        
+
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
         return [True]
 
+def getAllLayers(url,service):
+    params = {
+        'SERVICE':service,
+        'request':'GetCapabilities',
+        'INFO_FORMAT': 'text/html'
+    }
+
+    layers = getRequest(params,url)
+    parser = ET.XMLParser(recover=True)
+    tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
+    root = tree.getroot()
+
+    # To find elements with tag 'element'
+    layers = [el.text for el in tree.iter() if 'Name' in str(el.tag) and str(el.text) != 'WMS']
+    return layers
 
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
