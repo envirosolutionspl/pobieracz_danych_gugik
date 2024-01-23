@@ -15,16 +15,22 @@ def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
     y = point.y()
     if isEvrf2007:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladEVRF2007?"
-        layers = service_api.getAllLayers(url=URL, service='WMS')
+        LAYERS = [
+            # 'Układ wysokościowy PL-EVRF2007-NH',
+            'SkorowidzeLIDAR2019iStarsze', 'SkorowidzeLIDAR2020', 'SkorowidzeLIDAR2021', 'SkorowidzeLIDAR2022'
+        ]
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladKRON86?"
-        layers = service_api.getAllLayers(url=URL, service='WMS')
+        LAYERS = [
+            # 'Układ wysokościowy PL-KRON86-NH',
+            'SkorowidzeLIDAR2017iStarsze', 'SkorowidzeLIDAR2018', 'SkorowidzeLIDAR2019'
+            ]
 
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.3.0',
-        'layers': ','.join(layers),
+        'layers': ','.join(LAYERS),
         'styles': '',
         'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
@@ -32,7 +38,7 @@ def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(layers),
+        'query_layers': ','.join(LAYERS),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'

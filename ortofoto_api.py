@@ -12,14 +12,21 @@ def getOrtoListbyPoint1992(point):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
-    layers = service_api.getAllLayers(url=URL, service='WMS')
-
+    LAYERS = [
+        'SkorowidzeOrtofotomapyZasiegiStarsze',
+        'SkorowidzeOrtofotomapyStarsze',
+        'SkorowidzeOrtofotomapyZasiegi2021',
+        'SkorowidzeOrtofotomapy2021',
+        'SkorowidzeOrtofotomapyZasiegi2022',
+        'SkorowidzeOrtofotomapy2022',
+        'SkorowidzeOrtofotomapyZasiegi2023',
+        'SkorowidzeOrtofotomapy2023'
+    ]
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.3.0',
-        'layers': ','.join(layers),
+        'layers': ','.join(LAYERS),
         'styles': '',
         'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
@@ -27,7 +34,7 @@ def getOrtoListbyPoint1992(point):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(layers),
+        'query_layers': ','.join(LAYERS),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'
