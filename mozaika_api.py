@@ -12,8 +12,7 @@ def getMozaikaListbyPoint1992(point):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-    print("x: ", x)
-    print("y: ", y)
+    
     LAYERS = [
         'SkorowidzLiniiMozaikowania'
     ]

@@ -18,7 +18,6 @@ def getZdjeciaLotniczeListbyPoint1992(point):
     y = point.y()
 
     layers = service_api.getAllLayers(url=URL,service='WMS')
-    print(layers)
 
     PARAMS = {
         'SERVICE': 'WMS',
