@@ -20,6 +20,8 @@ import requests
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
 import os.path
+import sys
+import subprocess
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
@@ -63,6 +65,12 @@ class PobieraczDanychGugik:
 
         self.pluginIsActive = False
         self.dockwidget = None
+
+        # Skanowanie wszystkich bibliotek i doinstalowanie BeautifulSoup jeżeli nie ma tej biblioteki
+        libraries = os.path.dirname(sys.executable).replace(os.path.dirname(sys.executable).split("\\")[-1],
+                                                            "\\apps\\Python39\\Lib\\site-packages")
+        if 'beautifulsoup4' not in [file for file in os.listdir(libraries)]:
+            subprocess.check_call(['python', '-m', 'pip', 'install', 'beautifulsoup4'])
 
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
