@@ -66,12 +66,6 @@ class PobieraczDanychGugik:
         self.pluginIsActive = False
         self.dockwidget = None
 
-        # Skanowanie wszystkich bibliotek i doinstalowanie BeautifulSoup jeżeli nie ma tej biblioteki
-        libraries = os.path.dirname(sys.executable).replace(os.path.dirname(sys.executable).split("\\")[-1],
-                                                            "\\apps\\Python39\\Lib\\site-packages")
-        if 'beautifulsoup4' not in [file for file in os.listdir(libraries)]:
-            subprocess.check_call(['python', '-m', 'pip', 'install', 'beautifulsoup4'])
-
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
         self.ortoClickTool = QgsMapToolEmitPoint(self.canvas)

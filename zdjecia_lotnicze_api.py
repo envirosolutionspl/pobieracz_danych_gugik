@@ -2,7 +2,6 @@
 import re
 from . import service_api
 from .models import ZdjeciaLotnicze
-from bs4 import BeautifulSoup
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
