@@ -1011,6 +1011,10 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
 
@@ -1049,6 +1053,10 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
@@ -1087,6 +1095,10 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
                                             level=Qgis.Info, duration=-1)

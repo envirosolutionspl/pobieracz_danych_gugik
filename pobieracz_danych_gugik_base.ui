@@ -1524,8 +1524,28 @@
              <property name="alignment">
               <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
+             <layout class="QGridLayout" name="horizontalLayout_5">
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="bdot_shp_rdbtn">
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="bdot_gpkg_rdbtn">
+                <property name="text">
+                 <string>GPKG</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
                <widget class="QRadioButton" name="bdot_gml_rdbtn">
                 <property name="text">
                  <string>GML</string>
@@ -1535,13 +1555,13 @@
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QRadioButton" name="bdot_shp_rdbtn">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+              <item row="1" column="1">
+               <widget class="QRadioButton" name="bdot_old_gml_rdbtn">
                 <property name="text">
-                 <string>SHP</string>
+                 <string>GML wg. schematu z 2011r.</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
