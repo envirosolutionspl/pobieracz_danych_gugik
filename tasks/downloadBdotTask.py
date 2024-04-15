@@ -1,18 +1,13 @@
+import os, datetime
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, QgsMessageLog, Qgis
     )
 from .. import service_api, utils
-
-url_prefixes = {
-    'GML': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/',
-    'SHP': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/SHP/',
-    'GML 2011': 'https://opendata.geoportal.gov.pl/bdot10k/',
-    'GPKG': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/',
-}
 
 
 class DownloadBdotTask(QgsTask):
     """QgsTask pobierania BDOT10k"""
+
     def __init__(self, description, folder, level, format_danych, teryt, iface):
         """
         level:
@@ -25,18 +20,23 @@ class DownloadBdotTask(QgsTask):
         # self.total = 0
         # self.iterations = 0
         self.exception = None
+        self.format_danych=format_danych
         self.iface = iface
-        self._construct_url(level, teryt, format_danych)
 
-    def _construct_url(self, level: int, teryt: str, data_format: str) -> None:
-        prefix = url_prefixes.get(data_format)
-        data_format = data_format.strip().split()[0]
-        if level == 0:
-            self.url = f"{prefix}Polska_{data_format}.zip"
-        elif level == 1:
-            self.url = f"{prefix}{teryt}/{teryt}_{data_format}.zip"
-        elif level == 2:
-            self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.zip"
+        if format_danych == 'GML':
+            if level == 0:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/Polska_{format_danych}.zip"
+            elif level == 1:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt}/{teryt}_{format_danych}.zip"
+            elif level == 2:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_{format_danych}.zip"
+        elif format_danych == 'SHP':
+            if level == 0:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/Polska_{format_danych}.zip"
+            elif level == 1:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/{teryt}/{teryt}_{format_danych}.zip"
+            elif level == 2:
+                self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip"
 
     def run(self):
 
@@ -46,15 +46,16 @@ class DownloadBdotTask(QgsTask):
 
         QgsMessageLog.logMessage('pobieram ' + self.url)
         # fileName = self.url.split("/")[-1]
-        res = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         # self.setProgress(self.progress() + 100 / total)
-        if res[0]:
-            utils.openFile(self.folder)
+
+        utils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True
 
     def finished(self, result):
+
         if result:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane BDOT10k zostały pobrane.",
