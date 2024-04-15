@@ -6,12 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
+    <width>402</width>
     <height>919</height>
    </rect>
-  </property>
-  <property name="floating">
-   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Pobieracz Danych GUGiK</string>
@@ -33,9 +30,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>664</width>
-         <height>877</height>
+         <y>-1780</y>
+         <width>369</width>
+         <height>5216</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -147,7 +144,7 @@
            <string>Sposób wyszukiwania danych</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+           <set>Qt::AlignCenter</set>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
@@ -206,13 +203,7 @@
            <string>Scieżka zapisu plików</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
+           <set>Qt::AlignCenter</set>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
@@ -229,11 +220,8 @@
           <property name="title">
            <string>Usługa WFS</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -331,7 +319,7 @@
            <string>Ortofotomapa/CIR</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -346,7 +334,7 @@
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -610,7 +598,7 @@
            <string>NMT/NMPT</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -643,7 +631,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item>
@@ -670,9 +658,6 @@
             <widget class="QGroupBox" name="groupBox_2">
              <property name="title">
               <string>Format danych</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
@@ -736,7 +721,7 @@
               <bool>false</bool>
              </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -976,11 +961,8 @@
           <property name="title">
            <string>LAZ (LIDAR)</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1270,7 +1252,7 @@
            <string>Obrazy intensywności</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1489,7 +1471,7 @@
            <bool>true</bool>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1522,7 +1504,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
@@ -1559,7 +1541,13 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_19">
@@ -1617,7 +1605,7 @@
            <string>EGiB dla powiatu (wersja beta)</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
@@ -1658,7 +1646,13 @@
                <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_157">
@@ -1696,7 +1690,7 @@
            <string>BDOO</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
@@ -1732,7 +1726,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_15">
               <item>
@@ -1849,11 +1843,8 @@
           <property name="title">
            <string>PRNG</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
@@ -1931,9 +1922,6 @@
              <property name="title">
               <string>Format danych</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item>
                <widget class="QRadioButton" name="prng_gml_rdbtn">
@@ -2002,9 +1990,6 @@
           <property name="title">
            <string>PRG</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
            <bool>true</bool>
           </property>
@@ -2045,7 +2030,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
@@ -2092,7 +2077,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2275,7 +2260,7 @@
            <string>Modele 3D budynków</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
@@ -2284,7 +2269,7 @@
               <string>Standard</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
@@ -2310,7 +2295,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
@@ -2425,6 +2410,11 @@
                 <property name="editable">
                  <bool>true</bool>
                 </property>
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
                </widget>
               </item>
               <item row="1" column="0">
@@ -2470,7 +2460,7 @@
            <string>Zestawienia Zbiorcze EGiB</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
@@ -2503,7 +2493,7 @@
               <string>Zakres zestawień</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item>
@@ -2539,7 +2529,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
@@ -2611,6 +2601,11 @@
                 <property name="editable">
                  <bool>true</bool>
                 </property>
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
                </widget>
               </item>
               <item row="1" column="0">
@@ -2656,7 +2651,7 @@
            <string>Opracowania tyflologiczne </string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_12">
            <item>
@@ -2695,7 +2690,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2787,7 +2782,7 @@
            <string>Osnowa geodezyjna </string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
@@ -2795,11 +2790,8 @@
              <property name="title">
               <string>Podstawowa Osnowa Geodezyjna</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
              <property name="collapsed">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_18">
               <item>
@@ -2808,7 +2800,7 @@
                  <string>Typ osnowy</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_25">
                  <item>
@@ -2843,6 +2835,11 @@
                    <property name="editable">
                     <bool>true</bool>
                    </property>
+                   <item>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -2887,9 +2884,6 @@
              <property name="title">
               <string>Archiwalne Kartoteki Osnów</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
              <property name="collapsed">
               <bool>true</bool>
              </property>
@@ -2900,7 +2894,7 @@
                  <string>Rodzaj katalogów</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_27">
                  <item>
@@ -2986,7 +2980,7 @@
            <string>Aerotriangulacja</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_14">
            <item>
@@ -3049,7 +3043,7 @@
            <string>Linie mozaikowania </string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_15">
            <item>
@@ -3111,11 +3105,8 @@
           <property name="title">
            <string>Wizualizacja kartograficzna BDOT10k </string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_16">
            <item>
@@ -3124,7 +3115,7 @@
               <string>Skala</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
               <item>
@@ -3225,7 +3216,7 @@
            <bool>true</bool>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_20">
            <item>
@@ -3258,7 +3249,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
               <item>
@@ -3290,7 +3281,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
@@ -3358,7 +3349,13 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_36">
@@ -3399,7 +3396,7 @@
            <string>Zdjęcia lotnicze</string>
           </property>
           <property name="collapsed">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_22">
            <item>
@@ -3409,9 +3406,6 @@
              </property>
              <property name="title">
               <string>filtruj dane</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="checkable">
               <bool>true</bool>
