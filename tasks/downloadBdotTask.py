@@ -46,15 +46,16 @@ class DownloadBdotTask(QgsTask):
 
         QgsMessageLog.logMessage('pobieram ' + self.url)
         # fileName = self.url.split("/")[-1]
-        res = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         # self.setProgress(self.progress() + 100 / total)
-        if res[0]:
-            utils.openFile(self.folder)
+
+        utils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True
 
     def finished(self, result):
+
         if result:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane BDOT10k zostały pobrane.",
