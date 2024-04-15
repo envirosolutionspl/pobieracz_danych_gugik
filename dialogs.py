@@ -55,9 +55,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # bdot10k/BDOO
         self.powiatDict = {}
         self.regionFetch = RegionFetch()
-        self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
         wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
         self.wojewodztwo_cmbbx.addItems(wojewodztwa)
+        self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
 
         # bdoo
         self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
@@ -67,17 +67,14 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # PRG
         self.powiatDict_prg = {}
         self.gminaDict_prg = {}
+        self.prg_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.prg_wojewodztwo_cmbbx.currentTextChanged.connect(self.prg_wojewodztwo_cmbbx_currentTextChanged)
         self.prg_powiat_cmbbx.currentTextChanged.connect(self.prg_powiat_cmbbx_currentTextChanged)
-        prg_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.prg_wojewodztwo_cmbbx.addItems(prg_wojewodztwa)
 
         # modele 3D
         self.powiatDict_model3d = {}
-
+        self.model3d_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.model3d_wojewodztwo_cmbbx.currentTextChanged.connect(self.model3d_wojewodztwo_cmbbx_currentTextChanged)
-        model3d_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.model3d_wojewodztwo_cmbbx.addItems(model3d_wojewodztwa)
 
         #WFS
         self.wfs_mapLayerComboBox.setFilters(
@@ -86,33 +83,27 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.wfsFetch = WfsFetch()
         self.wfs_service_cmbbx.clear()
         self.wfs_layer_cmbbx.clear()
-        self.wfs_service_cmbbx.currentTextChanged.connect(self.wfs_service_cmbbx_currentTextChanged)
         uslugi = list(self.wfsFetch.wfsServiceDict.keys())
         self.wfs_service_cmbbx.addItems(uslugi)
+        self.wfs_service_cmbbx.currentTextChanged.connect(self.wfs_service_cmbbx_currentTextChanged)
 
         #WFS EGiB
         self.powiatDict_wfs_egib = {}
-        # self.powiatDict_wfs_egib = self.regionFetch.getAllPowiatNameWithTeryt()
-        # self.wfs_egib_powiat_cmbbx.addItems(list(self.powiatDict_wfs_egib.values()))
-
+        self.wfs_egib_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.wfs_egib_wojewodztwo_cmbbx.currentTextChanged.connect(self.wfs_wojewodztwo_cmbbx_currentTextChanged)
-        wfs_egib_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.wfs_egib_wojewodztwo_cmbbx.addItems(wfs_egib_wojewodztwa)
 
         # zestawienia zbiorcze EGiB
         self.powiatDict_egib_excel = {}
+        self.egib_excel_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.egib_excel_wojewodztwo_cmbbx.currentTextChanged.connect(self.egib_excel_wojewodztwo_cmbbx_currentTextChanged)
-        egib_excel_wojewodztwo = list(self.regionFetch.wojewodztwoDict.keys())
-        self.egib_excel_wojewodztwo_cmbbx.addItems(egib_excel_wojewodztwo)
 
         rokDict_egib_excel = ['2022', '2021', '2020']
         self.egib_excel_dateEdit_comboBox.addItems(rokDict_egib_excel)
 
         # podstawowa osnowa geodezyjna
         self.powiatDict_osnowa = {}
+        self.osnowa_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.osnowa_wojewodztwo_cmbbx.currentTextChanged.connect(self.osnowa_wojewodztwo_cmbbx_currentTextChanged)
-        osnowa_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.osnowa_wojewodztwo_cmbbx.addItems(osnowa_wojewodztwa)
 
 
         # areotriangulacja
@@ -129,9 +120,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # bdot10k/BDOO
         self.powiatArchiwalneBDOTDict = {}
+        self.archiwalne_wojewodztwo_cmbbx.addItems(wojewodztwa)
         self.archiwalne_wojewodztwo_cmbbx.currentTextChanged.connect(self.archiwalne_wojewodztwo_cmbbx_currentTextChanged)
-        wojewodztwaArchiwalneBDOT = list(self.regionFetch.wojewodztwoDict.keys())
-        self.archiwalne_wojewodztwo_cmbbx.addItems(wojewodztwaArchiwalneBDOT)
 
         rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
         self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
