@@ -409,42 +409,44 @@ class PobieraczDanychGugik:
             layer = vp
 
         layer1992 = utils.layerTo2180(layer=layer)
+        try:
+            skorowidzeLayer = self.dockwidget.wfsFetch.getWfsListbyLayer1992(
+                layer=layer1992,
+                wfsService=self.dockwidget.wfs_service_cmbbx.currentText(),
+                typename=self.dockwidget.wfs_layer_cmbbx.currentText())
+            skorowidzeLayer.updatedFields.connect(self.test)
+            if skorowidzeLayer.isValid():
+                urls = []
+                QgsProject.instance().addMapLayer(skorowidzeLayer)
+                layerWithAttributes = QgsProject.instance().mapLayer(skorowidzeLayer.id())
 
-        skorowidzeLayer = self.dockwidget.wfsFetch.getWfsListbyLayer1992(
-            layer=layer1992,
-            wfsService=self.dockwidget.wfs_service_cmbbx.currentText(),
-            typename=self.dockwidget.wfs_layer_cmbbx.currentText())
-        skorowidzeLayer.updatedFields.connect(self.test)
-        if skorowidzeLayer.isValid():
-            urls = []
-            QgsProject.instance().addMapLayer(skorowidzeLayer)
-            layerWithAttributes = QgsProject.instance().mapLayer(skorowidzeLayer.id())
+                for feat in layerWithAttributes.getFeatures():
+                    urls.append(feat['url_do_pobrania'])
 
-            for feat in layerWithAttributes.getFeatures():
-                urls.append(feat['url_do_pobrania'])
-
-            # wyswietl komunikat pytanie
-            if len(urls) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
-                msgbox.exec_()
-                QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
-                return
-            else:
-                msgbox = QMessageBox(QMessageBox.Question,
-                                     "Potwierdź pobieranie",
-                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                         urls))
-                msgbox.addButton(QMessageBox.Yes)
-                msgbox.addButton(QMessageBox.No)
-                msgbox.setDefaultButton(QMessageBox.No)
-                reply = msgbox.exec()
-
-                if reply == QMessageBox.Yes:
-                    # pobieranie
-                    self.runWfsTask(urls)
-                else:
+                # wyswietl komunikat pytanie
+                if len(urls) == 0:
+                    msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                        "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
+                    msgbox.exec_()
                     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    return
+                else:
+                    msgbox = QMessageBox(QMessageBox.Question,
+                                        "Potwierdź pobieranie",
+                                        "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                            urls))
+                    msgbox.addButton(QMessageBox.Yes)
+                    msgbox.addButton(QMessageBox.No)
+                    msgbox.setDefaultButton(QMessageBox.No)
+                    reply = msgbox.exec()
+
+                    if reply == QMessageBox.Yes:
+                        # pobieranie
+                        self.runWfsTask(urls)
+                    else:
+                        QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+        except Exception as e:
+            self.blad_polaczenia(e)
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
@@ -482,23 +484,26 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
         if layer:
-            points = self.pointsFromVectorLayer(layer)
+            try:
+                points = self.pointsFromVectorLayer(layer)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.orto_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.orto_fromLayer_btn.setEnabled(False)
 
-            ortoList = []
-            for point in points:
-                subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
-                if subList:
-                    ortoList.extend(subList)
-                else:
-                    bledy += 1
+                ortoList = []
+                for point in points:
+                    subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
+                    if subList:
+                        ortoList.extend(subList)
+                    else:
+                        bledy += 1
 
-            self.filterOrtoListAndRunTask(ortoList)
+                self.filterOrtoListAndRunTask(ortoList)
 
-            # odblokowanie klawisza pobierania
-            self.dockwidget.orto_fromLayer_btn.setEnabled(True)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.orto_fromLayer_btn.setEnabled(True)
+            except Exception as e:
+                self.blad_polaczenia(e)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -509,9 +514,12 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
+        try:
+            ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
+            self.filterOrtoListAndRunTask(ortoList)
+        except Exception as e:
+            self.blad_polaczenia(e)
 
-        ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
-        self.filterOrtoListAndRunTask(ortoList)
 
     def filterOrtoListAndRunTask(self, ortoList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
@@ -611,47 +619,59 @@ class PobieraczDanychGugik:
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1500)
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1500)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
-
-            nmtList = []
-            for point in points:
-                resp = nmpt_api.getNmptListbyPoint1992(point=point,
-                                                       isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-                    point=point, isEvrf2007=isEvrf2007)
-                if resp[0]:
-                    nmtList.extend(resp[1])
-                else:
-                    bledy += 1
-
-            self.filterNmtListAndRunTask(nmtList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
-
+                # zablokowanie klawisza pobierania
+                self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
+                nmtList = []
+                for point in points:
+                    resp = nmpt_api.getNmptListbyPoint1992(point=point,
+                                                            isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                        point=point, isEvrf2007=isEvrf2007)
+                    if resp[0]:
+                        nmtList.extend(resp[1])
+                    else:
+                        bledy += 1
+                self.filterNmtListAndRunTask(nmtList)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
+            except Exception as e:
+                self.blad_polaczenia(e)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
 
     def downloadNmtForSinglePoint(self, point):
-        """Pobiera NMT/NMPT dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
-        resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
-                                               isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-            point=point1992, isEvrf2007=isEvrf2007)
-        if resp[0]:
-            nmtList = resp[1]
-            self.filterNmtListAndRunTask(nmtList)
-        else:
-            self.iface.messageBar().pushCritical("Błąd pobierania",
-                                                 f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
+        """
+        Downloads NMT/NMPT data for a single point.
+        """
+        # Convert the point to the required coordinate system
+        point_1992 = utils.pointTo2180(point=point,
+                                    sourceCrs=QgsProject.instance().crs(),
+                                    project=QgsProject.instance())
+
+        # Determine if NMPT or NMT data should be downloaded
+        is_nmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+        is_evrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
+
+        try:
+            # Download the data from the appropriate API
+            if is_nmpt:
+                response = nmpt_api.getNmptListbyPoint1992(point=point_1992,
+                                                        isEvrf2007=is_evrf2007)
+            else:
+                response = nmt_api.getNmtListbyPoint1992(point=point_1992,
+                                                        isEvrf2007=is_evrf2007)
+
+            # Check if the data was successfully downloaded
+            if response[0]:
+                nmt_list = response[1]
+                self.filterNmtListAndRunTask(nmt_list)
+
+        except Exception as e:
+            self.blad_polaczenia(e)
+
 
     def filterNmtListAndRunTask(self, nmtList):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
@@ -763,21 +783,23 @@ class PobieraczDanychGugik:
 
             lasList = []
             for point in points:
-                subList = las_api.getLasListbyPoint1992(
-                    point=point,
-                    isEvrf2007=isEvrf2007)
-                # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
-                if subList:
-                    lasList.extend(subList)
-                else:
-                    bledy += 1
+                try:
+                    subList = las_api.getLasListbyPoint1992(
+                        point=point,
+                        isEvrf2007=isEvrf2007)
+                    # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
+                    if subList:
+                        lasList.extend(subList)
+                    else:
+                        bledy += 1
 
-            self.filterLasListAndRunTask(lasList)
-            # print("%d zapytań się nie powiodło" % bledy)
+                    self.filterLasListAndRunTask(lasList)
+                    # print("%d zapytań się nie powiodło" % bledy)
 
-            # odblokowanie klawisza pobierania
-            self.dockwidget.las_fromLayer_btn.setEnabled(True)
-
+                    # odblokowanie klawisza pobierania
+                    self.dockwidget.las_fromLayer_btn.setEnabled(True)
+                except Exception as e:
+                    self.blad_polaczenia(e)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
@@ -788,13 +810,17 @@ class PobieraczDanychGugik:
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
         isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
-        lasList = las_api.getLasListbyPoint1992(
-            point=point1992,
-            isEvrf2007=isEvrf2007
-            # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
-        )
+        try:
+            lasList = las_api.getLasListbyPoint1992(
+                point=point1992,
+                isEvrf2007=isEvrf2007
+                # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
+            )
 
-        self.filterLasListAndRunTask(lasList)
+            self.filterLasListAndRunTask(lasList)
+        except Exception as e:
+            self.blad_polaczenia(e)
+
 
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
@@ -928,36 +954,39 @@ class PobieraczDanychGugik:
     def filterReflectanceListAndRunTask(self, reflectanceList):
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
         # print("przed 'set'", len(reflectanceList))
+        try:
+            # usuwanie duplikatów
+            reflectanceList = list(set(reflectanceList))
+            # print("po 'set'", len(reflectanceList))
+            # filtrowanie
+            reflectanceList = self.filterReflectanceList(reflectanceList)
+            # print("po 'filtrowaniu'", len(reflectanceList))
 
-        # usuwanie duplikatów
-        reflectanceList = list(set(reflectanceList))
-        # print("po 'set'", len(reflectanceList))
-        # filtrowanie
-        reflectanceList = self.filterReflectanceList(reflectanceList)
-        # print("po 'filtrowaniu'", len(reflectanceList))
+            # wyswietl komunikat pytanie
+            if len(reflectanceList) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+                msgbox.exec_()
+                return
+            else:
+                msgbox = QMessageBox(QMessageBox.Question,
+                                    "Potwierdź pobieranie",
+                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                        reflectanceList))
+                msgbox.addButton(QMessageBox.Yes)
+                msgbox.addButton(QMessageBox.No)
+                msgbox.setDefaultButton(QMessageBox.No)
+                reply = msgbox.exec()
+                if reply == QMessageBox.Yes:
+                    # pobieranie reflectance
+                    task = DownloadReflectanceTask(description='Pobieranie plików Obrazów Intensywności',
+                                                reflectanceList=reflectanceList,
+                                                folder=self.dockwidget.folder_fileWidget.filePath(),
+                                                iface=self.iface)
+                    QgsApplication.taskManager().addTask(task)
+                    QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
-        # wyswietl komunikat pytanie
-        if len(reflectanceList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
-            return
-        else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     reflectanceList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie reflectance
-                task = DownloadReflectanceTask(description='Pobieranie plików Obrazów Intensywności',
-                                               reflectanceList=reflectanceList,
-                                               folder=self.dockwidget.folder_fileWidget.filePath(),
-                                               iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
-                QgsMessageLog.logMessage('runtask')
 
     def canvasReflectance_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Intensywności z mapy"""
@@ -1016,26 +1045,22 @@ class PobieraczDanychGugik:
 
         try:
             teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
+                                                level=Qgis.Info, duration=-1)
+            task = DownloadBdotTask(
+                description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                level=2,
+                format_danych=format_danych,
+                teryt=teryt,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
-        task = DownloadBdotTask(
-            description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            level=2,
-            format_danych=format_danych,
-            teryt=teryt,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla województwa"""
@@ -1051,29 +1076,26 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
         try:
             teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
 
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
 
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
-        task = DownloadBdotTask(
-            description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            level=1,
-            format_danych=format_danych,
-            teryt=teryt,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
+                                                level=Qgis.Info, duration=-1)
+            task = DownloadBdotTask(
+                description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                level=1,
+                format_danych=format_danych,
+                teryt=teryt,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
+
 
     def bdot_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla całej Polski"""
@@ -1115,25 +1137,22 @@ class PobieraczDanychGugik:
 
         try:
             teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
+                                                level=Qgis.Info, duration=-1)
+            task = DownloadBdooTask(
+                description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                level=1,
+                rok=rok,
+                teryt=teryt,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
-        task = DownloadBdooTask(
-            description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            level=1,
-            rok=rok,
-            teryt=teryt,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
 
     def bdoo_selected_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla całej Polski"""
@@ -1264,20 +1283,29 @@ class PobieraczDanychGugik:
             prg_format_danych = 'gml'
 
         if self.dockwidget.radioButton_adres_gmin.isChecked():
-            gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByGminaName(gmina_name)
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
-            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
+            try:
+                gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
+                teryt = self.dockwidget.regionFetch.getTerytByGminaName(gmina_name)
+                self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
+                description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
+            except Exception as e:
+                self.blad_polaczenia(e)
         elif self.dockwidget.radioButton_adres_powiat.isChecked():
-            powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
-            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z powiatu {powiat_name} ({teryt})'
+            try:
+                powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
+                teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+                self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
+                description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z powiatu {powiat_name} ({teryt})'
+            except Exception as e:
+                self.blad_polaczenia(e)
         elif self.dockwidget.radioButton_adres_wojew.isChecked():
-            wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
-            description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z województwa {wojewodztwo_name} ({teryt})'
+            try:
+                wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
+                teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+                self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
+                description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z województwa {wojewodztwo_name} ({teryt})'
+            except Exception as e:
+                self.blad_polaczenia(e)
         elif self.dockwidget.radioButton_adres_kraj.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?adresy_zbiorcze_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z całego kraju - format {prg_format_danych}'
@@ -1285,15 +1313,16 @@ class PobieraczDanychGugik:
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?granice_specjalne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - granice specjalne z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_jend_admin_wojew.isChecked():
-            wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
-            description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne województwa {wojewodztwo_name} ({teryt})'
+            try:
+                wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
+                teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+                self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
+                description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne województwa {wojewodztwo_name} ({teryt})'
+            except Exception as e:
+                self.blad_polaczenia(e)
         elif self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
-
-        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=-1)
 
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
@@ -1345,27 +1374,23 @@ class PobieraczDanychGugik:
 
         try:
             teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
 
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
-                                            level=Qgis.Info, duration=-1)
-        task = DownloadModel3dTask(
-            description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2],
-            standard=standard,
-            data_lista=data_lista,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
+                                                level=Qgis.Info, duration=-1)
+            task = DownloadModel3dTask(
+                description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                teryt_powiat=teryt_powiat,
+                teryt_wojewodztwo=teryt_powiat[0:2],
+                standard=standard,
+                data_lista=data_lista,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+                self.blad_polaczenia(e)
 
     # endregion
 
@@ -1380,25 +1405,22 @@ class PobieraczDanychGugik:
 
         try:
             teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
+            
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+                                                level=Qgis.Info, duration=-1)
+            task = DownloadWfsEgibTask(
+                description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                teryt=teryt,
+                iface=self.iface,
+                plugin_dir=self.plugin_dir
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+                self.blad_polaczenia(e)
 
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
-        task = DownloadWfsEgibTask(
-            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt=teryt,
-            iface=self.iface,
-            plugin_dir=self.plugin_dir
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
 
     # endregion
 
@@ -1437,29 +1459,25 @@ class PobieraczDanychGugik:
 
         try:
             teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
 
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
+                                                level=Qgis.Info, duration=-1)
 
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+            task = DownloadEgibExcelTask(
+                description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                egib_excel_zakres_danych=egib_excel_zakres_danych,
+                rok=rok,
+                teryt_powiat=teryt_powiat,
+                teryt_wojewodztwo=teryt_powiat[0:2],
+                iface=self.iface
+            )
 
-        task = DownloadEgibExcelTask(
-            description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            egib_excel_zakres_danych=egib_excel_zakres_danych,
-            rok=rok,
-            teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2],
-            iface=self.iface
-        )
-
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+                self.blad_polaczenia(e)
 
     # endregion
 
@@ -1565,24 +1583,25 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.aerotriangulacja_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
 
-            aerotriangulacjaList = []
-            for point in points:
-                subList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point)
-                if subList:
-                    aerotriangulacjaList.extend(subList)
-                else:
-                    bledy += 1
-            # print("list: ", aerotriangulacjaList)
-            self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
+                aerotriangulacjaList = []
+                for point in points:
+                    subList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point)
+                    if subList:
+                        aerotriangulacjaList.extend(subList)
+                    else:
+                        bledy += 1
+                        
+                self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
+            except Exception as e:
+                self.blad_polaczenia(e)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -1599,33 +1618,35 @@ class PobieraczDanychGugik:
 
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
+        try:
+            # usuwanie duplikatów
+            aerotriangulacjaList = list(set(aerotriangulacjaList))
+            # print("po 'set'", len(aerotriangulacjaList))
 
-        # usuwanie duplikatów
-        aerotriangulacjaList = list(set(aerotriangulacjaList))
-        # print("po 'set'", len(aerotriangulacjaList))
-
-        # wyswietl komunikat pytanie
-        if len(aerotriangulacjaList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
-            return
-        else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     aerotriangulacjaList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie areotriangulacji
-                task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
-                                                    aerotriangulacjaList=aerotriangulacjaList,
-                                                    folder=self.dockwidget.folder_fileWidget.filePath(),
-                                                    iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
-                QgsMessageLog.logMessage('runtask')
+            # wyswietl komunikat pytanie
+            if len(aerotriangulacjaList) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+                msgbox.exec_()
+                return
+            else:
+                msgbox = QMessageBox(QMessageBox.Question,
+                                    "Potwierdź pobieranie",
+                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                        aerotriangulacjaList))
+                msgbox.addButton(QMessageBox.Yes)
+                msgbox.addButton(QMessageBox.No)
+                msgbox.setDefaultButton(QMessageBox.No)
+                reply = msgbox.exec()
+                if reply == QMessageBox.Yes:
+                    # pobieranie areotriangulacji
+                    task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
+                                                        aerotriangulacjaList=aerotriangulacjaList,
+                                                        folder=self.dockwidget.folder_fileWidget.filePath(),
+                                                        iface=self.iface)
+                    QgsApplication.taskManager().addTask(task)
+                    QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+                self.blad_polaczenia(e)
 
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
@@ -1683,34 +1704,34 @@ class PobieraczDanychGugik:
 
     def filterMozaikaListAndRunTask(self, mozaikaList):
         """Filtruje listę dostępnych plików Linii Mozaikowania i uruchamia wątek QgsTask"""
-
+        try:
         # usuwanie duplikatów
-        mozaikaList = list(set(mozaikaList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(mozaikaList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                 "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
-            return
-        else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     mozaikaList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie linii mozaikowania
-                task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
-                                           mozaikaList=mozaikaList,
-                                           folder=self.dockwidget.folder_fileWidget.filePath(),
-                                           iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
-                QgsMessageLog.logMessage('runtask')
+            mozaikaList = list(set(mozaikaList))
+            # wyswietl komunikat pytanie
+            if len(mozaikaList) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                    "Nie znaleniono danych spełniających kryteria")
+                msgbox.exec_()
+                return
+            else:
+                msgbox = QMessageBox(QMessageBox.Question,
+                                    "Potwierdź pobieranie",
+                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                        mozaikaList))
+                msgbox.addButton(QMessageBox.Yes)
+                msgbox.addButton(QMessageBox.No)
+                msgbox.setDefaultButton(QMessageBox.No)
+                reply = msgbox.exec()
+                if reply == QMessageBox.Yes:
+                    # pobieranie linii mozaikowania
+                    task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
+                                            mozaikaList=mozaikaList,
+                                            folder=self.dockwidget.folder_fileWidget.filePath(),
+                                            iface=self.iface)
+                    QgsApplication.taskManager().addTask(task)
+                    QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
     def canvasMozaika_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Linii Mozaikowania z mapy"""
@@ -1910,23 +1931,26 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
+        try:
+            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+            rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
 
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
+                                                level=Qgis.Info, duration=-1)
 
-        task = DownloadArchiwalnyBdotTask(
-            description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            format_danych=format_danych,
-            teryt=teryt,
-            rok=rok,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            task = DownloadArchiwalnyBdotTask(
+                description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                format_danych=format_danych,
+                teryt=teryt,
+                rok=rok,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
     # endregion
 
@@ -1943,24 +1967,27 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.zdjecia_lotnicze_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(False)
 
-            zdjeciaLotniczeList = []
-            for point in points:
-                subList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point)
-                if subList:
-                    zdjeciaLotniczeList.extend(subList)
-                else:
-                    bledy += 1
-            # print("list: ", zdjeciaLotniczeList)
-            self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
-            # print("%d zapytań się nie powiodło" % bledy)
+                zdjeciaLotniczeList = []
+                for point in points:
+                    subList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point)
+                    if subList:
+                        zdjeciaLotniczeList.extend(subList)
+                    else:
+                        bledy += 1
+                # print("list: ", zdjeciaLotniczeList)
+                self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
+                # print("%d zapytań się nie powiodło" % bledy)
 
-            # odblokowanie klawisza pobierania
-            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
+            except Exception as e:
+                self.blad_polaczenia(e)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -1968,12 +1995,15 @@ class PobieraczDanychGugik:
 
     def downloadZdjeciaLotniczeForSinglePoint(self, point):
         """Pobiera Zdjecia Lotnicze dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        zdjeciaLotniczeList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point1992)
-
-        self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
+        try:
+            point1992 = utils.pointTo2180(point=point,
+                                        sourceCrs=QgsProject.instance().crs(),
+                                        project=QgsProject.instance())
+        
+            zdjeciaLotniczeList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point1992)
+            self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
+        except Exception as e:
+            self.blad_polaczenia(e)
 
     def filterZdjeciaLotniczeListAndRunTask(self, zdjeciaLotniczeList):
         """Filtruje listę dostępnych plików Zdjęć Lotniczych i uruchamia wątek QgsTask"""
@@ -2134,3 +2164,11 @@ class PobieraczDanychGugik:
             return False
         else:
             return True
+    def blad_polaczenia(self, e):
+        self.iface.messageBar().pushMessage(
+                "Ostrzeżenie:",
+                f"Błąd pobierania. Nie udało się pobrać danych z serwera. Możliwa przyczyna: {e}",
+                level=Qgis.Critical,
+                duration=6,
+            )
+        return
