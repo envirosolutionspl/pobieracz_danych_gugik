@@ -87,7 +87,17 @@ class RegionFetch:
             return {}
         self.__fetchGmina(name_powiat)
         return self.gminaDict
+    
+    def getTerytByWojewodztwoName(self,name): 
+        return self.wojewodztwoDict[name]
 
+    def getTerytByPowiatName(self,name):
+        # print("teryt ", self.filteredPowiatDict[name])
+        return self.powiatDict[name][0]
+
+    def getTerytByGminaName(self,name):
+        # print("teryt ", self.filteredGminaDict[name])
+        return self.filteredGminaDict[name]
 
 if __name__ == '__main__':
     # app = QtCore.QCoreApplication([])
