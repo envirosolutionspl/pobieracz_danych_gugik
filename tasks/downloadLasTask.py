@@ -7,7 +7,7 @@ from .. import service_api, utils
 
 
 class DownloadLasTask(QgsTask):
-    """QgsTask pobierania LAS"""
+    """QgsTask pobierania LAZ"""
 
     def __init__(self, description, lasList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -57,7 +57,7 @@ class DownloadLasTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane LAS zostały pobrane.",
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane LAZ zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
@@ -66,7 +66,7 @@ class DownloadLasTask(QgsTask):
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane LAS nie zostały pobrane.")
+                                                "Dane LAZ nie zostały pobrane.")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
