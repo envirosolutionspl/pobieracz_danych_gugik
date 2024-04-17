@@ -782,12 +782,18 @@ class PobieraczDanychGugik:
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
 
             lasList = []
-            for point in points:
-                try:
+            subList = None
+            try:
+                subList = las_api.getLasListbyPoint1992(
+                        point=point,
+                        isEvrf2007=isEvrf2007)
+            except Exception as e:
+                self.blad_polaczenia(e)
+            if subList:    
+                for point in points:
                     subList = las_api.getLasListbyPoint1992(
                         point=point,
                         isEvrf2007=isEvrf2007)
-                    # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
                     if subList:
                         lasList.extend(subList)
                     else:
@@ -798,8 +804,6 @@ class PobieraczDanychGugik:
 
                     # odblokowanie klawisza pobierania
                     self.dockwidget.las_fromLayer_btn.setEnabled(True)
-                except Exception as e:
-                    self.blad_polaczenia(e)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
@@ -919,19 +923,22 @@ class PobieraczDanychGugik:
             self.dockwidget.reflectance_fromLayer_btn.setEnabled(False)
 
             reflectanceList = []
-            for point in points:
+            subList = None
+            try: 
                 subList = reflectance_api.getReflectanceListbyPoint1992(point=point)
-                if subList:
-                    reflectanceList.extend(subList)
-                else:
-                    bledy += 1
+            except Exception as e:
+                self.blad_polaczenia(e)
+            if subList:
+                for point in points:
+                    subList = reflectance_api.getReflectanceListbyPoint1992(point=point)
+                    if subList:
+                        reflectanceList.extend(subList)
+                    else:
+                        bledy += 1
 
-            self.filterReflectanceListAndRunTask(reflectanceList)
-            print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
-
+                self.filterReflectanceListAndRunTask(reflectanceList)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
@@ -1547,26 +1554,22 @@ class PobieraczDanychGugik:
 
         try:
             teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
 
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+            self.iface.messageBar().pushMessage("Informacja",
+                                                f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
+                                                level=Qgis.Info, duration=-1)
 
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
-                                            level=Qgis.Info, duration=-1)
-
-        task = DownloadOsnowaTask(
-            description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt_powiat=teryt_powiat,
-            typ=typ,
-            iface=self.iface
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            task = DownloadOsnowaTask(
+                description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                teryt_powiat=teryt_powiat,
+                typ=typ,
+                iface=self.iface
+            )
+            QgsApplication.taskManager().addTask(task)
+            QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+                self.blad_polaczenia(e)
 
     # endregion
 
@@ -1761,19 +1764,23 @@ class PobieraczDanychGugik:
             self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(False)
 
             wizKartoList = []
-            for point in points:
-                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point,
+            subList = None
+            try:
+                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(points[1],
                                                                                      skala_10000=skala_10000)
-                if subList:
-                    wizKartoList.extend(subList)
-                else:
-                    bledy += 1
-            # print("list: ", wizKartoList)
-            self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(True)
+            except Exception as e:
+                self.blad_polaczenia(e)
+            if subList:
+                for point in points:
+                    subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point,
+                                                                                        skala_10000=skala_10000)
+                    if subList:
+                        wizKartoList.extend(subList)
+                    else:
+                        bledy += 1
+                self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(True)
 
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
@@ -1848,20 +1855,24 @@ class PobieraczDanychGugik:
             self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(False)
 
             kartotekiOsnowList = []
-            for point in points:
+            subList = None
+            try:
                 subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
                                                                                katalog_niwelacyjne=katalog_niwelacyjne)
-                if subList:
-                    kartotekiOsnowList.extend(subList)
-                else:
-                    bledy += 1
-            # print("list: ", wizKartoList)
-            self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(True)
-
+            except Exception as e:
+                self.blad_polaczenia(e)
+            if subList:
+                for point in points:
+                    subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
+                                                                                katalog_niwelacyjne=katalog_niwelacyjne)
+                    if subList:
+                        kartotekiOsnowList.extend(subList)
+                    else:
+                        bledy += 1
+                # print("list: ", wizKartoList)
+                self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
+                # odblokowanie klawisza pobierania
+                self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(True)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
@@ -1878,35 +1889,35 @@ class PobieraczDanychGugik:
 
     def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
         """Filtruje listę dostępnych plików Archiwalnych kartotek osnów i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        kartotekiOsnowList = list(set(kartotekiOsnowList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(kartotekiOsnowList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                 "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
-            return
-        else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     kartotekiOsnowList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie wizualizacji kartograficznej BDOT10k
-                task = DownloadKartotekiOsnowTask(
-                    description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
-                    kartotekiOsnowList=kartotekiOsnowList,
-                    folder=self.dockwidget.folder_fileWidget.filePath(),
-                    iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
-                QgsMessageLog.logMessage('runtask')
+        try:
+            # usuwanie duplikatów
+            kartotekiOsnowList = list(set(kartotekiOsnowList))
+            # wyswietl komunikat pytanie
+            if len(kartotekiOsnowList) == 0:
+                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
+                                    "Nie znaleniono danych spełniających kryteria")
+                msgbox.exec_()
+                return
+            else:
+                msgbox = QMessageBox(QMessageBox.Question,
+                                    "Potwierdź pobieranie",
+                                    "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                        kartotekiOsnowList))
+                msgbox.addButton(QMessageBox.Yes)
+                msgbox.addButton(QMessageBox.No)
+                msgbox.setDefaultButton(QMessageBox.No)
+                reply = msgbox.exec()
+                if reply == QMessageBox.Yes:
+                    # pobieranie wizualizacji kartograficznej BDOT10k
+                    task = DownloadKartotekiOsnowTask(
+                        description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
+                        kartotekiOsnowList=kartotekiOsnowList,
+                        folder=self.dockwidget.folder_fileWidget.filePath(),
+                        iface=self.iface)
+                    QgsApplication.taskManager().addTask(task)
+                    QgsMessageLog.logMessage('runtask')
+        except Exception as e:
+            self.blad_polaczenia(e)
 
     def canvasKartoteki_osnow_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Archiwalnych kartotek osnów geodezyjnych z mapy"""
