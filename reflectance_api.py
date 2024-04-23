@@ -3,7 +3,7 @@ from . import service_api
 from .models import Reflectance
 
 
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getReflectanceListbyPoint1992(point):

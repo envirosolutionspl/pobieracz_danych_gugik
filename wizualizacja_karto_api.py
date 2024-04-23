@@ -40,7 +40,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
     url_wzorzec = re.compile(r'http.+.pdf')
-    data_wzorzec = re.compile("(\d{4}-\d{1,2}-\d{1,2})")
+    data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")
     # print(resp)
     if resp[0]:
         wizKartoElementsUrl = url_wzorzec.findall(resp[1])

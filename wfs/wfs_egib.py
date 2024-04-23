@@ -539,7 +539,7 @@ if __name__ == '__main__':
                   '0805': 'https://slubice.geoportal2.pl/map/geoportal/wfs.php',
                   '0802': 'https://wms.powiatkrosnienski.pl/krosno-egib',
                   '2416': 'https://ikerg.zawiercie.powiat.pl/powiatzawiercianski-egib'}
-    folder = "C:\wtyczka aktualizacja\probne/"
+    folder = f"C:\\wtyczka aktualizacja\\probne/"
 # print(wfsEgib.egib_wfs("2613", 'https://mielec.geoportal2.pl/map/geoportal/wfs.php', folder))
 
 # for k, v in dictionary.items():

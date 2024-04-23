@@ -7,7 +7,7 @@ except:
     from models import Las
 
 
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False

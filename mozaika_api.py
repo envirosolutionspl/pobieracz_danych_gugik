@@ -4,7 +4,7 @@ from .models import Linie_mozaikowania
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/LinieMozaikowania?"
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getMozaikaListbyPoint1992(point):
