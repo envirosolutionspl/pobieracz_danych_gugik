@@ -4,7 +4,7 @@ from .models import Nmt
 from .wms import utils
 
 
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getNmptListbyPoint1992(point, isEvrf2007):

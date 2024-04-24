@@ -5,27 +5,21 @@ import os, time
 
 
 def getRequest(params, url):
-    try:
-        r = get_legacy_session().get(url=url, params=params, verify=False)
-        # print(r.request.url)
-
-    except requests.exceptions.ConnectionError:
-        # print('sleep')
-        time.sleep(0.4)
+    max_attempts = 2
+    attempt = 0
+    while attempt < max_attempts:
         try:
-            r = get_legacy_session().get(url=url, params=params, verify=False)
-
+            with get_legacy_session() as session:
+                r = session.get(url=url, params=params, verify=False)
+                if r.status_code == 200:
+                    return True, r.text
+                else:
+                    return False, f'Błąd {r.status_code}'
         except requests.exceptions.ConnectionError:
-            # print('blad polaczenia')
-            return False, "Błąd połączenia"
-    r_txt = r.text
-    if r.status_code == 200:
-        # print('ok')
-        # print(r_txt)
-        return True, r_txt
-    else:
-        # print("Błąd %d" % r.status_code)
-        return False, "Błąd %d" % r.status_code
+            return False, 'Błąd połączenia'
+            time.sleep(0.4)
+            attempt += 1
+    return False, "Przekroczono maksymalną liczbę prób połączenia"
 
 
 def retreiveFile(url, destFolder, obj):

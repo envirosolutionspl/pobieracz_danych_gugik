@@ -4,7 +4,7 @@ from .models import Aerotriangulacja
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?"
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getAerotriangulacjaListbyPoint1992(point):
