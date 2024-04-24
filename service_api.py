@@ -84,12 +84,14 @@ def retreiveFile(url, destFolder, obj):
 
 def getAllLayers(url,service):
     params = {
-        'SERVICE':service,
-        'request':'GetCapabilities',
+        'SERVICE': service,
+        'request': 'GetCapabilities',
         'INFO_FORMAT': 'text/html'
     }
 
-    layers = getRequest(params,url)
+    layers = getRequest(params, url)
+    if not layers[0]:
+        return
     parser = ET.XMLParser(recover=True)
     tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
     root = tree.getroot()

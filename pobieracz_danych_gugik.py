@@ -771,16 +771,14 @@ class PobieraczDanychGugik:
                     lasList.extend(subList)
                 else:
                     bledy += 1
-
             self.filterLasListAndRunTask(lasList)
             # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
-            self.dockwidget.las_fromLayer_btn.setEnabled(True)
-
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
+        self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
