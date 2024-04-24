@@ -19,6 +19,8 @@ def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
     else:
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladKRON86?"
         layers = service_api.getAllLayers(url=URL, service='WMS')
+    if not layers:
+        return
 
     PARAMS = {
         'SERVICE': 'WMS',
