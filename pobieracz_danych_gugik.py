@@ -756,7 +756,7 @@ class PobieraczDanychGugik:
         isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
+            points = self.pointsFromVectorLayer(layer, density=50)
 
             # zablokowanie klawisza pobierania
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
@@ -774,10 +774,11 @@ class PobieraczDanychGugik:
             self.filterLasListAndRunTask(lasList)
             # print("%d zapytań się nie powiodło" % bledy)
 
-            # odblokowanie klawisza pobierania
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:",
                                                 'Nie wskazano warstwy wektorowej')
+            
+        # odblokowanie klawisza pobierania
         self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
     def downloadLasForSinglePoint(self, point):
