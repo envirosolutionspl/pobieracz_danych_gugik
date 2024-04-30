@@ -823,7 +823,7 @@ class PobieraczDanychGugik:
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
                 # pobieranie LAS
-                task = DownloadLasTask(description='Pobieranie plików LAS',
+                task = DownloadLasTask(description='Pobieranie plików LAZ',
                                        lasList=lasList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
