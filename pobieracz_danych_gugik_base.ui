@@ -6,12 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>684</width>
+    <width>402</width>
     <height>919</height>
    </rect>
-  </property>
-  <property name="floating">
-   <bool>true</bool>
   </property>
   <property name="windowTitle">
    <string>Pobieracz Danych GUGiK</string>
@@ -34,7 +31,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>664</width>
+         <width>382</width>
          <height>877</height>
         </rect>
        </property>
@@ -147,7 +144,7 @@
            <string>Sposób wyszukiwania danych</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+           <set>Qt::AlignCenter</set>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
@@ -206,13 +203,7 @@
            <string>Scieżka zapisu plików</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignHCenter|Qt::AlignTop</set>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <property name="checkable">
-           <bool>false</bool>
+           <set>Qt::AlignCenter</set>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
@@ -228,9 +219,6 @@
           </property>
           <property name="title">
            <string>Usługa WFS</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
           <property name="collapsed">
            <bool>true</bool>
@@ -643,10 +631,10 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="nmt_rdbtn">
                 <property name="text">
                  <string>NMT</string>
@@ -656,7 +644,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="nmpt_rdbtn">
                 <property name="text">
                  <string>NMPT</string>
@@ -672,10 +660,10 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="arcinfo_rdbtn">
                 <property name="text">
                  <string>ARC/INFO ASCII GRID</string>
@@ -685,7 +673,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="xyz_rdbtn">
                 <property name="enabled">
                  <bool>false</bool>
@@ -703,8 +691,11 @@
              <property name="title">
               <string>Układ współrzędnych wysokościowych</string>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_55">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="kron86_rdbtn">
                 <property name="text">
                  <string>PL-KRON86-NH</string>
@@ -714,7 +705,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="evrf2007_rdbtn">
                 <property name="text">
                  <string>PL-EVRF2007-NH</string>
@@ -976,9 +967,6 @@
           <property name="title">
            <string>LAZ (LIDAR)</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
            <bool>true</bool>
           </property>
@@ -1012,8 +1000,11 @@
              <property name="title">
               <string>Układ współrzędnych wysokościowych</string>
              </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_56">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="las_kron86_rdbtn">
                 <property name="text">
                  <string>PL-KRON86-NH</string>
@@ -1023,7 +1014,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="las_evrf2007_rdbtn">
                 <property name="text">
                  <string>PL-EVRF2007-NH</string>
@@ -1525,43 +1516,43 @@
               <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QGridLayout" name="horizontalLayout_5">
-              <item row="0" column="0">
+              <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="bdot_shp_rdbtn">
                 <property name="text">
                  <string>SHP</string>
                 </property>
                 <property name="checked">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1">
+              <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="bdot_gpkg_rdbtn">
                 <property name="text">
                  <string>GPKG</string>
                 </property>
                 <property name="checked">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
-               <widget class="QRadioButton" name="bdot_gml_rdbtn">
-                <property name="text">
-                 <string>GML</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
+              <item row="2" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="bdot_old_gml_rdbtn">
                 <property name="text">
                  <string>GML wg. schematu z 2011r.</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QRadioButton" name="bdot_gml_rdbtn">
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -1579,7 +1570,13 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_19">
@@ -1678,7 +1675,13 @@
                <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_157">
@@ -1752,7 +1755,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_15">
               <item>
@@ -1869,9 +1872,6 @@
           <property name="title">
            <string>PRNG</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
            <bool>true</bool>
           </property>
@@ -1901,9 +1901,57 @@
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_7">
+             <property name="title">
+              <string>Format danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QRadioButton" name="prng_gml_rdbtn">
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QRadioButton" name="prng_shp_rdbtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QRadioButton" name="prng_xlsx_rdbtn">
+                <property name="mouseTracking">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>XLSX</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QGroupBox" name="groupBox_9">
              <property name="title">
               <string>Rodzaj danych</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
@@ -1947,51 +1995,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox_7">
-             <property name="title">
-              <string>Format danych</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_8">
-              <item>
-               <widget class="QRadioButton" name="prng_gml_rdbtn">
-                <property name="text">
-                 <string>GML</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="prng_shp_rdbtn">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>SHP</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QRadioButton" name="prng_xlsx_rdbtn">
-                <property name="mouseTracking">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>XLSX</string>
-                </property>
-                <property name="checked">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
             <widget class="Line" name="line_46">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -2006,6 +2009,13 @@
             </widget>
            </item>
           </layout>
+          <zorder>line_25</zorder>
+          <zorder>label_45</zorder>
+          <zorder>line_26</zorder>
+          <zorder>line_46</zorder>
+          <zorder>prng_selected_btn</zorder>
+          <zorder>groupBox_9</zorder>
+          <zorder>groupBox_7</zorder>
          </widget>
         </item>
         <item>
@@ -2017,13 +2027,10 @@
            <string/>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
           </property>
           <property name="title">
            <string>PRG</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
           </property>
           <property name="collapsed">
            <bool>true</bool>
@@ -2065,23 +2072,10 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QRadioButton" name="prg_shp_rdbtn">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
-                <property name="text">
-                 <string>SHP</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="prg_gml_rdbtn">
                 <property name="enabled">
                  <bool>true</bool>
@@ -2094,6 +2088,19 @@
                 </property>
                 <property name="checked">
                  <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QRadioButton" name="prg_shp_rdbtn">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -2112,7 +2119,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2304,17 +2311,17 @@
               <string>Standard</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QCheckBox" name="model3d_lod1_rdbtn">
                 <property name="text">
                  <string>LOD1</string>
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QCheckBox" name="model3d_lod2_rdbtn">
                 <property name="text">
                  <string>LOD2</string>
@@ -2330,7 +2337,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
@@ -2342,7 +2349,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Od roku :</string>
+                 <string>od roku :</string>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
@@ -2445,6 +2452,11 @@
                 <property name="editable">
                  <bool>true</bool>
                 </property>
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
                </widget>
               </item>
               <item row="1" column="0">
@@ -2523,10 +2535,10 @@
               <string>Zakres zestawień</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="powiat_egib_excel_rdbtn">
                 <property name="text">
                  <string>powiatowe</string>
@@ -2536,14 +2548,14 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="wojew_egib_excel_rdbtn">
                 <property name="text">
                  <string>wojewódzkie</string>
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="kraj_egib_excel_rdbtn">
                 <property name="text">
                  <string>krajowe</string>
@@ -2559,7 +2571,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
@@ -2631,6 +2643,11 @@
                 <property name="editable">
                  <bool>true</bool>
                 </property>
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
                </widget>
               </item>
               <item row="1" column="0">
@@ -2715,7 +2732,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2815,9 +2832,6 @@
              <property name="title">
               <string>Podstawowa Osnowa Geodezyjna</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
              <property name="collapsed">
               <bool>true</bool>
              </property>
@@ -2828,17 +2842,17 @@
                  <string>Typ osnowy</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_25">
-                 <item>
+                 <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                   <widget class="QCheckBox" name="osnowa_H_rdbtn">
                    <property name="text">
                     <string>wysokościowa</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
+                 <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                   <widget class="QCheckBox" name="osnowa_XY_rdbtn">
                    <property name="text">
                     <string>pozioma</string>
@@ -2863,6 +2877,11 @@
                    <property name="editable">
                     <bool>true</bool>
                    </property>
+                   <item>
+                    <property name="text">
+                     <string/>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -2907,9 +2926,6 @@
              <property name="title">
               <string>Archiwalne Kartoteki Osnów</string>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-             </property>
              <property name="collapsed">
               <bool>true</bool>
              </property>
@@ -2920,7 +2936,7 @@
                  <string>Rodzaj katalogów</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_27">
                  <item>
@@ -3131,9 +3147,6 @@
           <property name="title">
            <string>Wizualizacja kartograficzna BDOT10k </string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-          </property>
           <property name="collapsed">
            <bool>true</bool>
           </property>
@@ -3144,10 +3157,10 @@
               <string>Skala</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="wizualizacja_karto_10_rdbtn">
                 <property name="text">
                  <string>1:10 000</string>
@@ -3157,7 +3170,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="wizualizacja_karto_25_rdbtn">
                 <property name="text">
                  <string>1:25 000</string>
@@ -3278,10 +3291,13 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
+              <item alignment="Qt::AlignHCenter">
                <widget class="QRadioButton" name="archiwalne_bdot_gml_rdbtn">
                 <property name="text">
                  <string>GML</string>
@@ -3291,7 +3307,7 @@
                 </property>
                </widget>
               </item>
-              <item>
+              <item alignment="Qt::AlignHCenter">
                <widget class="QRadioButton" name="archiwalne_bdot_shp_rdbtn">
                 <property name="enabled">
                  <bool>true</bool>
@@ -3310,7 +3326,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
@@ -3378,7 +3394,13 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_36">
@@ -3429,9 +3451,6 @@
              </property>
              <property name="title">
               <string>filtruj dane</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
              </property>
              <property name="checkable">
               <bool>true</bool>
