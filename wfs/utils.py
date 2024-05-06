@@ -1,6 +1,6 @@
 import requests, re
 import xml.etree.ElementTree as ET
-from .httpsAdapter import get_legacy_session
+
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -18,23 +18,20 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        #r = requests.get(url=wfsUrl, params=PARAMS, verify=False)
-        r = get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False)
+        with requests.get(url=wfsUrl, params=PARAMS, verify=True) as req:
+            r_txt = req.text
+            if req.status_code == 200:
+                typenamesDict = {}
+                root = ET.fromstring(r_txt)
+                for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+                    name = featureType.find('.xmlns:Name', ns).text
+                    title = featureType.find('.xmlns:Title', ns).text
+                    typenamesDict[title] = name
+                return True, typenamesDict
+            else:
+                return False, "Błąd %d" % req.status_code
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
-    r_txt = r.text
-    if r.status_code == 200:
-        typenamesDict = {}
-        root = ET.fromstring(r_txt)
-        for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-            name = featureType.find('.xmlns:Name', ns).text
-            title = featureType.find('.xmlns:Title', ns).text
-            typenamesDict[title] = name
-
-        return True, typenamesDict
-    else:
-
-        return False, "Błąd %d" % r.status_code
 
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')

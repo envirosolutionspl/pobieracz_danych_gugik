@@ -21,20 +21,20 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         # total = len(self.nmtList)
 
-        r = requests.get(self.url, verify=False)
-        if str(r.status_code) == '404':
-            self.page_exist = 'NO'
-            return False
-        else:
-            self.page_exist = 'YES'
-            QgsMessageLog.logMessage('pobieram ' + self.url)
-            # fileName = self.url.split("/")[-1]
-            service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-            # self.setProgress(self.progress() + 100 / total)
-            utils.openFile(self.folder)
-            if self.isCanceled():
+        with requests.get(self.url, verify=True) as req:
+            if str(req.status_code) == '404':
+                self.page_exist = 'NO'
                 return False
-            return True
+            else:
+                self.page_exist = 'YES'
+                QgsMessageLog.logMessage('pobieram ' + self.url)
+                # fileName = self.url.split("/")[-1]
+                service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+                # self.setProgress(self.progress() + 100 / total)
+                utils.openFile(self.folder)
+                if self.isCanceled():
+                    return False
+                return True
 
 
     def finished(self, result):
