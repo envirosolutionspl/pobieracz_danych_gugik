@@ -25,13 +25,16 @@ class DownloadOsnowaTask(QgsTask):
 
         for typ in self.typ:
             url = f"https://integracja.gugik.gov.pl/osnowa/?teryt={self.teryt_powiat}&typ={typ}"
-            with requests.get(url, verify=True) as req:
-                if str(req.status_code) == '200':
-                    if self.isCanceled():
-                        QgsMessageLog.logMessage('isCanceled')
-                        return False
-                    QgsMessageLog.logMessage('pobieram ' + url)
-                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            r = requests.get(url, verify=False)
+            if str(r.status_code) == '200':
+                if self.isCanceled():
+                    QgsMessageLog.logMessage('isCanceled')
+                    return False
+                QgsMessageLog.logMessage('pobieram ' + url)
+                # fileName = self.url.split("/")[-2]
+                # print(self.folder)
+                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                # self.setProgress(self.progress() + 100 / total)
 
         utils.openFile(self.folder)
         return True

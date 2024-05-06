@@ -38,17 +38,17 @@ class DownloadModel3dTask(QgsTask):
             list_url.append(url4)
 
         for url in list_url:
-            with requests.get(url, verify=True) as req:
-                if str(req.status_code) == '200':
-                    if self.isCanceled():
-                        QgsMessageLog.logMessage('isCanceled')
-                        return False
-                    self.liczba_dobrych_url.append(url)
-                    QgsMessageLog.logMessage('pobieram ' + url)
-                    # fileName = self.url.split("/")[-2]
-                    # print(self.folder)
-                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-                    # self.setProgress(self.progress() + 100 / total)
+            r = requests.get(url, verify=False)
+            if str(r.status_code) == '200':
+                if self.isCanceled():
+                    QgsMessageLog.logMessage('isCanceled')
+                    return False
+                self.liczba_dobrych_url.append(url)
+                QgsMessageLog.logMessage('pobieram ' + url)
+                # fileName = self.url.split("/")[-2]
+                # print(self.folder)
+                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                # self.setProgress(self.progress() + 100 / total)
 
         if len(self.liczba_dobrych_url) == 0:
             return False
