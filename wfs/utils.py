@@ -1,6 +1,6 @@
 import requests, re
 import xml.etree.ElementTree as ET
-
+from .httpsAdapter import get_legacy_session
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -18,9 +18,9 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        with requests.get(url=wfsUrl, params=PARAMS, verify=True) as req:
-            r_txt = req.text
-            if req.status_code == 200:
+        with get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False) as resp:
+            r_txt = resp.text
+            if resp.status_code == 200:
                 typenamesDict = {}
                 root = ET.fromstring(r_txt)
                 for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
@@ -29,7 +29,7 @@ def getTypenamesFromWFS(wfsUrl):
                     typenamesDict[title] = name
                 return True, typenamesDict
             else:
-                return False, "Błąd %d" % req.status_code
+                return False, f'Błąd {resp.status_code}'
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
 

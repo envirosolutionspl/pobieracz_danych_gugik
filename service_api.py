@@ -1,3 +1,4 @@
+from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 import requests
 import os, time
@@ -8,11 +9,11 @@ def getRequest(params, url):
     attempt = 0
     while attempt < max_attempts:
         try:
-            with requests.get(url=url, params=params, verify=True) as req:
-                if req.status_code == 200:
-                    return True, req.text
+            with get_legacy_session().get(url=url, params=params, verify=False) as resp:
+                if resp.status_code == 200:
+                    return True, resp.text
                 else:
-                    return False, f'Błąd {r.status_code}'
+                    return False, f'Błąd {resp.status_code}'
         except requests.exceptions.ConnectionError:
             return False, 'Błąd połączenia'
             time.sleep(0.4)
@@ -53,30 +54,26 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
 
     try:
-        req = requests.get(url, verify=True, stream=True)
-        if str(req.status_code) == '404':
-            return False, "Plik nie istnieje"
-        saved = True
-        try:
-            with open(path, 'wb') as f:
-                for chunk in req.iter_content(chunk_size=8192):
-                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                    if obj.isCanceled():
-                        req.close()
-                        saved = False
-                        break
-                    f.write(chunk)
-        except IOError:
-            return False, "Błąd zapisu pliku"
-        finally:
-            req.close()
-
-        if saved:
-            return [True]
-        else:
-            os.remove(path)
-            return False, "Pobieranie przerwane"
-
+        with get_legacy_session().get(url=url, verify=False, stream=True) as resp:
+            if str(resp.status_code) == '404':
+                return False, "Plik nie istnieje"
+            saved = True
+            try:
+                with open(path, 'wb') as f:
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
+                        if obj.isCanceled():
+                            resp.close()
+                            saved = False
+                            break
+                        f.write(chunk)
+            except IOError:
+                return False, "Błąd zapisu pliku"
+            if saved:
+                return [True]
+            else:
+                os.remove(path)
+                return False, "Pobieranie przerwane"
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
         return [True]

@@ -1,9 +1,9 @@
-import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsTask, QgsMessageLog, Qgis
 )
 from .. import service_api, utils
-import requests
+from ..wfs.httpsAdapter import get_legacy_session
+
 
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
@@ -58,8 +58,8 @@ class DownloadEgibExcelTask(QgsTask):
         list_url.append(url_czesc + '.xls')
 
         for url in list_url:
-            with requests.get(url, verify=True) as req:
-                if str(req.status_code) == '200':
+            with get_legacy_session().get(url, verify=False) as resp:
+                if str(resp.status_code) == '200':
                     if self.isCanceled():
                         QgsMessageLog.logMessage('isCanceled')
                         return False

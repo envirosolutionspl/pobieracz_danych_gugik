@@ -1,10 +1,9 @@
-import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
-import requests
+from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadModel3dTask(QgsTask):
@@ -38,8 +37,8 @@ class DownloadModel3dTask(QgsTask):
             list_url.append(url4)
 
         for url in list_url:
-            with requests.get(url, verify=True) as req:
-                if str(req.status_code) == '200':
+            with get_legacy_session().get(url=url, verify=False) as resp:
+                if str(resp.status_code) == '200':
                     if self.isCanceled():
                         QgsMessageLog.logMessage('isCanceled')
                         return False

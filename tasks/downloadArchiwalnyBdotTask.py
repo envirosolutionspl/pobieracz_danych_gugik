@@ -1,10 +1,9 @@
-import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
-import requests
+from ..wfs.httpsAdapter import get_legacy_session
 
 class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
@@ -19,10 +18,8 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
     def run(self):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        # total = len(self.nmtList)
-
-        with requests.get(self.url, verify=True) as req:
-            if str(req.status_code) == '404':
+        with get_legacy_session().get(url=self.url, verify=False) as resp:
+            if str(resp.status_code) == '404':
                 self.page_exist = 'NO'
                 return False
             else:
