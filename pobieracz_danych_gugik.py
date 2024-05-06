@@ -764,7 +764,7 @@ class PobieraczDanychGugik:
             self.filterLasListAndRunTask(las_list)
         else:
             self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Nie wskazano warstwy wektorowej')
-            
+
         # odblokowanie klawisza pobierania
         self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
