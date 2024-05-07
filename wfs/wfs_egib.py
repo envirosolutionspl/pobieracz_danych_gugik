@@ -1,10 +1,10 @@
-import lxml
 import requests
 import os
 import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
+from ..wfs.httpsAdapter import get_legacy_session
 
 
 class WfsEgib:
@@ -13,13 +13,13 @@ class WfsEgib:
         """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
         """W przypadku błędów przekazuje ich opis"""
         try:
-            r = requests.get(url, verify=False)
-            if str(r.status_code) == '404':
-                name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
-            else:
-                with open(folder + 'egib_wfs.xml', 'wb') as f:
-                    f.write(r.content)
-                name_error = "brak"
+            with get_legacy_session().get(url, verify=False) as resp:
+                if str(resp.status_code) == '404':
+                    name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
+                else:
+                    with open(folder + 'egib_wfs.xml', 'wb') as f:
+                        f.write(resp.content)
+                    name_error = "brak"
         except requests.exceptions.SSLError:
             name_error = f"- (teryt: {teryt}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url}"
         except IOError:
@@ -102,21 +102,20 @@ class WfsEgib:
                 print(url_gml)
                 sleep(1)
                 try:
-                    r = requests.get(url_gml, verify=True)
-
-                    if str(r.status_code) == '404':
-                        name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
-                        name_error_lista.append(name_error)
-                    else:
-                        with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
-                            f.write(r.content)
-                            name_error = "brak"
-                        size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
-                        if size <= 9000:
-                            name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Za mały rozmiar pliku; błąd pobierania. URL do pliku \n{url_gml}."
+                    with get_legacy_session().get(url_gml, verify=False) as resp:
+                        if str(resp.status_code) == '404':
+                            name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
                             name_error_lista.append(name_error)
                         else:
-                            name_error_lista_brak.append(f"{layer.split(':')[-1]}")
+                            with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+                                f.write(resp.content)
+                                name_error = "brak"
+                            size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+                            if size <= 9000:
+                                name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Za mały rozmiar pliku; błąd pobierania. URL do pliku \n{url_gml}."
+                                name_error_lista.append(name_error)
+                            else:
+                                name_error_lista_brak.append(f"{layer.split(':')[-1]}")
 
                 except requests.exceptions.SSLError:
                     name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}"

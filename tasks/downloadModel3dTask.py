@@ -1,10 +1,9 @@
-import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
-import requests
+from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadModel3dTask(QgsTask):
@@ -38,17 +37,17 @@ class DownloadModel3dTask(QgsTask):
             list_url.append(url4)
 
         for url in list_url:
-            r = requests.get(url, verify=False)
-            if str(r.status_code) == '200':
-                if self.isCanceled():
-                    QgsMessageLog.logMessage('isCanceled')
-                    return False
-                self.liczba_dobrych_url.append(url)
-                QgsMessageLog.logMessage('pobieram ' + url)
-                # fileName = self.url.split("/")[-2]
-                # print(self.folder)
-                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-                # self.setProgress(self.progress() + 100 / total)
+            with get_legacy_session().get(url=url, verify=False) as resp:
+                if str(resp.status_code) == '200':
+                    if self.isCanceled():
+                        QgsMessageLog.logMessage('isCanceled')
+                        return False
+                    self.liczba_dobrych_url.append(url)
+                    QgsMessageLog.logMessage('pobieram ' + url)
+                    # fileName = self.url.split("/")[-2]
+                    # print(self.folder)
+                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                    # self.setProgress(self.progress() + 100 / total)
 
         if len(self.liczba_dobrych_url) == 0:
             return False

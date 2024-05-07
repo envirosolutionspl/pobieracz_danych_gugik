@@ -1,5 +1,6 @@
-import requests, re
+import requests
 import xml.etree.ElementTree as ET
+from ..wfs.httpsAdapter import get_legacy_session
 
 def getQueryableLayersFromWMS(wmsUrl):
     """Lista dostępnych warstw z usługi WMS"""
@@ -14,20 +15,21 @@ def getQueryableLayersFromWMS(wmsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        r = requests.get(url=wmsUrl, params=PARAMS, verify=False)
+        with get_legacy_session().get(url=wmsUrl, params=PARAMS, verify=False) as resp:
+            r_txt = resp.text
+            if resp.status_code == 200:
+                queryableLayers = []
+                root = ET.fromstring(r_txt)
+                for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', ns):
+                    nameET = layerET.find('./xmlns:Name', ns)
+                    if nameET is not None:
+                        queryableLayers.append(nameET.text)
+                return True, queryableLayers
+            else:
+                return False, f'Błąd {resp.status_code}'
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
-    r_txt = r.text
-    if r.status_code == 200:
-        queryableLayers = []
-        root = ET.fromstring(r_txt)
-        for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', ns):
-            nameET = layerET.find('./xmlns:Name', ns)
-            if nameET is not None:
-                queryableLayers.append(nameET.text)
-        return True, queryableLayers
-    else:
-        return False, "Błąd %d" % r.status_code
+
 
 
 if __name__ == "__main__":
