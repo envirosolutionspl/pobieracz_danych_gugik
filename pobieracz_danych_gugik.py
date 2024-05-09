@@ -750,37 +750,23 @@ class PobieraczDanychGugik:
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
-
-        bledy = 0
         layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
-        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
-
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
-
+            points = self.pointsFromVectorLayer(layer, density=250)
+            las_list = []
             # zablokowanie klawisza pobierania
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
-
-            lasList = []
             for point in points:
-                subList = las_api.getLasListbyPoint1992(
-                    point=point,
-                    isEvrf2007=isEvrf2007)
-                # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
-                if subList:
-                    lasList.extend(subList)
-                else:
-                    bledy += 1
-
-            self.filterLasListAndRunTask(lasList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.las_fromLayer_btn.setEnabled(True)
-
+                sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
+                if not sub_list:
+                    continue
+                las_list.extend(sub_list)
+            self.filterLasListAndRunTask(las_list)
         else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano warstwy wektorowej')
+            self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Nie wskazano warstwy wektorowej')
+
+        # odblokowanie klawisza pobierania
+        self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
@@ -823,7 +809,7 @@ class PobieraczDanychGugik:
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
                 # pobieranie LAS
-                task = DownloadLasTask(description='Pobieranie plików LAS',
+                task = DownloadLasTask(description='Pobieranie plików LAZ',
                                        lasList=lasList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
