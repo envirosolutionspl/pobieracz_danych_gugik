@@ -141,7 +141,6 @@ class WfsEgib:
                 name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
                 if len(name_error_brak) != 0:
                     name_error = name_error + "\n\nPrawidłowe warstwy:  " + name_error_brak
-
         return name_error
 
     def egib_wfs(self, teryt, wfs, folder):
