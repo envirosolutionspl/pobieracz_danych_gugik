@@ -1375,6 +1375,10 @@ class PobieraczDanychGugik:
             return False
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        if not powiatName:
+            self.iface.messageBar().pushWarning(
+                "Ostrzeżenie:", 'Nie wskazano powiatu.')
+            return
 
         try:
             teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
