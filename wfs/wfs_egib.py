@@ -13,13 +13,15 @@ class WfsEgib:
         """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
         """W przypadku błędów przekazuje ich opis"""
         try:
-            with get_legacy_session().get(url, verify=False) as resp:
+            with get_legacy_session().get(url, verify=False, timeout=30) as resp:
                 if str(resp.status_code) == '404':
                     name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
                 else:
                     with open(folder + 'egib_wfs.xml', 'wb') as f:
                         f.write(resp.content)
                     name_error = "brak"
+        except requests.exceptions.Timeout:
+            name_error = 'Przekroczono czas oczekiwania na odpowiedź serwera.'
         except requests.exceptions.SSLError:
             name_error = f"- (teryt: {teryt}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url}"
         except IOError:
@@ -102,7 +104,7 @@ class WfsEgib:
                 print(url_gml)
                 sleep(1)
                 try:
-                    with get_legacy_session().get(url_gml, verify=False) as resp:
+                    with get_legacy_session().get(url_gml, verify=False, timeout=60) as resp:
                         if str(resp.status_code) == '404':
                             name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
                             name_error_lista.append(name_error)
@@ -116,26 +118,29 @@ class WfsEgib:
                                 name_error_lista.append(name_error)
                             else:
                                 name_error_lista_brak.append(f"{layer.split(':')[-1]}")
-
+                except requests.exceptions.Timeout:
+                    name_error = 'Przekroczono czas oczekiwania na odpowiedź serwera.'
                 except requests.exceptions.SSLError:
-                    name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}"
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błędy weryfikacji SSL. Może to "
+                                  f"wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except IOError:
-                    name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd IOError. Błąd zapisu pliku. URL do pliku \n{url_gml}"
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd IOError. Błąd zapisu pliku."
+                                  f" URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except requests.exceptions.ConnectionError:
-                    name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd ConnectionError. Problem związany z połączeniem. URL do pliku \n{url_gml}"
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd ConnectionError. "
+                                  f"Problem związany z połączeniem. URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except Exception:
-                    name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Nieznany błąd. URL do pliku \n{url_gml}"
-
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Nieznany błąd. "
+                                  f"URL do pliku \n{url_gml}")
             if len(name_error_lista) != 0:
                 name_error_brak = ', '.join(name_error_lista_brak)
                 name_error = '\n\n '.join(name_error_lista)
                 name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
                 if len(name_error_brak) != 0:
                     name_error = name_error + "\n\nPrawidłowe warstwy:  " + name_error_brak
-
         return name_error
 
     def egib_wfs(self, teryt, wfs, folder):
