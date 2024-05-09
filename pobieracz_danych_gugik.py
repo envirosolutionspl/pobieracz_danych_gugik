@@ -1366,6 +1366,8 @@ class PobieraczDanychGugik:
         )
         if not hasattr(self, 'egib_wfs_dict'):
             setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
+        if not self.egib_wfs_dict:
+            return
 
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',

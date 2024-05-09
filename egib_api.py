@@ -1,5 +1,4 @@
-from bs4 import BeautifulSoup
-
+from lxml import etree
 from .wfs.httpsAdapter import get_legacy_session
 
 
@@ -10,18 +9,17 @@ def get_wfs_egib_dict():
     with get_legacy_session().get(url=egib_url, verify=False) as resp:
         if resp.status_code != 200:
             return
-    parser = BeautifulSoup(resp.content, 'html.parser')
-    table = parser.find('table', class_='table')
+    root = etree.HTML(resp.content)
+    table = root.xpath('.//table[contains(@class, "table")]')[0]
     if not table:
         return
-    rows = table.find_all('tr')
-    for row in rows[1:]:
-        cells = row.find_all('td')
+    for row in table.iterfind('.//tr'):
+        cells = [cell for cell in row.iterfind('td')]
         if len(cells) < 7:
             continue
-        teryt = cells[3].get_text()
-        link = cells[6].find('a')['href']
-        egib_dict.update({teryt: link.split("?")[0]})
+        teryt = next(cells[3].itertext())
+        link = cells[6].find('a').get('href')
+        egib_dict[teryt] = link.split("?")[0] if link else ''
     egib_dict.update({"2062": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2062"})
     egib_dict.update({"2007": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2007"})
     return egib_dict
