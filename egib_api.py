@@ -20,7 +20,7 @@ def get_wfs_egib_dict():
         if len(cells) < 7:
             continue
         teryt = cells[3].get_text()
-        link = cells[5].find('a')['href']
+        link = cells[6].find('a')['href']
         egib_dict.update({teryt: link.split("?")[0]})
     egib_dict.update({"2062": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2062"})
     egib_dict.update({"2007": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2007"})

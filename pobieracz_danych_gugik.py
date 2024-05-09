@@ -1003,6 +1003,9 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
 
         self.iface.messageBar().pushMessage("Informacja",
@@ -1037,6 +1040,9 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
@@ -1093,6 +1099,9 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
 
         self.iface.messageBar().pushMessage("Informacja",
@@ -1316,6 +1325,9 @@ class PobieraczDanychGugik:
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
@@ -1343,8 +1355,7 @@ class PobieraczDanychGugik:
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
         if not powiatName:
-            self.iface.messageBar().pushWarning(
-                "Ostrzeżenie:", 'Nie wskazano powiatu.')
+            self.no_area_specified_warning()
             return
         teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
         self.iface.messageBar().pushMessage(
@@ -1398,6 +1409,9 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
 
         self.iface.messageBar().pushMessage("Informacja",
@@ -1482,6 +1496,9 @@ class PobieraczDanychGugik:
             return False
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
 
         self.iface.messageBar().pushMessage("Informacja",
@@ -2082,3 +2099,7 @@ class PobieraczDanychGugik:
             return False
         else:
             return True
+
+    def no_area_specified_warning(self):
+        self.iface.messageBar().pushWarning(
+            "Ostrzeżenie:", 'Nie wskazano obszaru.')
