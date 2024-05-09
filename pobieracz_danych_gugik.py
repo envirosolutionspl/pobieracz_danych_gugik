@@ -24,7 +24,7 @@ import sys
 import subprocess
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
 
 """Wersja wtyczki"""
 plugin_version = '1.0.10'
@@ -1379,32 +1379,27 @@ class PobieraczDanychGugik:
             self.iface.messageBar().pushWarning(
                 "Ostrzeżenie:", 'Nie wskazano powiatu.')
             return
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            level=Qgis.Info,
+            duration=-1
+        )
+        if not hasattr(self, 'egib_wfs_dict'):
+            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
 
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
+            wfs_url=self.egib_wfs_dict.get(teryt),
             iface=self.iface,
             plugin_dir=self.plugin_dir
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
-
-    # region zestawienia zbiorcze EGiB
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
