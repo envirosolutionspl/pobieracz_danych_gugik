@@ -1,3 +1,6 @@
+from qgis.utils import iface
+
+import requests
 from lxml import etree
 from .wfs.httpsAdapter import get_legacy_session
 
@@ -6,9 +9,13 @@ def get_wfs_egib_dict():
     egib_url = ("https://integracja.gugik.gov.pl/eziudp/index.php?teryt=&rodzaj=powiaty&nazwa=&zbior=&temat=1.6&usluga"
                 "=pobierania&adres=")
     egib_dict = {}
-    with get_legacy_session().get(url=egib_url, verify=False) as resp:
-        if resp.status_code != 200:
-            return
+    try:
+        with get_legacy_session().get(url=egib_url, verify=False) as resp:
+            if resp.status_code != 200:
+                return
+    except requests.exceptions.ConnectionError:
+        iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem - nie można pobrać adresu WFS.')
+        return
     root = etree.HTML(resp.content)
     table = root.xpath('.//table[contains(@class, "table")]')[0]
     if not table:
