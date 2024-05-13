@@ -5,7 +5,7 @@ import os
 
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, QRegExp
-from qgis._core import Qgis
+from qgis._core import Qgis, QgsMapLayerProxyModel
 
 from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
@@ -22,9 +22,12 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     @staticmethod
     def get_vector_filters():
-        return Qgis.LayerFilters(
-            Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
-        )
+        if Qgis.versionInt() >= 33400:
+            return Qgis.LayerFilters(
+                Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
+            )
+        else:
+            return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
 
     def __init__(self, parent=None):
         """Constructor."""
