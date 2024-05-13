@@ -2,6 +2,7 @@
 
 
 import os
+import warnings
 
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, QRegExp
@@ -27,6 +28,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
             )
         else:
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
             return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
 
     def __init__(self, parent=None):
