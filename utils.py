@@ -28,7 +28,7 @@ def openFile(filename):
 
 def pointTo2180(point, sourceCrs, project):
     """zamiana układu na 1992"""
-    crsDest = QgsCoordinateReferenceSystem(2180)  # PL 1992
+    crsDest = QgsCoordinateReferenceSystem('EPSG:2180')  # PL 1992
     xform = QgsCoordinateTransform(sourceCrs, crsDest, project)
     point1992 = xform.transform(point)
 
@@ -67,6 +67,8 @@ def createPointsFromPolygon(layer, density=1000):
 
     for feat in layer.getFeatures():
         geom = feat.geometry()
+        if not geom:
+            continue
         bbox = geom.boundingBox()
         if bbox.width() <= density or bbox.height() <= density:
             punktyList.append(bbox.center())
