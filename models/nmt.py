@@ -7,19 +7,20 @@ class Nmt:
             url,
             godlo,
             aktualnosc,
-            charakterystykaPrzestrzenna,
             format,
+            charakterystykaPrzestrzenna,
             bladSredniWysokosci,
             ukladWspolrzednychPoziomych,
             ukladWspolrzednychPionowych,
             calyArkuszWypelnionyTrescia,
             modulArchiwizacji,
-            zrDanych='',
-            kolor='',
-            numerZgloszeniaPracy='',
-            aktualnoscRok='',
-            nazwaPliku=''
+            numerZgloszeniaPracy,
+            aktualnoscRok,
+            zrDanych,
+            dt_pzgik
     ):
+        #zerowanie niepotrzebnych wartości
+
         self.url = url
         self.godlo = godlo
         self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y-%m-%d').date()
@@ -31,10 +32,9 @@ class Nmt:
         self.calyArkuszWyeplnionyTrescia = calyArkuszWypelnionyTrescia
         self.modulArchiwizacji = modulArchiwizacji
         self.zrDanych = zrDanych
-        self.kolor = kolor
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
-        self.nazwaPliku = nazwaPliku
+        self.dt_pzgik = dt_pzgik
 
     def __eq__(self, other):
         return self.url == other.url
