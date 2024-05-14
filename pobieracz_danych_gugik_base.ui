@@ -214,9 +214,6 @@
         </item>
         <item>
          <widget class="QgsCollapsibleGroupBox" name="wfs_groupBox">
-          <property name="toolTip">
-           <string>WFS dla Ewidencji gruntów i budynków</string>
-          </property>
           <property name="title">
            <string>Usługa WFS</string>
           </property>
