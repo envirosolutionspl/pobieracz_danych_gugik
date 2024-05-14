@@ -58,7 +58,7 @@ class WfsFetch:
                         'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})
         simplification = processing.run("native:simplifygeometries",
                        {'INPUT': aggregation['OUTPUT'],
-                        'METHOD': 1, 'TOLERANCE': 1000, 'OUTPUT': 'TEMPORARY_OUTPUT'})
+                        'METHOD': 1, 'TOLERANCE': 100, 'OUTPUT': 'TEMPORARY_OUTPUT'})
         simpleLayer = simplification['OUTPUT']
         feat = next(simpleLayer.getFeatures())
         geom = feat.geometry()
