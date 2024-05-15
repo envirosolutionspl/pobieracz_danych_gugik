@@ -1,3 +1,5 @@
+import uuid
+
 import requests
 import os
 import xml.etree.ElementTree as ET
@@ -147,17 +149,8 @@ class WfsEgib:
         """Tworzy nowy folder dla plików XML"""
 
         wfs = wfs + "?service=WFS&request=GetCapabilities"
-        num_error_exists_file = 0
-        try:
-            path = os.path.join(folder, teryt + "_wfs_egib/")
-            os.mkdir(path)
-        except FileExistsError:
-            while FileExistsError is True:
-                num_error_exists_file = num_error_exists_file + 1
-                path = os.path.join(folder, teryt + "_wfs_egib_" + str(num_error_exists_file) + "/")
-                os.mkdir(path)
-        # print("Stworzenie folderu '% s'" % path)
-
+        path = os.path.join(folder, f'{teryt}_wfs_egib_{uuid.uuid4()}/')
+        os.mkdir(path)
         name_error = self.save_gml(path, wfs, teryt)
 
         return name_error
