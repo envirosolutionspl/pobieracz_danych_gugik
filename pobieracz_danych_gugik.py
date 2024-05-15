@@ -1010,7 +1010,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1047,7 +1047,7 @@ class PobieraczDanychGugik:
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1077,7 +1077,7 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1128,7 +1128,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1149,7 +1149,7 @@ class PobieraczDanychGugik:
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOO dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description='Pobieranie paczki BDOO dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1192,7 +1192,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'{description} w formacie {format_danych}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadPrngTask(
             description=f'{description} w formacie {format_danych}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1298,7 +1298,7 @@ class PobieraczDanychGugik:
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
-        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=-1)
+        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
 
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
@@ -1353,7 +1353,7 @@ class PobieraczDanychGugik:
         teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadModel3dTask(
             description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1384,7 +1384,7 @@ class PobieraczDanychGugik:
             "Informacja",
             f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             level=Qgis.Info,
-            duration=-1
+            duration=10
         )
         if not hasattr(self, 'egib_wfs_dict'):
             setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
@@ -1440,7 +1440,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1485,7 +1485,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOpracowaniaTyflologiczneTask(
             description=f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
@@ -1527,7 +1527,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOsnowaTask(
             description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
@@ -1904,7 +1904,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadArchiwalnyBdotTask(
             description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
