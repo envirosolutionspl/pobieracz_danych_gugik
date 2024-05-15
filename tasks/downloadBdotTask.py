@@ -2,7 +2,7 @@ from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
     )
 
-from PyQt5.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
 
 from .. import service_api, utils
 
