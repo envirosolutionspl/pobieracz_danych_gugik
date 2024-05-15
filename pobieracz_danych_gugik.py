@@ -27,7 +27,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
 
 """Wersja wtyczki"""
-plugin_version = '1.0.10'
+plugin_version = '1.1.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -1019,6 +1019,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
+        task.task_finished.connect(self.bdot_task_finished)
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
@@ -1088,7 +1089,28 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def bdot_task_finished(self, result, exception):
+        if result:
+            QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushMessage(
+                "Sukces",
+                "Udało się! Dane BDOT10k zostały pobrane.",
+                level=Qgis.Success,
+                duration=10
+            )
+        else:
+            if exception is None:
+                QgsMessageLog.logMessage('finished with false')
+            else:
+                QgsMessageLog.logMessage("exception")
+                raise exception
+            self.iface.messageBar().pushMessage(
+                "Błąd",
+                "Dane BDOT10k nie zostały pobrane.",
+                level=Qgis.Warning,
+                duration=10
+            )
+
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):

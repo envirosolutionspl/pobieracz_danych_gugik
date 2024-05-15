@@ -2,12 +2,14 @@
 
 
 import os
+import warnings
 
-from qgis.PyQt import QtGui, QtWidgets, uic
+from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, QRegExp
+from qgis._core import Qgis, QgsMapLayerProxyModel
+
 from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
-from qgis.core import QgsMapLayerProxyModel
 from .uldk import RegionFetch
 from .wfs import WfsFetch
 
@@ -19,19 +21,29 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
+    @staticmethod
+    def get_vector_filters():
+        if Qgis.versionInt() >= 33400:
+            return Qgis.LayerFilters(
+                Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
+            )
+        else:
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
+
     def __init__(self, parent=None):
         """Constructor."""
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
         self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
         # orto
-        self.orto_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.orto_mapLayerComboBox.setFilters(self.get_vector_filters())
         self.orto_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.orto_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.orto_from_dateTimeEdit.setAllowNull(False)
         self.orto_to_dateTimeEdit.setAllowNull(False)
         # nmt/nmpt
-        self.nmt_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.nmt_mapLayerComboBox.setFilters(self.get_vector_filters())
         self.nmt_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.nmt_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.nmt_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
@@ -39,7 +51,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.nmt_from_dateTimeEdit.setAllowNull(False)
         self.nmt_to_dateTimeEdit.setAllowNull(False)
         # las
-        self.las_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.las_mapLayerComboBox.setFilters(self.get_vector_filters())
         self.las_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.las_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
@@ -47,7 +59,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.las_from_dateTimeEdit.setAllowNull(False)
         self.las_to_dateTimeEdit.setAllowNull(False)
         # intensywnosc
-        self.reflectance_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.reflectance_mapLayerComboBox.setFilters(self.get_vector_filters())
         self.reflectance_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.reflectance_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
         self.reflectance_from_dateTimeEdit.setAllowNull(False)
@@ -80,8 +92,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.model3d_wojewodztwo_cmbbx.addItems(model3d_wojewodztwa)
 
         #WFS
-        self.wfs_mapLayerComboBox.setFilters(
-            QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.wfs_mapLayerComboBox.setFilters(self.get_vector_filters())
 
         self.wfsFetch = WfsFetch()
         self.wfs_service_cmbbx.clear()
@@ -116,16 +127,16 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
 
         # areotriangulacja
-        self.aerotriangulacja_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.aerotriangulacja_mapLayerComboBox.setFilters(self.get_vector_filters())
 
         # linie mozaikowania
-        self.linie_mozaikowania_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.linie_mozaikowania_mapLayerComboBox.setFilters(self.get_vector_filters())
 
         # wizualizacja karograficzna BDOT10k
-        self.wizualizacja_karto_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.wizualizacja_karto_mapLayerComboBox.setFilters(self.get_vector_filters())
 
         # archiwalne kartoteki osnów
-        self.osnowa_arch_mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.osnowa_arch_mapLayerComboBox.setFilters(self.get_vector_filters())
 
         # bdot10k/BDOO
         self.powiatArchiwalneBDOTDict = {}
@@ -137,8 +148,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
 
         # zdjęcia lotnicze
-        self.zdjecia_lotnicze_mapLayerComboBox.setFilters(
-            QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer)
+        self.zdjecia_lotnicze_mapLayerComboBox.setFilters(self.get_vector_filters())
         self.zdjecia_lotnicze_from_dateTimeEdit.setAllowNull(False)
         self.zdjecia_lotnicze_to_dateTimeEdit.setAllowNull(False)
 
