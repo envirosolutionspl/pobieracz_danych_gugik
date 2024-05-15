@@ -1107,7 +1107,7 @@ class PobieraczDanychGugik:
                 "Sukces",
                 "Udało się! Dane BDOT10k zostały pobrane.",
                 level=Qgis.Success,
-                duration=0
+                duration=10
             )
         else:
             if exception is None:
@@ -1115,9 +1115,11 @@ class PobieraczDanychGugik:
             else:
                 QgsMessageLog.logMessage("exception")
                 raise exception
-            self.iface.messageBar().pushWarning(
+            self.iface.messageBar().pushMessage(
                 "Błąd",
-                "Dane BDOT10k nie zostały pobrane."
+                "Dane BDOT10k nie zostały pobrane.",
+                level=Qgis.Warning,
+                duration=10
             )
 
 
