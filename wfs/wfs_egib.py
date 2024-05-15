@@ -6,6 +6,8 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
+from osgeo import ogr, osr
+
 from ..wfs.httpsAdapter import get_legacy_session
 
 
@@ -97,11 +99,11 @@ class WfsEgib:
             for layer in name_layers:
 
                 if prefix == 'ewns':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
                 elif prefix == 'ms':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&srsName=urn:ogc:def:crs:EPSG::2180&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
+                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
                 else:
-                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&srsName=urn:ogc:def:crs:EPSG::2180&typename=' + layer
+                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer
 
                 print(url_gml)
                 sleep(1)
