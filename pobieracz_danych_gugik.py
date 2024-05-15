@@ -1024,6 +1024,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
+        task.task_finished.connect(self.bdot_task_finished)
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
@@ -1067,6 +1068,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
+        task.connectNotify()
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
@@ -1099,7 +1101,24 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def bdot_task_finished(self, result, exception):
+        if result:
+            QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushMessage(
+                "Sukces",
+                "Udało się! Dane BDOT10k zostały pobrane.",
+                level=Qgis.Success, duration=0)
+        else:
+            if exception is None:
+                QgsMessageLog.logMessage('finished with false')
+            else:
+                QgsMessageLog.logMessage("exception")
+                raise exception
+            self.iface.messageBar().pushWarning(
+                "Błąd",
+                "Dane BDOT10k nie zostały pobrane."
+            )
+
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
