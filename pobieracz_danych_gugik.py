@@ -1106,7 +1106,9 @@ class PobieraczDanychGugik:
             self.iface.messageBar().pushMessage(
                 "Sukces",
                 "Udało się! Dane BDOT10k zostały pobrane.",
-                level=Qgis.Success, duration=0)
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if exception is None:
                 QgsMessageLog.logMessage('finished with false')
