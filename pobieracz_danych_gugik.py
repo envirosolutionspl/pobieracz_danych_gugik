@@ -1068,7 +1068,6 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
-        task.connectNotify()
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
