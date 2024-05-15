@@ -6,7 +6,6 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
-from osgeo import ogr, osr
 
 from ..wfs.httpsAdapter import get_legacy_session
 
