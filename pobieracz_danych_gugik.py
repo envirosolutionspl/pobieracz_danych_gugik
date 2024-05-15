@@ -24,7 +24,7 @@ import sys
 import subprocess
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
 
 """Wersja wtyczki"""
 plugin_version = '1.1.0'
@@ -1003,19 +1003,14 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1046,19 +1041,13 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1088,7 +1077,7 @@ class PobieraczDanychGugik:
             format_danych = "GPKG"
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1132,18 +1121,14 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1164,7 +1149,7 @@ class PobieraczDanychGugik:
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOO dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description='Pobieranie paczki BDOO dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1207,7 +1192,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'{description} w formacie {format_danych}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadPrngTask(
             description=f'{description} w formacie {format_danych}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1313,7 +1298,7 @@ class PobieraczDanychGugik:
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
-        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=-1)
+        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
 
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
@@ -1362,19 +1347,13 @@ class PobieraczDanychGugik:
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadModel3dTask(
             description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1398,35 +1377,31 @@ class PobieraczDanychGugik:
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
         if not powiatName:
-            self.iface.messageBar().pushWarning(
-                "Ostrzeżenie:", 'Nie wskazano powiatu.')
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            level=Qgis.Info,
+            duration=10
+        )
+        if not hasattr(self, 'egib_wfs_dict'):
+            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
+        if not self.egib_wfs_dict:
             return
 
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
+            wfs_url=self.egib_wfs_dict.get(teryt),
             iface=self.iface,
             plugin_dir=self.plugin_dir
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
-
-    # region zestawienia zbiorcze EGiB
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
@@ -1458,19 +1433,14 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1515,7 +1485,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOpracowaniaTyflologiczneTask(
             description=f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
@@ -1550,19 +1520,14 @@ class PobieraczDanychGugik:
             return False
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOsnowaTask(
             description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
@@ -1939,7 +1904,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadArchiwalnyBdotTask(
             description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
@@ -2158,3 +2123,7 @@ class PobieraczDanychGugik:
             return False
         else:
             return True
+
+    def no_area_specified_warning(self):
+        self.iface.messageBar().pushWarning(
+            "Ostrzeżenie:", 'Nie wskazano obszaru.')
