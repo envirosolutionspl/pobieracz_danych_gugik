@@ -48,8 +48,6 @@ class DownloadBdotTask(QgsTask):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         QgsMessageLog.logMessage('pobieram ' + self.url)
         self.result = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        if self.result[0]:
-            utils.openFile(self.folder)
         self.task_finished.emit(self.result, self.exception)
         if self.isCanceled():
             return False
