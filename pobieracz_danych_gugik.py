@@ -745,7 +745,10 @@ class PobieraczDanychGugik:
 
     def las_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -770,6 +773,10 @@ class PobieraczDanychGugik:
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
@@ -2127,3 +2134,11 @@ class PobieraczDanychGugik:
     def no_area_specified_warning(self):
         self.iface.messageBar().pushWarning(
             "Ostrzeżenie:", 'Nie wskazano obszaru.')
+
+    def show_no_connection_message(self):
+        self.iface.messageBar().pushMessage(
+            "Błąd",
+            "Brak połączenia z internetem",
+            level=Qgis.Warning,
+            duration=10
+        )
