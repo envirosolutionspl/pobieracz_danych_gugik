@@ -103,7 +103,7 @@ def check_internet_connection():
             if resp.status_code != 200:
                 return False
             return True
-    except ConnectionError:
+    except requests.exceptions.ConnectionError:
         return False
 
 
