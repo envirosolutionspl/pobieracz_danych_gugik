@@ -40,8 +40,6 @@ class DownloadNmtTask(QgsTask):
 
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
-
-        utils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True

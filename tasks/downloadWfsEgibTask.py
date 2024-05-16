@@ -38,8 +38,8 @@ class DownloadWfsEgibTask(QgsTask):
 
         self.wfsEgib = WfsEgib()
         self.name_error = self.wfsEgib.egib_wfs(self.teryt, self.wfs_url, self.folder)
-
-        utils.openFile(self.folder)
+        if self.name_error == 'brak':
+            utils.openFile(self.folder)
         if self.isCanceled():
             QgsMessageLog.logMessage('isCanceled')
             return False
