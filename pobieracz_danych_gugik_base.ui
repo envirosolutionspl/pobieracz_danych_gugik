@@ -1644,7 +1644,7 @@
            <item>
             <widget class="QLabel" name="label_43">
              <property name="text">
-              <string>WFS dla powiatowych Ewidencji Gruntów i Budynków</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;WFS dla powiatowych Ewidencji Gruntów i Budynków&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;pobrane dane mogą mieć odwrócone osie X i Y&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
