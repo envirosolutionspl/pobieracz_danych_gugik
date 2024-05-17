@@ -34,7 +34,7 @@ class Nmt:
         self.zrDanych = zrDanych
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
-        self.dt_pzgik = dt_pzgik
+        self.dt_pzgik = str(dt_pzgik)
 
     def __eq__(self, other):
         return self.url == other.url

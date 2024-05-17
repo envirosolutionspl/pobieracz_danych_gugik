@@ -6,7 +6,7 @@ from .. import service_api, utils
 
 
 class DownloadNmtTask(QgsTask):
-    """QgsTask pobierania NMT"""
+    """QgsTask pobierania NMT/NMPT"""
 
     def __init__(self, description, nmtList, folder, isNmpt, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -76,7 +76,10 @@ class DownloadNmtTask(QgsTask):
 
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        csvFilename = 'pobieracz_nmt_%s.txt' % date
+        if self.isNmpt:
+            csvFilename = 'pobieracz_nmpt_%s.txt' % date
+        else:
+            csvFilename = 'pobieracz_nmt_%s.txt' % date
 
 
         with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
