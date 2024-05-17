@@ -14,7 +14,8 @@ class Reflectance:
             metodaZapisu,
             zakresIntensywnosci,
             numerZgloszeniaPracy,
-            aktualnoscRok
+            aktualnoscRok,
+            dt_pzgik
     ):
         self.url = url
         self.godlo = godlo
@@ -27,6 +28,7 @@ class Reflectance:
         self.zakresIntensywnosci = int(zakresIntensywnosci)
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
+        self.dtPzgik = str(dt_pzgik)
 
     def __eq__(self, other):
         return self.url == other.url
