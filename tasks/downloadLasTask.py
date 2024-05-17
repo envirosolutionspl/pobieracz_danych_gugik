@@ -17,6 +17,8 @@ class DownloadLasTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+
+
     def run(self):
         """Here you implement your heavy lifting.
         Should periodically test for isCanceled() to gracefully
@@ -39,6 +41,8 @@ class DownloadLasTask(QgsTask):
         self.createCsvReport()
         utils.openFile(self.folder)
         return True
+    
+
     def finished(self, result):
         """
         This function is automatically called when the task has
@@ -62,19 +66,21 @@ class DownloadLasTask(QgsTask):
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Dane LAZ nie zostały pobrane.")
 
+
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
+
+
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         csvFilename = 'pobieracz_las_%s.txt' % date
         with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
             naglowki = [
                 'nazwa_pliku',
-                'format',
                 'godlo',
+                'format',
                 'aktualnosc',
-                'dokladnosc_pozioma',
                 'dokladnosc_pionowa',
                 'uklad_wspolrzednych_plaskich',
                 'uklad_wspolrzednych_wysokosciowych',
@@ -82,15 +88,16 @@ class DownloadLasTask(QgsTask):
                 'numer_zgloszenia_pracy',
                 'aktualnosc_rok'
             ]
+
             csvFile.write(','.join(naglowki)+'\n')
             for las in self.lasList:
+                print(las)
                 fileName = las.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
-                    las.format,
                     las.godlo,
+                    las.format,
                     las.aktualnosc,
-                    las.charakterystykaPrzestrzenna,
                     las.bladSredniWysokosci,
                     las.ukladWspolrzednych,
                     las.ukladWysokosci,
