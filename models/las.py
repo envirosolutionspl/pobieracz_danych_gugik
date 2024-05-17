@@ -7,8 +7,8 @@ class Las:
             url,
             godlo,
             aktualnosc,
-            charakterystykaPrzestrzenna,
             format,
+            charakterystykaPrzestrzenna,
             bladSredniWysokosci,
             ukladWspolrzednychPoziomych,
             ukladWspolrzednychPionowych,
@@ -16,7 +16,7 @@ class Las:
             modulArchiwizacji,
             numerZgloszeniaPracy,
             aktualnoscRok,
-            # isLaz=False
+            dt_pzgik
     ):
         self.url = url
         self.godlo = godlo
@@ -30,6 +30,7 @@ class Las:
         self.modulArchiwizacji = modulArchiwizacji
         self.numerZgloszeniaPracy = numerZgloszeniaPracy
         self.aktualnoscRok = int(aktualnoscRok)
+        self.dtPzgik = str(dt_pzgik)
 
     def __eq__(self, other):
         return self.url == other.url

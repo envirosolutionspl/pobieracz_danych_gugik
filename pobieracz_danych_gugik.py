@@ -6,7 +6,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 from .tasks import (
-    DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
+    DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
@@ -626,7 +626,7 @@ class PobieraczDanychGugik:
                 else:
                     bledy += 1
 
-            self.filterNmtListAndRunTask(nmtList)
+            self.filterNmtListAndRunTask(nmtList, isNmpt)
             # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
@@ -648,21 +648,18 @@ class PobieraczDanychGugik:
             point=point1992, isEvrf2007=isEvrf2007)
         if resp[0]:
             nmtList = resp[1]
-            self.filterNmtListAndRunTask(nmtList)
+            self.filterNmtListAndRunTask(nmtList, isNmpt)
         else:
             self.iface.messageBar().pushCritical("Błąd pobierania",
                                                  f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
 
-    def filterNmtListAndRunTask(self, nmtList):
+    def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(nmtList))
 
         # usuwanie duplikatów
         nmtList = list(set(nmtList))
-        # print("po 'set'", len(nmtList))
         # filtrowanie
         nmtList = self.filterNmtList(nmtList)
-        # print("po 'filtrowaniu'", len(nmtList))
 
         # wyswietl komunikat pytanie
         if len(nmtList) == 0:
@@ -678,12 +675,23 @@ class PobieraczDanychGugik:
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie w zależności od typu NMT lub NMTP
-                task = DownloadNmtTask(description='Pobieranie plików NMT/NMPT',
+
+            if reply == QMessageBox.Yes and isNmpt is False and self.dockwidget.nmt_rdbtn.isChecked():
+                # pobieranie NMT
+                task = DownloadNmtTask(description='Pobieranie plików NMT',
                                        nmtList=nmtList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
-                                       isNmpt=True if self.dockwidget.nmpt_rdbtn.isChecked() else False,
+                                       isNmpt=False,
+                                       iface=self.iface)
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+            
+            else:
+                # pobieranie NMTP
+                task = DownloadNmptTask(description='Pobieranie plików NMPT',
+                                       nmptList=nmtList,
+                                       folder=self.dockwidget.folder_fileWidget.filePath(),
+                                       isNmpt=True,
                                        iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
@@ -691,6 +699,7 @@ class PobieraczDanychGugik:
     def canvasNmt_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
         """point - QgsPointXY"""
+
         self.canvas.unsetMapTool(self.nmtClickTool)
         self.downloadNmtForSinglePoint(point)
 
@@ -731,7 +740,6 @@ class PobieraczDanychGugik:
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
             nmtList = utils.onlyNewest(nmtList)
-            print(nmtList)
         return nmtList
 
     def downloadNmtFile(self, nmt, folder):

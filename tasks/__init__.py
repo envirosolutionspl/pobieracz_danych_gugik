@@ -1,5 +1,6 @@
 from .downloadOrtoFotoTask import DownloadOrtofotoTask
 from .downloadNmtTask import DownloadNmtTask
+from .downloadNmptTask import DownloadNmptTask
 from .downloadLasTask import DownloadLasTask
 from .downloadReflectanceTask import DownloadReflectanceTask
 from .downloadBdotTask import DownloadBdotTask
