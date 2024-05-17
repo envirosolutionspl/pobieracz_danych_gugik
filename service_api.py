@@ -1,3 +1,4 @@
+from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 import requests
@@ -73,6 +74,7 @@ def retreiveFile(url, destFolder, obj):
             except IOError:
                 return False, "Błąd zapisu pliku"
             if saved:
+                utils.openFile(destFolder)
                 return [True]
             else:
                 os.remove(path)

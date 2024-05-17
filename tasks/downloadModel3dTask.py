@@ -52,8 +52,6 @@ class DownloadModel3dTask(QgsTask):
         if len(self.liczba_dobrych_url) == 0:
             return False
         else:
-            # print("liczba_dobrych_url", len(self.liczba_dobrych_url))
-            utils.openFile(self.folder)
             return True
 
     def finished(self, result):

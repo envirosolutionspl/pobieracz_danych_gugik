@@ -39,9 +39,7 @@ class DownloadLasTask(QgsTask):
             self.setProgress(self.progress() + 100 / total)
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
-        utils.openFile(self.folder)
         return True
-    
 
     def finished(self, result):
         """
