@@ -3,6 +3,7 @@
 
 import os
 import warnings
+from functools import partial
 
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, QRegExp
@@ -10,19 +11,87 @@ from qgis._core import Qgis, QgsMapLayerProxyModel
 
 from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
-from .uldk import RegionFetch
 from .wfs import WfsFetch
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'pobieracz_danych_gugik_base.ui'))
 
 
-class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
+double_validator_obj = [
+    'orto_pixelFrom_lineEdit',
+    'orto_pixelTo_lineEdit',
+    'nmt_pixelFrom_lineEdit',
+    'nmt_pixelTo_lineEdit',
+    'nmt_mhFrom_lineEdit',
+    'nmt_mhTo_lineEdit',
+    'las_pixelFrom_lineEdit',
+    'las_pixelTo_lineEdit',
+    'las_mhFrom_lineEdit',
+    'las_mhTo_lineEdit',
+    'reflectance_pixelFrom_lineEdit',
+    'reflectance_pixelTo_lineEdit'
+]
 
+date_time_obj = [
+    'orto_from_dateTimeEdit',
+    'orto_to_dateTimeEdit',
+    'nmt_from_dateTimeEdit',
+    'nmt_to_dateTimeEdit',
+    'las_from_dateTimeEdit',
+    'las_to_dateTimeEdit',
+    'reflectance_from_dateTimeEdit',
+    'reflectance_to_dateTimeEdit',
+    'zdjecia_lotnicze_from_dateTimeEdit',
+    'zdjecia_lotnicze_to_dateTimeEdit'
+]
+
+map_layer_comboboxes = [
+    'orto_mapLayerComboBox',
+    'nmt_mapLayerComboBox',
+    'las_mapLayerComboBox',
+    'reflectance_mapLayerComboBox',
+    'wfs_mapLayerComboBox',
+    'aerotriangulacja_mapLayerComboBox',
+    'linie_mozaikowania_mapLayerComboBox',
+    'wizualizacja_karto_mapLayerComboBox',
+    'osnowa_arch_mapLayerComboBox',
+    'zdjecia_lotnicze_mapLayerComboBox'
+]
+
+voivodeship_comboboxes = [
+    'wojewodztwo_cmbbx',
+    'bdoo_wojewodztwo_cmbbx',
+    'prg_wojewodztwo_cmbbx',
+    'model3d_wojewodztwo_cmbbx',
+    'wfs_egib_wojewodztwo_cmbbx',
+    'egib_excel_wojewodztwo_cmbbx',
+    'osnowa_wojewodztwo_cmbbx',
+    'archiwalne_wojewodztwo_cmbbx'
+]
+
+administrative_units_obj = {
+    'wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'powiat_cmbbx'),
+    'prg_powiat_cmbbx': ('get_gmina_by_teryt', 'prg_gmina_cmbbx'),
+    'prg_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'prg_powiat_cmbbx'),
+    'model3d_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'model3d_powiat_cmbbx'),
+    'wfs_egib_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'wfs_egib_powiat_cmbbx'),
+    'egib_excel_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'egib_excel_powiat_cmbbx'),
+    'osnowa_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'osnowa_powiat_cmbbx'),
+    'archiwalne_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'archiwalne_powiat_cmbbx'),
+}
+
+years_comboboxes = {
+    'bdoo_dateEdit_comboBox': ['2022', '2021', '2015'],
+    'egib_excel_dateEdit_comboBox': ['2022', '2021', '2020'],
+    'archiwalne_bdot_dateEdit_comboBox': ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
+}
+
+
+class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
     @staticmethod
-    def get_vector_filters():
+    def vector_layers_filter():
         if Qgis.versionInt() >= 33400:
             return Qgis.LayerFilters(
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
@@ -31,173 +100,81 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
 
-    def __init__(self, parent=None):
+    def __init__(self, regionFetch, parent=None):
         """Constructor."""
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
         self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
-        # orto
-        self.orto_mapLayerComboBox.setFilters(self.get_vector_filters())
-        self.orto_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.orto_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.orto_from_dateTimeEdit.setAllowNull(False)
-        self.orto_to_dateTimeEdit.setAllowNull(False)
-        # nmt/nmpt
-        self.nmt_mapLayerComboBox.setFilters(self.get_vector_filters())
-        self.nmt_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.nmt_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.nmt_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.nmt_mhTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.nmt_from_dateTimeEdit.setAllowNull(False)
-        self.nmt_to_dateTimeEdit.setAllowNull(False)
-        # las
-        self.las_mapLayerComboBox.setFilters(self.get_vector_filters())
-        self.las_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.las_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.las_mhFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.las_mhTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.las_from_dateTimeEdit.setAllowNull(False)
-        self.las_to_dateTimeEdit.setAllowNull(False)
-        # intensywnosc
-        self.reflectance_mapLayerComboBox.setFilters(self.get_vector_filters())
-        self.reflectance_pixelFrom_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.reflectance_pixelTo_lineEdit.setValidator(QRegExpValidator(QRegExp("[0-9.]*")))
-        self.reflectance_from_dateTimeEdit.setAllowNull(False)
-        self.reflectance_to_dateTimeEdit.setAllowNull(False)
-        # bdot10k/BDOO
-        self.powiatDict = {}
-        self.regionFetch = RegionFetch()
-        self.wojewodztwo_cmbbx.currentTextChanged.connect(self.wojewodztwo_cmbbx_currentTextChanged)
-        wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.wojewodztwo_cmbbx.addItems(wojewodztwa)
-
-        # bdoo
-        self.bdoo_wojewodztwo_cmbbx.addItems(wojewodztwa)
-        rokDict_bdoo = ['2022', '2021', '2015']
-        self.bdoo_dateEdit_comboBox.addItems(rokDict_bdoo)
-
-        # PRG
-        self.powiatDict_prg = {}
-        self.gminaDict_prg = {}
-        self.prg_wojewodztwo_cmbbx.currentTextChanged.connect(self.prg_wojewodztwo_cmbbx_currentTextChanged)
-        self.prg_powiat_cmbbx.currentTextChanged.connect(self.prg_powiat_cmbbx_currentTextChanged)
-        prg_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.prg_wojewodztwo_cmbbx.addItems(prg_wojewodztwa)
-
-        # modele 3D
-        self.powiatDict_model3d = {}
-
-        self.model3d_wojewodztwo_cmbbx.currentTextChanged.connect(self.model3d_wojewodztwo_cmbbx_currentTextChanged)
-        model3d_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.model3d_wojewodztwo_cmbbx.addItems(model3d_wojewodztwa)
-
-        #WFS
-        self.wfs_mapLayerComboBox.setFilters(self.get_vector_filters())
-
+        self.regionFetch = regionFetch
         self.wfsFetch = WfsFetch()
-        self.wfs_service_cmbbx.clear()
-        self.wfs_layer_cmbbx.clear()
+        self.setup_dialog()
+
+    def setup_dialog(self):
+        self.setup_validators()
+        self.setup_dates()
+        self.setup_vector_layers_filters()
+        self.fill_voivodeships()
+        self.fill_services()
+        self.fill_years()
+        self.setup_signals()
+
+    def setup_signals(self):
+        for base_combo, combo_items in administrative_units_obj.items():
+            fetch_func, dependent_combo = combo_items
+            getattr(self, base_combo).currentTextChanged.connect(
+                partial(self.setup_administrative_unit_obj, fetch_func, dependent_combo))
         self.wfs_service_cmbbx.currentTextChanged.connect(self.wfs_service_cmbbx_currentTextChanged)
-        uslugi = list(self.wfsFetch.wfsServiceDict.keys())
-        self.wfs_service_cmbbx.addItems(uslugi)
 
-        #WFS EGiB
-        self.powiatDict_wfs_egib = {}
-        # self.powiatDict_wfs_egib = self.regionFetch.getAllPowiatNameWithTeryt()
-        # self.wfs_egib_powiat_cmbbx.addItems(list(self.powiatDict_wfs_egib.values()))
+    def fill_services(self):
+        self.wfs_service_cmbbx.clear()
+        self.wfs_service_cmbbx.addItems(self.wfsFetch.wfsServiceDict.keys())
 
-        self.wfs_egib_wojewodztwo_cmbbx.currentTextChanged.connect(self.wfs_wojewodztwo_cmbbx_currentTextChanged)
-        wfs_egib_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.wfs_egib_wojewodztwo_cmbbx.addItems(wfs_egib_wojewodztwa)
+    def setup_validators(self):
+        double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
+        for obj in double_validator_obj:
+            getattr(self, obj).setValidator(double_validator)
 
-        # zestawienia zbiorcze EGiB
-        self.powiatDict_egib_excel = {}
-        self.egib_excel_wojewodztwo_cmbbx.currentTextChanged.connect(self.egib_excel_wojewodztwo_cmbbx_currentTextChanged)
-        egib_excel_wojewodztwo = list(self.regionFetch.wojewodztwoDict.keys())
-        self.egib_excel_wojewodztwo_cmbbx.addItems(egib_excel_wojewodztwo)
+    def setup_dates(self):
+        for obj in date_time_obj:
+            getattr(self, obj).setAllowNull(False)
 
-        rokDict_egib_excel = ['2022', '2021', '2020']
-        self.egib_excel_dateEdit_comboBox.addItems(rokDict_egib_excel)
+    def setup_vector_layers_filters(self):
+        vector_layers_filter = self.vector_layers_filter()
+        for obj in map_layer_comboboxes:
+            getattr(self, obj).setFilters(vector_layers_filter)
 
-        # podstawowa osnowa geodezyjna
-        self.powiatDict_osnowa = {}
-        self.osnowa_wojewodztwo_cmbbx.currentTextChanged.connect(self.osnowa_wojewodztwo_cmbbx_currentTextChanged)
-        osnowa_wojewodztwa = list(self.regionFetch.wojewodztwoDict.keys())
-        self.osnowa_wojewodztwo_cmbbx.addItems(osnowa_wojewodztwa)
+    def fill_voivodeships(self):
+        voivodeships_ids = self.regionFetch.wojewodztwoDict.keys()
+        voivodeships_names = self.regionFetch.wojewodztwoDict.values()
+        for obj_name in voivodeship_comboboxes:
+            obj = getattr(self, obj_name)
+            obj.clear()
+            obj.addItems(voivodeships_names)
+            for idx, val in enumerate(voivodeships_ids):
+                obj.setItemData(idx, val)
+            obj.setCurrentIndex(-1)
 
+    def fill_years(self):
+        for obj, years in years_comboboxes.items():
+            getattr(self, obj).addItems(years)
 
-        # areotriangulacja
-        self.aerotriangulacja_mapLayerComboBox.setFilters(self.get_vector_filters())
-
-        # linie mozaikowania
-        self.linie_mozaikowania_mapLayerComboBox.setFilters(self.get_vector_filters())
-
-        # wizualizacja karograficzna BDOT10k
-        self.wizualizacja_karto_mapLayerComboBox.setFilters(self.get_vector_filters())
-
-        # archiwalne kartoteki osnów
-        self.osnowa_arch_mapLayerComboBox.setFilters(self.get_vector_filters())
-
-        # bdot10k/BDOO
-        self.powiatArchiwalneBDOTDict = {}
-        self.archiwalne_wojewodztwo_cmbbx.currentTextChanged.connect(self.archiwalne_wojewodztwo_cmbbx_currentTextChanged)
-        wojewodztwaArchiwalneBDOT = list(self.regionFetch.wojewodztwoDict.keys())
-        self.archiwalne_wojewodztwo_cmbbx.addItems(wojewodztwaArchiwalneBDOT)
-
-        rokDict_archiwalne_bdot10k = ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
-        self.archiwalne_bdot_dateEdit_comboBox.addItems(rokDict_archiwalne_bdot10k)
-
-        # zdjęcia lotnicze
-        self.zdjecia_lotnicze_mapLayerComboBox.setFilters(self.get_vector_filters())
-        self.zdjecia_lotnicze_from_dateTimeEdit.setAllowNull(False)
-        self.zdjecia_lotnicze_to_dateTimeEdit.setAllowNull(False)
-
-    def closeEvent(self, event):
-        self.closingPlugin.emit()
-        event.accept()
-
-    def wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.powiat_cmbbx.clear()
-        self.powiatDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.powiat_cmbbx.addItems(list(self.powiatDict.keys()))
-
-    def wfs_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.wfs_egib_powiat_cmbbx.clear()
-        self.powiatDict_wfs_egib = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.wfs_egib_powiat_cmbbx.addItems(list(self.powiatDict_wfs_egib.keys()))
+    def setup_administrative_unit_obj(self, func, dependent_combo):
+        combo_obj = getattr(self, dependent_combo)
+        unit_data = self.sender().currentData()
+        if not unit_data:
+            return
+        combo_obj.clear()
+        unit_dict = getattr(self.regionFetch, func)(unit_data)
+        for idx, val in enumerate(unit_dict.keys()):
+            combo_obj.setItemData(idx, val)
+        combo_obj.addItems(unit_dict.values())
+        combo_obj.setCurrentIndex(-1)
 
     def wfs_service_cmbbx_currentTextChanged(self, text):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
         self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))
 
-    def prg_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.prg_powiat_cmbbx.clear()
-        self.powiatDict_prg = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.prg_powiat_cmbbx.addItems(list(self.powiatDict_prg.keys()))
-
-    def prg_powiat_cmbbx_currentTextChanged(self, text):
-        self.prg_gmina_cmbbx.clear()
-        self.gminaDict_prg = self.regionFetch.getGminaDictByPowiatName(text)
-        self.prg_gmina_cmbbx.addItems(list(self.gminaDict_prg.keys()))
-
-    def model3d_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.model3d_powiat_cmbbx.clear()
-        self.powiatDict_model3d = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.model3d_powiat_cmbbx.addItems(list(self.powiatDict_model3d.keys()))
-
-    def egib_excel_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.egib_excel_powiat_cmbbx.clear()
-        self.powiatDict_egib_excel = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.egib_excel_powiat_cmbbx.addItems(list(self.powiatDict_egib_excel.keys()))
-
-    def osnowa_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.osnowa_powiat_cmbbx.clear()
-        self.powiatDict_osnowa = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.osnowa_powiat_cmbbx.addItems(list(self.powiatDict_osnowa.keys()))
-
-    def archiwalne_wojewodztwo_cmbbx_currentTextChanged(self, text):
-        self.archiwalne_powiat_cmbbx.clear()
-        self.powiatArchiwalneBDOTDict = self.regionFetch.getPowiatDictByWojewodztwoName(text)
-        self.archiwalne_powiat_cmbbx.addItems(list(self.powiatArchiwalneBDOTDict.keys()))
-
+    def closeEvent(self, event):
+        self.closingPlugin.emit()
+        event.accept()
