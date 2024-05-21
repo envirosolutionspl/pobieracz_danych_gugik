@@ -167,6 +167,7 @@ class PobieraczDanychGugik:
     def run(self):
         """Run method that loads and starts the plugin"""
         if not self.pluginIsActive:
+
             connection = service_api.check_internet_connection()
             if not connection:
                 self.show_no_connection_message()
