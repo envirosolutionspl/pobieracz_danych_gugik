@@ -21,7 +21,7 @@ def get_wfs_egib_dict():
         return
     root = etree.HTML(resp.content)
     table = root.xpath('.//table[contains(@class, "table")]')[0]
-    if not table:
+    if table is None:
         return
     for row in table.iterfind('.//tr'):
         cells = [cell for cell in row.iterfind('td')]

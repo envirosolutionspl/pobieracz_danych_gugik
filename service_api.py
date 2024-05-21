@@ -1,3 +1,4 @@
+from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 import requests
@@ -5,20 +6,23 @@ import os, time
 
 
 def getRequest(params, url):
-    max_attempts = 2
+    max_attempts = 3
     attempt = 0
-    while attempt < max_attempts:
+    while attempt <= max_attempts:
         try:
-            with get_legacy_session().get(url=url, params=params, verify=False) as resp:
+            with get_legacy_session().get(url=url, params=params, verify=False, timeout=20) as resp:
                 if resp.status_code == 200:
                     return True, resp.text
                 else:
                     return False, f'Błąd {resp.status_code}'
+                
         except requests.exceptions.ConnectionError:
-            return False, 'Błąd połączenia'
-            time.sleep(0.4)
             attempt += 1
-    return False, "Przekroczono maksymalną liczbę prób połączenia"
+            time.sleep(2)
+        
+        except requests.exceptions.ReadTimeout:
+            attempt += 1
+            time.sleep(2)
 
 
 def retreiveFile(url, destFolder, obj):
@@ -54,7 +58,7 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
 
     try:
-        with get_legacy_session().get(url=url, verify=False, stream=True) as resp:
+        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=20) as resp:
             if str(resp.status_code) == '404':
                 return False, "Plik nie istnieje"
             saved = True
@@ -70,6 +74,7 @@ def retreiveFile(url, destFolder, obj):
             except IOError:
                 return False, "Błąd zapisu pliku"
             if saved:
+                utils.openFile(destFolder)
                 return [True]
             else:
                 os.remove(path)
@@ -86,8 +91,13 @@ def getAllLayers(url,service):
     }
 
     layers = getRequest(params, url)
+    
+    if layers == None:
+        layers = getRequest(params, url)
+    
     if not layers[0]:
         return
+    
     parser = ET.XMLParser(recover=True)
     tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
     root = tree.getroot()

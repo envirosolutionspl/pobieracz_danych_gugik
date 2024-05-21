@@ -1,6 +1,6 @@
 import re
 from . import service_api
-from .models import Nmt
+from .models import Nmpt
 from .wms import utils
 
 
@@ -46,10 +46,10 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     resp = service_api.getRequest(params=PARAMS, url=URL)
 
     if resp[0]:
-        nmtElements = c.findall(resp[1])
-        nmtList = []
-        for nmtElement in nmtElements:
-            element = nmtElement.strip("{").strip("}").split(',')
+        nmptElements = c.findall(resp[1])
+        nmptList = []
+        for nmptElement in nmptElements:
+            element = nmptElement.strip("{").strip("}").split(',')
             params = {}
             for el in element:
                 item = el.strip().split(':')
@@ -57,8 +57,8 @@ def getNmptListbyPoint1992(point, isEvrf2007):
                 if len(item) > 2:
                     val = ":".join(item[1:]).strip('"')
                 params[item[0]] = val
-            nmt = Nmt(**params)
-            nmtList.append(nmt)
-        return True, nmtList
+            nmpt = Nmpt(**params)
+            nmptList.append(nmpt)
+        return True, nmptList
     else:
         return resp

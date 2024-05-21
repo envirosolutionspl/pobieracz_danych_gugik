@@ -13,7 +13,8 @@ class ZdjeciaLotnicze:
             przestrzenBarwna,
             zrodloDanych,
             nrZgloszenia,
-            kartaPracy
+            kartaPracy,
+            dt_pzgik
 
     ):
         if adresUrlMiniatur == "":
@@ -29,6 +30,7 @@ class ZdjeciaLotnicze:
         self.zrodloDanych = zrodloDanych
         self.nrZgloszenia = nrZgloszenia
         self.kartaPracy = kartaPracy
+        self.dtPzgik = str(dt_pzgik)
 
     def __eq__(self, other):
         return self.url == other.url
