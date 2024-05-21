@@ -146,7 +146,7 @@ class PobieraczDanychGugik:
         # for reuse if plugin is reopened
         # Commented next statement since it causes QGIS crashe
         # when closing the docked window:
-        # self.dockwidget = None
+        self.dockwidget = None
 
         self.pluginIsActive = False
 
@@ -168,12 +168,11 @@ class PobieraczDanychGugik:
         """Run method that loads and starts the plugin"""
 
         if not self.pluginIsActive:
-            self.pluginIsActive = True
-
             if self.dockwidget == None:
                 try:
                     # Create the dockwidget (after translation) and keep reference
                     self.dockwidget = PobieraczDanychDockWidget()
+                    self.pluginIsActive = True
                 except requests.exceptions.ConnectionError:
                     self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem')
                     self.pluginIsActive = False
@@ -280,6 +279,7 @@ class PobieraczDanychGugik:
 
             # show the dockwidget
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+
             self.dockwidget.show()
 
     # region WFS
