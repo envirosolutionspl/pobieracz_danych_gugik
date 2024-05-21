@@ -86,7 +86,8 @@ class PobieraczDanychGugik:
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartoteki_osnow_clicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjecia_lotnicze_clicked)
-        self.regionFetch = RegionFetch()
+        if service_api.check_internet_connection():
+            self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------
 
@@ -166,15 +167,18 @@ class PobieraczDanychGugik:
     def run(self):
         """Run method that loads and starts the plugin"""
         if not self.pluginIsActive:
-            if self.dockwidget == None:
-                try:
-                    # Create the dockwidget (after translation) and keep reference
-                    self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
-                    self.pluginIsActive = True
-                except requests.exceptions.ConnectionError:
-                    self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem')
-                    self.pluginIsActive = False
-                    return
+            connection = service_api.check_internet_connection()
+            if not connection:
+                self.show_no_connection_message()
+                self.pluginIsActive = False
+                return
+
+            if self.dockwidget is None:
+                if not hasattr(self, 'regionFetch'):
+                    self.regionFetch = RegionFetch()
+                self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
+                self.pluginIsActive = True
+
             # Eventy
             self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
             self.dockwidget.wms_rdbtn.toggled.emit(True)
@@ -690,14 +694,14 @@ class PobieraczDanychGugik:
                                        iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
-            
+
             else:
                 # pobieranie NMTP
                 task = DownloadNmptTask(description='Pobieranie plików NMPT',
-                                       nmptList=nmtList,
-                                       folder=self.dockwidget.folder_fileWidget.filePath(),
-                                       isNmpt=True,
-                                       iface=self.iface)
+                                        nmptList=nmtList,
+                                        folder=self.dockwidget.folder_fileWidget.filePath(),
+                                        isNmpt=True,
+                                        iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -1145,7 +1149,6 @@ class PobieraczDanychGugik:
                 level=Qgis.Warning,
                 duration=10
             )
-
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
