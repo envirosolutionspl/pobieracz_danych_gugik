@@ -621,7 +621,7 @@ class PobieraczDanychGugik:
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1500)
+            points = self.pointsFromVectorLayer(layer, density=1000)
 
             # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
@@ -679,8 +679,7 @@ class PobieraczDanychGugik:
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     nmtList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(nmtList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
@@ -696,7 +695,7 @@ class PobieraczDanychGugik:
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
-            else:
+            elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
                 # pobieranie NMTP
                 task = DownloadNmptTask(description='Pobieranie plików NMPT',
                                         nmptList=nmtList,
