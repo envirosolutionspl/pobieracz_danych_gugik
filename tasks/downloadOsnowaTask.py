@@ -31,8 +31,6 @@ class DownloadOsnowaTask(QgsTask):
                         return False
                     QgsMessageLog.logMessage('pobieram ' + url)
                     service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-
-        utils.openFile(self.folder)
         return True
 
     def finished(self, result):

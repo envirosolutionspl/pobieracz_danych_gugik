@@ -5,12 +5,12 @@ from qgis.core import (
 from .. import service_api, utils
 
 
-class DownloadNmtTask(QgsTask):
-    """QgsTask pobierania NMT/NMPT"""
+class DownloadNmptTask(QgsTask):
+    """QgsTask pobierania NMPT"""
 
-    def __init__(self, description, nmtList, folder, isNmpt, iface):
+    def __init__(self, description, nmptList, folder, isNmpt, iface):
         super().__init__(description, QgsTask.CanCancel)
-        self.nmtList = nmtList
+        self.nmptList = nmptList
         self.folder = folder
         self.total = 0
         self.iterations = 0
@@ -27,19 +27,21 @@ class DownloadNmtTask(QgsTask):
         internally and raise them in self.finished
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        total = len(self.nmtList)
+        total = len(self.nmptList)
 
-        for nmt in self.nmtList:
+        for nmpt in self.nmptList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + nmt.url)
-            fileName = nmt.url.split("/")[-1]
-            service_api.retreiveFile(url=nmt.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage('start ' + nmpt.url)
+            fileName = nmpt.url.split("/")[-1]
+            service_api.retreiveFile(url=nmpt.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
+
+        utils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True
@@ -56,8 +58,8 @@ class DownloadNmtTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane NMT/NMPT zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane NMPT zostały pobrane.",
+                                                level=Qgis.Success, duration=10)
 
         else:
             if self.exception is None:
@@ -65,8 +67,9 @@ class DownloadNmtTask(QgsTask):
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane NMT/NMPT nie zostały pobrane.")
+            self.iface.messageBar().pushMessage("Błąd",
+                                                "Dane NMPT nie zostały pobrane.",
+                                                level=Qgis.Warning, duration=10)
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
@@ -74,10 +77,7 @@ class DownloadNmtTask(QgsTask):
 
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        if self.isNmpt:
-            csvFilename = 'pobieracz_nmpt_%s.txt' % date
-        else:
-            csvFilename = 'pobieracz_nmt_%s.txt' % date
+        csvFilename = 'pobieracz_nmpt_%s.txt' % date
 
 
         with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
@@ -93,22 +93,24 @@ class DownloadNmtTask(QgsTask):
                 'caly_arkusz_wypelniony_trescia',
                 'numer_zgloszenia_pracy',
                 'aktualnosc_rok',
-                'zrodlo_danych'
+                'data_dodania_do_PZGIK'
             ]
+
             csvFile.write(','.join(naglowki)+'\n')
-            for nmt in self.nmtList:
-                fileName = nmt.url.split("/")[-1]
+            for nmpt in self.nmptList:
+                fileName = nmpt.url.split("/")[-1]
+
                 csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
-                    nmt.format,
-                    nmt.godlo,
-                    nmt.aktualnosc,
-                    nmt.charakterystykaPrzestrzenna,
-                    nmt.bladSredniWysokosci,
-                    nmt.ukladWspolrzednych,
-                    nmt.ukladWysokosci,
-                    nmt.calyArkuszWyeplnionyTrescia,
-                    nmt.numerZgloszeniaPracy,
-                    nmt.aktualnoscRok,
-                    nmt.zrDanych
+                    nmpt.godlo,
+                    nmpt.format,
+                    nmpt.aktualnosc,
+                    nmpt.charakterystykaPrzestrzenna,
+                    nmpt.bladSredniWysokosci,
+                    nmpt.ukladWspolrzednych,
+                    nmpt.ukladWysokosci,
+                    nmpt.calyArkuszWyeplnionyTrescia,
+                    nmpt.numerZgloszeniaPracy,
+                    nmpt.aktualnoscRok,
+                    nmpt.dt_pzgik
                 ))
