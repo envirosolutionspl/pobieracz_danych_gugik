@@ -106,6 +106,17 @@ def getAllLayers(url,service):
     layers = [el.text for el in tree.iter() if 'Name' in str(el.tag) and str(el.text) != 'WMS']
     return layers
 
+
+def check_internet_connection():
+    try:
+        with get_legacy_session().get(url='https://www.envirosolutions.pl', verify=False) as resp:
+            if resp.status_code != 200:
+                return False
+            return True
+    except requests.exceptions.ConnectionError:
+        return False
+
+
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
     destFolder = "D:/test/orto"
