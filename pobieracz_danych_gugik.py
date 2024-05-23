@@ -276,6 +276,7 @@ class PobieraczDanychGugik:
                                                self.dockwidget.folder_fileWidget.filePath()))
 
             # informacje o wersji
+            self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
             self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
             # show the dockwidget
