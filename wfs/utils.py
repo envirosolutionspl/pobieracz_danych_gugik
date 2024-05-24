@@ -18,23 +18,20 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        #r = requests.get(url=wfsUrl, params=PARAMS, verify=False)
-        r = get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False)
+        with get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False) as resp:
+            r_txt = resp.text
+            if resp.status_code == 200:
+                typenamesDict = {}
+                root = ET.fromstring(r_txt)
+                for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+                    name = featureType.find('.xmlns:Name', ns).text
+                    title = featureType.find('.xmlns:Title', ns).text
+                    typenamesDict[title] = name
+                return True, typenamesDict
+            else:
+                return False, f'Błąd {resp.status_code}'
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
-    r_txt = r.text
-    if r.status_code == 200:
-        typenamesDict = {}
-        root = ET.fromstring(r_txt)
-        for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-            name = featureType.find('.xmlns:Name', ns).text
-            title = featureType.find('.xmlns:Title', ns).text
-            typenamesDict[title] = name
-
-        return True, typenamesDict
-    else:
-
-        return False, "Błąd %d" % r.status_code
 
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')

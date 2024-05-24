@@ -1,6 +1,10 @@
+import warnings
+
 import requests
 import urllib3
 import ssl
+
+from urllib3.exceptions import InsecureRequestWarning
 
 
 class CustomHttpAdapter (requests.adapters.HTTPAdapter):
@@ -17,6 +21,8 @@ class CustomHttpAdapter (requests.adapters.HTTPAdapter):
 
 
 def get_legacy_session():
+    warnings.filterwarnings("ignore", category=ResourceWarning)
+    warnings.filterwarnings("ignore", category=InsecureRequestWarning)
     ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
     ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
     ctx.check_hostname = False

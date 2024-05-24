@@ -1,10 +1,9 @@
-import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from .. import service_api, utils
-import requests
+from ..wfs.httpsAdapter import get_legacy_session
 
 class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
@@ -19,22 +18,18 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
     def run(self):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        # total = len(self.nmtList)
-
-        r = requests.get(self.url, verify=False)
-        if str(r.status_code) == '404':
-            self.page_exist = 'NO'
-            return False
-        else:
-            self.page_exist = 'YES'
-            QgsMessageLog.logMessage('pobieram ' + self.url)
-            # fileName = self.url.split("/")[-1]
-            service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-            # self.setProgress(self.progress() + 100 / total)
-            utils.openFile(self.folder)
-            if self.isCanceled():
+        with get_legacy_session().get(url=self.url, verify=False) as resp:
+            if str(resp.status_code) == '404':
+                self.page_exist = 'NO'
                 return False
-            return True
+            else:
+                self.page_exist = 'YES'
+                QgsMessageLog.logMessage('pobieram ' + self.url)
+                # fileName = self.url.split("/")[-1]
+                service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+                if self.isCanceled():
+                    return False
+                return True
 
 
     def finished(self, result):

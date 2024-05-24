@@ -7,7 +7,7 @@ from .. import service_api, utils
 
 
 class DownloadLasTask(QgsTask):
-    """QgsTask pobierania LAS"""
+    """QgsTask pobierania LAZ"""
 
     def __init__(self, description, lasList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -17,6 +17,7 @@ class DownloadLasTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -28,7 +29,6 @@ class DownloadLasTask(QgsTask):
         """
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         total = len(self.lasList)
-
         for las in self.lasList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
@@ -37,12 +37,8 @@ class DownloadLasTask(QgsTask):
             fileName = las.url.split("/")[-1]
             service_api.retreiveFile(url=las.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
-
-        utils.openFile(self.folder)
-
         return True
 
     def finished(self, result):
@@ -57,7 +53,7 @@ class DownloadLasTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane LAS zostały pobrane.",
+            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane LAZ zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
@@ -66,23 +62,23 @@ class DownloadLasTask(QgsTask):
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane LAS nie zostały pobrane.")
+                                                "Dane LAZ nie zostały pobrane.")
+
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
+
     def createCsvReport(self):
         date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         csvFilename = 'pobieracz_las_%s.txt' % date
-
         with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
             naglowki = [
                 'nazwa_pliku',
-                'format',
                 'godlo',
+                'format',
                 'aktualnosc',
-                'dokladnosc_pozioma',
                 'dokladnosc_pionowa',
                 'uklad_wspolrzednych_plaskich',
                 'uklad_wspolrzednych_wysokosciowych',
@@ -90,15 +86,16 @@ class DownloadLasTask(QgsTask):
                 'numer_zgloszenia_pracy',
                 'aktualnosc_rok'
             ]
+
             csvFile.write(','.join(naglowki)+'\n')
             for las in self.lasList:
+                print(las)
                 fileName = las.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
+                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
                     fileName,
-                    las.format,
                     las.godlo,
+                    las.format,
                     las.aktualnosc,
-                    las.charakterystykaPrzestrzenna,
                     las.bladSredniWysokosci,
                     las.ukladWspolrzednych,
                     las.ukladWysokosci,

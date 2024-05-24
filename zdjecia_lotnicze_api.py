@@ -5,7 +5,7 @@ from .models import ZdjeciaLotnicze
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getZdjeciaLotniczeListbyPoint1992(point):

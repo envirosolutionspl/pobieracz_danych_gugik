@@ -4,7 +4,7 @@ from .models import Ortofotomapa
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?"
-c = re.compile("\{{1}.*\}{1}")
+c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getOrtoListbyPoint1992(point):
@@ -32,7 +32,9 @@ def getOrtoListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+
     resp = service_api.getRequest(params=PARAMS, url=URL)
+    
     if resp[0]:
         ortos = c.findall(resp[1])
         ortofotomapaList = []

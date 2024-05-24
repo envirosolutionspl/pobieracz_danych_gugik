@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .ortofotomapa import Ortofotomapa
 from .nmt import Nmt
+from .nmpt import Nmpt
 from .las import Las
 from .reflectance import Reflectance
 from .aerotriangulacja import Aerotriangulacja

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
-from PyQt5.uic.properties import QtWidgets
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, Qt
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QApplication, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
+
+from .uldk import RegionFetch
 from .tasks import (
-    DownloadOrtofotoTask, DownloadNmtTask, DownloadLasTask, DownloadReflectanceTask,
+    DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
     DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask)
-import asyncio, processing
+import processing
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -20,14 +21,12 @@ import requests
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
 import os.path
-import sys
-import subprocess
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
 
 """Wersja wtyczki"""
-plugin_version = '1.0.10'
+plugin_version = '1.1.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -42,7 +41,6 @@ class PobieraczDanychGugik:
             application at run time.
         :type iface: QgsInterface
         """
-
         if Qgis.QGIS_VERSION_INT >= 31000:
             from .qgis_feed import QgisFeed
             self.feed = QgisFeed()
@@ -88,6 +86,8 @@ class PobieraczDanychGugik:
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartoteki_osnow_clicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjecia_lotnicze_clicked)
+        if service_api.check_internet_connection():
+            self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ class PobieraczDanychGugik:
         # for reuse if plugin is reopened
         # Commented next statement since it causes QGIS crashe
         # when closing the docked window:
-        # self.dockwidget = None
+        self.dockwidget = None
 
         self.pluginIsActive = False
 
@@ -166,21 +166,21 @@ class PobieraczDanychGugik:
 
     def run(self):
         """Run method that loads and starts the plugin"""
-
         if not self.pluginIsActive:
-            self.pluginIsActive = True
 
-            if self.dockwidget == None:
-                try:
-                    # Create the dockwidget (after translation) and keep reference
-                    self.dockwidget = PobieraczDanychDockWidget()
-                except requests.exceptions.ConnectionError:
-                    self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem')
-                    self.pluginIsActive = False
-                    return
+            connection = service_api.check_internet_connection()
+            if not connection:
+                self.show_no_connection_message()
+                self.pluginIsActive = False
+                return
+
+            if self.dockwidget is None:
+                if not hasattr(self, 'regionFetch'):
+                    self.regionFetch = RegionFetch()
+                self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
+                self.pluginIsActive = True
 
             # Eventy
-
             self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
             self.dockwidget.wms_rdbtn.toggled.emit(True)
 
@@ -276,10 +276,12 @@ class PobieraczDanychGugik:
                                                self.dockwidget.folder_fileWidget.filePath()))
 
             # informacje o wersji
+            self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
             self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
             # show the dockwidget
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+
             self.dockwidget.show()
 
     # region WFS
@@ -370,7 +372,10 @@ class PobieraczDanychGugik:
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -472,7 +477,10 @@ class PobieraczDanychGugik:
 
     def orto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania ortofotomapy przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -598,7 +606,10 @@ class PobieraczDanychGugik:
 
     def nmt_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -611,7 +622,7 @@ class PobieraczDanychGugik:
         isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1500)
+            points = self.pointsFromVectorLayer(layer, density=1000)
 
             # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
@@ -626,7 +637,7 @@ class PobieraczDanychGugik:
                 else:
                     bledy += 1
 
-            self.filterNmtListAndRunTask(nmtList)
+            self.filterNmtListAndRunTask(nmtList, isNmpt)
             # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
@@ -648,21 +659,18 @@ class PobieraczDanychGugik:
             point=point1992, isEvrf2007=isEvrf2007)
         if resp[0]:
             nmtList = resp[1]
-            self.filterNmtListAndRunTask(nmtList)
+            self.filterNmtListAndRunTask(nmtList, isNmpt)
         else:
             self.iface.messageBar().pushCritical("Błąd pobierania",
                                                  f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
 
-    def filterNmtListAndRunTask(self, nmtList):
+    def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(nmtList))
 
         # usuwanie duplikatów
         nmtList = list(set(nmtList))
-        # print("po 'set'", len(nmtList))
         # filtrowanie
         nmtList = self.filterNmtList(nmtList)
-        # print("po 'filtrowaniu'", len(nmtList))
 
         # wyswietl komunikat pytanie
         if len(nmtList) == 0:
@@ -672,25 +680,36 @@ class PobieraczDanychGugik:
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     nmtList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(nmtList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
-                # pobieranie w zależności od typu NMT lub NMTP
-                task = DownloadNmtTask(description='Pobieranie plików NMT/NMPT',
+
+            if reply == QMessageBox.Yes and isNmpt is False and self.dockwidget.nmt_rdbtn.isChecked():
+                # pobieranie NMT
+                task = DownloadNmtTask(description='Pobieranie plików NMT',
                                        nmtList=nmtList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
-                                       isNmpt=True if self.dockwidget.nmpt_rdbtn.isChecked() else False,
+                                       isNmpt=False,
                                        iface=self.iface)
+                QgsApplication.taskManager().addTask(task)
+                QgsMessageLog.logMessage('runtask')
+
+            elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
+                # pobieranie NMTP
+                task = DownloadNmptTask(description='Pobieranie plików NMPT',
+                                        nmptList=nmtList,
+                                        folder=self.dockwidget.folder_fileWidget.filePath(),
+                                        isNmpt=True,
+                                        iface=self.iface)
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasNmt_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
         """point - QgsPointXY"""
+
         self.canvas.unsetMapTool(self.nmtClickTool)
         self.downloadNmtForSinglePoint(point)
 
@@ -731,7 +750,6 @@ class PobieraczDanychGugik:
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
             nmtList = utils.onlyNewest(nmtList)
-            print(nmtList)
         return nmtList
 
     def downloadNmtFile(self, nmt, folder):
@@ -745,45 +763,38 @@ class PobieraczDanychGugik:
 
     def las_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
-
-        bledy = 0
         layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
-        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
-
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
-
+            points = self.pointsFromVectorLayer(layer, density=250)
+            las_list = []
             # zablokowanie klawisza pobierania
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
-
-            lasList = []
             for point in points:
-                subList = las_api.getLasListbyPoint1992(
-                    point=point,
-                    isEvrf2007=isEvrf2007)
-                # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False)
-                if subList:
-                    lasList.extend(subList)
-                else:
-                    bledy += 1
-
-            self.filterLasListAndRunTask(lasList)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.las_fromLayer_btn.setEnabled(True)
-
+                sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
+                if not sub_list:
+                    continue
+                las_list.extend(sub_list)
+            self.filterLasListAndRunTask(las_list)
         else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano warstwy wektorowej')
+            self.iface.messageBar().pushWarning("Ostrzeżenie:", 'Nie wskazano warstwy wektorowej')
+
+        # odblokowanie klawisza pobierania
+        self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
@@ -823,7 +834,7 @@ class PobieraczDanychGugik:
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
                 # pobieranie LAS
-                task = DownloadLasTask(description='Pobieranie plików LAS',
+                task = DownloadLasTask(description='Pobieranie plików LAZ',
                                        lasList=lasList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
@@ -877,7 +888,10 @@ class PobieraczDanychGugik:
 
     def reflectance_fromLayer_btn_clicked(self):
         """Kliknięcie klawisza pobierania Intensywności przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1001,6 +1015,10 @@ class PobieraczDanychGugik:
     # region BDOT10k
     def bdot_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla powiatu"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1011,21 +1029,20 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.powiat_cmbbx.currentData()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie powiatowej paczki BDOT10k dla {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1034,11 +1051,16 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
+        task.task_finished.connect(self.bdot_task_finished)
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla województwa"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1049,21 +1071,19 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.wojewodztwo_cmbbx.currentData()
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description=f'Pobieranie wojewódzkiej paczki BDOT10k dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1077,6 +1097,10 @@ class PobieraczDanychGugik:
 
     def bdot_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla całej Polski"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1087,9 +1111,13 @@ class PobieraczDanychGugik:
             format_danych = "GML"
         elif self.dockwidget.bdot_shp_rdbtn.isChecked():
             format_danych = "SHP"
+        elif self.dockwidget.bdot_old_gml_rdbtn.isChecked():
+            format_danych = "GML 2011"
+        elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
+            format_danych = "GPKG"
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdotTask(
             description='Pobieranie paczki BDOT10k dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1101,29 +1129,49 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def bdot_task_finished(self, result, exception):
+        if result:
+            QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushMessage(
+                "Sukces",
+                "Udało się! Dane BDOT10k zostały pobrane.",
+                level=Qgis.Success,
+                duration=10
+            )
+        else:
+            if exception is None:
+                QgsMessageLog.logMessage('finished with false')
+            else:
+                QgsMessageLog.logMessage("exception")
+                raise exception
+            self.iface.messageBar().pushMessage(
+                "Błąd",
+                "Dane BDOT10k nie zostały pobrane.",
+                level=Qgis.Warning,
+                duration=10
+            )
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla województwa"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
 
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         wojewodztwoName = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentText()
-
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(wojewodztwoName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwoName)
+        if not wojewodztwoName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.bdoo_wojewodztwo_cmbbx.currentData()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description=f'Pobieranie wojewódzkiej paczki BDOO dla {wojewodztwoName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1137,6 +1185,10 @@ class PobieraczDanychGugik:
 
     def bdoo_selected_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla całej Polski"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1144,7 +1196,7 @@ class PobieraczDanychGugik:
         rok = self.dockwidget.bdoo_dateEdit_comboBox.currentText()
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOO dla całego kraju',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadBdooTask(
             description='Pobieranie paczki BDOO dla całego kraju',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1159,6 +1211,10 @@ class PobieraczDanychGugik:
     # endregion PRNG
     def prng_selected_btn_clicked(self):
         """Pobiera paczkę danych PRNG"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1187,7 +1243,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'{description} w formacie {format_danych}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadPrngTask(
             description=f'{description} w formacie {format_danych}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1253,6 +1309,10 @@ class PobieraczDanychGugik:
 
     def prg_selected_btn_clicked(self):
         """Pobiera paczkę danych PRG"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1265,17 +1325,17 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.radioButton_adres_gmin.isChecked():
             gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByGminaName(gmina_name)
+            teryt = self.dockwidget.prg_gmina_cmbbx.currentData()
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_powiat.isChecked():
             powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+            teryt = self.dockwidget.prg_powiat_cmbbx.currentData()
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z powiatu {powiat_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+            teryt = self.dockwidget.prg_wojewodztwo_cmbbx.currentData()
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_kraj.isChecked():
@@ -1286,14 +1346,14 @@ class PobieraczDanychGugik:
             description = f'Pobieranie danych z Państwowego Rejestru Granic - granice specjalne z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
-            teryt = self.dockwidget.regionFetch.getTerytByWojewodztwoName(wojewodztwo_name)
+            teryt = self.dockwidget.prg_wojewodztwo_cmbbx.currentData()
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
             self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
-        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=-1)
+        self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
 
         task = DownloadPrgTask(
             description=f'Pobieranie danych z Państwowego Rejestru Granic',
@@ -1310,6 +1370,10 @@ class PobieraczDanychGugik:
     # endregion modele 3D
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1342,19 +1406,13 @@ class PobieraczDanychGugik:
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.model3d_powiat_cmbbx.currentData()
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
         task = DownloadModel3dTask(
             description=f'Pobieranie powiatowej paczki modelu 3D dla {powiat_name}({teryt_powiat})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -1372,37 +1430,41 @@ class PobieraczDanychGugik:
     # region EGiB WFS
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
 
         powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            level=Qgis.Info,
+            duration=10
+        )
+        if not hasattr(self, 'egib_wfs_dict'):
+            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
+        if not self.egib_wfs_dict:
+            return
 
-        try:
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-                                            level=Qgis.Info, duration=-1)
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
+            wfs_url=self.egib_wfs_dict.get(teryt),
             iface=self.iface,
             plugin_dir=self.plugin_dir
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
-
-    # region zestawienia zbiorcze EGiB
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
             self.dockwidget.egib_excel_powiat_cmbbx.setEnabled(True)
@@ -1420,6 +1482,10 @@ class PobieraczDanychGugik:
 
     def egib_excel_selected_btn_clicked(self):
         """Pobiera excela z Zestawieniami Zbiorczymi EGiB"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1434,19 +1500,14 @@ class PobieraczDanychGugik:
 
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.egib_excel_powiat_cmbbx.currentData()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1466,6 +1527,10 @@ class PobieraczDanychGugik:
     # region opracowania tyflologiczne
     def tyflologiczne_selected_btn_clicked(self):
         """Pobiera opracowania tyflologiczne"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return
@@ -1491,7 +1556,7 @@ class PobieraczDanychGugik:
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOpracowaniaTyflologiczneTask(
             description=f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
@@ -1508,6 +1573,10 @@ class PobieraczDanychGugik:
     # region podstawowa osnowa geodezyjna
     def osnowa_selected_btn_clicked(self):
         """Pobiera podstawową osnowę geodezyjną"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1526,19 +1595,14 @@ class PobieraczDanychGugik:
             return False
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
-
-        try:
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
-        except KeyError:
-
-            wojewodztwoName_blad = "lubelskie"
-            powiatName_blad = "bialski"
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName_blad)
-            teryt_powiat = self.dockwidget.regionFetch.getTerytByPowiatName(powiat_name)
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt_powiat = self.dockwidget.osnowa_powiat_cmbbx.currentData()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat}) - typ osnowy {typ}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadOsnowaTask(
             description=f'Pobieranie danych z Podstawowej Osnowy Geodezyjnej - dla powiatu {powiat_name} ({teryt_powiat})',
@@ -1555,7 +1619,10 @@ class PobieraczDanychGugik:
     # region areotriangulacja
     def aerotriangulacja_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1638,7 +1705,10 @@ class PobieraczDanychGugik:
     # region linie mozaikowania
     def linie_mozaikowania_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1723,7 +1793,10 @@ class PobieraczDanychGugik:
     # region wizualizacja kartograficzna BDOT10k
     def wizualizacja_karto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Wizualizacji kartograficznej BDOT10k przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1810,7 +1883,10 @@ class PobieraczDanychGugik:
     # region archiwalne kartoteki osnów geodezyjnych
     def osnowa_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Archiwalnych kartotek osnów geodezyjnych przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1898,6 +1974,10 @@ class PobieraczDanychGugik:
     # region dane archiwalne BDOT10k
     def archiwalne_bdot_selected_powiat_btn_clicked(self):
         """Pobiera paczkę archiwalnych danych BDOT10k dla powiatów"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
             return False
@@ -1910,12 +1990,12 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
-        teryt = self.dockwidget.regionFetch.getTerytByPowiatName(powiatName)
+        teryt = self.dockwidget.archiwalne_powiat_cmbbx.currentData()
         rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
 
         self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
-                                            level=Qgis.Info, duration=-1)
+                                            level=Qgis.Info, duration=10)
 
         task = DownloadArchiwalnyBdotTask(
             description=f'Pobieranie powiatowej paczki danych archiwalnych BDOT10k dla {powiatName}({teryt}) z roku {rok}',
@@ -1933,7 +2013,10 @@ class PobieraczDanychGugik:
     # region zdjęcia lotnicze
     def zdjecia_lotnicze_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Zdjęć Lotniczych przez wybór warstwą wektorową"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -2116,7 +2199,11 @@ class PobieraczDanychGugik:
                 QgsMessageLog.logMessage('runtask')
 
     def capture_btn_clicked(self, clickTool):
-        """Kliknięcie plawisza pobierania danych przez wybór z mapy"""
+        """Kliknięcie klawisza pobierania danych przez wybór z mapy"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         path = self.dockwidget.folder_fileWidget.filePath()
         if self.checkSavePath(path):
             # pobrano ściezkę
@@ -2134,3 +2221,15 @@ class PobieraczDanychGugik:
             return False
         else:
             return True
+
+    def no_area_specified_warning(self):
+        self.iface.messageBar().pushWarning(
+            "Ostrzeżenie:", 'Nie wskazano obszaru.')
+
+    def show_no_connection_message(self):
+        self.iface.messageBar().pushMessage(
+            "Błąd",
+            "Brak połączenia z internetem",
+            level=Qgis.Warning,
+            duration=10
+        )

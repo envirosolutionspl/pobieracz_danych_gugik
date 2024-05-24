@@ -1,31 +1,28 @@
-from  .wfs.httpsAdapter import get_legacy_session
+from . import utils
+from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 import requests
 import os, time
 
 
 def getRequest(params, url):
-    try:
-        r = get_legacy_session().get(url=url, params=params, verify=False)
-        # print(r.request.url)
-
-    except requests.exceptions.ConnectionError:
-        # print('sleep')
-        time.sleep(0.4)
+    max_attempts = 3
+    attempt = 0
+    while attempt <= max_attempts:
         try:
-            r = get_legacy_session().get(url=url, params=params, verify=False)
-
+            with get_legacy_session().get(url=url, params=params, verify=False, timeout=20) as resp:
+                if resp.status_code == 200:
+                    return True, resp.text
+                else:
+                    return False, f'Błąd {resp.status_code}'
+                
         except requests.exceptions.ConnectionError:
-            # print('blad polaczenia')
-            return False, "Błąd połączenia"
-    r_txt = r.text
-    if r.status_code == 200:
-        # print('ok')
-        # print(r_txt)
-        return True, r_txt
-    else:
-        # print("Błąd %d" % r.status_code)
-        return False, "Błąd %d" % r.status_code
+            attempt += 1
+            time.sleep(2)
+        
+        except requests.exceptions.ReadTimeout:
+            attempt += 1
+            time.sleep(2)
 
 
 def retreiveFile(url, destFolder, obj):
@@ -60,42 +57,47 @@ def retreiveFile(url, destFolder, obj):
 
     path = os.path.join(destFolder, file_name)
 
-    # print(path)
     try:
-        r = get_legacy_session().get(url, verify=False, stream=True)
-        if str(r.status_code) == '404':
-            return False, "Plik nie istnieje"
-        saved = True
-        try:
-            with open(path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwaniew trakcie pobierania"""
-                    if obj.isCanceled():
-                        r.close()  # przerwanie pobierania
-                        saved = False
-                        break
-                    f.write(chunk)
-        except IOError:
-            return False, "Błąd zapisu pliku"
-
-        if saved:
-            return [True]
-        else:
-            os.remove(path)   # usunięcie pliku który się nie pobrał
-            return False, "Pobieranie przerwane"
-
+        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=20) as resp:
+            if str(resp.status_code) == '404':
+                return False, "Plik nie istnieje"
+            saved = True
+            try:
+                with open(path, 'wb') as f:
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
+                        if obj.isCanceled():
+                            resp.close()
+                            saved = False
+                            break
+                        f.write(chunk)
+            except IOError:
+                return False, "Błąd zapisu pliku"
+            if saved:
+                utils.openFile(destFolder)
+                return [True]
+            else:
+                os.remove(path)
+                return False, "Pobieranie przerwane"
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
         return [True]
 
 def getAllLayers(url,service):
     params = {
-        'SERVICE':service,
-        'request':'GetCapabilities',
+        'SERVICE': service,
+        'request': 'GetCapabilities',
         'INFO_FORMAT': 'text/html'
     }
 
-    layers = getRequest(params,url)
+    layers = getRequest(params, url)
+    
+    if layers == None:
+        layers = getRequest(params, url)
+    
+    if not layers[0]:
+        return
+    
     parser = ET.XMLParser(recover=True)
     tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
     root = tree.getroot()
@@ -103,6 +105,17 @@ def getAllLayers(url,service):
     # To find elements with tag 'element'
     layers = [el.text for el in tree.iter() if 'Name' in str(el.tag) and str(el.text) != 'WMS']
     return layers
+
+
+def check_internet_connection():
+    try:
+        with get_legacy_session().get(url='https://www.envirosolutions.pl', verify=False) as resp:
+            if resp.status_code != 200:
+                return False
+            return True
+    except requests.exceptions.ConnectionError:
+        return False
+
 
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"

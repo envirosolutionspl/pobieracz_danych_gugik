@@ -5,8 +5,8 @@ import re
 class QgisFeed:
     def __init__(self):
         self.s = QgsSettings()
-        self.envirosolutionsFeedPattern_old = re.compile('core/NewsFeed/httpsqgisfeedenvirosolutionspl')
-        self.envirosolutionsFeedPattern_new = re.compile('app/news-feed/items/httpsqgisfeedenvirosolutionspl/entries/items')
+        self.envirosolutionsFeedPattern_old = re.compile(r'core/NewsFeed/httpsqgisfeedenvirosolutionspl')
+        self.envirosolutionsFeedPattern_new = re.compile(r'app/news-feed/items/httpsqgisfeedenvirosolutionspl/entries/items')
         # self.envirosolutionsFeedPattern = re.compile('core/NewsFeed/httpsqgisfeedenvirosolutionspl/\d+/\w+')
         self.parser = QgsNewsFeedParser(QUrl("https://qgisfeed.envirosolutions.pl/"))
         self.parser.fetched.connect(self.registerFeed)

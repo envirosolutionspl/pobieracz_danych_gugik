@@ -39,8 +39,6 @@ class DownloadKartotekiOsnowTask(QgsTask):
         # utworz plik csv z podsumowaniem
         self.createCsvReport()
 
-        utils.openFile(self.folder)
-
         return True
 
     def finished(self, result):
