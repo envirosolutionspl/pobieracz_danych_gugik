@@ -35,7 +35,7 @@ class DownloadMozaikaTask(QgsTask):
 
             # fileName = reflectance.url.split("/")[-1]
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=mozaika.url, destFolder=self.folder)
+            service_api.retreiveFile(url=mozaika.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
 
         # utworz plik csv z podsumowaniem
