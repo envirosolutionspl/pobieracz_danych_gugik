@@ -50,6 +50,18 @@ hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
    Wersja 1.1.0
+   * Dodano możliwość pobierania danych BDOT 10K według nowego schematu
+   * Zoptymnalizowano działanie wtyczki
+   * Poprawiono poprawność pobierania danych BDOO
+   * Poprawiono dokładność pobierania danych LAZ
+   * Poprawiono pobieranie danych z EGIB
+   * Rozwiązano problemy związane z działaniem wtyczki na Kubuntu
+   * Poprawa pobierania danych NMT, NMPT, LAZ, ortofotomapy, obrazów intensywności, zdjęć lotniczych, aerotriangulacji
+   * Modyfikacja UI
+   * Usunięto otwieranie folderu na dane w przypadku niepowodzenia pobrania danych
+   * Poprawa działania wtyczki w przypadku braku internetu
+#  Wersja 1.0.10
+#  * Naprawa błędu z niedziałającą biblioteką
 #  Wersja 1.0.9
 #  * Wprowadzenie dynamicznych list warstw
 #  Wersja 1.0.8
