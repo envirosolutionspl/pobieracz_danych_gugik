@@ -73,10 +73,12 @@ A QGIS plugin for downloading spatial data from GUGiK resources. From version 0.
 1. The plugin should be installed in QGIS as a ZIP or by uploading the plugin files to the location `C:\Users\User\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins`.
 2. To launch the plugin, click on the orange tree icon.
 3. If the plugin icon is not visible in the layer panel, try restarting QGIS.
-4. If the plugin is still not visible, go to QGIS Desktop -> Plugins -> Manage and Install Plugins -> Installed -> GUGiK Data Downloader -> Uninstall the plugin and reinstall it.
+4. If the plugin is still not visible, go to QGIS Desktop -> Plugins -> Manage and Install Plugins -> Installed -> Pobieracz danych GUGiK -> Uninstall the plugin and reinstall it.
 
 ## Usage Instructions:
-After launching the plugin, its widget will appear in the lower right corner. Choose one of the data search methods and specify the file save path. Then expand the required data category, select all the necessary parameters, and click "Download". The download process can be stopped. To do this, click on the blue bar at the bottom right, select the "geocoding" process, and click on the appearing cross.
+After launching the plugin, its widget will appear in the lower right corner. Choose one of the data search methods and specify the file save path. 
+Then expand the required data category, select all the necessary parameters, and click "Pobierz". 
+The download process can be stopped. To do this, click on the blue bar at the bottom right, select the needed process, and click on the appearing cross.
 
 ### The plugin allows downloading the following layers for the area of Poland:
 
