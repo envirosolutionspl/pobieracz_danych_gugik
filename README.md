@@ -10,7 +10,9 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 4. Jeżeli wtyczka nadal nie jest widoczna, należy przejść w QGIS Desktop do Wtyczki -> Zarządzanie wtyczkami -> Zainstalowane -> Pobieracz danych GUGiK -> Odinstalować wtyczkę i zainstalować ponownie.
 
 ## Instrukcja użytkowania:
-Po uruchomieniu wtyczki w prawym dolnym rogu pojawi się jej widżet. Należy wybrać jeden ze sposobów wyszukiwania danych oraz określić ścieżkę zapisu plików. Następnie należy rozwinąć potrzebną kategorię danych, zaznaczyć wszystkie wymagane parametry i kliknąć "Pobierz". Proces pobierania można zatrzymać. W tym celu należy kliknąć na niebieski pasek na dole z prawej strony, wybrać proces odpowiedni i nacisnąć na pojawiający się krzyżyk.
+1. Po uruchomieniu wtyczki w prawym dolnym rogu pojawi się jej widżet. Należy wybrać jeden ze sposobów wyszukiwania danych oraz określić ścieżkę zapisu plików. 
+2. Następnie należy rozwinąć potrzebną kategorię danych, zaznaczyć wszystkie wymagane parametry i kliknąć "Pobierz". 
+3. Proces pobierania można zatrzymać. W tym celu należy kliknąć na niebieski pasek na dole z prawej strony, wybrać proces odpowiedni i nacisnąć na pojawiający się krzyżyk.
 
 ### Wtyczka pozwala na pobieranie następujących warstw dla obszaru Polski:
 
