@@ -54,7 +54,7 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 3. Po przefiltrowaniu pobierane są wybrane przez użytkownika warstwy.
 
 ### Pobieranie na podstawie warstwy liniowej:
-1. Wtyczka generuje punkty w odstępie 1000 m wzdłuż linii (1500 m dla NMT/NMPT).
+1. Wtyczka generuje punkty w odstępie 1000 m wzdłuż linii.
 2. Dla każdego z wygenerowanych punktów pobierana jest lista dostępnych warstw.
 3. Po przefiltrowaniu pobierane są wybrane przez użytkownika warstwy.
 
@@ -120,7 +120,7 @@ The download process can be stopped. To do this, click on the blue bar at the bo
 3. After filtering, the layers selected by the user are downloaded.
 
 ### Downloading based on a line layer:
-1. The plugin generates points at intervals of 1000 m along the line (1500 m for DTM/DSM).
+1. The plugin generates points at intervals of 1000 m along the line.
 2. For each generated point, a list of available layers is retrieved.
 3. After filtering, the layers selected by the user are downloaded.
 
