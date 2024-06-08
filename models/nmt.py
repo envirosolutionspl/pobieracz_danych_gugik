@@ -21,6 +21,7 @@ class Nmt:
             dt_pzgik
     ):
         #zerowanie niepotrzebnych wartości
+        bladSredniPolozenia = 0
 
         self.url = url
         self.godlo = godlo
