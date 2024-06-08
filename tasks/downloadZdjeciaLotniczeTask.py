@@ -39,7 +39,6 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
             # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
             service_api.retreiveFile(url=zdj.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-            print("url: ", zdj.url)
 
         # utworz plik csv z podsumowaniem
         self.createCsvReport()

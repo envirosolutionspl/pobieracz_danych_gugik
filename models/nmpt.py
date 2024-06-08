@@ -10,6 +10,7 @@ class Nmpt:
             format,
             charakterystykaPrzestrzenna,
             bladSredniWysokosci,
+            bladSredniPolozenia,
             ukladWspolrzednychPoziomych,
             ukladWspolrzednychPionowych,
             calyArkuszWypelnionyTrescia,
@@ -18,13 +19,16 @@ class Nmpt:
             aktualnoscRok,
             dt_pzgik
     ):
-        
+        #zerowanie niepotrzebnych wartosci
+        bladSredniPolozenia = 0
+
         self.url = url
         self.godlo = godlo
         self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y-%m-%d').date()
         self.charakterystykaPrzestrzenna = float(charakterystykaPrzestrzenna.split()[0])
         self.format = format
         self.bladSredniWysokosci = float(bladSredniWysokosci)
+        self.bladSredniPolozenia = float(bladSredniPolozenia)
         self.ukladWspolrzednych = ukladWspolrzednychPoziomych
         self.ukladWysokosci = ukladWspolrzednychPionowych
         self.calyArkuszWyeplnionyTrescia = calyArkuszWypelnionyTrescia

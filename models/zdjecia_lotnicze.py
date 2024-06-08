@@ -4,7 +4,6 @@ import datetime
 class ZdjeciaLotnicze:
     def __init__(
             self,
-            adresUrlMiniatur,
             nrSzeregu,
             nrZdjecia,
             rokWykonania,
@@ -14,13 +13,16 @@ class ZdjeciaLotnicze:
             zrodloDanych,
             nrZgloszenia,
             kartaPracy,
-            dt_pzgik
+            adresUrlMiniatur,
+            dt_pzgik,
+            portalPzgik
 
     ):
         if adresUrlMiniatur == "":
             self.url = "brak zdjęcia"
         else:
             self.url = adresUrlMiniatur
+            
         self.nrSzeregu = nrSzeregu
         self.nrZdjecia = nrZdjecia
         self.rokWykonania = rokWykonania
@@ -31,6 +33,7 @@ class ZdjeciaLotnicze:
         self.nrZgloszenia = nrZgloszenia
         self.kartaPracy = kartaPracy
         self.dtPzgik = str(dt_pzgik)
+        self.portalPzgik = str(portalPzgik)
 
     def __eq__(self, other):
         return self.url == other.url
