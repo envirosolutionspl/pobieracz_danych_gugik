@@ -51,6 +51,7 @@ hasProcessingProvider=no
 changelog=
    Wersja 1.1.1
    * zaktualizowano logo wtyczki i logo EnviroSolutions
+   * poprawa pobierania danych dla NMT, NMPT, LAZ, zdjęć lotniczych
 #   Wersja 1.1.0
 #   * Dodano możliwość pobierania danych BDOT 10K według nowego schematu
 #   * Zoptymnalizowano działanie wtyczki
