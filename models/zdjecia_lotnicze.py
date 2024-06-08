@@ -22,6 +22,7 @@ class ZdjeciaLotnicze:
             self.url = "brak zdjęcia"
         else:
             self.url = adresUrlMiniatur
+            
         self.nrSzeregu = nrSzeregu
         self.nrZdjecia = nrZdjecia
         self.rokWykonania = rokWykonania
