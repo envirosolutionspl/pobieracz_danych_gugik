@@ -19,6 +19,9 @@ class Las:
             aktualnoscRok,
             dt_pzgik
     ):
+        #zerowanie niepotrzenych zmiennych
+        bladSredniPolozenia = 0
+        
         self.url = url
         self.godlo = godlo
         self.aktualnosc = datetime.datetime.strptime(aktualnosc, '%Y-%m-%d').date()
