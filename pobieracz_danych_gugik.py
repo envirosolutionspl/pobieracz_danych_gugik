@@ -26,7 +26,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
 
 """Wersja wtyczki"""
-plugin_version = '1.1.0'
+plugin_version = '1.1.1'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -129,12 +129,13 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/pobieracz_danych_gugik/img/icon_pw2.png'
+        icon_path = ':/plugins/pobieracz_danych_gugik/img/pobieracz_logo.svg'
         self.add_action(
             icon_path,
             text=u'Pobieracz Danych GUGiK',
             callback=self.run,
             parent=self.iface.mainWindow())
+
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -282,6 +283,7 @@ class PobieraczDanychGugik:
             # show the dockwidget
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
 
+            self.dockwidget.label_55.setMargin(5)
             self.dockwidget.show()
 
     # region WFS
