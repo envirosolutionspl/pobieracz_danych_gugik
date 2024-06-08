@@ -10,6 +10,7 @@ class Las:
             format,
             charakterystykaPrzestrzenna,
             bladSredniWysokosci,
+            bladSredniPolozenia,
             ukladWspolrzednychPoziomych,
             ukladWspolrzednychPionowych,
             calyArkuszWypelnionyTrescia,
@@ -24,6 +25,7 @@ class Las:
         self.charakterystykaPrzestrzenna = float(charakterystykaPrzestrzenna.split()[0])
         self.format = format
         self.bladSredniWysokosci = float(bladSredniWysokosci)
+        self.bladSredniPolozenia = float(bladSredniPolozenia)
         self.ukladWspolrzednych = ukladWspolrzednychPoziomych
         self.ukladWysokosci = ukladWspolrzednychPionowych
         self.calyArkuszWyeplnionyTrescia = calyArkuszWypelnionyTrescia
