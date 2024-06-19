@@ -1,10 +1,8 @@
-import re
+from .models.wms import get_wms_objects
 from . import service_api
-from .models import Aerotriangulacja
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?"
-c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getAerotriangulacjaListbyPoint1992(point):
@@ -36,20 +34,4 @@ def getAerotriangulacjaListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    if resp[0]:
-        aeros = c.findall(resp[1])
-        aerotriangulacjaList = []
-        for aero in aeros:
-            element = aero.strip("{").strip("}").split(',')
-            params = {}
-            for el in element:
-                item = el.strip().split(':')
-                val = item[1].strip('"')
-                if len(item) > 2:
-                    val = ":".join(item[1:]).strip('"')
-                params[item[0]] = val
-            aerotriangulacja = Aerotriangulacja(**params)
-            aerotriangulacjaList.append(aerotriangulacja)
-        return aerotriangulacjaList
-    else:
-        return None
+    return get_wms_objects(resp)

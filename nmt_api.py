@@ -1,11 +1,5 @@
-import re
 from . import service_api
-from .models import Nmt
-from .wms import utils
-
-
-c = re.compile(r"\{{1}.*\}{1}")
-
+from .models.wms import get_wms_objects
 
 def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
@@ -24,14 +18,6 @@ def getNmtListbyPoint1992(point, isEvrf2007):
         URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladKRON86?"
 
         layers = service_api.getAllLayers(url=URL, service='WMS')
-
-    # """dynamiczne pobieranie dostępnych warstw"""
-    # layersResp = utils.getQueryableLayersFromWMS(URL)
-    # if layersResp[0]:
-    #     LAYERS = layersResp[1]
-    # else:
-    #     return layersResp
-
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -59,27 +45,11 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     if resp[0] or resp2[0]:
         lista = []
         if resp[0]:
-            lista += createList(resp)
+            lista += get_wms_objects(resp)
         if resp2[0]:
-            lista += createList(resp2)
+            lista += get_wms_objects(resp2)
         return True,  lista
     else:
         return resp
 
 
-def createList(resp):
-    nmtElements = c.findall(resp[1])
-    nmtList = []
-    for nmtElement in nmtElements:
-        element = nmtElement.strip("{").strip("}").split(',')
-        # print(element)
-        params = {}
-        for el in element:
-            item = el.strip().split(':')
-            val = item[1].strip('"')
-            if len(item) > 2:
-                val = ":".join(item[1:]).strip('"')
-            params[item[0]] = val
-        nmt = Nmt(**params)
-        nmtList.append(nmt)
-    return nmtList

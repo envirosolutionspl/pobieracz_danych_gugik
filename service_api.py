@@ -58,7 +58,7 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
 
     try:
-        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=20) as resp:
+        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=40) as resp:
             if str(resp.status_code) == '404':
                 return False, "Plik nie istnieje"
             saved = True

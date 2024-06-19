@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-import re
 from . import service_api
-from .models import ZdjeciaLotnicze
-
+from .models.wms import get_wms_objects
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
-c = re.compile(r"\{{1}.*\}{1}")
 
 
 def getZdjeciaLotniczeListbyPoint1992(point):
@@ -36,23 +33,13 @@ def getZdjeciaLotniczeListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    if resp[0]:
-        zdj_lot = c.findall(resp[1])
-        zdjeciaLotniczeList = []
-        for zdj in zdj_lot:
-            element = zdj.strip("{").strip("}").split(',')
-            params = {}
-            for el in element:
-                item = el.strip().split(':')
-                if item[0] == 'nrZdjÄcia':
-                    item[0] = 'nrZdjecia'
-                val = item[1].strip('"')
-                if len(item) > 2:
-                    val = ":".join(item[1:]).strip('"')
-                params[item[0]] = val
-            zdjecia_lotnicze = ZdjeciaLotnicze(**params)
-            # print("lista: ", params)
-            zdjeciaLotniczeList.append(zdjecia_lotnicze)
-        return zdjeciaLotniczeList
-    else:
-        return None
+    return _convert_attributes(get_wms_objects(resp))
+
+
+def _convert_attributes(elems_list):
+    for elem in elems_list:
+        if hasattr(elem, 'nrZdjÄcia'):
+            elem.nrZdjecia = getattr(elem, 'nrZdjÄcia')
+        if hasattr(elem, 'adresUrlMiniatur') and hasattr(elem, 'url'):
+            elem.url = 'brak zdjęcia' if elem.adresUrlMiniatur == '' else elem.adresUrlMiniatur
+    return elems_list

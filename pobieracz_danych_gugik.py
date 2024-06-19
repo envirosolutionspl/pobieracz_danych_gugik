@@ -635,7 +635,7 @@ class PobieraczDanychGugik:
                                                        isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
                     point=point, isEvrf2007=isEvrf2007)
                 if resp[0]:
-                    nmtList.extend(resp[1])
+                    nmtList = resp[1]
                 else:
                     bledy += 1
 
@@ -654,8 +654,8 @@ class PobieraczDanychGugik:
         point1992 = utils.pointTo2180(point=point,
                                       sourceCrs=QgsProject.instance().crs(),
                                       project=QgsProject.instance())
-        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
+        isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
+        isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
         resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
                                                isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
             point=point1992, isEvrf2007=isEvrf2007)
@@ -668,7 +668,8 @@ class PobieraczDanychGugik:
 
     def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-
+        if not isinstance(nmtList, list):
+            nmtList = [nmtList]
         # usuwanie duplikatów
         nmtList = list(set(nmtList))
         # filtrowanie
@@ -797,16 +798,16 @@ class PobieraczDanychGugik:
         if not connection:
             self.show_no_connection_message()
             return
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
+        isEvrf2007 = self.dockwidget.las_evrf2007_rdbtn.isChecked()
         lasList = las_api.getLasListbyPoint1992(
             point=point1992,
             isEvrf2007=isEvrf2007
-            # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
         )
-
         self.filterLasListAndRunTask(lasList)
 
     def filterLasListAndRunTask(self, lasList):
@@ -2062,39 +2063,42 @@ class PobieraczDanychGugik:
 
     def filterZdjeciaLotniczeListAndRunTask(self, zdjeciaLotniczeList):
         """Filtruje listę dostępnych plików Zdjęć Lotniczych i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        zdjeciaLotniczeList = list(set(zdjeciaLotniczeList))
-        # print("po 'set'", len(zdjeciaLotniczeList))
         zdjeciaLotniczeList = self.filterzdjeciaLotniczeList(zdjeciaLotniczeList)
-
         zdjeciaLotniczeList_brak_url = []
+        filtered_list = []
         for zdj in zdjeciaLotniczeList:
             if zdj.url == "brak zdjęcia":
                 zdjeciaLotniczeList_brak_url.append(zdj)
-                zdjeciaLotniczeList.remove(zdj)
+            else:
+                filtered_list.append(zdj)
 
         # wyswietl komunikat pytanie
-        if len(zdjeciaLotniczeList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+        if len(filtered_list) == 0:
+            msgbox = QMessageBox(
+                QMessageBox.Information,
+                'Komunikat',
+                'Nie znaleniono danych spełniających kryteria'
+            )
             msgbox.exec_()
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     zdjeciaLotniczeList))
+            msgbox = QMessageBox(
+                QMessageBox.Question,
+                'Potwierdź pobieranie',
+                f'Znaleziono {len(filtered_list)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
+            )
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
-                # pobieranie zdjęć lotniczych
-                task = DownloadZdjeciaLotniczeTask(description='Pobieranie plików zdjęć lotniczych',
-                                                   zdjeciaLotniczeList=zdjeciaLotniczeList,
-                                                   zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
-                                                   folder=self.dockwidget.folder_fileWidget.filePath(),
-                                                   iface=self.iface)
+                task = DownloadZdjeciaLotniczeTask(
+                    description='Pobieranie plików zdjęć lotniczych',
+                    zdjeciaLotniczeList=filtered_list,
+                    zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
+                    folder=self.dockwidget.folder_fileWidget.filePath(),
+                    iface=self.iface
+                )
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -2168,7 +2172,7 @@ class PobieraczDanychGugik:
         if dataType == 'NMT':
             filterFunction = self.filterNmtList
             downloadTask = DownloadNmtTask
-            isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+            isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
         if dataType == 'REFLECTANCE':
             pass
 
