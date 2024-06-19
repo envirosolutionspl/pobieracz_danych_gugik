@@ -64,7 +64,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.wfs_service_cmbbx.addItems(self.wfsFetch.wfsServiceDict.keys())
 
     def fill_wfs_services_data(self):
-        self.wfs_service_cmbbx_currentTextChanged('Ortofotomapa')
+        aktualna_warstwa = self.wfs_service_cmbbx.currentText()
+        self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
 
     def setup_validators(self):
         double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
