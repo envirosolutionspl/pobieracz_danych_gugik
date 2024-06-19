@@ -47,6 +47,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setup_vector_layers_filters()
         self.fill_voivodeships()
         self.fill_services()
+        self.fill_wfs_services_data()
         self.fill_years()
         self.setup_signals()
 
@@ -61,6 +62,9 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def fill_services(self):
         self.wfs_service_cmbbx.clear()
         self.wfs_service_cmbbx.addItems(self.wfsFetch.wfsServiceDict.keys())
+
+    def fill_wfs_services_data(self):
+        self.wfs_service_cmbbx_currentTextChanged('Ortofotomapa')
 
     def setup_validators(self):
         double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
