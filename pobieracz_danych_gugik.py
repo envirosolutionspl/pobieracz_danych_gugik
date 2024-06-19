@@ -294,6 +294,7 @@ class PobieraczDanychGugik:
             visible = getattr(self.dockwidget, rdbtn).isChecked()
             for groupbox in groupboxes:
                 getattr(self.dockwidget, groupbox).setVisible(visible)
+                getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
 
     def wfs_fromLayer_btn_clicked(self):

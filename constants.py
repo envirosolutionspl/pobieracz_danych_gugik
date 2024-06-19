@@ -95,6 +95,8 @@ GROUPBOXES_VISIBILITY_MAP = {
             'egib_excel_groupBox',
             'tyflologiczne_groupBox',
             'osnowa_groupBox',
+            'osnowa_podstawowa_groupBox',
+            'osnowa_arch_groupBox',
             'aerotriangulacja_groupBox',
             'linie_mozaikowania_groupBox',
             'wizualizacja_karto_groupBox',
