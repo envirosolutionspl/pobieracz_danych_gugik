@@ -17,7 +17,7 @@ def get_wfs_egib_dict():
         iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem - nie można pobrać adresu WFS.')
         return
     except requests.exceptions.Timeout:
-        iface.messageBar().pushWarning('Przekroczono czas oczekiwania na odpowiedź serwera.')
+        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
         return
     root = etree.HTML(resp.content)
     table = root.xpath('.//table[contains(@class, "table")]')[0]

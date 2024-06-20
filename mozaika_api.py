@@ -1,18 +1,15 @@
-import re
+from .wms.utils import get_wms_objects
 from . import service_api
-from .models import Linie_mozaikowania
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/LinieMozaikowania?"
-c = re.compile(r"\{{1}.*\}{1}")
-
 
 def getMozaikaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania linii mozaikowania na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-    
+
     LAYERS = [
         'SkorowidzLiniiMozaikowania'
     ]
@@ -34,21 +31,4 @@ def getMozaikaListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    if resp[0]:
-        mozaikowanie = c.findall(resp[1])
-        mozaikaList = []
-        for mozaika in mozaikowanie:
-            element = mozaika.strip("{").strip("}").split(',')
-            params = {}
-            for el in element:
-                item = el.strip().split(':')
-                val = item[1].strip('"')
-                if len(item) > 2:
-                    val = ":".join(item[1:]).strip('"')
-                params[item[0]] = val
-            linie_mozaikowania = Linie_mozaikowania(**params)
-            mozaikaList.append(linie_mozaikowania)
-        # print("mozaikaList: ", mozaikaList)
-        return mozaikaList
-    else:
-        return None
+    return get_wms_objects(resp)

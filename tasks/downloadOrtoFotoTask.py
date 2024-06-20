@@ -24,20 +24,19 @@ class DownloadOrtofotoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.ortoList)
         for orto in self.ortoList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + orto.url)
-
-            fileName = orto.url.split("/")[-1]
-            # QgsMessageLog.logMessage('1 ' + fileName + ' ' + orto.url + ' ' + self.folder)
-            service_api.retreiveFile(url=orto.url, destFolder=self.folder, obj=self)
+            orto_url = orto.get('url')
+            if not orto_url:
+                continue
+            QgsMessageLog.logMessage(f'start {orto_url}')
+            service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -52,50 +51,39 @@ class DownloadOrtofotoTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane z ortofotomapy zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane z ortofotomapy zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane z ortofotomapy nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane z ortofotomapy nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_ortofoto_%s.txt' % date), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'godlo',
-                'aktualnosc',
-                'wielkosc_piksela',
-                'uklad_wspolrzednych',
-                'caly_arkusz_wypelniony_trescia',
-                'modul_archiwizacji',
-                'zrodlo_danych',
-                'kolor',
-                'numer_zgloszenia_pracy',
-                'aktualnosc_rok'
-            ]
-            csvFile.write(','.join(naglowki)+'\n')
-            for orto in self.ortoList:
-                fileName = orto.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-                    fileName,
-                    orto.godlo,
-                    orto.aktualnosc,
-                    orto.wielkoscPiksela,
-                    orto.ukladWspolrzednych,
-                    orto.calyArkuszWyeplnionyTrescia,
-                    orto.modulArchiwizacji,
-                    orto.zrodloDanych,
-                    orto.kolor,
-                    orto.numerZgloszeniaPracy,
-                    orto.aktualnoscRok
-                ))
+    def create_report(self):
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'godlo': 'godlo',
+            'aktualnosc': 'aktualnosc',
+            'wielkosc_piksela': 'wielkoscPiksela',
+            'uklad_wspolrzednych': 'ukladWspolrzednych',
+            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+            'modul_archiwizacji': 'modulArchiwizacji',
+            'zrodlo_danych': 'zrodloDanych',
+            'kolor': 'kolor',
+            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+            'aktualnosc_rok': 'aktualnoscRok'
+        }
+        utils.create_report(os.path.join(self.folder, 'pobieracz_ortofoto'), headers_mapping, self.ortoList)

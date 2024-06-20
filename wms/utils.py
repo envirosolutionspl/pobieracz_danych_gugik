@@ -1,6 +1,10 @@
+import re
+
 import requests
 import xml.etree.ElementTree as ET
 from ..wfs.httpsAdapter import get_legacy_session
+
+expr = re.compile(r"\{{1}.*\}{1}")
 
 def getQueryableLayersFromWMS(wmsUrl):
     """Lista dostępnych warstw z usługi WMS"""
@@ -29,6 +33,26 @@ def getQueryableLayersFromWMS(wmsUrl):
                 return False, f'Błąd {resp.status_code}'
     except requests.exceptions.ConnectionError:
         return False, "Błąd połączenia"
+
+
+def get_wms_objects(request_response):
+    if not request_response[0]:
+        return None
+    req_elements = expr.findall(request_response[1])
+    req_list = []
+    for req_element in req_elements:
+        element = req_element.strip("{").strip("}").split(',')
+        attributes = {}
+        for el in element:
+            item = el.strip().split(':')
+            key = item[0].strip('"')
+            val = item[1].strip('"')
+            if len(item) > 2:
+                val = ":".join(item[1:]).strip('"')
+            attributes[key] = val
+        req_list.append(attributes)
+    return req_list
+
 
 
 

@@ -26,22 +26,17 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.zdjeciaLotniczeList)
-
         for zdj in self.zdjeciaLotniczeList:
+            zdj_url = zdj.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + zdj.url)
-
-            # fileName = reflectance.url.split("/")[-1]
-            # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=zdj.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {zdj_url}')
+            service_api.retreiveFile(url=zdj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -56,49 +51,40 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane zdjęć lotniczych zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane zdjęć lotniczych zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane zdjęć lotniczych nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane zdjęć lotniczych nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
+    def create_report(self):
         zdjeciaLotniczeList_all = self.zdjeciaLotniczeList + self.zdjeciaLotniczeList_brak_url
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze_%s.txt' % date), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'numer_szeregu',
-                'numer_zdjęcia',
-                'rok_wykonania',
-                'data_nalotu',
-                'charakterystyka_przestrzenna',
-                'kolor',
-                'źrodło_danych',
-                'numer_zgłoszenia',
-                'karta_pracy'
-            ]
-            csvFile.write(','.join(naglowki)+'\n')
-            for zdj in zdjeciaLotniczeList_all:
-                fileName = zdj.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-                    fileName,
-                    zdj.nrSzeregu,
-                    zdj.nrZdjecia,
-                    zdj.rokWykonania,
-                    zdj.dataNalotu,
-                    zdj.charakterystykaPrzestrzenna,
-                    zdj.kolor,
-                    zdj.zrodloDanych,
-                    zdj.nrZgloszenia,
-                    zdj.kartaPracy
-                ))
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'numer_szeregu': 'nrSzeregu',
+            'numer_zdjęcia': 'nrZdjecia',
+            'rok_wykonania': 'rokWykonania',
+            'data_nalotu': 'dataNalotu',
+            'charakterystyka_przestrzenna': 'charakterystykaPrzestrzenna',
+            'kolor': 'kolor',
+            'źrodło_danych': 'zrodloDanych',
+            'numer_zgłoszenia': 'nrZgloszenia',
+            'karta_pracy': 'kartaPracy',
+        }
+        obj_list = [{**obj, 'url': obj.get('url', '').split('/')[-1]} for obj in zdjeciaLotniczeList_all]
+        utils.create_report(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze'), headers_mapping, obj_list)
