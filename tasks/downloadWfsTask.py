@@ -52,7 +52,7 @@ class DownloadWfsTask(QgsTask):
         if result:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane WFS zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+                                                level=Qgis.Success, duration=10)
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')

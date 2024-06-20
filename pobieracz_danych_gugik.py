@@ -361,6 +361,7 @@ class PobieraczDanychGugik:
                                      "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
                 msgbox.exec_()
                 QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                self.canvas.refresh()
                 return
             else:
                 msgbox = QMessageBox(QMessageBox.Question,
@@ -375,8 +376,11 @@ class PobieraczDanychGugik:
                 if reply == QMessageBox.Yes:
                     # pobieranie
                     self.runWfsTask(urls)
+                    QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    self.canvas.refresh()
                 else:
                     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    self.canvas.refresh()
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
