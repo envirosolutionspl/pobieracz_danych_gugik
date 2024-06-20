@@ -1648,7 +1648,6 @@ class PobieraczDanychGugik:
                 QgsMessageLog.logMessage('runtask')
 
     def filterMeshListAndRunTask(self, mesh_objs):
-        mesh_objs = list(set(mesh_objs))
         if not mesh_objs:
             msgbox = QMessageBox(
                 QMessageBox.Information,

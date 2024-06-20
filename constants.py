@@ -1,3 +1,5 @@
+TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
+
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',
     'orto_pixelTo_lineEdit',

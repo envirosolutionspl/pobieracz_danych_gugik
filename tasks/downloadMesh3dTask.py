@@ -1,5 +1,4 @@
 import os
-import datetime
 from qgis.core import QgsTask, QgsMessageLog, Qgis
 from .. import service_api, utils
 
@@ -16,11 +15,12 @@ class DownloadMesh3dTask(QgsTask):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.mesh_objs)
         for obj in self.mesh_objs:
+            obj_url = obj.get('url')
             if self.isCanceled():
                 QgsMessageLog('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + obj.url)
-            service_api.retreiveFile(url=obj.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {obj_url}')
+            service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
         self.create_report()
         return True
@@ -52,20 +52,18 @@ class DownloadMesh3dTask(QgsTask):
         super().cancel()
 
     def create_report(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, f'pobieracz_mesh3d_{date}.txt'), 'w') as report_file:
-            naglowki = [
-                'Nazwa pliku',
-                'Identyfikator modelu 3d',
-                'Numer zgłoszenia',
-                'Rok'
-            ]
-            report_file.write(','.join(naglowki)+'\n')
-            for mesh_obj in self.mesh_objs:
-                fileName = mesh_obj.url.split("/")[-1]
-                report_file.write('%s,%s,%s,%s\n' % (
-                    fileName,
-                    mesh_obj.modul,
-                    mesh_obj.numerZgloszeniaPracy,
-                    mesh_obj.aktualnosc[0:4]
-                ))
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'modul': 'modul',
+            'aktualnosc': 'aktualnosc',
+            'format': 'format',
+            'blad_sredni_wysokosci': 'bladSredniWysokosci',
+            'blad_sredni_polozenia': 'bladSredniPolozenia',
+            'uklad_wspolrzednych_poziomych': 'ukladWspolrzednychPoziomych',
+            'uklad_wspolrzednych_pionowych': 'ukladWspolrzednychPionowych',
+            'modul_archiwizacji': 'modulArchiwizacji',
+            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+            'aktualnosc_rok': 'aktualnoscRok',
+            'zrodlo_danych': 'zrDanych',
+        }
+        utils.create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), headers_mapping, self.mesh_objs)

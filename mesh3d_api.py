@@ -1,6 +1,6 @@
 import re
 
-from .models.mesh3d import Mesh3d
+from .wms.utils import get_wms_objects
 from . import service_api
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/ModeleSiatkowe3D?"
@@ -32,20 +32,4 @@ def getMesh3dListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    if resp[0]:
-        aeros = c.findall(resp[1])
-        mesh_objs = []
-        for aero in aeros:
-            element = aero.strip("{").strip("}").split(',')
-            params = {}
-            for el in element:
-                item = el.strip().split(':')
-                val = item[1].strip('"')
-                if len(item) > 2:
-                    val = ":".join(item[1:]).strip('"')
-                params[item[0]] = val
-            mesh = Mesh3d(**params)
-            mesh_objs.append(mesh)
-        return mesh_objs
-    else:
-        return None
+    return get_wms_objects(resp)
