@@ -1,20 +1,18 @@
+import datetime
 from qgis.core import QgsCoordinateReferenceSystem
 import processing, sys, os
 from qgis.core import *
 
 
-def onlyNewest(dataFilelist):
+def onlyNewest(data_file_list):
     """filtruje listę tylko do najnowszych plików według arkuszy"""
-    aktualneDict = {}
-    for dataFile in dataFilelist:
-        godlo = dataFile.godlo
-        if godlo in aktualneDict:
-            old = aktualneDict[godlo]
-            if dataFile.aktualnosc > old.aktualnosc:
-                aktualneDict[godlo] = dataFile
-        else:
-            aktualneDict[godlo] = dataFile
-    return list(aktualneDict.values())
+    updated_dict = {}
+    for data_file in data_file_list:
+        godlo = data_file.get('godlo')
+        aktualnosc = data_file.get('aktualnosc')
+        if godlo not in updated_dict or aktualnosc > updated_dict[godlo].get('aktualnosc'):
+            updated_dict[godlo] = data_file
+    return list(updated_dict.values())
 
 
 def openFile(filename):
@@ -98,6 +96,17 @@ def createPointsFromPolygon(layer, density=1000):
             geom2 = geom.simplify(800)
             for point in geom2.vertices():
                 punktyList.append(point)
-
-
     return punktyList
+
+
+def create_report(file_path, headers, obj_list, file_name_from_url=True):
+    file_path = f'{file_path}_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.txt'
+    if file_name_from_url:
+        obj_list = [{**obj, 'url': obj.get('url', '').split('/')[-1]} for obj in obj_list]
+    valid_headers = {header: key for header, key in headers.items() if
+                     any(key in obj for obj in obj_list)}
+    with open(file_path, 'w') as report_file:
+        report_file.write(','.join(valid_headers.keys()) + '\n')
+        for obj in obj_list:
+            row = [str(obj.get(key, '')) for key in valid_headers.values()]
+            report_file.write(','.join(row) + '\n')

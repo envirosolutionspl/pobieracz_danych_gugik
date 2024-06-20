@@ -26,21 +26,17 @@ class DownloadNmptTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.nmptList)
-
         for nmpt in self.nmptList:
+            nmpt_url = nmpt.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + nmpt.url)
-            fileName = nmpt.url.split("/")[-1]
-            service_api.retreiveFile(url=nmpt.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {nmpt_url}')
+            service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
-
+        self.create_report()
         utils.openFile(self.folder)
         if self.isCanceled():
             return False
@@ -58,59 +54,48 @@ class DownloadNmptTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane NMPT zostały pobrane.",
-                                                level=Qgis.Success, duration=10)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane NMPT zostały pobrane.',
+                level=Qgis.Success,
+                duration=10
+            )
 
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushMessage("Błąd",
-                                                "Dane NMPT nie zostały pobrane.",
-                                                level=Qgis.Warning, duration=10)
+            self.iface.messageBar().pushMessage(
+                'Błąd',
+                'Dane NMPT nie zostały pobrane.',
+                level=Qgis.Warning,
+                duration=10
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        csvFilename = 'pobieracz_nmpt_%s.txt' % date
-
-
-        with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'format',
-                'godlo',
-                'aktualnosc',
-                'dokladnosc_pozioma',
-                'dokladnosc_pionowa',
-                'uklad_wspolrzednych_plaskich',
-                'uklad_wspolrzednych_wysokosciowych',
-                'caly_arkusz_wypelniony_trescia',
-                'numer_zgloszenia_pracy',
-                'aktualnosc_rok',
-                'data_dodania_do_PZGIK'
-            ]
-
-            csvFile.write(','.join(naglowki)+'\n')
-            for nmpt in self.nmptList:
-                fileName = nmpt.url.split("/")[-1]
-
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-                    fileName,
-                    nmpt.godlo,
-                    nmpt.format,
-                    nmpt.aktualnosc,
-                    nmpt.charakterystykaPrzestrzenna,
-                    nmpt.bladSredniWysokosci,
-                    nmpt.ukladWspolrzednych,
-                    nmpt.ukladWysokosci,
-                    nmpt.calyArkuszWyeplnionyTrescia,
-                    nmpt.numerZgloszeniaPracy,
-                    nmpt.aktualnoscRok,
-                    nmpt.dt_pzgik
-                ))
+    def create_report(self):
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'format': 'format',
+            'godlo': 'godlo',
+            'aktualnosc': 'aktualnosc',
+            'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
+            'dokladnosc_pionowa': 'bladSredniWysokosci',
+            'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+            'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+            'aktualnosc_rok': 'aktualnoscRok',
+            'zrodlo_danych': 'zrDanych',
+            'data_dodania_do_PZGIK': 'dt_pzgik'
+        }
+        utils.create_report(
+            os.path.join(self.folder, 'pobieracz_nmpt'),
+            headers_mapping,
+            self.nmptList
+        )

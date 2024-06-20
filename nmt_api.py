@@ -1,5 +1,5 @@
 from . import service_api
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 
 def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""

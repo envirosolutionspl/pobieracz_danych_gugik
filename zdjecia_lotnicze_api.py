@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from . import service_api
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
 
@@ -13,7 +13,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    layers = service_api.getAllLayers(url=URL,service='WMS')
+    layers = service_api.getAllLayers(url=URL, service='WMS')
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -38,8 +38,9 @@ def getZdjeciaLotniczeListbyPoint1992(point):
 
 def _convert_attributes(elems_list):
     for elem in elems_list:
-        if hasattr(elem, 'nrZdjÄcia'):
-            elem.nrZdjecia = getattr(elem, 'nrZdjÄcia')
-        if hasattr(elem, 'adresUrlMiniatur') and hasattr(elem, 'url'):
-            elem.url = 'brak zdjęcia' if elem.adresUrlMiniatur == '' else elem.adresUrlMiniatur
+        if 'nrZdjÄcia' in elem:
+            elem['nrZdjecia'] = elem.get('nrZdjÄcia')
+        if 'nrZdjÄ\x99cia' in elem:
+            elem['nrZdjecia'] = elem.get('nrZdjÄ\x99cia')
+        elem['url'] = elem.get('adresUrlMiniatur') if elem.get('adresUrlMiniatur') else 'brak zdjęcia'
     return elems_list

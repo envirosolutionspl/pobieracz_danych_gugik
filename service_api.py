@@ -1,3 +1,5 @@
+from qgis.utils import iface
+
 from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
@@ -79,6 +81,9 @@ def retreiveFile(url, destFolder, obj):
             else:
                 os.remove(path)
                 return False, "Pobieranie przerwane"
+    except requests.exceptions.Timeout:
+        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
+        return False, 'Przekroczono czas oczekiwania na odpowiedź serwera.'
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
         return [True]

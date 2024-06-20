@@ -1,11 +1,9 @@
 import datetime
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 try:
     from . import service_api
-    from .models import WFS
 except:
     import service_api
-    from models import WFS
 
 
 def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False

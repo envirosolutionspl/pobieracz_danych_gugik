@@ -1,5 +1,4 @@
-import re
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 from . import service_api
 
 

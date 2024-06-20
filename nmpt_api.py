@@ -1,5 +1,5 @@
 from . import service_api
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 
 
 def getNmptListbyPoint1992(point, isEvrf2007):

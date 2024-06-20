@@ -27,18 +27,17 @@ class DownloadLasTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.lasList)
         for las in self.lasList:
+            las_url = las.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + las.url)
-            fileName = las.url.split("/")[-1]
-            service_api.retreiveFile(url=las.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {las_url}')
+            service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -53,53 +52,43 @@ class DownloadLasTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane LAZ zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane LAZ zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane LAZ nie zostały pobrane.")
-
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane LAZ nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
+    def create_report(self):
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'godlo': 'godlo',
+            'format': 'format',
+            'aktualnosc': 'aktulnosc',
+            'dokladnosc_pionowa': 'bladSredniWysokosci',
+            'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+            'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+            'aktualnosc_rok': 'aktualnoscRok'
+        }
+        utils.create_report(
+            os.path.join(self.folder, 'pobieracz_las'),
+            headers_mapping,
+            self.lasList
+        )
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        csvFilename = 'pobieracz_las_%s.txt' % date
-        with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'godlo',
-                'format',
-                'aktualnosc',
-                'dokladnosc_pionowa',
-                'uklad_wspolrzednych_plaskich',
-                'uklad_wspolrzednych_wysokosciowych',
-                'caly_arkusz_wypelniony_trescia',
-                'numer_zgloszenia_pracy',
-                'aktualnosc_rok'
-            ]
-
-            csvFile.write(','.join(naglowki)+'\n')
-            for las in self.lasList:
-                print(las)
-                fileName = las.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-                    fileName,
-                    las.godlo,
-                    las.format,
-                    las.aktualnosc,
-                    las.bladSredniWysokosci,
-                    las.ukladWspolrzednych,
-                    las.ukladWysokosci,
-                    las.calyArkuszWyeplnionyTrescia,
-                    las.numerZgloszeniaPracy,
-                    las.aktualnoscRok
-                ))

@@ -1,5 +1,5 @@
+from .wms.utils import get_wms_objects
 from . import service_api
-from .models.wms import get_wms_objects
 
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?"

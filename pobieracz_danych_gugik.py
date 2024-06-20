@@ -525,16 +525,7 @@ class PobieraczDanychGugik:
 
     def filterOrtoListAndRunTask(self, ortoList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(urlList))
-
-        # usuwanie duplikatów
-        ortoList = list(set(ortoList))
-        # print("po 'set'", len(urlList))
-        # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
-        # print("po 'filtrowaniu'", len(urlList))
-
-        # wyswietl komunikat pytanie
         if len(ortoList) == 0:
             QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria").exec_()
             return
@@ -620,8 +611,8 @@ class PobieraczDanychGugik:
         bledy = 0
         layer = self.dockwidget.nmt_mapLayerComboBox.currentLayer()
 
-        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
+        isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
+        isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=1000)
@@ -631,52 +622,55 @@ class PobieraczDanychGugik:
 
             nmtList = []
             for point in points:
-                resp = nmpt_api.getNmptListbyPoint1992(point=point,
-                                                       isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-                    point=point, isEvrf2007=isEvrf2007)
-                if resp[0]:
-                    nmtList = resp[1]
+                resp = nmpt_api.getNmptListbyPoint1992(
+                    point=point,
+                    isEvrf2007=isEvrf2007
+                ) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                    point=point,
+                    isEvrf2007=isEvrf2007
+                )
+                if resp:
+                    nmtList = resp if isNmpt else resp[1]
                 else:
                     bledy += 1
 
             self.filterNmtListAndRunTask(nmtList, isNmpt)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
-
         else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano warstwy wektorowej')
+            self.iface.messageBar().pushWarning(
+                'Ostrzeżenie:',
+                'Nie wskazano warstwy wektorowej'
+            )
 
     def downloadNmtForSinglePoint(self, point):
         """Pobiera NMT/NMPT dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
         isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
         isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
-        resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
-                                               isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-            point=point1992, isEvrf2007=isEvrf2007)
-        if resp[0]:
-            nmtList = resp[1]
+        resp = nmpt_api.getNmptListbyPoint1992(
+            point=point1992,
+            isEvrf2007=isEvrf2007
+        ) if isNmpt else nmt_api.getNmtListbyPoint1992(
+            point=point1992,
+            isEvrf2007=isEvrf2007
+        )
+        if resp:
+            nmtList = resp if isNmpt else resp[1]
             self.filterNmtListAndRunTask(nmtList, isNmpt)
         else:
-            self.iface.messageBar().pushCritical("Błąd pobierania",
-                                                 f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
+            self.iface.messageBar().pushCritical(
+                'Błąd pobierania',
+                'Nie udało się pobrać danych z serwera.'
+            )
 
     def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-        if not isinstance(nmtList, list):
-            nmtList = [nmtList]
-        # usuwanie duplikatów
-        nmtList = list(set(nmtList))
-        # filtrowanie
         nmtList = self.filterNmtList(nmtList)
-
-        # wyswietl komunikat pytanie
-        if len(nmtList) == 0:
+        if not nmtList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -720,35 +714,35 @@ class PobieraczDanychGugik:
         """Filtruje listę NMT/NMPT"""
         # wybór formatu
         if self.dockwidget.arcinfo_rdbtn.isChecked():
-            nmtList = [nmt for nmt in nmtList if nmt.format == "ARC/INFO ASCII GRID"]
+            nmtList = [nmt for nmt in nmtList if nmt.get('format') == "ARC/INFO ASCII GRID"]
         elif self.dockwidget.xyz_rdbtn.isChecked():
-            nmtList = [nmt for nmt in nmtList if nmt.format == "ASCII XYZ GRID"]
+            nmtList = [nmt for nmt in nmtList if nmt.get('format') == "ASCII XYZ GRID"]
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
-            if not (self.dockwidget.nmt_crs_cmbbx.currentText() == 'wszystkie'):
+            if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
             if self.dockwidget.nmt_from_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           nmt.get('aktualnosc') >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_to_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.aktualnosc <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
-            if not (self.dockwidget.nmt_full_cmbbx.currentText() == 'wszystkie'):
+                           nmt.get('aktualnosc') <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.calyArkuszWyeplnionyTrescia == self.dockwidget.nmt_full_cmbbx.currentText()]
+                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.charakterystykaPrzestrzenna >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                           nmt.get('charakterystykaPrzestrzenna') >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+                           nmt.get('charakterystykaPrzestrzenna') <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                           nmt.get('bladSredniWysokosci') >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
             if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                           nmt.get('bladSredniWysokosci') <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -812,17 +806,8 @@ class PobieraczDanychGugik:
 
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(lasList))
-
-        # usuwanie duplikatów
-        lasList = list(set(lasList))
-        # print("po 'set'", len(lasList))
-        # filtrowanie
         lasList = self.filterLasList(lasList)
-        # print("po 'filtrowaniu'", len(lasList))
-
-        # wyswietl komunikat pytanie
-        if len(lasList) == 0:
+        if not lasList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -944,17 +929,8 @@ class PobieraczDanychGugik:
 
     def filterReflectanceListAndRunTask(self, reflectanceList):
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(reflectanceList))
-
-        # usuwanie duplikatów
-        reflectanceList = list(set(reflectanceList))
-        # print("po 'set'", len(reflectanceList))
-        # filtrowanie
         reflectanceList = self.filterReflectanceList(reflectanceList)
-        # print("po 'filtrowaniu'", len(reflectanceList))
-
-        # wyswietl komunikat pytanie
-        if len(reflectanceList) == 0:
+        if not reflectanceList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -1669,13 +1645,7 @@ class PobieraczDanychGugik:
 
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        aerotriangulacjaList = list(set(aerotriangulacjaList))
-        # print("po 'set'", len(aerotriangulacjaList))
-
-        # wyswietl komunikat pytanie
-        if len(aerotriangulacjaList) == 0:
+        if not aerotriangulacjaList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -1756,13 +1726,7 @@ class PobieraczDanychGugik:
 
     def filterMozaikaListAndRunTask(self, mozaikaList):
         """Filtruje listę dostępnych plików Linii Mozaikowania i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        mozaikaList = list(set(mozaikaList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(mozaikaList) == 0:
+        if not mozaikaList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -1846,13 +1810,7 @@ class PobieraczDanychGugik:
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
         """Filtruje listę dostępnych plików Wizualizacji Kartograficznej BDOT10k i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        wizKartoList = list(set(wizKartoList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(wizKartoList) == 0:
+        if not wizKartoList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -1936,13 +1894,7 @@ class PobieraczDanychGugik:
 
     def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
         """Filtruje listę dostępnych plików Archiwalnych kartotek osnów i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        kartotekiOsnowList = list(set(kartotekiOsnowList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(kartotekiOsnowList) == 0:
+        if not kartotekiOsnowList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -2067,13 +2019,13 @@ class PobieraczDanychGugik:
         zdjeciaLotniczeList_brak_url = []
         filtered_list = []
         for zdj in zdjeciaLotniczeList:
-            if zdj.url == "brak zdjęcia":
+            if zdj.get('url') == "brak zdjęcia":
                 zdjeciaLotniczeList_brak_url.append(zdj)
             else:
                 filtered_list.append(zdj)
 
         # wyswietl komunikat pytanie
-        if len(filtered_list) == 0:
+        if not filtered_list:
             msgbox = QMessageBox(
                 QMessageBox.Information,
                 'Komunikat',

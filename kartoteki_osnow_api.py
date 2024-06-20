@@ -1,6 +1,6 @@
 import re
+
 from . import service_api
-from .models import WFS
 
 
 def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
@@ -47,8 +47,7 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
             rodzaj_katalogu = 'Katalogi_Kartoteki1942'
         url = f"https://opendata.geoportal.gov.pl/bdpog/MaterialyArchiwalne/{rodzaj_katalogu}/{godlo}.zip"
         params = {"url": url, "rodzaj_katalogu": rodzaj_katalogu, "godlo": godlo}
-        kartoteki_osnow = WFS(**params)
-        kartoteki_osnowList.append(kartoteki_osnow)
+        kartoteki_osnowList.append(params)
         return kartoteki_osnowList
     else:
         return None

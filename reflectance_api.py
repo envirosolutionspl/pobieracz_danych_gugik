@@ -1,7 +1,7 @@
 import datetime
 
 from . import service_api
-from .models.wms import get_wms_objects
+from .wms.utils import get_wms_objects
 
 
 def getReflectanceListbyPoint1992(point):
