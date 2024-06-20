@@ -4,7 +4,6 @@ from qgis.core import (
     )
 from .. import service_api, utils
 
-
 class DownloadWfsTask(QgsTask):
     """QgsTask pobierania WFS"""
 
@@ -26,14 +25,16 @@ class DownloadWfsTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
         total = len(self.urlList)
+
         for url in self.urlList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             fileName = url.split("/")[-1]
             QgsMessageLog.logMessage('start ' + fileName)
+
             service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
         return True
