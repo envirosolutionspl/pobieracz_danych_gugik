@@ -24,21 +24,17 @@ class DownloadKartotekiOsnowTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.kartotekiOsnowList)
-
         for kartotekaOsnow in self.kartotekiOsnowList:
+            obj_url = kartotekaOsnow.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + kartotekaOsnow.url)
-            fileName = kartotekaOsnow.url.split("/")[-1]
-            service_api.retreiveFile(url=kartotekaOsnow.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {obj_url}')
+            service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
-
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -53,36 +49,35 @@ class DownloadKartotekiOsnowTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane archiwalnych kartotek osnów zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane archiwalnych kartotek osnów zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane archiwalnych kartotek osnów nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane archiwalnych kartotek osnów nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        csvFilename = 'pobieracz_archiwalnych_katalogów_osnów_geodezyjnych_%s.txt' % date
-
-        with open(os.path.join(self.folder, csvFilename), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'rodzaj_katalogu',
-                'Godlo'
-            ]
-            csvFile.write(','.join(naglowki) + '\n')
-            for kartotekaOsnow in self.kartotekiOsnowList:
-                fileName = kartotekaOsnow.url.split("/")[-1]
-                csvFile.write('%s,%s,%s\n' % (
-                    fileName,
-                    kartotekaOsnow.rodzaj_katalogu,
-                    kartotekaOsnow.godlo
-                ))
+    def create_report(self):
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'rodzaj_katalogu': 'rodzaj_katalogu',
+            'Godło': 'godlo',
+        }
+        utils.create_report(
+            os.path.join(self.folder, 'pobieracz_archiwalnych_katalogów_osnów_geodezyjnych'),
+            headers_mapping,
+            self.kartotekiOsnowList
+        )

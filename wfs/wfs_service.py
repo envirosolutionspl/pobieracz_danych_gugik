@@ -7,17 +7,19 @@ except ImportError:
     from wfs.utils import getTypenamesFromWFS
     from wfs.utils import roundCoordinatesOfWkt
 from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
+
+
 class WfsFetch:
     def __init__(self):
         self.wfsServiceDict = {
-            'Ortofotomapa' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
-            'Prawdziwa Ortofotomapa' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
-            'LIDAR (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
-            'LIDAR (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
-            'NMT (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
-            'NMT (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
-            'NMPT (PL-KRON86-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
-            'NMPT (PL-EVRF2007-NH)' : 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
+            'Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
+            'Prawdziwa Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
+            'LIDAR (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
+            'LIDAR (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
+            'NMT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
+            'NMT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
+            'NMPT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
+            'NMPT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
         }
         self.cachedTypenamesDict = {}
         self.errors = []
