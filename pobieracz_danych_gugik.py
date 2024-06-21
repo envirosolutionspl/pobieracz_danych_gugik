@@ -292,6 +292,7 @@ class PobieraczDanychGugik:
     def change_groupboxes_visibility(self):
         for rdbtn, groupboxes in GROUPBOXES_VISIBILITY_MAP.items():
             visible = getattr(self.dockwidget, rdbtn).isChecked()
+
             for groupbox in groupboxes:
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
@@ -1289,7 +1290,8 @@ class PobieraczDanychGugik:
         task = DownloadTrees3dTask(
             description=f'Pobieranie powiatowej paczki modelu drzew 3D dla {powiat_name}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt_powiat=teryt
+            teryt_powiat=teryt,
+            iface=self.iface
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')

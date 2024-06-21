@@ -32,7 +32,7 @@ class DownloadMesh3dTask(QgsTask):
                 'Sukces',
                 'Udało się! Dane siatkowego modelu 3D zostały pobrane.',
                 level=Qgis.Success,
-                duration=0
+                duration=10
             )
         else:
             if self.exception is None:
