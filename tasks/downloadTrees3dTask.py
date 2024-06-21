@@ -6,7 +6,7 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.utils import iface
 
-from .constants import TREES3D_URL
+from ..constants import TREES3D_URL
 from .. import service_api
 from ..wfs.httpsAdapter import get_legacy_session
 
