@@ -5,13 +5,16 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
+from .constants import GROUPBOXES_VISIBILITY_MAP
 from .uldk import RegionFetch
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
-    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask)
+    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask, DownloadMesh3dTask,
+    DownloadTrees3dTask
+)
 import processing
 
 # Initialize Qt resources from file resources.py
@@ -23,7 +26,7 @@ from .dialogs import PobieraczDanychDockWidget
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
 plugin_version = '1.1.1'
@@ -78,6 +81,8 @@ class PobieraczDanychGugik:
         self.wfsClickTool.canvasClicked.connect(self.canvasWfs_clicked)
         self.aerotriangulacjaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacja_clicked)
+        self.mesh3dClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.mesh3dClickTool.canvasClicked.connect(self.canvasMesh_clicked)
         self.mozaikaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaika_clicked)
         self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(self.canvas)
@@ -182,17 +187,11 @@ class PobieraczDanychGugik:
                 self.pluginIsActive = True
 
             # Eventy
-            self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wms_rdbtn.toggled.emit(True)
+            for rdbtn in GROUPBOXES_VISIBILITY_MAP.keys():
+                obj = getattr(self.dockwidget, rdbtn)
+                obj.toggled.connect(self.change_groupboxes_visibility)
+                obj.toggled.emit(True)
 
-            self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.paczka_rdbtn.toggled.emit(True)
-
-            self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.inne_rdbtn.toggled.emit(True)
-
-            self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wfs_rdbtn.toggled.emit(True)
             self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
             self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
 
@@ -219,7 +218,6 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
             self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
-            # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
             self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
             self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
             self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
@@ -230,6 +228,7 @@ class PobieraczDanychGugik:
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
             self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
+            self.dockwidget.drzewa3d_selected_powiat_btn.clicked.connect(self.invoke_task_3d_trees)
 
             self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
 
@@ -245,6 +244,10 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
             self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
+
+            self.dockwidget.mesh3d_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.mesh3dClickTool))
+            self.dockwidget.mesh3d_fromLayer_btn.clicked.connect(self.mesh3d_fromLayer_btn_clicked)
 
             self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.mozaikaClickTool))
@@ -286,91 +289,14 @@ class PobieraczDanychGugik:
             self.dockwidget.label_55.setMargin(5)
             self.dockwidget.show()
 
-    # region WFS
-    def btnstate(self):
-        if self.dockwidget.wfs_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(True)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('wfs')
-        if self.dockwidget.wms_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(True)
-            self.dockwidget.nmt_groupBox.setVisible(True)
-            self.dockwidget.las_groupBox.setVisible(True)
-            self.dockwidget.reflectance_groupBox.setVisible(True)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('wms')
-        if self.dockwidget.paczka_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(True)
-            self.dockwidget.bdoo_groupBox.setVisible(True)
-            self.dockwidget.wfs_egib_groupBox.setVisible(True)
-            self.dockwidget.prng_groupBox.setVisible(True)
-            self.dockwidget.prg_groupBox.setVisible(True)
-            self.dockwidget.model3d_groupBox.setVisible(True)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(True)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('paczka danych')
-        if self.dockwidget.inne_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(True)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(True)
-            self.dockwidget.osnowa_groupBox.setVisible(True)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(True)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(True)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(True)
+    def change_groupboxes_visibility(self):
+        for rdbtn, groupboxes in GROUPBOXES_VISIBILITY_MAP.items():
+            visible = getattr(self.dockwidget, rdbtn).isChecked()
+
+            for groupbox in groupboxes:
+                getattr(self.dockwidget, groupbox).setVisible(visible)
+                getattr(self.dockwidget, groupbox).setCollapsed(visible)
+
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
@@ -1348,9 +1274,28 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def invoke_task_3d_trees(self):
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+        powiat_name = self.dockwidget.drzewa3d_powiat_cmbbx.currentText()
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.drzewa3d_powiat_cmbbx.currentData()
+        task = DownloadTrees3dTask(
+            description=f'Pobieranie powiatowej paczki modelu drzew 3D dla {powiat_name}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            teryt_powiat=teryt,
+            iface=self.iface
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
 
-    # endregion modele 3D
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
         connection = service_api.check_internet_connection()
@@ -1408,9 +1353,6 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
-
-    # region EGiB WFS
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
         connection = service_api.check_internet_connection()
@@ -1597,9 +1539,36 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def mesh3d_fromLayer_btn_clicked(self):
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+        bledy = 0
+        layer = self.dockwidget.mesh3d_mapLayerComboBox.currentLayer()
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(False)
+            mesh_objs = []
+            for point in points:
+                subList = mesh3d_api.getMesh3dListbyPoint1992(point=point)
+                if subList:
+                    mesh_objs.extend(subList)
+                else:
+                    bledy += 1
+            self.filterMeshListAndRunTask(mesh_objs)
+            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(True)
+        else:
+            self.iface.messageBar().pushMessage(
+                "Ostrzeżenie:",
+                "Nie wskazano warstwy wektorowej",
+                level=Qgis.Warning,
+                duration=10
+            )
 
-    # region areotriangulacja
     def aerotriangulacja_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
@@ -1647,6 +1616,15 @@ class PobieraczDanychGugik:
 
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
 
+    def downloadMesh3dForSinglePoint(self, point):
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
+        mesh_objs = mesh3d_api.getMesh3dListbyPoint1992(point=point1992)
+        self.filterMeshListAndRunTask(mesh_objs)
+
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
         if not aerotriangulacjaList:
@@ -1671,15 +1649,44 @@ class PobieraczDanychGugik:
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
+    def filterMeshListAndRunTask(self, mesh_objs):
+        if not mesh_objs:
+            msgbox = QMessageBox(
+                QMessageBox.Information,
+                'Komunikat',
+                'Nie znaleniono danych spełniających kryteria'
+            )
+            msgbox.exec_()
+            return
+        msgbox = QMessageBox(
+            QMessageBox.Question,
+            'Potwierdź pobieranie',
+            f'Znaleziono {len(mesh_objs)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
+        )
+        msgbox.addButton(QMessageBox.Yes)
+        msgbox.addButton(QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.No)
+        if msgbox.exec() == QMessageBox.No:
+            return
+        task = DownloadMesh3dTask(
+            description='Pobieranie plików danych siatkowych modeli 3D',
+            mesh_objs=mesh_objs,
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            iface=self.iface
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
         self.downloadAerotriangulacjiForSinglePoint(point)
 
-    # endregion
+    def canvasMesh_clicked(self, point):
+        self.canvas.unsetMapTool(self.mesh3dClickTool)
+        self.downloadMesh3dForSinglePoint(point)
 
-    # region linie mozaikowania
     def linie_mozaikowania_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()

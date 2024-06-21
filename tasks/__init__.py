@@ -19,3 +19,5 @@ from .downloadWizKartoTask import DownloadWizKartoTask
 from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask
 from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask
 from .downloadZdjeciaLotniczeTask import DownloadZdjeciaLotniczeTask
+from .downloadMesh3dTask import DownloadMesh3dTask
+from .downloadTrees3dTask import DownloadTrees3dTask
