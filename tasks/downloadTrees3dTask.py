@@ -12,15 +12,12 @@ from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadTrees3dTask(QgsTask):
-    task_finished = pyqtSignal(object, object)
-
     def __init__(self, description, folder, teryt_powiat):
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.exception = None
         self.teryt_powiat = teryt_powiat
         self.result = None
-        self.task_finished.connect(self.finished)
 
     def run(self):
         trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
@@ -32,7 +29,6 @@ class DownloadTrees3dTask(QgsTask):
                     return False
                 QgsMessageLog.logMessage(f'pobieram {trees_url}')
                 self.result = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
-        self.task_finished.emit(self.result, self.exception)
         return True
 
     def finished(self, result):
