@@ -5,6 +5,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
+from .constants import PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING
 from .uldk import RegionFetch
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
@@ -29,9 +30,6 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
 plugin_version = '1.1.1'
 plugin_name = 'Pobieracz Danych GUGiK'
 
-project = QgsProject.instance()
-project_crs = project.crs()
-project_crs_authid = project_crs.authid()
 
 
 class PobieraczDanychGugik:
@@ -67,6 +65,8 @@ class PobieraczDanychGugik:
 
         self.pluginIsActive = False
         self.dockwidget = None
+
+        self.project = QgsProject.instance()
 
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
@@ -280,8 +280,8 @@ class PobieraczDanychGugik:
                                            self.dockwidget.folder_fileWidget.filePath()))
 
         # informacje o wersji
-        self.dockwidget.setWindowTitle(f'{plugin_name} {plugin_version}')
-        self.dockwidget.lbl_pluginVersion.setText(f'{plugin_name} {plugin_version}')
+        self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
+        self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
         # show the dockwidget
         self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
@@ -409,7 +409,7 @@ class PobieraczDanychGugik:
         """Pobiera dane WFS """
 
         if (isinstance(layer, QgsPointXY)):
-            vp = QgsVectorLayer(f'Point?crs={project_crs_authid}', "vectpoi", "memory")
+            vp = QgsVectorLayer(f'Point?crs={self.project.crs().authid()}', "vectpoi", "memory")
             feature = QgsFeature()
             feature.setGeometry(QgsGeometry.fromPointXY(layer))
             dp = vp.dataProvider()
@@ -425,8 +425,8 @@ class PobieraczDanychGugik:
         skorowidzeLayer.updatedFields.connect(self.test)
         if skorowidzeLayer.isValid():
             urls = []
-            project.addMapLayer(skorowidzeLayer)
-            layerWithAttributes = project.mapLayer(skorowidzeLayer.id())
+            self.project.addMapLayer(skorowidzeLayer)
+            layerWithAttributes = self.project.mapLayer(skorowidzeLayer.id())
 
             for feat in layerWithAttributes.getFeatures():
                 urls.append(feat['url_do_pobrania'])
@@ -436,7 +436,7 @@ class PobieraczDanychGugik:
                 msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                      "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
                 msgbox.exec_()
-                project.removeMapLayer(skorowidzeLayer.id())
+                self.project.removeMapLayer(skorowidzeLayer.id())
                 self.canvas.refresh()
                 return
             else:
@@ -452,10 +452,10 @@ class PobieraczDanychGugik:
                 if reply == QMessageBox.Yes:
                     # pobieranie
                     self.runWfsTask(urls)
-                    project.removeMapLayer(skorowidzeLayer.id())
+                    self.project.removeMapLayer(skorowidzeLayer.id())
                     self.canvas.refresh()
                 else:
-                    project.removeMapLayer(skorowidzeLayer.id())
+                    self.project.removeMapLayer(skorowidzeLayer.id())
                     self.canvas.refresh()
 
     def runWfsTask(self, urlList):
@@ -523,8 +523,7 @@ class PobieraczDanychGugik:
         """Pobiera ortofotomapę dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
         self.filterOrtoListAndRunTask(ortoList)
@@ -652,8 +651,7 @@ class PobieraczDanychGugik:
         """Pobiera NMT/NMPT dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
         isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
@@ -804,8 +802,7 @@ class PobieraczDanychGugik:
             return
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         isEvrf2007 = self.dockwidget.las_evrf2007_rdbtn.isChecked()
         lasList = las_api.getLasListbyPoint1992(
@@ -926,8 +923,7 @@ class PobieraczDanychGugik:
         """Pobiera Intensywność dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         # zablokowanie klawisza pobierania
         # self.dockwidget.reflectance_capture_btn.setEnabled(False)
@@ -1317,31 +1313,31 @@ class PobieraczDanychGugik:
         if self.dockwidget.radioButton_adres_gmin.isChecked():
             gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
             teryt = self.dockwidget.prg_gmina_cmbbx.currentData()
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy"
+            self.url = f"{PRG_URL}?teryt={teryt}&adresy"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_powiat.isChecked():
             powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
             teryt = self.dockwidget.prg_powiat_cmbbx.currentData()
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_pow"
+            self.url = f"{PRG_URL}teryt={teryt}&adresy_pow"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z powiatu {powiat_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
             teryt = self.dockwidget.prg_wojewodztwo_cmbbx.currentData()
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}&adresy_woj"
+            self.url = f"{PRG_URL}teryt={teryt}&adresy_woj"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_kraj.isChecked():
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?adresy_zbiorcze_{prg_format_danych}"
+            self.url = f"{PRG_URL}adresy_zbiorcze_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_granice_spec.isChecked():
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?granice_specjalne_{prg_format_danych}"
+            self.url = f"{PRG_URL}granice_specjalne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - granice specjalne z całego kraju - format {prg_format_danych}'
         elif self.dockwidget.radioButton_jend_admin_wojew.isChecked():
             wojewodztwo_name = self.dockwidget.prg_wojewodztwo_cmbbx.currentText()
             teryt = self.dockwidget.prg_wojewodztwo_cmbbx.currentData()
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?teryt={teryt}"
+            self.url = f"{PRG_URL}teryt={teryt}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne województwa {wojewodztwo_name} ({teryt})'
         elif self.dockwidget.radioButton_jedn_admin_kraj.isChecked():
-            self.url = f"https://integracja.gugik.gov.pl/PRG/pobierz.php?jednostki_administracyjne_{prg_format_danych}"
+            self.url = f"{PRG_URL}jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
         self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
@@ -1526,36 +1522,25 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return
 
-        if self.dockwidget.radioButton_atlas_swiata.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_SWIATA/atlas_swiata_2012_sitodruk.ZIP"
-            atlas_rodzaj = f'atlas świata sitodruk z roku 2012'
-        elif self.dockwidget.radioButton_atlas_europa.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_EUROPY/atlas_europy_2006_puchnacy.ZIP"
-            atlas_rodzaj = f'atlas Europy puchnący z roku 2006'
-        elif self.dockwidget.radioButton_atlas_polska_1.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_termoformowanie.ZIP"
-            atlas_rodzaj = f'atlas Polski termoformowanie z roku 2020'
-        elif self.dockwidget.radioButton_atlas_polska_2.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2004_puchnacy.ZIP"
-            atlas_rodzaj = f'atlas Polski puchnący z roku 2004'
-        elif self.dockwidget.radioButton_atlas_polska_3.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_puchnacy.ZIP"
-            atlas_rodzaj = f'atlas Polski puchnący z roku 2020'
-        elif self.dockwidget.radioButton_atlas_warszawa.isChecked():
-            self.url = "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_WARSZAWY/atlas_warszawy_2005_puchnacy.ZIP"
-            atlas_rodzaj = f'atlas Warszawy puchnący z roku 2005'
+        for radio_button_name, data in OPRACOWANIA_TYFLOGICZNE_MAPPING.items():
+            if getattr(self.dockwidget, radio_button_name).isChecked():
+                atlas_url = data["url"]
+                atlas_rodzaj = data["rodzaj"]
+                break
 
-        self.iface.messageBar().pushMessage("Informacja",
-                                            f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
-                                            level=Qgis.Info, duration=10)
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
+            level=Qgis.Info,
+            duration=10
+        )
 
         task = DownloadOpracowaniaTyflologiczneTask(
             description=f'Pobieranie danych z Opracowań Tyflologicznych - {atlas_rodzaj}',
             folder=self.dockwidget.folder_fileWidget.filePath(),
-            url=self.url,
+            url=atlas_url,
             iface=self.iface
         )
-
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
@@ -1650,8 +1635,7 @@ class PobieraczDanychGugik:
         """Pobiera Aerotriangulacji dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         aerotriangulacjaList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point1992)
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
@@ -1732,8 +1716,7 @@ class PobieraczDanychGugik:
         """Pobiera Linie Mozaikowania dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         mozaikaList = mozaika_api.getMozaikaListbyPoint1992(point=point1992)
 
@@ -1817,8 +1800,7 @@ class PobieraczDanychGugik:
         """Pobiera Wizualizacji Kartograficznej BDOT10k dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         skala_10000 = self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked()
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point1992,
@@ -1903,8 +1885,7 @@ class PobieraczDanychGugik:
         """Pobiera Archiwalne kartoteki osnów geodezyjnych dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         katalog_niwelacyjne = self.dockwidget.niwelacyjne_rdbtn.isChecked()
         kartotekiOsnowList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(
@@ -2029,8 +2010,7 @@ class PobieraczDanychGugik:
         """Pobiera Zdjecia Lotnicze dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=project_crs,
-            project=project
+            project=self.project
         )
         zdjeciaLotniczeList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point1992)
         self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)

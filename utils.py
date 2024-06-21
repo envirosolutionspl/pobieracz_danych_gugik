@@ -24,10 +24,10 @@ def openFile(filename):
         opener = "open" if sys.platform == "darwin" else "xdg-open"
         subprocess.call([opener, filename])
 
-def pointTo2180(point, sourceCrs, project):
+def pointTo2180(point, project):
     """zamiana układu na 1992"""
     crsDest = QgsCoordinateReferenceSystem('EPSG:2180')  # PL 1992
-    xform = QgsCoordinateTransform(sourceCrs, crsDest, project)
+    xform = QgsCoordinateTransform(project.crs(), crsDest, project)
     return xform.transform(point)
 
 def layerTo2180(layer):

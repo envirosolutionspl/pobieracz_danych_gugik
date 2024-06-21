@@ -2,6 +2,8 @@ from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
 )
 from qgis.PyQt.QtWidgets import QMessageBox
+
+from ..constants import BDOT_WMS_URL
 from .. import service_api, utils
 from ..wfs.httpsAdapter import get_legacy_session
 
@@ -13,7 +15,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.page_exist = None
         self.folder = folder
         self.exception = None
-        self.url = f"https://opendata.geoportal.gov.pl/Archiwum/bdot10k/{rok}/{format_danych}/{teryt[0:2]}/{teryt}_{format_danych}.zip"
+        self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip'
         self.iface = iface
 
     def run(self):

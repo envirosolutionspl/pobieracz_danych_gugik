@@ -7,15 +7,10 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
     x = point.x()
     y = point.y()
-    URL2 = None
     if isEvrf2007:
-        URL = NMT_EVRF_WMS_URL
-        URL2 = NMT_GRID5M_WMS_URL
-        layers2 = service_api.getAllLayers(url=URL2, service='WMS')
-        layers = layers2
+        layers = service_api.getAllLayers(url=NMT_GRID5M_WMS_URL, service='WMS')
     else:
-        URL = NMT_KRON86_WMS_URL
-        layers = service_api.getAllLayers(url=URL, service='WMS')
+        layers = service_api.getAllLayers(url=NMT_KRON86_WMS_URL, service='WMS')
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
@@ -34,18 +29,15 @@ def getNmtListbyPoint1992(point, isEvrf2007):
         'INFO_FORMAT': 'text/html'
     }
 
-    resp = service_api.getRequest(params=PARAMS, url=URL)
-    # obsługa drugiego URLa do danych NMT
-    resp2 = (False, None)
-    if URL2 is not None:
-        resp2 = service_api.getRequest(params=PARAMS, url=URL2)
-    if resp[0] or resp2[0]:
-        lista = []
+    resp = service_api.getRequest(params=PARAMS, url=NMT_EVRF_WMS_URL if isEvrf2007 else NMT_KRON86_WMS_URL)
+    evrf_resp = service_api.getRequest(params=PARAMS, url=NMT_GRID5M_WMS_URL) if isEvrf2007 else (False, None)
+    if resp[0] or evrf_resp[0]:
+        wms_objects = []
         if resp[0]:
-            lista += get_wms_objects(resp)
-        if resp2[0]:
-            lista += get_wms_objects(resp2)
-        return True,  lista
+            wms_objects += get_wms_objects(resp)
+        if evrf_resp[0]:
+            wms_objects += get_wms_objects(evrf_resp)
+        return True, wms_objects
     else:
         return resp
 

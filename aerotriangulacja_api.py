@@ -1,23 +1,18 @@
-from .constants import AEROTRAINGULACJA_WMS_URL
+from .constants import AEROTRAINGULACJA_WMS_URL, AEROTRAINGULACJA_SKOROWIDZE_LAYERS
 from .wms.utils import get_wms_objects
 from . import service_api
 
 def getAerotriangulacjaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania areotriangulacji na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
-
-
     x = point.x()
     y = point.y()
-    LAYERS = [
-        'SkorowidzAerotriangulacji'
-    ]
 
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.1.1',
-        'layers': ','.join(LAYERS),
+        'layers': ','.join(AEROTRAINGULACJA_SKOROWIDZE_LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
@@ -25,7 +20,7 @@ def getAerotriangulacjaListbyPoint1992(point):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(LAYERS),
+        'query_layers': ','.join(AEROTRAINGULACJA_SKOROWIDZE_LAYERS),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'

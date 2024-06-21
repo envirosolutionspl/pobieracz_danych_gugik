@@ -1,6 +1,7 @@
 import re
 
-from .constants import WIZUALIZACJA_KARTO_WMS_URL
+from .constants import WIZUALIZACJA_KARTO_WMS_URL, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
+    WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
 from . import service_api
 from .models import Wizualizacja_karto
 
@@ -10,22 +11,13 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
-    if skala_10000:
-        LAYERS = [
-            'Mapy10k'
-        ]
-
-    else:
-        LAYERS = [
-            'Mapy25k'
-        ]
+    layers = WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS if skala_10000 else WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
 
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.1.1',
-        'layers': ','.join(LAYERS),
+        'layers': ','.join(layers),
         'styles': '',
         'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
@@ -33,7 +25,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(LAYERS),
+        'query_layers': ','.join(layers),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'

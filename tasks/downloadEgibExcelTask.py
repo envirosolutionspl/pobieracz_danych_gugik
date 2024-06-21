@@ -1,6 +1,8 @@
 from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
 )
+
+from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING
 from .. import service_api, utils
 from ..wfs.httpsAdapter import get_legacy_session
 
@@ -19,40 +21,20 @@ class DownloadEgibExcelTask(QgsTask):
         self.teryt_wojewodztwo = teryt_wojewodztwo
         self.iface = iface
 
-        self.dic_nazwa_teryt_wojewodztwa = {'02_dolnoslaskie': '02',
-                                            '04_kujawsko-pomorskie': '04',
-                                            '06_lubelskie': '06',
-                                            '08_lubuskie': '08',
-                                            '10_lodzkie': '10',
-                                            '12_malopolskie': '12',
-                                            '14_mazowieckie': '14',
-                                            '16_opolskie': '16',
-                                            '18_podkarpackie': '18',
-                                            '20_podlaskie': '20',
-                                            '22_pomorskie': '22',
-                                            '24_slaskie': '24',
-                                            '26_swietokrzyskie': '26',
-                                            '28_warminsko-mazurskie': '28',
-                                            '30_wielkopolskie': '30',
-                                            '32_zachodniopomorskie': '32'
-                                            }
-
     def run(self):
-
         list_url = []
-
         if self.zakres_danych == 'powiat':
-            url_czesc = f"https://opendata.geoportal.gov.pl/ZestawieniaZbiorczeEGiB/{self.rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}"
+            url_czesc = f"{EGIB_WMS_URL}{self.rok}/{self.teryt_wojewodztwo}/{self.teryt_powiat}"
         elif self.zakres_danych == 'wojew':
             nazwa_teryt_wojewodztwa = ''
 
-            for k, v in self.dic_nazwa_teryt_wojewodztwa.items():
+            for k, v in EGIB_TERYT_MAPPING.items():
                 if v == self.teryt_wojewodztwo:
                     nazwa_teryt_wojewodztwa = k
 
-            url_czesc = f"https://opendata.geoportal.gov.pl/ZestawieniaZbiorczeEGiB/{self.rok}/{self.teryt_wojewodztwo}/{nazwa_teryt_wojewodztwa}"
+            url_czesc = f"{EGIB_WMS_URL}{self.rok}/{self.teryt_wojewodztwo}/{nazwa_teryt_wojewodztwa}"
         elif self.zakres_danych == 'kraj':
-            url_czesc = f"https://opendata.geoportal.gov.pl/ZestawieniaZbiorczeEGiB/{self.rok}/Polska"
+            url_czesc = f"{EGIB_WMS_URL}{self.rok}/Polska"
 
         list_url.append(url_czesc + '.xlsx')
         list_url.append(url_czesc + '.xls')
@@ -69,21 +51,25 @@ class DownloadEgibExcelTask(QgsTask):
             return False
         return True
 
-
     def finished(self, result):
-
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane zestawień zbiorczych EGiB nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane zestawień zbiorczych EGiB nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
