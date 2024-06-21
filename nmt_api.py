@@ -1,5 +1,7 @@
+from .constants import NMT_EVRF_WMS_URL, NMT_GRID5M_WMS_URL, NMT_KRON86_WMS_URL
 from . import service_api
 from .wms.utils import get_wms_objects
+
 
 def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
@@ -7,18 +9,13 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     y = point.y()
     URL2 = None
     if isEvrf2007:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladEVRF2007?"
-        URL2 = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SheetsGrid5mEVRF2007?"
-
+        URL = NMT_EVRF_WMS_URL
+        URL2 = NMT_GRID5M_WMS_URL
         layers2 = service_api.getAllLayers(url=URL2, service='WMS')
         layers = layers2
-
-
     else:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladKRON86?"
-
+        URL = NMT_KRON86_WMS_URL
         layers = service_api.getAllLayers(url=URL, service='WMS')
-
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',

@@ -1,4 +1,6 @@
 import re
+
+from .constants import WIZUALIZACJA_KARTO_WMS_URL
 from . import service_api
 from .models import Wizualizacja_karto
 
@@ -8,8 +10,6 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
-    URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?"
 
     if skala_10000:
         LAYERS = [
@@ -38,7 +38,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=WIZUALIZACJA_KARTO_WMS_URL)
     url_wzorzec = re.compile(r'http.+.pdf')
     data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")
     if resp[0]:

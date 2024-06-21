@@ -1,3 +1,4 @@
+from .constants import NMPT_EVRF_WMS_URL, NMPT_KRON86_WMS_URL
 from . import service_api
 from .wms.utils import get_wms_objects
 
@@ -7,11 +8,8 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     x = point.x()
     y = point.y()
 
-    if isEvrf2007:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladEVRF2007?"
-    else:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86?"
-    layers = service_api.getAllLayers(url=URL, service='WMS')
+    _url = NMPT_EVRF_WMS_URL if isEvrf2007 else NMPT_KRON86_WMS_URL
+    layers = service_api.getAllLayers(url=_url, service='WMS')
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',

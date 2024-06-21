@@ -1,4 +1,6 @@
 import datetime
+
+from .constants import LAS_EVRF_WMS_URL, LAS_KRON86_WMS_URL
 from .wms.utils import get_wms_objects
 try:
     from . import service_api
@@ -6,14 +8,11 @@ except:
     import service_api
 
 
-def getLasListbyPoint1992(point, isEvrf2007): #, isLaz=False
+def getLasListbyPoint1992(point, isEvrf2007):
     x = point.x()
     y = point.y()
-    if isEvrf2007:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladEVRF2007?"
-    else:
-        URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladKRON86?"
-    layers = service_api.getAllLayers(url=URL, service='WMS')
+    _url = LAS_EVRF_WMS_URL if isEvrf2007 else LAS_KRON86_WMS_URL
+    layers = service_api.getAllLayers(url=_url, service='WMS')
     if not layers:
         return
     PARAMS = {

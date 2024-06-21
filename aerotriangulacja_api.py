@@ -1,9 +1,6 @@
+from .constants import AEROTRAINGULACJA_WMS_URL
 from .wms.utils import get_wms_objects
 from . import service_api
-
-
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?"
-
 
 def getAerotriangulacjaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania areotriangulacji na podstawie
@@ -33,5 +30,5 @@ def getAerotriangulacjaListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=AEROTRAINGULACJA_WMS_URL)
     return get_wms_objects(resp)

@@ -2,15 +2,15 @@ from qgis.utils import iface
 
 import requests
 from lxml import etree
+
+from .constants import EGIB_WFS_URL
 from .wfs.httpsAdapter import get_legacy_session
 
 
 def get_wfs_egib_dict():
-    egib_url = ("https://integracja.gugik.gov.pl/eziudp/index.php?teryt=&rodzaj=powiaty&nazwa=&zbior=&temat=1.6&usluga"
-                "=pobierania&adres=")
     egib_dict = {}
     try:
-        with get_legacy_session().get(url=egib_url, verify=False, timeout=30) as resp:
+        with get_legacy_session().get(url=EGIB_WFS_URL, verify=False, timeout=30) as resp:
             if resp.status_code != 200:
                 return
     except requests.exceptions.ConnectionError:

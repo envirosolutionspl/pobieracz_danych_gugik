@@ -29,6 +29,10 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
 plugin_version = '1.1.1'
 plugin_name = 'Pobieracz Danych GUGiK'
 
+project = QgsProject.instance()
+project_crs = project.crs()
+project_crs_authid = project_crs.authid()
+
 
 class PobieraczDanychGugik:
     """QGIS Plugin Implementation."""
@@ -136,7 +140,6 @@ class PobieraczDanychGugik:
             callback=self.run,
             parent=self.iface.mainWindow())
 
-
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
@@ -167,124 +170,124 @@ class PobieraczDanychGugik:
 
     def run(self):
         """Run method that loads and starts the plugin"""
-        if not self.pluginIsActive:
+        if self.pluginIsActive:
+            return
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            self.pluginIsActive = False
+            return
 
-            connection = service_api.check_internet_connection()
-            if not connection:
-                self.show_no_connection_message()
-                self.pluginIsActive = False
-                return
+        if self.dockwidget is None:
+            if not hasattr(self, 'regionFetch'):
+                self.regionFetch = RegionFetch()
+            self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
+            self.pluginIsActive = True
 
-            if self.dockwidget is None:
-                if not hasattr(self, 'regionFetch'):
-                    self.regionFetch = RegionFetch()
-                self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
-                self.pluginIsActive = True
+        # Eventy
+        self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
+        self.dockwidget.wms_rdbtn.toggled.emit(True)
 
-            # Eventy
-            self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wms_rdbtn.toggled.emit(True)
+        self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
+        self.dockwidget.paczka_rdbtn.toggled.emit(True)
 
-            self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.paczka_rdbtn.toggled.emit(True)
+        self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
+        self.dockwidget.inne_rdbtn.toggled.emit(True)
 
-            self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.inne_rdbtn.toggled.emit(True)
+        self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
+        self.dockwidget.wfs_rdbtn.toggled.emit(True)
+        self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
+        self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
 
-            self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wfs_rdbtn.toggled.emit(True)
-            self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
-            self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
+        self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
+        self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
 
-            self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
-            self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
+        self.dockwidget.nmt_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.nmtClickTool))
+        self.dockwidget.nmt_fromLayer_btn.clicked.connect(self.nmt_fromLayer_btn_clicked)
 
-            self.dockwidget.nmt_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.nmtClickTool))
-            self.dockwidget.nmt_fromLayer_btn.clicked.connect(self.nmt_fromLayer_btn_clicked)
+        self.dockwidget.las_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.lasClickTool))
+        self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
 
-            self.dockwidget.las_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.lasClickTool))
-            self.dockwidget.las_fromLayer_btn.clicked.connect(self.las_fromLayer_btn_clicked)
+        self.dockwidget.reflectance_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.reflectanceClickTool))
+        self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
 
-            self.dockwidget.reflectance_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.reflectanceClickTool))
-            self.dockwidget.reflectance_fromLayer_btn.clicked.connect(self.reflectance_fromLayer_btn_clicked)
+        self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
+        self.dockwidget.bdot_selected_woj_btn.clicked.connect(self.bdot_selected_woj_btn_clicked)
+        self.dockwidget.bdot_polska_btn.clicked.connect(self.bdot_polska_btn_clicked)
 
-            self.dockwidget.bdot_selected_powiat_btn.clicked.connect(self.bdot_selected_powiat_btn_clicked)
-            self.dockwidget.bdot_selected_woj_btn.clicked.connect(self.bdot_selected_woj_btn_clicked)
-            self.dockwidget.bdot_polska_btn.clicked.connect(self.bdot_polska_btn_clicked)
+        self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
+        self.dockwidget.bdoo_selected_polska_btn.clicked.connect(self.bdoo_selected_polska_btn_clicked)
 
-            self.dockwidget.bdoo_selected_woj_btn.clicked.connect(self.bdoo_selected_woj_btn_clicked)
-            self.dockwidget.bdoo_selected_polska_btn.clicked.connect(self.bdoo_selected_polska_btn_clicked)
+        self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
-            self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
+        self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
+        # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
+        self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
+        self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
+        self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
+        self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj_PRG)
+        self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj_PRG)
+        self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj_PRG)
+        self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina_PRG)
+        self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
-            self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
-            # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
-            self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
-            self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
-            self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
-            self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina_PRG)
-            self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
+        self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
 
-            self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
+        self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
 
-            self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
+        self.dockwidget.powiat_egib_excel_rdbtn.toggled.connect(self.radioButton_powiaty_egib_excel)
+        self.dockwidget.wojew_egib_excel_rdbtn.toggled.connect(self.radioButton_wojewodztwa_egib_excel)
+        self.dockwidget.kraj_egib_excel_rdbtn.toggled.connect(self.radioButton_kraj_egib_excel)
+        self.dockwidget.egib_excel_selected_btn.clicked.connect(self.egib_excel_selected_btn_clicked)
 
-            self.dockwidget.powiat_egib_excel_rdbtn.toggled.connect(self.radioButton_powiaty_egib_excel)
-            self.dockwidget.wojew_egib_excel_rdbtn.toggled.connect(self.radioButton_wojewodztwa_egib_excel)
-            self.dockwidget.kraj_egib_excel_rdbtn.toggled.connect(self.radioButton_kraj_egib_excel)
-            self.dockwidget.egib_excel_selected_btn.clicked.connect(self.egib_excel_selected_btn_clicked)
+        self.dockwidget.tyflologiczne_selected_btn.clicked.connect(self.tyflologiczne_selected_btn_clicked)
 
-            self.dockwidget.tyflologiczne_selected_btn.clicked.connect(self.tyflologiczne_selected_btn_clicked)
+        self.dockwidget.osnowa_selected_btn.clicked.connect(self.osnowa_selected_btn_clicked)
 
-            self.dockwidget.osnowa_selected_btn.clicked.connect(self.osnowa_selected_btn_clicked)
+        self.dockwidget.aerotriangulacja_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
+        self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
 
-            self.dockwidget.aerotriangulacja_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
-            self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
+        self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.mozaikaClickTool))
+        self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(
+            self.linie_mozaikowania_arch_fromLayer_btn_clicked)
 
-            self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.mozaikaClickTool))
-            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(
-                self.linie_mozaikowania_arch_fromLayer_btn_clicked)
+        self.dockwidget.wizualizacja_karto_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.wizualizacja_kartoClickTool))
+        self.dockwidget.wizualizacja_karto_fromLayer_btn.clicked.connect(
+            self.wizualizacja_karto_fromLayer_btn_clicked)
 
-            self.dockwidget.wizualizacja_karto_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.wizualizacja_kartoClickTool))
-            self.dockwidget.wizualizacja_karto_fromLayer_btn.clicked.connect(
-                self.wizualizacja_karto_fromLayer_btn_clicked)
+        self.dockwidget.osnowa_arch_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.kartoteki_osnowClickTool))
+        self.dockwidget.osnowa_arch_fromLayer_btn.clicked.connect(self.osnowa_arch_fromLayer_btn_clicked)
 
-            self.dockwidget.osnowa_arch_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.kartoteki_osnowClickTool))
-            self.dockwidget.osnowa_arch_fromLayer_btn.clicked.connect(self.osnowa_arch_fromLayer_btn_clicked)
+        self.dockwidget.archiwalne_bdot_selected_powiat_btn.clicked.connect(
+            self.archiwalne_bdot_selected_powiat_btn_clicked)
 
-            self.dockwidget.archiwalne_bdot_selected_powiat_btn.clicked.connect(
-                self.archiwalne_bdot_selected_powiat_btn_clicked)
+        self.dockwidget.zdjecia_lotnicze_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.zdjecia_lotniczeClickTool))
+        self.dockwidget.zdjecia_lotnicze_fromLayer_btn.clicked.connect(self.zdjecia_lotnicze_fromLayer_btn_clicked)
 
-            self.dockwidget.zdjecia_lotnicze_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.zdjecia_lotniczeClickTool))
-            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.clicked.connect(self.zdjecia_lotnicze_fromLayer_btn_clicked)
+        # connect to provide cleanup on closing of dockwidget
+        self.dockwidget.closingPlugin.connect(self.onClosePlugin)
 
-            # connect to provide cleanup on closing of dockwidget
-            self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+        self.dockwidget.folder_fileWidget.setFilePath(
+            self.settings.value("pobieracz_danych_gugik/settings/defaultPath", ""))
+        self.dockwidget.folder_fileWidget.fileChanged.connect(
+            lambda: self.settings.setValue("pobieracz_danych_gugik/settings/defaultPath",
+                                           self.dockwidget.folder_fileWidget.filePath()))
 
-            self.dockwidget.folder_fileWidget.setFilePath(
-                self.settings.value("pobieracz_danych_gugik/settings/defaultPath", ""))
-            self.dockwidget.folder_fileWidget.fileChanged.connect(
-                lambda: self.settings.setValue("pobieracz_danych_gugik/settings/defaultPath",
-                                               self.dockwidget.folder_fileWidget.filePath()))
+        # informacje o wersji
+        self.dockwidget.setWindowTitle(f'{plugin_name} {plugin_version}')
+        self.dockwidget.lbl_pluginVersion.setText(f'{plugin_name} {plugin_version}')
 
-            # informacje o wersji
-            self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
-            self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
+        # show the dockwidget
+        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
 
-            # show the dockwidget
-            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
-
-            self.dockwidget.label_55.setMargin(5)
-            self.dockwidget.show()
+        self.dockwidget.label_55.setMargin(5)
+        self.dockwidget.show()
 
     # region WFS
     def btnstate(self):
@@ -406,9 +409,7 @@ class PobieraczDanychGugik:
         """Pobiera dane WFS """
 
         if (isinstance(layer, QgsPointXY)):
-            print('isinstance xy')
-            crs = QgsProject.instance().crs().authid()
-            vp = QgsVectorLayer("Point?crs=" + crs, "vectpoi", "memory")
+            vp = QgsVectorLayer(f'Point?crs={project_crs_authid}', "vectpoi", "memory")
             feature = QgsFeature()
             feature.setGeometry(QgsGeometry.fromPointXY(layer))
             dp = vp.dataProvider()
@@ -424,8 +425,8 @@ class PobieraczDanychGugik:
         skorowidzeLayer.updatedFields.connect(self.test)
         if skorowidzeLayer.isValid():
             urls = []
-            QgsProject.instance().addMapLayer(skorowidzeLayer)
-            layerWithAttributes = QgsProject.instance().mapLayer(skorowidzeLayer.id())
+            project.addMapLayer(skorowidzeLayer)
+            layerWithAttributes = project.mapLayer(skorowidzeLayer.id())
 
             for feat in layerWithAttributes.getFeatures():
                 urls.append(feat['url_do_pobrania'])
@@ -435,7 +436,7 @@ class PobieraczDanychGugik:
                 msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                      "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
                 msgbox.exec_()
-                QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                project.removeMapLayer(skorowidzeLayer.id())
                 self.canvas.refresh()
                 return
             else:
@@ -451,10 +452,10 @@ class PobieraczDanychGugik:
                 if reply == QMessageBox.Yes:
                     # pobieranie
                     self.runWfsTask(urls)
-                    QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    project.removeMapLayer(skorowidzeLayer.id())
                     self.canvas.refresh()
                 else:
-                    QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    project.removeMapLayer(skorowidzeLayer.id())
                     self.canvas.refresh()
 
     def runWfsTask(self, urlList):
@@ -520,10 +521,11 @@ class PobieraczDanychGugik:
 
     def downloadOrtoForSinglePoint(self, point):
         """Pobiera ortofotomapę dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
         ortoList = ortofoto_api.getOrtoListbyPoint1992(point=point1992)
         self.filterOrtoListAndRunTask(ortoList)
 
@@ -650,8 +652,8 @@ class PobieraczDanychGugik:
         """Pobiera NMT/NMPT dla pojedynczego punktu"""
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=QgsProject.instance().crs(),
-            project=QgsProject.instance()
+            sourceCrs=project_crs,
+            project=project
         )
         isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
         isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
@@ -681,7 +683,8 @@ class PobieraczDanychGugik:
         else:
             msgbox = QMessageBox(QMessageBox.Question,
                                  "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(nmtList))
+                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                                     nmtList))
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
@@ -728,16 +731,19 @@ class PobieraczDanychGugik:
                            nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
             if self.dockwidget.nmt_from_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.get('aktualnosc') >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           nmt.get(
+                               'aktualnosc') >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_to_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.get('aktualnosc') <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           nmt.get(
+                               'aktualnosc') <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
                            nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.get('charakterystykaPrzestrzenna') >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                           nmt.get('charakterystykaPrzestrzenna') >= float(
+                               self.dockwidget.nmt_pixelFrom_lineEdit.text())]
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
                            nmt.get('charakterystykaPrzestrzenna') <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
@@ -798,8 +804,8 @@ class PobieraczDanychGugik:
             return
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=QgsProject.instance().crs(),
-            project=QgsProject.instance()
+            sourceCrs=project_crs,
+            project=project
         )
         isEvrf2007 = self.dockwidget.las_evrf2007_rdbtn.isChecked()
         lasList = las_api.getLasListbyPoint1992(
@@ -918,9 +924,11 @@ class PobieraczDanychGugik:
 
     def downloadReflectanceForSinglePoint(self, point):
         """Pobiera Intensywność dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
         # zablokowanie klawisza pobierania
         # self.dockwidget.reflectance_capture_btn.setEnabled(False)
 
@@ -1640,11 +1648,12 @@ class PobieraczDanychGugik:
 
     def downloadAerotriangulacjiForSinglePoint(self, point):
         """Pobiera Aerotriangulacji dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
         aerotriangulacjaList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point1992)
-
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
 
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
@@ -1721,9 +1730,11 @@ class PobieraczDanychGugik:
 
     def downloadMozaikaForSinglePoint(self, point):
         """Pobiera Linie Mozaikowania dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
         mozaikaList = mozaika_api.getMozaikaListbyPoint1992(point=point1992)
 
         self.filterMozaikaListAndRunTask(mozaikaList)
@@ -1804,10 +1815,12 @@ class PobieraczDanychGugik:
 
     def downloadWizualizacjaKartoForSinglePoint(self, point):
         """Pobiera Wizualizacji Kartograficznej BDOT10k dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
+        skala_10000 = self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked()
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point1992,
                                                                                   skala_10000=skala_10000)
         self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
@@ -1888,12 +1901,16 @@ class PobieraczDanychGugik:
 
     def downloadKartotekiOsnowForSinglePoint(self, point):
         """Pobiera Archiwalne kartoteki osnów geodezyjnych dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        katalog_niwelacyjne = True if self.dockwidget.niwelacyjne_rdbtn.isChecked() else False
-        kartotekiOsnowList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point1992,
-                                                                                  katalog_niwelacyjne=katalog_niwelacyjne)
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
+        katalog_niwelacyjne = self.dockwidget.niwelacyjne_rdbtn.isChecked()
+        kartotekiOsnowList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(
+            point=point1992,
+            katalog_niwelacyjne=katalog_niwelacyjne
+        )
         self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
 
     def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
@@ -2010,11 +2027,12 @@ class PobieraczDanychGugik:
 
     def downloadZdjeciaLotniczeForSinglePoint(self, point):
         """Pobiera Zdjecia Lotnicze dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=project_crs,
+            project=project
+        )
         zdjeciaLotniczeList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point1992)
-
         self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
 
     def filterZdjeciaLotniczeListAndRunTask(self, zdjeciaLotniczeList):

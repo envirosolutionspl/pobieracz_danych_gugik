@@ -1,5 +1,6 @@
 import re
 
+from .constants import KARTOTEKI_OSNOW_WMS_URL
 from . import service_api
 
 
@@ -8,8 +9,6 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
-    URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/Osnowy/WMS/Archiwalne_kartoteki?"
 
     LAYERS = [
         'Katalogi_Kartoteki1942',
@@ -34,7 +33,7 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
         'INFO_FORMAT': 'text/html'
     }
 
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=KARTOTEKI_OSNOW_WMS_URL)
     url_wzorzec = re.compile(r'http.+.zip')
     kartoteki_osnowList = []
     if resp[0]:

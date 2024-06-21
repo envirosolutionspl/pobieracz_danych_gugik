@@ -28,9 +28,7 @@ def pointTo2180(point, sourceCrs, project):
     """zamiana układu na 1992"""
     crsDest = QgsCoordinateReferenceSystem('EPSG:2180')  # PL 1992
     xform = QgsCoordinateTransform(sourceCrs, crsDest, project)
-    point1992 = xform.transform(point)
-
-    return point1992
+    return xform.transform(point)
 
 def layerTo2180(layer):
     """zamiana układu na 1992"""

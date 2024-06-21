@@ -1,8 +1,7 @@
+from .constants import MOZAIKA_WMS_URL
 from .wms.utils import get_wms_objects
 from . import service_api
 
-
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/LinieMozaikowania?"
 
 def getMozaikaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania linii mozaikowania na podstawie
@@ -30,5 +29,5 @@ def getMozaikaListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=MOZAIKA_WMS_URL)
     return get_wms_objects(resp)

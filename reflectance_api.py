@@ -1,5 +1,6 @@
 import datetime
 
+from .constants import ODBICIOWOSC_WMS_URL
 from . import service_api
 from .wms.utils import get_wms_objects
 
@@ -8,11 +9,10 @@ def getReflectanceListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/OI/WMS/SkorowidzeObrazowIntensywnosci?"
     LAYERS = [
-            'SkorowidzeOI',
-            'SkorowidzeOIZasieg'
-        ]
+        'SkorowidzeOI',
+        'SkorowidzeOIZasieg'
+    ]
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -32,7 +32,7 @@ def getReflectanceListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
 
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=ODBICIOWOSC_WMS_URL)
     return _convert_attributes(get_wms_objects(resp))
 
 
