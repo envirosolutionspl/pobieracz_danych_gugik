@@ -188,26 +188,13 @@ class PobieraczDanychGugik:
             self.pluginIsActive = True
 
         # Eventy
-        self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
-        self.dockwidget.wms_rdbtn.toggled.emit(True)
+        for rdbtn in GROUPBOXES_VISIBILITY_MAP.keys():
+            obj = getattr(self.dockwidget, rdbtn)
+            obj.toggled.connect(self.change_groupboxes_visibility)
+            obj.toggled.emit(True)
 
-        self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
-        self.dockwidget.paczka_rdbtn.toggled.emit(True)
-            # Eventy
-            for rdbtn in GROUPBOXES_VISIBILITY_MAP.keys():
-                obj = getattr(self.dockwidget, rdbtn)
-                obj.toggled.connect(self.change_groupboxes_visibility)
-                obj.toggled.emit(True)
-
-        self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
-        self.dockwidget.inne_rdbtn.toggled.emit(True)
-
-        self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
-        self.dockwidget.wfs_rdbtn.toggled.emit(True)
         self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
         self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
-            self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
-            self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
 
         self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
         self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
@@ -232,7 +219,6 @@ class PobieraczDanychGugik:
         self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
         self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
-        # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
         self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
         self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
         self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
@@ -241,19 +227,9 @@ class PobieraczDanychGugik:
         self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj_PRG)
         self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina_PRG)
         self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
-            self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
-            self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
-            self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
-            self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
-            self.dockwidget.radioButton_adres_kraj.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_granice_spec.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_jedn_admin_kraj.toggled.connect(self.radioButton_kraj_PRG)
-            self.dockwidget.radioButton_adres_gmin.toggled.connect(self.radioButton_gmina_PRG)
-            self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
         self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
-            self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
-            self.dockwidget.drzewa3d_selected_powiat_btn.clicked.connect(self.invoke_task_3d_trees)
+        self.dockwidget.drzewa3d_selected_powiat_btn.clicked.connect(self.invoke_task_3d_trees)
 
         self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
 
@@ -270,18 +246,14 @@ class PobieraczDanychGugik:
             lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
         self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
 
+        self.dockwidget.mesh3d_capture_btn.clicked.connect(
+            lambda: self.capture_btn_clicked(self.mesh3dClickTool))
+        self.dockwidget.mesh3d_fromLayer_btn.clicked.connect(self.mesh3d_fromLayer_btn_clicked)
+
         self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
             lambda: self.capture_btn_clicked(self.mozaikaClickTool))
         self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(
             self.linie_mozaikowania_arch_fromLayer_btn_clicked)
-            self.dockwidget.mesh3d_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.mesh3dClickTool))
-            self.dockwidget.mesh3d_fromLayer_btn.clicked.connect(self.mesh3d_fromLayer_btn_clicked)
-
-            self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
-                lambda: self.capture_btn_clicked(self.mozaikaClickTool))
-            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.clicked.connect(
-                self.linie_mozaikowania_arch_fromLayer_btn_clicked)
 
         self.dockwidget.wizualizacja_karto_capture_btn.clicked.connect(
             lambda: self.capture_btn_clicked(self.wizualizacja_kartoClickTool))
@@ -305,9 +277,10 @@ class PobieraczDanychGugik:
         self.dockwidget.folder_fileWidget.setFilePath(
             self.settings.value("pobieracz_danych_gugik/settings/defaultPath", ""))
         self.dockwidget.folder_fileWidget.fileChanged.connect(
-            lambda: self.settings.setValue("pobieracz_danych_gugik/settings/defaultPath",
-                                           self.dockwidget.folder_fileWidget.filePath()))
-
+            lambda: self.settings.setValue(
+                "pobieracz_danych_gugik/settings/defaultPath",
+                self.dockwidget.folder_fileWidget.filePath())
+        )
         # informacje o wersji
         self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
         self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
