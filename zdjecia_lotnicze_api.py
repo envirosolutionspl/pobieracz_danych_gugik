@@ -41,5 +41,5 @@ def _convert_attributes(elems_list):
             elem['nrZdjecia'] = elem.get('nrZdjÄcia')
         if 'nrZdjÄ\x99cia' in elem:
             elem['nrZdjecia'] = elem.get('nrZdjÄ\x99cia')
-        elem['url'] = elem.get('adresUrlMiniatur') if elem.get('adresUrlMiniatur') else 'brak zdjęcia'
+        elem['url'] = elem.get('adresUrlMiniatur') or 'brak zdjęcia'
     return elems_list

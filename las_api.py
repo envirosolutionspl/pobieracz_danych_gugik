@@ -38,16 +38,16 @@ def getLasListbyPoint1992(point, isEvrf2007):
 
 def _convert_attributes(elems_list):
     for elem in elems_list:
-        if hasattr(elem, 'aktualnosc'):
-            elem.aktualnosc = datetime.datetime.strptime(elem.aktualnosc, '%Y-%m-%d').date()
-        if hasattr(elem, 'charakterystykaPrzestrzenna'):
-            elem.charakterystykaPrzestrzenna = float(elem.charakterystykaPrzestrzenna.split()[0])
-        if hasattr(elem, 'bladSredniWysokosci'):
-            elem.bladSredniWysokosci = float(elem.bladSredniWysokosci)
-        if hasattr(elem, 'bladSredniPolozenia'):
-            elem.bladSredniPolozenia = float(elem.bladSredniPolozenia)
-        if hasattr(elem, 'aktualnoscRok'):
-            elem.aktualnoscRok = int(elem.aktualnoscRok)
+        if 'aktualnosc' in elem:
+            elem['aktualnosc'] = datetime.datetime.strptime(elem.get('aktualnosc'), '%Y-%m-%d').date()
+        if 'charakterystykaPrzestrzenna' in elem:
+            elem['charakterystykaPrzestrzenna'] = float(elem.get('charakterystykaPrzestrzenna').split()[0])
+        if 'bladSredniWysokosci' in elem:
+            elem['bladSredniWysokosci'] = float(elem.get('bladSredniWysokosci'))
+        if 'bladSredniPolozenia' in elem:
+            elem['bladSredniPolozenia'] = float(elem.get('bladSredniPolozenia'))
+        if 'aktualnoscRok' in elem:
+            elem['aktualnoscRok'] = int(elem.get('aktualnoscRok'))
     return elems_list
 
 

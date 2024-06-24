@@ -35,6 +35,8 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 - Paczki danych Państwowego Rejestru Nazw Geograficznych (PRNG) - miejscowości RP, obiekty fizjograficzne RP, nazwy geograficzne świata (GML, SHP, XLSX)
 - Paczki danych Państwowego Rejestru Granic (PRG) - gminne, powiatowe, wojewódzkie, krajowe (GML, SHP)
 - Paczki danych modeli 3D budynków - powiatowe, w standardach LOD1 i LOD2 (GML)
+- Paczki danych modeli 3D drzew - powiatowe, w standardzie LOD1 (GML)
+- Paczki danych modeli 3D mesh - modele siatkowe (OBJ)
 - Paczki archiwalnych danych Bazy Danych Obiektów Topograficznych 1:10000 (BDOT10K) - powiatowe (GML, SHP)
 
 #### Inne dane:
