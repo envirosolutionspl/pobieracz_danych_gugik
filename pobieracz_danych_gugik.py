@@ -5,13 +5,16 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
+from .constants import GROUPBOXES_VISIBILITY_MAP
 from .uldk import RegionFetch
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
     DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
     DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
     DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
-    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask)
+    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask, DownloadMesh3dTask,
+    DownloadTrees3dTask
+)
 import processing
 
 # Initialize Qt resources from file resources.py
@@ -23,10 +26,10 @@ from .dialogs import PobieraczDanychDockWidget
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
-plugin_version = '1.1.1'
+plugin_version = '1.2.0'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -78,6 +81,8 @@ class PobieraczDanychGugik:
         self.wfsClickTool.canvasClicked.connect(self.canvasWfs_clicked)
         self.aerotriangulacjaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacja_clicked)
+        self.mesh3dClickTool = QgsMapToolEmitPoint(self.canvas)
+        self.mesh3dClickTool.canvasClicked.connect(self.canvasMesh_clicked)
         self.mozaikaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaika_clicked)
         self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(self.canvas)
@@ -182,17 +187,11 @@ class PobieraczDanychGugik:
                 self.pluginIsActive = True
 
             # Eventy
-            self.dockwidget.wms_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wms_rdbtn.toggled.emit(True)
+            for rdbtn in GROUPBOXES_VISIBILITY_MAP.keys():
+                obj = getattr(self.dockwidget, rdbtn)
+                obj.toggled.connect(self.change_groupboxes_visibility)
+                obj.toggled.emit(True)
 
-            self.dockwidget.paczka_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.paczka_rdbtn.toggled.emit(True)
-
-            self.dockwidget.inne_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.inne_rdbtn.toggled.emit(True)
-
-            self.dockwidget.wfs_rdbtn.toggled.connect(self.btnstate)
-            self.dockwidget.wfs_rdbtn.toggled.emit(True)
             self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
             self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
 
@@ -219,7 +218,6 @@ class PobieraczDanychGugik:
             self.dockwidget.prng_selected_btn.clicked.connect(self.prng_selected_btn_clicked)
 
             self.dockwidget.prg_gml_rdbtn.toggled.connect(self.radioButtonState_PRG)
-            # self.dockwidget.prg_gml_rdbtn.toggled.emit(True)
             self.dockwidget.radioButton_adres_powiat.toggled.connect(self.radioButton_powiaty_PRG)
             self.dockwidget.radioButton_adres_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
             self.dockwidget.radioButton_jend_admin_wojew.toggled.connect(self.radioButton_wojewodztwa_PRG)
@@ -230,6 +228,7 @@ class PobieraczDanychGugik:
             self.dockwidget.prg_selected_btn.clicked.connect(self.prg_selected_btn_clicked)
 
             self.dockwidget.model3d_selected_powiat_btn.clicked.connect(self.model3d_selected_powiat_btn_clicked)
+            self.dockwidget.drzewa3d_selected_powiat_btn.clicked.connect(self.invoke_task_3d_trees)
 
             self.dockwidget.wfs_egib_selected_pow_btn.clicked.connect(self.wfs_egib_selected_pow_btn_clicked)
 
@@ -245,6 +244,10 @@ class PobieraczDanychGugik:
             self.dockwidget.aerotriangulacja_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.aerotriangulacjaClickTool))
             self.dockwidget.aerotriangulacja_fromLayer_btn.clicked.connect(self.aerotriangulacja_fromLayer_btn_clicked)
+
+            self.dockwidget.mesh3d_capture_btn.clicked.connect(
+                lambda: self.capture_btn_clicked(self.mesh3dClickTool))
+            self.dockwidget.mesh3d_fromLayer_btn.clicked.connect(self.mesh3d_fromLayer_btn_clicked)
 
             self.dockwidget.linie_mozaikowania_capture_btn.clicked.connect(
                 lambda: self.capture_btn_clicked(self.mozaikaClickTool))
@@ -286,91 +289,14 @@ class PobieraczDanychGugik:
             self.dockwidget.label_55.setMargin(5)
             self.dockwidget.show()
 
-    # region WFS
-    def btnstate(self):
-        if self.dockwidget.wfs_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(True)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('wfs')
-        if self.dockwidget.wms_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(True)
-            self.dockwidget.nmt_groupBox.setVisible(True)
-            self.dockwidget.las_groupBox.setVisible(True)
-            self.dockwidget.reflectance_groupBox.setVisible(True)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('wms')
-        if self.dockwidget.paczka_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(True)
-            self.dockwidget.bdoo_groupBox.setVisible(True)
-            self.dockwidget.wfs_egib_groupBox.setVisible(True)
-            self.dockwidget.prng_groupBox.setVisible(True)
-            self.dockwidget.prg_groupBox.setVisible(True)
-            self.dockwidget.model3d_groupBox.setVisible(True)
-            self.dockwidget.egib_excel_groupBox.setVisible(False)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(False)
-            self.dockwidget.osnowa_groupBox.setVisible(False)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(False)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(False)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(False)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(True)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(False)
-            # print('paczka danych')
-        if self.dockwidget.inne_rdbtn.isChecked():
-            self.dockwidget.wfs_groupBox.setVisible(False)
-            self.dockwidget.orto_groupBox.setVisible(False)
-            self.dockwidget.nmt_groupBox.setVisible(False)
-            self.dockwidget.las_groupBox.setVisible(False)
-            self.dockwidget.reflectance_groupBox.setVisible(False)
-            self.dockwidget.bdot_groupBox.setVisible(False)
-            self.dockwidget.bdoo_groupBox.setVisible(False)
-            self.dockwidget.wfs_egib_groupBox.setVisible(False)
-            self.dockwidget.prng_groupBox.setVisible(False)
-            self.dockwidget.prg_groupBox.setVisible(False)
-            self.dockwidget.model3d_groupBox.setVisible(False)
-            self.dockwidget.egib_excel_groupBox.setVisible(True)
-            self.dockwidget.tyflologiczne_groupBox.setVisible(True)
-            self.dockwidget.osnowa_groupBox.setVisible(True)
-            self.dockwidget.aerotriangulacja_groupBox.setVisible(True)
-            self.dockwidget.linie_mozaikowania_groupBox.setVisible(True)
-            self.dockwidget.wizualizacja_karto_groupBox.setVisible(True)
-            self.dockwidget.archiwalne_bdot_groupBox.setVisible(False)
-            self.dockwidget.zdjecia_lotnicze_groupBox.setVisible(True)
+    def change_groupboxes_visibility(self):
+        for rdbtn, groupboxes in GROUPBOXES_VISIBILITY_MAP.items():
+            visible = getattr(self.dockwidget, rdbtn).isChecked()
+
+            for groupbox in groupboxes:
+                getattr(self.dockwidget, groupbox).setVisible(visible)
+                getattr(self.dockwidget, groupbox).setCollapsed(visible)
+
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
@@ -436,6 +362,7 @@ class PobieraczDanychGugik:
                                      "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
                 msgbox.exec_()
                 QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                self.canvas.refresh()
                 return
             else:
                 msgbox = QMessageBox(QMessageBox.Question,
@@ -450,8 +377,11 @@ class PobieraczDanychGugik:
                 if reply == QMessageBox.Yes:
                     # pobieranie
                     self.runWfsTask(urls)
+                    QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    self.canvas.refresh()
                 else:
                     QgsProject.instance().removeMapLayer(skorowidzeLayer.id())
+                    self.canvas.refresh()
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
@@ -525,16 +455,7 @@ class PobieraczDanychGugik:
 
     def filterOrtoListAndRunTask(self, ortoList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(urlList))
-
-        # usuwanie duplikatów
-        ortoList = list(set(ortoList))
-        # print("po 'set'", len(urlList))
-        # filtrowanie
         ortoList = self.filterOrtoList(ortoList)
-        # print("po 'filtrowaniu'", len(urlList))
-
-        # wyswietl komunikat pytanie
         if len(ortoList) == 0:
             QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria").exec_()
             return
@@ -620,8 +541,8 @@ class PobieraczDanychGugik:
         bledy = 0
         layer = self.dockwidget.nmt_mapLayerComboBox.currentLayer()
 
-        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
+        isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
+        isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=1000)
@@ -631,51 +552,55 @@ class PobieraczDanychGugik:
 
             nmtList = []
             for point in points:
-                resp = nmpt_api.getNmptListbyPoint1992(point=point,
-                                                       isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-                    point=point, isEvrf2007=isEvrf2007)
-                if resp[0]:
-                    nmtList.extend(resp[1])
+                resp = nmpt_api.getNmptListbyPoint1992(
+                    point=point,
+                    isEvrf2007=isEvrf2007
+                ) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                    point=point,
+                    isEvrf2007=isEvrf2007
+                )
+                if resp:
+                    nmtList = resp if isNmpt else resp[1]
                 else:
                     bledy += 1
 
             self.filterNmtListAndRunTask(nmtList, isNmpt)
-            # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
-
         else:
-            self.iface.messageBar().pushWarning("Ostrzeżenie:",
-                                                'Nie wskazano warstwy wektorowej')
+            self.iface.messageBar().pushWarning(
+                'Ostrzeżenie:',
+                'Nie wskazano warstwy wektorowej'
+            )
 
     def downloadNmtForSinglePoint(self, point):
         """Pobiera NMT/NMPT dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
-        isEvrf2007 = True if self.dockwidget.evrf2007_rdbtn.isChecked() else False
-        resp = nmpt_api.getNmptListbyPoint1992(point=point1992,
-                                               isEvrf2007=isEvrf2007) if isNmpt else nmt_api.getNmtListbyPoint1992(
-            point=point1992, isEvrf2007=isEvrf2007)
-        if resp[0]:
-            nmtList = resp[1]
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
+        isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
+        isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
+        resp = nmpt_api.getNmptListbyPoint1992(
+            point=point1992,
+            isEvrf2007=isEvrf2007
+        ) if isNmpt else nmt_api.getNmtListbyPoint1992(
+            point=point1992,
+            isEvrf2007=isEvrf2007
+        )
+        if resp:
+            nmtList = resp if isNmpt else resp[1]
             self.filterNmtListAndRunTask(nmtList, isNmpt)
         else:
-            self.iface.messageBar().pushCritical("Błąd pobierania",
-                                                 f"Nie udało się pobrać danych z serwera. Powód:{resp[1]}")
+            self.iface.messageBar().pushCritical(
+                'Błąd pobierania',
+                'Nie udało się pobrać danych z serwera.'
+            )
 
     def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        nmtList = list(set(nmtList))
-        # filtrowanie
         nmtList = self.filterNmtList(nmtList)
-
-        # wyswietl komunikat pytanie
-        if len(nmtList) == 0:
+        if not nmtList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -719,35 +644,35 @@ class PobieraczDanychGugik:
         """Filtruje listę NMT/NMPT"""
         # wybór formatu
         if self.dockwidget.arcinfo_rdbtn.isChecked():
-            nmtList = [nmt for nmt in nmtList if nmt.format == "ARC/INFO ASCII GRID"]
+            nmtList = [nmt for nmt in nmtList if nmt.get('format') == "ARC/INFO ASCII GRID"]
         elif self.dockwidget.xyz_rdbtn.isChecked():
-            nmtList = [nmt for nmt in nmtList if nmt.format == "ASCII XYZ GRID"]
+            nmtList = [nmt for nmt in nmtList if nmt.get('format') == "ASCII XYZ GRID"]
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
-            if not (self.dockwidget.nmt_crs_cmbbx.currentText() == 'wszystkie'):
+            if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.ukladWspolrzednych.split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
             if self.dockwidget.nmt_from_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.aktualnosc >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           nmt.get('aktualnosc') >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
             if self.dockwidget.nmt_to_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.aktualnosc <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
-            if not (self.dockwidget.nmt_full_cmbbx.currentText() == 'wszystkie'):
+                           nmt.get('aktualnosc') <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+            if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.calyArkuszWyeplnionyTrescia == self.dockwidget.nmt_full_cmbbx.currentText()]
+                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.charakterystykaPrzestrzenna >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                           nmt.get('charakterystykaPrzestrzenna') >= float(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.charakterystykaPrzestrzenna <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+                           nmt.get('charakterystykaPrzestrzenna') <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.bladSredniWysokosci >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                           nmt.get('bladSredniWysokosci') >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
             if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.bladSredniWysokosci <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                           nmt.get('bladSredniWysokosci') <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -797,31 +722,22 @@ class PobieraczDanychGugik:
         if not connection:
             self.show_no_connection_message()
             return
-        point1992 = utils.pointTo2180(point=point,
-                                      sourceCrs=QgsProject.instance().crs(),
-                                      project=QgsProject.instance())
-        isEvrf2007 = True if self.dockwidget.las_evrf2007_rdbtn.isChecked() else False
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
+        isEvrf2007 = self.dockwidget.las_evrf2007_rdbtn.isChecked()
         lasList = las_api.getLasListbyPoint1992(
             point=point1992,
             isEvrf2007=isEvrf2007
-            # isLaz=True if self.dockwidget.las_laz_rdbtn.isChecked() else False
         )
-
         self.filterLasListAndRunTask(lasList)
 
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(lasList))
-
-        # usuwanie duplikatów
-        lasList = list(set(lasList))
-        # print("po 'set'", len(lasList))
-        # filtrowanie
         lasList = self.filterLasList(lasList)
-        # print("po 'filtrowaniu'", len(lasList))
-
-        # wyswietl komunikat pytanie
-        if len(lasList) == 0:
+        if not lasList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -943,17 +859,8 @@ class PobieraczDanychGugik:
 
     def filterReflectanceListAndRunTask(self, reflectanceList):
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
-        # print("przed 'set'", len(reflectanceList))
-
-        # usuwanie duplikatów
-        reflectanceList = list(set(reflectanceList))
-        # print("po 'set'", len(reflectanceList))
-        # filtrowanie
         reflectanceList = self.filterReflectanceList(reflectanceList)
-        # print("po 'filtrowaniu'", len(reflectanceList))
-
-        # wyswietl komunikat pytanie
-        if len(reflectanceList) == 0:
+        if not reflectanceList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -1367,9 +1274,28 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def invoke_task_3d_trees(self):
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+        powiat_name = self.dockwidget.drzewa3d_powiat_cmbbx.currentText()
+        if not powiat_name:
+            self.no_area_specified_warning()
+            return
+        teryt = self.dockwidget.drzewa3d_powiat_cmbbx.currentData()
+        task = DownloadTrees3dTask(
+            description=f'Pobieranie powiatowej paczki modelu drzew 3D dla {powiat_name}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            teryt_powiat=teryt,
+            iface=self.iface
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
 
-    # endregion modele 3D
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
         connection = service_api.check_internet_connection()
@@ -1427,9 +1353,6 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
-
-    # region EGiB WFS
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
         connection = service_api.check_internet_connection()
@@ -1616,9 +1539,36 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    # endregion
+    def mesh3d_fromLayer_btn_clicked(self):
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
+        path = self.dockwidget.folder_fileWidget.filePath()
+        if not self.checkSavePath(path):
+            return False
+        bledy = 0
+        layer = self.dockwidget.mesh3d_mapLayerComboBox.currentLayer()
+        if layer:
+            points = self.pointsFromVectorLayer(layer, density=1000)
+            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(False)
+            mesh_objs = []
+            for point in points:
+                subList = mesh3d_api.getMesh3dListbyPoint1992(point=point)
+                if subList:
+                    mesh_objs.extend(subList)
+                else:
+                    bledy += 1
+            self.filterMeshListAndRunTask(mesh_objs)
+            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(True)
+        else:
+            self.iface.messageBar().pushMessage(
+                "Ostrzeżenie:",
+                "Nie wskazano warstwy wektorowej",
+                level=Qgis.Warning,
+                duration=10
+            )
 
-    # region areotriangulacja
     def aerotriangulacja_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
@@ -1666,15 +1616,18 @@ class PobieraczDanychGugik:
 
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
 
+    def downloadMesh3dForSinglePoint(self, point):
+        point1992 = utils.pointTo2180(
+            point=point,
+            sourceCrs=QgsProject.instance().crs(),
+            project=QgsProject.instance()
+        )
+        mesh_objs = mesh3d_api.getMesh3dListbyPoint1992(point=point1992)
+        self.filterMeshListAndRunTask(mesh_objs)
+
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        aerotriangulacjaList = list(set(aerotriangulacjaList))
-        # print("po 'set'", len(aerotriangulacjaList))
-
-        # wyswietl komunikat pytanie
-        if len(aerotriangulacjaList) == 0:
+        if not aerotriangulacjaList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
             return
@@ -1696,15 +1649,44 @@ class PobieraczDanychGugik:
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
+    def filterMeshListAndRunTask(self, mesh_objs):
+        if not mesh_objs:
+            msgbox = QMessageBox(
+                QMessageBox.Information,
+                'Komunikat',
+                'Nie znaleniono danych spełniających kryteria'
+            )
+            msgbox.exec_()
+            return
+        msgbox = QMessageBox(
+            QMessageBox.Question,
+            'Potwierdź pobieranie',
+            f'Znaleziono {len(mesh_objs)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
+        )
+        msgbox.addButton(QMessageBox.Yes)
+        msgbox.addButton(QMessageBox.No)
+        msgbox.setDefaultButton(QMessageBox.No)
+        if msgbox.exec() == QMessageBox.No:
+            return
+        task = DownloadMesh3dTask(
+            description='Pobieranie plików danych siatkowych modeli 3D',
+            mesh_objs=mesh_objs,
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            iface=self.iface
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
         self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
         self.downloadAerotriangulacjiForSinglePoint(point)
 
-    # endregion
+    def canvasMesh_clicked(self, point):
+        self.canvas.unsetMapTool(self.mesh3dClickTool)
+        self.downloadMesh3dForSinglePoint(point)
 
-    # region linie mozaikowania
     def linie_mozaikowania_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
@@ -1755,13 +1737,7 @@ class PobieraczDanychGugik:
 
     def filterMozaikaListAndRunTask(self, mozaikaList):
         """Filtruje listę dostępnych plików Linii Mozaikowania i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        mozaikaList = list(set(mozaikaList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(mozaikaList) == 0:
+        if not mozaikaList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -1845,13 +1821,7 @@ class PobieraczDanychGugik:
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
         """Filtruje listę dostępnych plików Wizualizacji Kartograficznej BDOT10k i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        wizKartoList = list(set(wizKartoList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(wizKartoList) == 0:
+        if not wizKartoList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -1935,13 +1905,7 @@ class PobieraczDanychGugik:
 
     def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
         """Filtruje listę dostępnych plików Archiwalnych kartotek osnów i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        kartotekiOsnowList = list(set(kartotekiOsnowList))
-        # print("po 'set'", len(mozaikaList))
-
-        # wyswietl komunikat pytanie
-        if len(kartotekiOsnowList) == 0:
+        if not kartotekiOsnowList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                  "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -2062,39 +2026,42 @@ class PobieraczDanychGugik:
 
     def filterZdjeciaLotniczeListAndRunTask(self, zdjeciaLotniczeList):
         """Filtruje listę dostępnych plików Zdjęć Lotniczych i uruchamia wątek QgsTask"""
-
-        # usuwanie duplikatów
-        zdjeciaLotniczeList = list(set(zdjeciaLotniczeList))
-        # print("po 'set'", len(zdjeciaLotniczeList))
         zdjeciaLotniczeList = self.filterzdjeciaLotniczeList(zdjeciaLotniczeList)
-
         zdjeciaLotniczeList_brak_url = []
+        filtered_list = []
         for zdj in zdjeciaLotniczeList:
-            if zdj.url == "brak zdjęcia":
+            if zdj.get('url') == "brak zdjęcia":
                 zdjeciaLotniczeList_brak_url.append(zdj)
-                zdjeciaLotniczeList.remove(zdj)
+            else:
+                filtered_list.append(zdj)
 
         # wyswietl komunikat pytanie
-        if len(zdjeciaLotniczeList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
+        if not filtered_list:
+            msgbox = QMessageBox(
+                QMessageBox.Information,
+                'Komunikat',
+                'Nie znaleniono danych spełniających kryteria'
+            )
             msgbox.exec_()
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     zdjeciaLotniczeList))
+            msgbox = QMessageBox(
+                QMessageBox.Question,
+                'Potwierdź pobieranie',
+                f'Znaleziono {len(filtered_list)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
+            )
             msgbox.addButton(QMessageBox.Yes)
             msgbox.addButton(QMessageBox.No)
             msgbox.setDefaultButton(QMessageBox.No)
             reply = msgbox.exec()
             if reply == QMessageBox.Yes:
-                # pobieranie zdjęć lotniczych
-                task = DownloadZdjeciaLotniczeTask(description='Pobieranie plików zdjęć lotniczych',
-                                                   zdjeciaLotniczeList=zdjeciaLotniczeList,
-                                                   zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
-                                                   folder=self.dockwidget.folder_fileWidget.filePath(),
-                                                   iface=self.iface)
+                task = DownloadZdjeciaLotniczeTask(
+                    description='Pobieranie plików zdjęć lotniczych',
+                    zdjeciaLotniczeList=filtered_list,
+                    zdjeciaLotniczeList_brak_url=zdjeciaLotniczeList_brak_url,
+                    folder=self.dockwidget.folder_fileWidget.filePath(),
+                    iface=self.iface
+                )
                 QgsApplication.taskManager().addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
@@ -2168,7 +2135,7 @@ class PobieraczDanychGugik:
         if dataType == 'NMT':
             filterFunction = self.filterNmtList
             downloadTask = DownloadNmtTask
-            isNmpt = True if self.dockwidget.nmpt_rdbtn.isChecked() else False
+            isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
         if dataType == 'REFLECTANCE':
             pass
 

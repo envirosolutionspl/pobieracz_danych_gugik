@@ -1,6 +1,6 @@
 import re
+
 from . import service_api
-from .models import Kartoteki_osnow
 
 
 def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
@@ -45,16 +45,9 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
             rodzaj_katalogu = 'Katalogi_Kronsztadt60'
         else:
             rodzaj_katalogu = 'Katalogi_Kartoteki1942'
-
         url = f"https://opendata.geoportal.gov.pl/bdpog/MaterialyArchiwalne/{rodzaj_katalogu}/{godlo}.zip"
-
-        # print("url_wzorzec: ", elemnetUrl)
-        # print('godlo: ', godlo)
-        # print('url: ', url)
         params = {"url": url, "rodzaj_katalogu": rodzaj_katalogu, "godlo": godlo}
-        kartoteki_osnow = Kartoteki_osnow(**params)
-        kartoteki_osnowList.append(kartoteki_osnow)
-        # print("slownik: ", params)
+        kartoteki_osnowList.append(params)
         return kartoteki_osnowList
     else:
         return None

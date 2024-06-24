@@ -24,22 +24,17 @@ class DownloadReflectanceTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.reflectanceList)
-
         for reflectance in self.reflectanceList:
+            reflectance_url = reflectance.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + reflectance.url)
-
-            # fileName = reflectance.url.split("/")[-1]
-            # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=reflectance.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {reflectance_url}')
+            service_api.retreiveFile(url=reflectance_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -54,50 +49,40 @@ class DownloadReflectanceTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane obrazów intensywności zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane obrazów intensywności zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane obrazów intensywności nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane obrazów intensywności nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_intensywnosc_%s.txt' % date), 'w') as csvFile:
-            naglowki = [
-                'nazwa_pliku',
-                'godlo',
-                'aktualnosc',
-                'wielkosc_piksela',
-                'uklad_wspolrzednych',
-                'modul_archiwizacji',
-                'zrodlo_danych',
-                'metoda_zapisu',
-                'zakres intensywnosci',
-                'numer_zgloszenia_pracy',
-                'aktualnosc_rok'
-            ]
-            csvFile.write(','.join(naglowki)+'\n')
-            for reflectance in self.reflectanceList:
-                fileName = reflectance.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' % (
-                    fileName,
-                    reflectance.godlo,
-                    reflectance.aktualnosc,
-                    reflectance.wielkoscPiksela,
-                    reflectance.ukladWspolrzednych,
-                    reflectance.modulArchiwizacji,
-                    reflectance.zrodloDanych,
-                    reflectance.metodaZapisu,
-                    reflectance.zakresIntensywnosci,
-                    reflectance.numerZgloszeniaPracy,
-                    reflectance.aktualnoscRok
-                ))
+    def create_report(self):
+        headers_mapping = {
+            'nazwa_pliku': 'url',
+            'godlo': 'godlo',
+            'aktualnosc': 'aktualnosc',
+            'wielkosc_piksela': 'wielkoscPiksela',
+            'uklad_wspolrzednych': 'ukladWspolrzednych',
+            'modul_archiwizacji': 'modulArchiwizacji',
+            'zrodlo_danych': 'zrodloDanych',
+            'metoda_zapisu': 'metodaZapisu',
+            'zakres_intensywnosci': 'zakresIntensywnosci',
+            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+            'aktualnosc_rok': 'aktualnoscRok'
+        }
+        utils.create_report(os.path.join(self.folder, 'pobieracz_intensywnosc'), headers_mapping, self.reflectanceList)
+

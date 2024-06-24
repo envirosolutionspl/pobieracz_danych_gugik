@@ -1,9 +1,7 @@
-import re
+import datetime
+
 from . import service_api
-from .models import Reflectance
-
-
-c = re.compile(r"\{{1}.*\}{1}")
+from .wms.utils import get_wms_objects
 
 
 def getReflectanceListbyPoint1992(point):
@@ -35,25 +33,19 @@ def getReflectanceListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=URL)
-    if resp[0]:
-        return createList(resp)
-    else:
-        return None
+    return _convert_attributes(get_wms_objects(resp))
 
 
-def createList(resp):
-    reflectanceElements = c.findall(resp[1])
-    reflectanceList = []
-    for reflectanceElement in reflectanceElements:
-        element = reflectanceElement.strip("{").strip("}").split(',')
-        # print(element)
-        params = {}
-        for el in element:
-            item = el.strip().split(':')
-            val = item[1].strip('"')
-            if len(item) > 2:
-                val = ":".join(item[1:]).strip('"')
-            params[item[0]] = val
-        reflectance = Reflectance(**params)
-        reflectanceList.append(reflectance)
-    return reflectanceList
+def _convert_attributes(elems_list):
+    for elem in elems_list:
+        if 'aktualnosc' in elem:
+            elem['aktualnosc'] = datetime.datetime.strptime(elem.get('aktualnosc'), '%Y-%m-%d').date()
+        if 'wielkoscPiksela' in elem:
+            elem['wielkoscPiksela'] = float(elem.get('wielkoscPiksela'))
+        if 'zakresIntensywnosci' in elem:
+            elem['elemzakresIntensywnosci'] = int(elem.get('zakresIntensywnosci'))
+        if 'aktualnoscRok' in elem:
+            elem['aktualnoscRok'] = int(elem.get('aktualnoscRok'))
+        if 'dt_pzgik' in elem:
+            elem['dt_pzgik'] = str(elem.get('dt_pzgik'))
+    return elems_list

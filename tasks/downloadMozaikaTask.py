@@ -24,22 +24,18 @@ class DownloadMozaikaTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.mozaikaList)
 
         for mozaika in self.mozaikaList:
+            mozaika_url = mozaika.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + mozaika.url)
-
-            # fileName = reflectance.url.split("/")[-1]
-            # QgsMessageLog.logMessage('1 ' + fileName + ' ' + reflectance.url + ' ' + self.folder)
-            service_api.retreiveFile(url=mozaika.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {mozaika_url}')
+            service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
-        self.createCsvReport()
+        self.create_report()
         return True
 
     def finished(self, result):
@@ -54,37 +50,35 @@ class DownloadMozaikaTask(QgsTask):
         """
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane linii mozaikowania zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane linii mozaikowania zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
 
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane linii mozaikowania nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane linii mozaikowania nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
         super().cancel()
 
-    def createCsvReport(self):
-        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        with open(os.path.join(self.folder, 'pobieracz_linie_mozaikowania_%s.txt' % date), 'w') as csvFile:
-            naglowki = [
-                'Nazwa pliku',
-                'Identyfikator Linii Mozaikowania',
-                'Numer zgłoszenia',
-                'Rok'
-            ]
-            csvFile.write(','.join(naglowki)+'\n')
-            for mozaika in self.mozaikaList:
-                fileName = mozaika.url.split("/")[-1]
-                csvFile.write('%s,%s,%s,%s\n' % (
-                    fileName,
-                    mozaika.id,
-                    mozaika.zgloszenie,
-                    mozaika.zgloszenie.split('.')[3]
-                ))
+    def create_report(self):
+        headers_mapping = {
+            'Nazwa pliku': 'url',
+            'Identyfikator Linii Mozaikowania': 'id',
+            'Numer zgłoszenia': 'zgloszenie',
+            'Rok': 'rok',
+        }
+        for obj in self.mozaikaList:
+            obj['rok'] = obj.get('zgloszenie').split('.')[3]
+        utils.create_report(os.path.join(self.folder, 'pobieracz_mozaika'), headers_mapping, self.mozaikaList)

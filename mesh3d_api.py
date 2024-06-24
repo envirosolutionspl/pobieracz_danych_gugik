@@ -1,18 +1,19 @@
+import re
+
 from .wms.utils import get_wms_objects
 from . import service_api
 
+URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/ModeleSiatkowe3D?"
+c = re.compile(r"\{{1}.*\}{1}")
 
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/LinieMozaikowania?"
 
-def getMozaikaListbyPoint1992(point):
-    """Zwraca listę dostępnych do pobrania linii mozaikowania na podstawie
-    zapytania GetFeatureInfo z usługi WMS"""
+def getMesh3dListbyPoint1992(point):
     x = point.x()
     y = point.y()
-
     LAYERS = [
-        'SkorowidzLiniiMozaikowania'
+        'SkorowidzeModeleSiatkowe3D'
     ]
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',

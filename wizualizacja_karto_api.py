@@ -2,7 +2,7 @@ import re
 from . import service_api
 from .models import Wizualizacja_karto
 
-
+#TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach
 def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     """Zwraca listę dostępnych do pobrania wizualizacji kartograficznych BDOT10k na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
@@ -28,7 +28,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'layers': ','.join(LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
-        'bbox': '%f,%f,%f,%f' % (x - 50, y- 50, x + 50, y + 50),
+        'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
         'width': '101',
         'height': '101',
         'format': 'image/png',
@@ -41,7 +41,6 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     resp = service_api.getRequest(params=PARAMS, url=URL)
     url_wzorzec = re.compile(r'http.+.pdf')
     data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")
-    # print(resp)
     if resp[0]:
         wizKartoElementsUrl = url_wzorzec.findall(resp[1])
         wizKartoList = []
