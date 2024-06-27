@@ -56,6 +56,7 @@ changelog=
   Wersja 1.2.1
   * Naprawiono filtrowanie dla zakładki WMS/Geoportal (ortofotomapa, NMT/NMPT, LiDAR, obrazy intensywności)
   * Naprawiono filtrowanie dla zakładki Inne dane (zdjęcia lotnicze)
+  * Usprawniono działanie pobierania danych PRG, LiDAR, NMPT
 #  Wersja 1.2.0
 #  * dodano paczki danych z modelami 3D drzew
 #  * dodano paczki danych z modelami 3D mesh
