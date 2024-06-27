@@ -67,6 +67,10 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         aktualna_warstwa = self.wfs_service_cmbbx.currentText()
         self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
 
+    def fill_wfs_services_data(self):
+        aktualna_warstwa = self.wfs_service_cmbbx.currentText()
+        self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
+
     def setup_validators(self):
         double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
         for obj in DOUBLE_VALIDATOR_OBJECTS:

@@ -6,6 +6,7 @@ from qgis.gui import *
 from qgis.core import *
 
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING
+
 from .uldk import RegionFetch
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
@@ -361,7 +362,9 @@ class PobieraczDanychGugik:
                 msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
                                      "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
                 msgbox.exec_()
+
                 self.project.removeMapLayer(skorowidzeLayer.id())
+
                 self.canvas.refresh()
                 return
             else:

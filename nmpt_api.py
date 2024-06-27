@@ -10,6 +10,7 @@ def getNmptListbyPoint1992(point, isEvrf2007):
 
     _url = NMPT_EVRF_WMS_URL if isEvrf2007 else NMPT_KRON86_WMS_URL
     layers = service_api.getAllLayers(url=_url, service='WMS')
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
@@ -27,5 +28,6 @@ def getNmptListbyPoint1992(point, isEvrf2007):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+    
     resp = service_api.getRequest(params=PARAMS, url=_url)
     return get_wms_objects(resp)

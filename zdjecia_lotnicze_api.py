@@ -31,6 +31,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+
     resp = service_api.getRequest(params=PARAMS, url=ZDJECIA_LOTNICZE_WMS_URL)
     return _convert_attributes(get_wms_objects(resp))
 

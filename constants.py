@@ -161,8 +161,6 @@ GROUPBOXES_VISIBILITY_MAP = {
         ]
     }
 
-
-
 OPRACOWANIA_TYFLOGICZNE_MAPPING = {
     "radioButton_atlas_swiata": {
         "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_SWIATA/atlas_swiata_2012_sitodruk.ZIP",

@@ -2,6 +2,7 @@ import datetime
 
 from .constants import LAS_EVRF_WMS_URL, LAS_KRON86_WMS_URL
 from .wms.utils import get_wms_objects
+
 try:
     from . import service_api
 except:
@@ -11,8 +12,10 @@ except:
 def getLasListbyPoint1992(point, isEvrf2007):
     x = point.x()
     y = point.y()
+
     _url = LAS_EVRF_WMS_URL if isEvrf2007 else LAS_KRON86_WMS_URL
     layers = service_api.getAllLayers(url=_url, service='WMS')
+
     if not layers:
         return
     PARAMS = {
@@ -32,7 +35,9 @@ def getLasListbyPoint1992(point, isEvrf2007):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+
     resp = service_api.getRequest(params=PARAMS, url=_url)
+
     return _convert_attributes(get_wms_objects(resp))
 
 
