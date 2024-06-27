@@ -6,7 +6,7 @@
 name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.4
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
-version=1.2.0
+version=1.2.1
 author=EnviroSolutions Sp. z o.o.
 email=office@envirosolutions.pl
 
@@ -53,26 +53,29 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-   Wersja 1.2.0
-   * dodano paczki danych z modelami 3D drzew
-   * dodano paczki danych z modelami 3D mesh
-   * poprawiono strukturę stałych zmiennych wtyczki
-   * naprawiono działanie zakładki WFS
-   * zmieniono sposób zapytań do serwisów WMS
-#   Wersja 1.1.1
-#   * zaktualizowano logo wtyczki i logo EnviroSolutions
-#   * poprawa pobierania danych dla NMT, NMPT, LAZ, zdjęć lotniczych
-#   Wersja 1.1.0
-#   * Dodano możliwość pobierania danych BDOT 10K według nowego schematu
-#   * Zoptymnalizowano działanie wtyczki
-#   * Poprawiono poprawność pobierania danych BDOO
-#   * Poprawiono dokładność pobierania danych LAZ
-#   * Poprawiono pobieranie danych z EGIB
-#   * Rozwiązano problemy związane z działaniem wtyczki na Kubuntu
-#   * Poprawa pobierania danych NMT, NMPT, LAZ, ortofotomapy, obrazów intensywności, zdjęć lotniczych, aerotriangulacji
-#   * Modyfikacja UI
-#   * Usunięto otwieranie folderu na dane w przypadku niepowodzenia pobrania danych
-#   * Poprawa działania wtyczki w przypadku braku internetu
+  Wersja 1.2.1
+  * Naprawiono filtrowanie dla zakładki WMS/Geoportal (ortofotomapa, NMT/NMPT, LiDAR, obrazy intensywności)
+  * Naprawiono filtrowanie dla zakładki Inne dane (zdjęcia lotnicze)
+#  Wersja 1.2.0
+#  * dodano paczki danych z modelami 3D drzew
+#  * dodano paczki danych z modelami 3D mesh
+#  * poprawiono strukturę stałych zmiennych wtyczki
+#  * naprawiono działanie zakładki WFS
+#  * zmieniono sposób zapytań do serwisów WMS
+#  Wersja 1.1.1
+#  * zaktualizowano logo wtyczki i logo EnviroSolutions
+#  * poprawa pobierania danych dla NMT, NMPT, LAZ, zdjęć lotniczych
+#  Wersja 1.1.0
+#  * Dodano możliwość pobierania danych BDOT 10K według nowego schematu
+#  * Zoptymnalizowano działanie wtyczki
+#  * Poprawiono poprawność pobierania danych BDOO
+#  * Poprawiono dokładność pobierania danych LAZ
+#  * Poprawiono pobieranie danych z EGIB
+#  * Rozwiązano problemy związane z działaniem wtyczki na Kubuntu
+#  * Poprawa pobierania danych NMT, NMPT, LAZ, ortofotomapy, obrazów intensywności, zdjęć lotniczych, aerotriangulacji
+#  * Modyfikacja UI
+#  * Usunięto otwieranie folderu na dane w przypadku niepowodzenia pobrania danych
+#  * Poprawa działania wtyczki w przypadku braku internetu
 #  Wersja 1.0.10
 #  * Naprawa błędu z niedziałającą biblioteką
 #  Wersja 1.0.9
