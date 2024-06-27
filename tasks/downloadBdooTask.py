@@ -2,6 +2,8 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog, Qgis
     )
+
+from ..constants import BDOO_WMS_URL
 from .. import service_api, utils
 
 
@@ -21,9 +23,9 @@ class DownloadBdooTask(QgsTask):
         # self.iterations = 0
         self.exception = None
         if level == 0:
-            self.url = f"https://opendata.geoportal.gov.pl/bdoo/{rok}/Polska_BDOO.zip"
+            self.url = f"{BDOO_WMS_URL}{rok}/Polska_BDOO.zip"
         elif level == 1:
-            self.url = f"http://opendata.geoportal.gov.pl/bdoo/{rok}/PL.PZGiK.201.{teryt}.zip"
+            self.url = f"{BDOO_WMS_URL}{rok}/PL.PZGiK.201.{teryt}.zip"
         elif level == 2:
             pass
             # self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_GML.zip"
@@ -31,32 +33,30 @@ class DownloadBdooTask(QgsTask):
         self.iface = iface
 
     def run(self):
-
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        # total = len(self.nmtList)
-
-
-        QgsMessageLog.logMessage('pobieram ' + self.url)
-        # fileName = self.url.split("/")[-1]
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        QgsMessageLog.logMessage(f'pobieram {self.url}')
         service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        if self.isCanceled():
-            return False
-        return True
+        return not self.isCanceled()
 
     def finished(self, result):
-
         if result:
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane BDOO zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane BDOO zostały pobrane.',
+                level=Qgis.Success,
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             else:
-                QgsMessageLog.logMessage("exception")
+                QgsMessageLog.logMessage('exception')
                 raise self.exception
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane BDOO nie zostały pobrane.")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Dane BDOO nie zostały pobrane.'
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

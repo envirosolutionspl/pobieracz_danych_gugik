@@ -1,5 +1,7 @@
 import processing
 
+from ..constants import WFS_URL_MAPPING
+
 try:
     from .utils import getTypenamesFromWFS
     from .utils import roundCoordinatesOfWkt
@@ -11,28 +13,17 @@ from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
 
 class WfsFetch:
     def __init__(self):
-        self.wfsServiceDict = {
-            'Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
-            'Prawdziwa Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
-            'LIDAR (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
-            'LIDAR (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
-            'NMT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
-            'NMT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
-            'NMPT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
-            'NMPT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
-        }
         self.cachedTypenamesDict = {}
         self.errors = []
         # self.refreshCachedTypenamesDict()
 
     def refreshCachedTypenamesDict(self):
         self.errors = []
-        for name in self.wfsServiceDict:
+        for name in WFS_URL_MAPPING:
             self.__cacheTypenamesForService(name)
 
     def __cacheTypenamesForService(self, serviceName):
-
-        resp = getTypenamesFromWFS(self.wfsServiceDict[serviceName])
+        resp = getTypenamesFromWFS(WFS_URL_MAPPING[serviceName])
         if resp[0]:
             self.cachedTypenamesDict[serviceName] = resp[1]
         else:
@@ -40,7 +31,7 @@ class WfsFetch:
             print('błąd pobierania warstw usługi WFS %s: %s' % (serviceName, resp[1]))
 
     def getTypenamesByServiceName(self, serviceName):
-        if serviceName not in self.wfsServiceDict:
+        if serviceName not in WFS_URL_MAPPING:
             #podano nieistniejącą nazwę usługi
             raise Exception('podano nieistniejącą nazwę usługi')
         if serviceName not in self.cachedTypenamesDict:
@@ -53,7 +44,7 @@ class WfsFetch:
 
 
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
-        wfsUrl = self.wfsServiceDict[wfsService]
+        wfsUrl = WFS_URL_MAPPING[wfsService]
         wfsTypename = self.cachedTypenamesDict[wfsService][typename]
         aggregation = processing.run("native:aggregate",
                        {'INPUT': layer,
