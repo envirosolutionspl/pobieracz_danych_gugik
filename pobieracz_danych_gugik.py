@@ -486,31 +486,31 @@ class PobieraczDanychGugik:
 
     def filterOrtoList(self, ortoList):
         """Filtruje listę ortofotomap"""
-
+        
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.kolor == self.dockwidget.orto_kolor_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.ukladWspolrzednych.split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
+                            orto.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            orto.aktualnosc >= self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                            str(orto.get('aktualnosc')) >= str(self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.orto_to_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            orto.aktualnosc <= self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                            str(orto.get('aktualnosc')) <= str(self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.orto_source_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.zrodloDanych == self.dockwidget.orto_source_cmbbx.currentText()]
+                            orto.get('zrodloDanych') == self.dockwidget.orto_source_cmbbx.currentText()]
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.calyArkuszWyeplnionyTrescia == self.dockwidget.orto_full_cmbbx.currentText()]
+                            orto.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.orto_full_cmbbx.currentText()]
             if self.dockwidget.orto_pixelFrom_lineEdit.text():
                 ortoList = [orto for orto in ortoList if
-                            orto.wielkoscPiksela >= float(self.dockwidget.orto_pixelFrom_lineEdit.text())]
+                            str(orto.get('wielkoscPiksela')) >= str(self.dockwidget.orto_pixelFrom_lineEdit.text())]
             if self.dockwidget.orto_pixelTo_lineEdit.text():
                 ortoList = [orto for orto in ortoList if
-                            orto.wielkoscPiksela <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                            str(orto.get('wielkoscPiksela')) <= str(self.dockwidget.orto_pixelTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
@@ -650,32 +650,28 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+            
             if self.dockwidget.nmt_from_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get(
-                               'aktualnosc') >= self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+            
             if self.dockwidget.nmt_to_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get(
-                               'aktualnosc') <= self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+
             if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+            
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('charakterystykaPrzestrzenna') >= float(
-                               self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+            
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('charakterystykaPrzestrzenna') <= float(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+            
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('bladSredniWysokosci') >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+            
             if self.dockwidget.nmt_mhTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('bladSredniWysokosci') <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -773,28 +769,28 @@ class PobieraczDanychGugik:
         if self.dockwidget.las_filter_groupBox.isChecked():
             if not (self.dockwidget.las_crs_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if
-                           las.ukladWspolrzednych.split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
+                           las.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           las.aktualnosc >= self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           str(las.get('aktualnosc')) >= str(self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.las_to_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           las.aktualnosc <= self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                           str(las.get('aktualnosc')) <= str(self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.las_full_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if
-                           las.calyArkuszWyeplnionyTrescia == self.dockwidget.las_full_cmbbx.currentText()]
+                           las.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           las.charakterystykaPrzestrzenna >= float(self.dockwidget.las_pixelFrom_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           las.charakterystykaPrzestrzenna <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           las.bladSredniWysokosci >= float(self.dockwidget.las_mhFrom_lineEdit.text())]
+                           str(las.get('bladSredniWysokosci')) >= str(self.dockwidget.las_mhFrom_lineEdit.text())]
             if self.dockwidget.las_mhTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           las.bladSredniWysokosci <= float(self.dockwidget.las_mhTo_lineEdit.text())]
+                           str(las.get('bladSredniWysokosci')) <= str(self.dockwidget.las_mhTo_lineEdit.text())]
         return lasList
 
     def downloadLaFile(self, las, folder):
@@ -897,24 +893,22 @@ class PobieraczDanychGugik:
         if self.dockwidget.reflectance_filter_groupBox.isChecked():
             if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.ukladWspolrzednych.split(":")[
-                                       0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
+                                   reflectance.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
             if self.dockwidget.reflectance_from_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.aktualnosc >= self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                                   str(reflectance.get('aktualnosc')) >= str(self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_to_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.aktualnosc <= self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                                   str(reflectance.get('aktualnosc')) <= str(self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.wielkoscPiksela >= float(
-                                       self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) >= str(self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.wielkoscPiksela <= float(self.dockwidget.las_pixelTo_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.zrodloDanych == self.dockwidget.reflectance_source_cmbbx.currentText()]
+                                   reflectance.get('zrodloDanych') == self.dockwidget.reflectance_source_cmbbx.currentText()]
         return reflectanceList
 
     def downloadReflectanceFile(self, reflectance, folder):
@@ -2001,9 +1995,8 @@ class PobieraczDanychGugik:
                     zdjeciaLotniczeList.extend(subList)
                 else:
                     bledy += 1
-            # print("list: ", zdjeciaLotniczeList)
+
             self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
-            # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
             self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
@@ -2068,16 +2061,16 @@ class PobieraczDanychGugik:
         if self.dockwidget.zdjecia_lotnicze_filter_groupBox.isChecked():
             if not (self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.kolor == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
+                                       zdjecie.get('przestrzenBarwna') == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
             if self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.dataNalotu >= self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date()]
+                                       str(zdjecie.get('dataNalotu')) >= str(self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.dataNalotu <= self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date()]
+                                       str(zdjecie.get('dataNalotu')) <= str(self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.zrodloDanych == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
+                                       zdjecie.get('zrodloDanych') == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
 
         return zdjeciaLotniczeList
 
