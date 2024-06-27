@@ -296,7 +296,6 @@ class PobieraczDanychGugik:
             visible = getattr(self.dockwidget, rdbtn).isChecked()
 
             for groupbox in groupboxes:
-                print(f"{visible}: {groupbox}")
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
