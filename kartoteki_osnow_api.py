@@ -1,5 +1,6 @@
 import re
 
+from .constants import KARTOTEKI_OSNOW_WMS_URL, KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS, KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL
 from . import service_api
 
 
@@ -9,18 +10,11 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
     x = point.x()
     y = point.y()
 
-    URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/Osnowy/WMS/Archiwalne_kartoteki?"
-
-    LAYERS = [
-        'Katalogi_Kartoteki1942',
-        'Katalogi_Kronsztadt60'
-    ]
-
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetFeatureInfo',
         'version': '1.1.1',
-        'layers': ','.join(LAYERS),
+        'layers': ','.join(KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS),
         'styles': '',
         'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
@@ -28,13 +22,13 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
         'height': '101',
         'format': 'image/png',
         'transparent': 'true',
-        'query_layers': ','.join(LAYERS),
+        'query_layers': ','.join(KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS),
         'i': '50',
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
 
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=KARTOTEKI_OSNOW_WMS_URL)
     url_wzorzec = re.compile(r'http.+.zip')
     kartoteki_osnowList = []
     if resp[0]:
@@ -45,7 +39,9 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
             rodzaj_katalogu = 'Katalogi_Kronsztadt60'
         else:
             rodzaj_katalogu = 'Katalogi_Kartoteki1942'
-        url = f"https://opendata.geoportal.gov.pl/bdpog/MaterialyArchiwalne/{rodzaj_katalogu}/{godlo}.zip"
+
+        url = f'{KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL}{rodzaj_katalogu}/{godlo}.zip'
+        
         params = {"url": url, "rodzaj_katalogu": rodzaj_katalogu, "godlo": godlo}
         kartoteki_osnowList.append(params)
         return kartoteki_osnowList

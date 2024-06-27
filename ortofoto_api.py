@@ -1,8 +1,6 @@
+from .constants import ORTOFOTOMAPA_WMS_URL
 from .wms.utils import get_wms_objects
 from . import service_api
-
-
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?"
 
 def getOrtoListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania ortofotomap na podstawie
@@ -10,7 +8,7 @@ def getOrtoListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    layers = service_api.getAllLayers(url=URL, service='WMS')
+    layers = service_api.getAllLayers(url=ORTOFOTOMAPA_WMS_URL, service='WMS')
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -30,5 +28,5 @@ def getOrtoListbyPoint1992(point):
         'INFO_FORMAT': 'text/html'
     }
 
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=ORTOFOTOMAPA_WMS_URL)
     return get_wms_objects(resp)

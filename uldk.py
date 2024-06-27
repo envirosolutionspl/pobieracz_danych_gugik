@@ -1,3 +1,4 @@
+from .constants import ULDK_GMINA_DICT_URL, ULDK_POWIAT_DICT_URL, ULDK_WOJEWODZTWO_DICT_URL
 from .wfs.httpsAdapter import get_legacy_session
 
 
@@ -22,13 +23,13 @@ class RegionFetch:
         return unit_dict
 
     def __fetchGminaDict(self):
-        return self.fetch_unit_dict('https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,teryt')
+        return self.fetch_unit_dict(ULDK_GMINA_DICT_URL)
 
     def __fetchPowiatDict(self):
-        return self.fetch_unit_dict('https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt')
+        return self.fetch_unit_dict(ULDK_POWIAT_DICT_URL)
 
     def __fetchWojewodztwoDict(self):
-        return self.fetch_unit_dict('https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt')
+        return self.fetch_unit_dict(ULDK_WOJEWODZTWO_DICT_URL)
 
     def get_powiat_by_teryt(self, teryt):
         return {key: val for key, val in self.powiatDict.items() if key.startswith(teryt)}

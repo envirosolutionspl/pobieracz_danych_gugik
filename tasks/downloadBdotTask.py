@@ -4,14 +4,8 @@ from qgis.core import (
 
 from qgis.PyQt.QtCore import pyqtSignal
 
+from ..constants import BDOT_FORMAT_URL_MAPPING
 from .. import service_api, utils
-
-url_prefixes = {
-    'GML': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/',
-    'SHP': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/SHP/',
-    'GML 2011': 'https://opendata.geoportal.gov.pl/bdot10k/',
-    'GPKG': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/',
-}
 
 
 class DownloadBdotTask(QgsTask):
@@ -35,7 +29,7 @@ class DownloadBdotTask(QgsTask):
         self._construct_url(level, teryt, format_danych)
 
     def _construct_url(self, level: int, teryt: str, data_format: str) -> None:
-        prefix = url_prefixes.get(data_format)
+        prefix = BDOT_FORMAT_URL_MAPPING.get(data_format)
         data_format = data_format.strip().split()[0]
         if level == 0:
             self.url = f"{prefix}Polska_{data_format}.zip"

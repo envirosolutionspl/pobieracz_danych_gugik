@@ -1,4 +1,33 @@
+AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
+BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
+BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
+BUDYNKI_3D_WMS_URL = 'https://opendata.geoportal.gov.pl/InneDane/Budynki3D/'
+EGIB_WFS_URL = 'https://integracja.gugik.gov.pl/eziudp/index.php?teryt=&rodzaj=powiaty&nazwa=&zbior=&temat=1.6&usluga=pobierania&adres='
+EGIB_WMS_URL = 'https://opendata.geoportal.gov.pl/ZestawieniaZbiorczeEGiB/'
+KARTOTEKI_OSNOW_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/Osnowy/WMS/Archiwalne_kartoteki?'
+KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL = 'https://opendata.geoportal.gov.pl/bdpog/MaterialyArchiwalne/'
+LAS_KRON86_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladKRON86?'
+LAS_EVRF_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweNMT/WMS/SkorowidzeUkladEVRF2007?'
+MOZAIKA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/LinieMozaikowania?'
+NMPT_KRON86_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86?'
+NMPT_EVRF_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladEVRF2007?'
+NMT_EVRF_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladEVRF2007?'
+NMT_GRID5M_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SheetsGrid5mEVRF2007?'
+NMT_KRON86_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/SkorowidzeUkladKRON86?'
+ODBICIOWOSC_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/OI/WMS/SkorowidzeObrazowIntensywnosci?'
+ORTOFOTOMAPA_WFS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze'
+ORTOFOTOMAPA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/SkorowidzeWgAktualnosci?'
+OSNOWA_WMS_URL = 'https://integracja.gugik.gov.pl/osnowa/?'
+PRNG_WMS_URL = 'https://opendata.geoportal.gov.pl/prng/PRNG_'
 TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
+WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
+ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
+
+ULDK_GMINA_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,teryt'
+ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt'
+ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
+
+PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',
@@ -54,6 +83,32 @@ VOIVODESHIP_COMBOBOXES = [
     'drzewa3d_wojewodztwo_cmbbx',
 ]
 
+AEROTRAINGULACJA_SKOROWIDZE_LAYERS = [
+    'SkorowidzAerotriangulacji'
+]
+
+KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS = [
+    'Katalogi_Kartoteki1942',
+    'Katalogi_Kronsztadt60'
+]
+
+MOZAIKA_SKOROWIDZE_LAYERS = [
+    'SkorowidzLiniiMozaikowania'
+]
+
+ODBICIOWOWSC_SKOROWIDZE_LAYERS = [
+    'SkorowidzeOI',
+    'SkorowidzeOIZasieg'
+]
+
+WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS = [
+    'Mapy10k'
+]
+
+WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS = [
+    'Mapy25k'
+]
+
 ADMINISTRATIVE_UNITS_OBJECTS = {
     'wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'powiat_cmbbx'),
     'prg_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'prg_powiat_cmbbx'),
@@ -106,3 +161,68 @@ GROUPBOXES_VISIBILITY_MAP = {
         ]
     }
 
+OPRACOWANIA_TYFLOGICZNE_MAPPING = {
+    "radioButton_atlas_swiata": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_SWIATA/atlas_swiata_2012_sitodruk.ZIP",
+        "rodzaj": "atlas świata sitodruk z roku 2012"
+    },
+    "radioButton_atlas_europa": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_EUROPY/atlas_europy_2006_puchnacy.ZIP",
+        "rodzaj": "atlas Europy puchnący z roku 2006"
+    },
+    "radioButton_atlas_polska_1": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_termoformowanie.ZIP",
+        "rodzaj": "atlas Polski termoformowanie z roku 2020"
+    },
+    "radioButton_atlas_polska_2": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2004_puchnacy.ZIP",
+        "rodzaj": "atlas Polski puchnący z roku 2004"
+    },
+    "radioButton_atlas_polska_3": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_POLSKI/atlas_polski_2020_puchnacy.ZIP",
+        "rodzaj": "atlas Polski puchnący z roku 2020"
+    },
+    "radioButton_atlas_warszawa": {
+        "url": "https://opendata.geoportal.gov.pl/Mapy/Tyflologiczne/ATLAS_WARSZAWY/atlas_warszawy_2005_puchnacy.ZIP",
+        "rodzaj": "atlas Warszawy puchnący z roku 2005"
+    }
+}
+
+BDOT_FORMAT_URL_MAPPING = {
+    'GML': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/',
+    'SHP': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/SHP/',
+    'GML 2011': 'https://opendata.geoportal.gov.pl/bdot10k/',
+    'GPKG': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/',
+}
+
+
+EGIB_TERYT_MAPPING = {
+    '02_dolnoslaskie': '02',
+    '04_kujawsko-pomorskie': '04',
+    '06_lubelskie': '06',
+    '08_lubuskie': '08',
+    '10_lodzkie': '10',
+    '12_malopolskie': '12',
+    '14_mazowieckie': '14',
+    '16_opolskie': '16',
+    '18_podkarpackie': '18',
+    '20_podlaskie': '20',
+    '22_pomorskie': '22',
+    '24_slaskie': '24',
+    '26_swietokrzyskie': '26',
+    '28_warminsko-mazurskie': '28',
+    '30_wielkopolskie': '30',
+    '32_zachodniopomorskie': '32'
+}
+
+
+WFS_URL_MAPPING = {
+    'Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze',
+    'Prawdziwa Ortofotomapa': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/SkorowidzPrawdziwejOrtofotomapy',
+    'LIDAR (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarKRON86/WFS/Skorowidze',
+    'LIDAR (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/DanePomiaroweLidarEVRF2007/WFS/Skorowidze',
+    'NMT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuKRON86/WFS/Skorowidze',
+    'NMT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
+    'NMPT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
+    'NMPT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
+}

@@ -1,6 +1,7 @@
+from ..constants import ORTOFOTOMAPA_WFS_URL
 from .utils import getTypenamesFromWFS
 
-resp = getTypenamesFromWFS('https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WFS/Skorowidze')
+resp = getTypenamesFromWFS(ORTOFOTOMAPA_WFS_URL)
 print(resp[1])
 
 """

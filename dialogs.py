@@ -12,7 +12,7 @@ from PyQt5.QtGui import QRegExpValidator
 from qgis.gui import QgsFileWidget
 
 from .constants import ADMINISTRATIVE_UNITS_OBJECTS, DOUBLE_VALIDATOR_OBJECTS, DATA_TIME_OBJECTS, MAP_LAYER_COMBOBOXES, \
-    VOIVODESHIP_COMBOBOXES, YEARS_COMBOBOXES
+    VOIVODESHIP_COMBOBOXES, YEARS_COMBOBOXES, WFS_URL_MAPPING
 from .wfs import WfsFetch
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -61,7 +61,11 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def fill_services(self):
         self.wfs_service_cmbbx.clear()
-        self.wfs_service_cmbbx.addItems(self.wfsFetch.wfsServiceDict.keys())
+        self.wfs_service_cmbbx.addItems(WFS_URL_MAPPING.keys())
+
+    def fill_wfs_services_data(self):
+        aktualna_warstwa = self.wfs_service_cmbbx.currentText()
+        self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
 
     def fill_wfs_services_data(self):
         aktualna_warstwa = self.wfs_service_cmbbx.currentText()

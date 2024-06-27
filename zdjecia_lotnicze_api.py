@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
+from .constants import ZDJECIA_LOTNICZE_WMS_URL
 from . import service_api
 from .wms.utils import get_wms_objects
-
-URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?"
 
 
 def getZdjeciaLotniczeListbyPoint1992(point):
@@ -13,7 +12,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    layers = service_api.getAllLayers(url=URL, service='WMS')
+    layers = service_api.getAllLayers(url=ZDJECIA_LOTNICZE_WMS_URL, service='WMS')
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -32,7 +31,8 @@ def getZdjeciaLotniczeListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+
+    resp = service_api.getRequest(params=PARAMS, url=ZDJECIA_LOTNICZE_WMS_URL)
     return _convert_attributes(get_wms_objects(resp))
 
 
