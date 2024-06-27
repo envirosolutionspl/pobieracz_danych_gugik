@@ -32,7 +32,7 @@ def getLasListbyPoint1992(point, isEvrf2007):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-    resp = service_api.getRequest(params=PARAMS, url=URL)
+    resp = service_api.getRequest(params=PARAMS, url=_url)
     return _convert_attributes(get_wms_objects(resp))
 
 

@@ -296,6 +296,7 @@ class PobieraczDanychGugik:
             visible = getattr(self.dockwidget, rdbtn).isChecked()
 
             for groupbox in groupboxes:
+                print(f"{visible}: {groupbox}")
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
@@ -1238,7 +1239,7 @@ class PobieraczDanychGugik:
         if self.dockwidget.radioButton_adres_gmin.isChecked():
             gmina_name = self.dockwidget.prg_gmina_cmbbx.currentText()
             teryt = self.dockwidget.prg_gmina_cmbbx.currentData()
-            self.url = f"{PRG_URL}?teryt={teryt}&adresy"
+            self.url = f"{PRG_URL}teryt={teryt}&adresy"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - adresy z gminy {gmina_name} ({teryt})'
         elif self.dockwidget.radioButton_adres_powiat.isChecked():
             powiat_name = self.dockwidget.prg_powiat_cmbbx.currentText()
