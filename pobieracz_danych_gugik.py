@@ -650,29 +650,28 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+            
             if self.dockwidget.nmt_from_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('aktualnosc')) >= str(self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+            
             if self.dockwidget.nmt_to_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('aktualnosc')) <= str(self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+
             if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if
-                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+                nmtList = [nmt for nmt in nmtList if nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+            
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+            
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.nmt_pixelTo_lineEdit.text())]
+            
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+            
             if self.dockwidget.nmt_mhTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
