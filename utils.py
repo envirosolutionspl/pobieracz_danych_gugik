@@ -58,7 +58,7 @@ def createPointsFromLineLayer(layer, density):
                 points.append(point)
     return points
 
-def createPointsFromPolygon(layer, density=1000):
+def createPointsFromPolygon(layer, density):
     punktyList = []
 
     for feat in layer.getFeatures():
@@ -91,7 +91,7 @@ def createPointsFromPolygon(layer, density=1000):
 
             # dodanie werteksów poligonu
             # uproszczenie geometrii
-            geom2 = geom.simplify(800)
+            geom2 = geom.simplify(400 if density < 1000 else 800)
             for point in geom2.vertices():
                 punktyList.append(point)
     return punktyList

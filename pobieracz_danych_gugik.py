@@ -548,13 +548,14 @@ class PobieraczDanychGugik:
         isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
-
+            points = self.pointsFromVectorLayer(layer, density=200 if isNmpt else 400)
+                        
             # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
 
             nmtList = []
             for point in points:
+
                 resp = nmpt_api.getNmptListbyPoint1992(
                     point=point,
                     isEvrf2007=isEvrf2007
@@ -562,8 +563,9 @@ class PobieraczDanychGugik:
                     point=point,
                     isEvrf2007=isEvrf2007
                 )
+
                 if resp:
-                    nmtList = resp if isNmpt else resp[1]
+                    nmtList.extend(resp if isNmpt else resp[1])
                 else:
                     bledy += 1
 
@@ -2096,8 +2098,7 @@ class PobieraczDanychGugik:
                 'OUTPUT': 'memory:TEMPORARY_OUTPUT'}
             proc = processing.run("qgis:reprojectlayer", params)
             layer = proc['OUTPUT']
-            print('d ', proc)
-            print('e ', type(layer), layer)
+
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
             points = utils.createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
