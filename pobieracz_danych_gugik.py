@@ -30,7 +30,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
-plugin_version = '1.2.1'
+plugin_version = '1.2.2'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
