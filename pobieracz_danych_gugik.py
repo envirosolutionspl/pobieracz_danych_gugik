@@ -944,6 +944,9 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            self.show_unavailable_format()
+            return
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         if not powiatName:
@@ -986,6 +989,9 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            self.show_unavailable_format()
+            return
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         if not wojewodztwoName:
@@ -1026,6 +1032,8 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            format_danych = 'GeoParquet'
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
                                             level=Qgis.Info, duration=10)
@@ -2193,6 +2201,14 @@ class PobieraczDanychGugik:
         self.iface.messageBar().pushMessage(
             "Błąd",
             "Brak połączenia z internetem",
+            level=Qgis.Warning,
+            duration=10
+        )
+
+    def show_unavailable_format(self):
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            "Dla podanego obszaru nie ma dostępnego pliku w formacie GeoParquet",
             level=Qgis.Warning,
             duration=10
         )
