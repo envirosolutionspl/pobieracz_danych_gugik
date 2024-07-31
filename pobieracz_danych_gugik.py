@@ -300,7 +300,6 @@ class PobieraczDanychGugik:
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
-
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
@@ -333,8 +332,7 @@ class PobieraczDanychGugik:
 
     def downloadWfsForLayer(self, layer):
         """Pobiera dane WFS """
-
-        if (isinstance(layer, QgsPointXY)):
+        if isinstance(layer, QgsPointXY):
             vp = QgsVectorLayer(f'Point?crs={self.project.crs().authid()}', "vectpoi", "memory")
             feature = QgsFeature()
             feature.setGeometry(QgsGeometry.fromPointXY(layer))
@@ -740,6 +738,7 @@ class PobieraczDanychGugik:
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
         lasList = self.filterLasList(lasList)
+        print(lasList)
         if not lasList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -2196,3 +2195,4 @@ class PobieraczDanychGugik:
             level=Qgis.Warning,
             duration=10
         )
+
