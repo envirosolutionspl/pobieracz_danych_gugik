@@ -738,7 +738,6 @@ class PobieraczDanychGugik:
     def filterLasListAndRunTask(self, lasList):
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
         lasList = self.filterLasList(lasList)
-        print(lasList)
         if not lasList:
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
