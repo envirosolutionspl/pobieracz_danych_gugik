@@ -2,6 +2,8 @@ import re
 
 import requests
 import xml.etree.ElementTree as ET
+
+from ..utils import remove_duplicates_from_list_of_dicts
 from ..wfs.httpsAdapter import get_legacy_session
 
 expr = re.compile(r"\{{1}.*\}{1}")
@@ -51,7 +53,7 @@ def get_wms_objects(request_response):
                 val = ":".join(item[1:]).strip('"')
             attributes[key] = val
         req_list.append(attributes)
-    return req_list
+    return remove_duplicates_from_list_of_dicts(req_list)
 
 
 

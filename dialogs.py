@@ -28,9 +28,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return Qgis.LayerFilters(
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
             )
-        else:
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
 
     def __init__(self, regionFetch, parent=None):
         """Constructor."""
@@ -62,10 +61,6 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def fill_services(self):
         self.wfs_service_cmbbx.clear()
         self.wfs_service_cmbbx.addItems(WFS_URL_MAPPING.keys())
-
-    def fill_wfs_services_data(self):
-        aktualna_warstwa = self.wfs_service_cmbbx.currentText()
-        self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
 
     def fill_wfs_services_data(self):
         aktualna_warstwa = self.wfs_service_cmbbx.currentText()

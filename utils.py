@@ -1,5 +1,7 @@
 import datetime
 from qgis.core import QgsCoordinateReferenceSystem
+from typing import List, Dict, Any
+
 import processing, sys, os
 from qgis.core import *
 
@@ -108,3 +110,14 @@ def create_report(file_path, headers, obj_list, file_name_from_url=True):
         for obj in obj_list:
             row = [str(obj.get(key, '')) for key in valid_headers.values()]
             report_file.write(','.join(row) + '\n')
+
+
+def remove_duplicates_from_list_of_dicts(dict_list: List[Dict[Any, Any]]) -> List[Dict[Any, Any]]:
+    seen = set()
+    unique_dict_list = []
+    for _dict in dict_list:
+        fset = frozenset(_dict.items())
+        if fset not in seen:
+            seen.add(fset)
+            unique_dict_list.append(_dict)
+    return unique_dict_list
