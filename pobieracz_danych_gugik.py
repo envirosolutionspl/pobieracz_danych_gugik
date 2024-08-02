@@ -2201,7 +2201,7 @@ class PobieraczDanychGugik:
 
     def no_area_specified_warning(self):
         self.iface.messageBar().pushMessage(
-            'Informacja',
+            'Ostrzeżenie',
             'Nie wskazano obszaru',
             level=Qgis.Warning,
             duration=5
