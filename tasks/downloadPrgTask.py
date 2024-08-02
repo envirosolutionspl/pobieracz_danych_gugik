@@ -24,7 +24,6 @@ class DownloadPrgTask(QgsTask):
 
     def finished(self, result):
         if result:
-            print(result)
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane PRG zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
