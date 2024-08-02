@@ -193,7 +193,7 @@ BDOT_FORMAT_URL_MAPPING = {
     'SHP': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/SHP/',
     'GML 2011': 'https://opendata.geoportal.gov.pl/bdot10k/',
     'GPKG': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/',
-    'GeoParquet': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GeoParquet/',
+    'BDOT10k_GeoParquet': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GeoParquet/',
 }
 
 
