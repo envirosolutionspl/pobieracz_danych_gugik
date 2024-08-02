@@ -1270,6 +1270,9 @@ class PobieraczDanychGugik:
             self.url = f"{PRG_URL}jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
+        if 'None' in self.url:
+            self.no_area_specified_warning()
+            return
         self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
 
         task = DownloadPrgTask(
@@ -1958,6 +1961,9 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.archiwalne_powiat_cmbbx.currentData()
         rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
 
@@ -2192,8 +2198,12 @@ class PobieraczDanychGugik:
             return True
 
     def no_area_specified_warning(self):
-        self.iface.messageBar().pushWarning(
-            "Ostrzeżenie:", 'Nie wskazano obszaru.')
+        self.iface.messageBar().pushMessage(
+            'Ostrzeżenie',
+            'Nie wskazano obszaru',
+            level=Qgis.Warning,
+            duration=5
+        )
 
     def show_no_connection_message(self):
         self.iface.messageBar().pushMessage(
