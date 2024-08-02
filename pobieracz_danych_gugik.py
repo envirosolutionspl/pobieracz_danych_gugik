@@ -1031,7 +1031,7 @@ class PobieraczDanychGugik:
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
         elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
-            format_danych = 'BDOT10k_GeoParquet'
+            format_danych = 'GeoParquet'
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
                                             level=Qgis.Info, duration=10)
