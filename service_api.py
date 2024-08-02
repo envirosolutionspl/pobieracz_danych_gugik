@@ -17,11 +17,9 @@ def getRequest(params, url):
                     return True, resp.text
                 else:
                     return False, f'Błąd {resp.status_code}'
-                
         except requests.exceptions.ConnectionError:
             attempt += 1
             time.sleep(2)
-        
         except requests.exceptions.ReadTimeout:
             attempt += 1
             time.sleep(2)
@@ -29,25 +27,22 @@ def getRequest(params, url):
 
 def retreiveFile(url, destFolder, obj):
     file_name = url.split('/')[-1]
-
     if '?' in file_name:
         file_name = (file_name.split('?')[-1].replace('=', '_')) + '.zip'
-    else:
-        pass
 
     if 'Budynki3D' in url:
         if 'LOD1' in url:
-            file_name = "Budynki_3D_LOD1_" + file_name
+            file_name = f"Budynki_3D_LOD1_{file_name}"
         elif 'LOD2' in url:
-            file_name = "Budynki_3D_LOD2_" + file_name
+            file_name = f"Budynki_3D_LOD2_{file_name}"
 
         if len(url.split('/')) == 9:
             file_name = url.split('/')[6] + '_' + file_name
 
     elif 'PRG' in url:
-        file_name = "PRG_" + file_name
-    elif 'bdot10k' in url and not 'Archiwum' in url:
-        file_name = "bdot10k_" + file_name
+        file_name = f"PRG_{file_name}"
+    elif 'bdot10k' in url and 'Archiwum' not in url:
+        file_name = f"bdot10k_{file_name}"
     elif 'Archiwum' in url and 'bdot10k' in url:
         file_name = "archiwalne_bdot10k_" + url.split('/')[5] + '_' + file_name
     elif 'bdoo' in url:
@@ -55,12 +50,12 @@ def retreiveFile(url, destFolder, obj):
     elif 'ZestawieniaZbiorczeEGiB' in url:
         file_name = "ZestawieniaZbiorczeEGiB_" + 'rok' + url.split('/')[4] + '_' + file_name
     elif 'osnowa' in url:
-        file_name = "podstawowa_osnowa_" + file_name
+        file_name = f"podstawowa_osnowa_{file_name}"
 
     path = os.path.join(destFolder, file_name)
-
     try:
-        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=40) as resp:
+        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=10) as resp:
+            print('dsfdff')
             if str(resp.status_code) == '404':
                 return False, "Plik nie istnieje"
             saved = True
@@ -82,11 +77,9 @@ def retreiveFile(url, destFolder, obj):
                 os.remove(path)
                 return False, "Pobieranie przerwane"
     except requests.exceptions.Timeout:
-        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
         return False, 'Przekroczono czas oczekiwania na odpowiedź serwera.'
-    except requests.exceptions.ConnectionError:
-        retreiveFile(url, destFolder)
-        return [True]
+    except requests.exceptions.ConnectionError as err:
+        return False, err
 
 def getAllLayers(url,service):
     params = {
