@@ -60,11 +60,15 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
 
     try:
-        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=40) as resp:
-            if str(resp.status_code) == '404':
-                return False, "Plik nie istnieje"
+        resp = get_legacy_session().get(url=url, verify=False, stream=True, timeout=10)
+        if str(resp.status_code) == '404':
+            return False, "Plik nie istnieje"
+        else:
             saved = True
             try:
+                if os.path.exists(path):
+                    os.remove(path)
+
                 with open(path, 'wb') as f:
                     for chunk in resp.iter_content(chunk_size=8192):
                         """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
@@ -77,16 +81,16 @@ def retreiveFile(url, destFolder, obj):
                 return False, "Błąd zapisu pliku"
             if saved:
                 utils.openFile(destFolder)
-                return [True]
+                return True
             else:
                 os.remove(path)
                 return False, "Pobieranie przerwane"
+            
     except requests.exceptions.Timeout:
-        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
-        return False, 'Przekroczono czas oczekiwania na odpowiedź serwera.'
+        return False
     except requests.exceptions.ConnectionError:
         retreiveFile(url, destFolder)
-        return [True]
+        return True
 
 def getAllLayers(url,service):
     params = {
@@ -114,9 +118,10 @@ def getAllLayers(url,service):
 
 def check_internet_connection():
     try:
-        with get_legacy_session().get(url='https://www.envirosolutions.pl', verify=False) as resp:
-            if resp.status_code != 200:
-                return False
+        resp = get_legacy_session().get(url='https://uldk.gugik.gov.pl/', verify=False, timeout=20)
+        if resp.status_code != 200:
+            return False
+        else:
             return True
     except requests.exceptions.ConnectionError:
         return False
