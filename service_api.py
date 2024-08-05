@@ -54,7 +54,7 @@ def retreiveFile(url, destFolder, obj):
 
     path = os.path.join(destFolder, file_name)
     try:
-        with get_legacy_session().get(url=url, verify=False, stream=True, timeout=40) as resp:
+        with get_legacy_session().get(url=url, verify=False, stream=True) as resp:
             if str(resp.status_code) == '404':
                 return False, "Plik nie istnieje"
             saved = True
@@ -62,6 +62,8 @@ def retreiveFile(url, destFolder, obj):
                 with open(path, 'wb') as f:
                     for chunk in resp.iter_content(chunk_size=8192):
                         """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
+                        if not check_internet_connection():
+                            return False, 'Połączenie zostało przerwane'
                         if obj.isCanceled():
                             resp.close()
                             saved = False
@@ -75,8 +77,6 @@ def retreiveFile(url, destFolder, obj):
             else:
                 os.remove(path)
                 return False, "Pobieranie przerwane"
-    except requests.exceptions.Timeout:
-        return False, 'Przekroczono czas oczekiwania na odpowiedź serwera.'
     except requests.exceptions.ConnectionError as err:
         return False, err
 
@@ -106,13 +106,12 @@ def getAllLayers(url,service):
 
 def check_internet_connection():
     try:
-        with get_legacy_session().get(url='https://www.envirosolutions.pl', verify=False) as resp:
-            if resp.status_code != 200:
-                return False
-            return True
+        with get_legacy_session().get(url='https://www.envirosolutions.pl', verify=False, timeout=10) as resp:
+            return resp.status_code == 200
+    except requests.exceptions.Timeout:
+        return False
     except requests.exceptions.ConnectionError:
         return False
-
 
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
