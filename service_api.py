@@ -66,8 +66,7 @@ def retreiveFile(url, destFolder, obj):
                 with open(path, 'wb') as f:
                     for chunk in resp.iter_content(chunk_size=8192):
                         """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                        if not check_internet_connection():
-                            return False, 'Połączenie zostało przerwane'
+
                         if obj.isCanceled():
                             resp.close()
                             saved = False
