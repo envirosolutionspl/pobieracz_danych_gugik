@@ -38,10 +38,10 @@ class DownloadWfsTask(QgsTask):
             status = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
-
+            
             self.setProgress(self.progress() + 100 / total)
         
-        return True if objs==total else False
+        return True if objs == total else False
 
     def finished(self, result):
         """
@@ -53,7 +53,7 @@ class DownloadWfsTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-
+        
         if result is True:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
@@ -66,7 +66,7 @@ class DownloadWfsTask(QgsTask):
         elif result is False:
             self.iface.messageBar().pushMessage(
                 'Ostrzeżenie:', 
-                'Przekroczono czas oczekiwania na odpowiedź serwera.',
+                'Nie pobrano pełnego zbioru danych',
                 level=Qgis.Warning,
                 duration=5)
         else:
