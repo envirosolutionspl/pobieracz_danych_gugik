@@ -11,16 +11,15 @@ def getRequest(params, url):
     max_attempts = 3
     attempt = 0
     while attempt <= max_attempts:
+        if not check_internet_connection():
+            return False, 'Połączenie zostało przerwane'
         try:
-            with get_legacy_session().get(url=url, params=params, verify=False, timeout=20) as resp:
+            with get_legacy_session().get(url=url, params=params, verify=False) as resp:
                 if resp.status_code == 200:
                     return True, resp.text
                 else:
                     return False, f'Błąd {resp.status_code}'
         except requests.exceptions.ConnectionError:
-            attempt += 1
-            time.sleep(2)
-        except requests.exceptions.ReadTimeout:
             attempt += 1
             time.sleep(2)
 
@@ -54,39 +53,36 @@ def retreiveFile(url, destFolder, obj):
 
     path = os.path.join(destFolder, file_name)
     try:
-        resp = get_legacy_session().get(url=url, verify=False, stream=True, timeout=10)
+        resp = get_legacy_session().get(url=url, verify=False, stream=True)
         if str(resp.status_code) == '404':
             return False, "Plik nie istnieje"
-        else:
-            saved = True
-            try:
-                if os.path.exists(path):
-                    os.remove(path)
-
-                with open(path, 'wb') as f:
-                    for chunk in resp.iter_content(chunk_size=8192):
-                        """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                        if not check_internet_connection():
-                            return False, 'Połączenie zostało przerwane'
-                        if obj.isCanceled():
-                            resp.close()
-                            saved = False
-                            break
-                        f.write(chunk)
-            except IOError:
-                return False, "Błąd zapisu pliku"
-            if saved:
-                utils.openFile(destFolder)
-                return True
-            else:
+        saved = True
+        try:
+            if os.path.exists(path):
                 os.remove(path)
-                return False, "Pobieranie przerwane" 
-    except requests.exceptions.Timeout:
-        return False
+            with open(path, 'wb') as f:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
+                    if not check_internet_connection():
+                        return False, 'Połączenie zostało przerwane'
+                    if obj.isCanceled():
+                        resp.close()
+                        saved = False
+                        break
+                    f.write(chunk)
+        except IOError:
+            return False, "Błąd zapisu pliku"
+        if saved:
+            utils.openFile(destFolder)
+            return True
+        else:
+            cleanup_file(path)
+            return False, "Pobieranie przerwane"
     except requests.exceptions.ConnectionError as err:
         return False, err
 
-def getAllLayers(url,service):
+
+def getAllLayers(url, service):
     params = {
         'SERVICE': service,
         'request': 'GetCapabilities',
@@ -103,7 +99,6 @@ def getAllLayers(url,service):
     
     parser = ET.XMLParser(recover=True)
     tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
-    root = tree.getroot()
 
     # To find elements with tag 'element'
     layers = [el.text for el in tree.iter() if 'Name' in str(el.tag) and str(el.text) != 'WMS']
@@ -118,6 +113,12 @@ def check_internet_connection():
         return False
     except requests.exceptions.ConnectionError:
         return False
+
+
+def cleanup_file(path):
+    if os.path.exists(path):
+        os.remove(path)
+
 
 if __name__ == '__main__':
     url = "https://opendata.geoportal.gov.pl/ortofotomapa/73214/73214_897306_N-34-91-C-d-1-4.tif"
