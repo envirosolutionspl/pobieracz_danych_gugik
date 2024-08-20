@@ -1,4 +1,3 @@
-import zipfile
 from qgis.utils import iface
 
 from . import utils
