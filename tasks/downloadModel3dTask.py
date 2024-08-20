@@ -12,7 +12,6 @@ class DownloadModel3dTask(QgsTask):
     """QgsTask pobierania PRG"""
 
     def __init__(self, description, folder, teryt_powiat, teryt_wojewodztwo, standard, data_lista, iface):
-
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
         self.exception = None
@@ -42,17 +41,17 @@ class DownloadModel3dTask(QgsTask):
             )
         for url in list_url:
             with get_legacy_session().get(url=url, verify=False) as resp:
-                if str(resp.status_code) == '200':
-                    if self.isCanceled():
-                        QgsMessageLog.logMessage('isCanceled')
-                        return False
-                    self.liczba_dobrych_url.append(url)
-                    QgsMessageLog.logMessage(f'pobieram {url}')
-                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                if str(resp.status_code) != '200':
+                    return False
+                if self.isCanceled():
+                    QgsMessageLog.logMessage('isCanceled')
+                    return False
+                self.liczba_dobrych_url.append(url)
+                QgsMessageLog.logMessage(f'pobieram {url}')
+                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
         return len(self.liczba_dobrych_url) != 0
 
     def finished(self, result):
-
         if result:
             msgbox = QMessageBox(
                 QMessageBox.Information,
@@ -85,7 +84,7 @@ class DownloadModel3dTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage('exception')
-                raise self.exception
+                raise ConnectionError(self.exception)
 
 
     def cancel(self):

@@ -46,7 +46,12 @@ class DownloadEgibExcelTask(QgsTask):
                         QgsMessageLog.logMessage('isCanceled')
                         return False
                     QgsMessageLog.logMessage('pobieram ' + url)
-                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                    res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                    if not res:
+                        self.exception = exp
+                        return False
+                else:
+                    return False
         if self.isCanceled():
             return False
         return True
@@ -65,7 +70,7 @@ class DownloadEgibExcelTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage('exception')
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane zestawień zbiorczych EGiB nie zostały pobrane.'

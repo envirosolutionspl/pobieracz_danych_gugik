@@ -17,6 +17,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.exception = None
         self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip'
         self.iface = iface
+        self.result = None
 
     def run(self):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
@@ -26,16 +27,13 @@ class DownloadArchiwalnyBdotTask(QgsTask):
                 return False
             else:
                 self.page_exist = 'YES'
-                QgsMessageLog.logMessage('pobieram ' + self.url)
+                QgsMessageLog.logMessage(f'pobieram {self.url}')
                 # fileName = self.url.split("/")[-1]
-                service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-                if self.isCanceled():
-                    return False
-                return True
+                self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+                return not self.isCanceled()
 
 
     def finished(self, result):
-
         if self.page_exist == 'NO':
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
@@ -49,7 +47,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Archiwalne dane BDOT10k nie zostały pobrane.")
 

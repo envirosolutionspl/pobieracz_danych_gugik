@@ -39,7 +39,7 @@ class DownloadMesh3dTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage('exception')
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushMessage(
                 'Błąd',
                 'Dane modelu siatkowego 3D nie zostały pobrane.',

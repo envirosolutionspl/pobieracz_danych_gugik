@@ -38,10 +38,8 @@ class DownloadWfsTask(QgsTask):
             status = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
-            
             self.setProgress(self.progress() + 100 / total)
-        
-        return True if objs == total else False
+        return objs == total
 
     def finished(self, result):
         """

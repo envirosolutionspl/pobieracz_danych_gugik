@@ -1,3 +1,4 @@
+import zipfile
 from qgis.utils import iface
 
 from . import utils
@@ -22,7 +23,6 @@ def getRequest(params, url):
         except requests.exceptions.ConnectionError:
             attempt += 1
             time.sleep(2)
-
 
 def retreiveFile(url, destFolder, obj):
     file_name = url.split('/')[-1]
@@ -55,6 +55,7 @@ def retreiveFile(url, destFolder, obj):
     try:
         resp = get_legacy_session().get(url=url, verify=False, stream=True)
         if str(resp.status_code) == '404':
+            resp.close()
             return False, "Plik nie istnieje"
         saved = True
         try:
@@ -72,6 +73,7 @@ def retreiveFile(url, destFolder, obj):
                     f.write(chunk)
         except IOError:
             return False, "Błąd zapisu pliku"
+        resp.close()
         if saved:
             utils.openFile(destFolder)
             return True
@@ -79,6 +81,7 @@ def retreiveFile(url, destFolder, obj):
             cleanup_file(path)
             return False, "Pobieranie przerwane"
     except requests.exceptions.ConnectionError as err:
+        cleanup_file(path)
         return False, err
 
 

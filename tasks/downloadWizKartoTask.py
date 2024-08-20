@@ -60,7 +60,7 @@ class DownloadWizKartoTask(QgsTask):
 
             else:
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushWarning("Błąd",
                                             "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane.")
 
