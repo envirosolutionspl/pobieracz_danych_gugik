@@ -34,9 +34,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-59</y>
-         <width>361</width>
-         <height>1338</height>
+         <y>0</y>
+         <width>382</width>
+         <height>877</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -144,9 +144,9 @@
           <property name="title">
            <string>Sposób wyszukiwania danych</string>
           </property>
-             <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>          
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <layout class="QGridLayout" name="gridLayout_8">
@@ -203,9 +203,9 @@
           <property name="title">
            <string>Scieżka zapisu plików</string>
           </property>
-             <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>          
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QgsFileWidget" name="folder_fileWidget"/>
@@ -617,8 +617,8 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>             
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="nmt_rdbtn">
@@ -646,8 +646,8 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>             
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="arcinfo_rdbtn">
@@ -678,8 +678,8 @@
               <string>Układ współrzędnych wysokościowych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>             
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_55">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="kron86_rdbtn">
@@ -987,8 +987,8 @@
               <string>Układ współrzędnych wysokościowych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>             
+              <set>Qt::AlignCenter</set>
+             </property>
              <layout class="QHBoxLayout" name="horizontalLayout_56">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="las_kron86_rdbtn">
@@ -1590,6 +1590,12 @@
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="maxVisibleItems">
+                 <number>10</number>
+                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -1605,7 +1611,14 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="powiat_cmbbx"/>
+               <widget class="QComboBox" name="powiat_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="maxVisibleItems">
+                 <number>10</number>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -1691,10 +1704,17 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
+               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -1774,7 +1794,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_15">
               <item>
@@ -1842,7 +1862,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="bdoo_wojewodztwo_cmbbx"/>
+               <widget class="QComboBox" name="bdoo_wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -1925,7 +1949,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -1970,7 +1994,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
@@ -2046,7 +2070,7 @@
            <string/>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 9px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 18px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 27px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 36px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 9px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 18px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 27px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 36px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -2091,7 +2115,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2138,7 +2162,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2330,7 +2354,7 @@
               <string>Standard</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2356,7 +2380,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
@@ -2682,7 +2706,7 @@
               <string>Zakres zestawień</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2718,7 +2742,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
@@ -2879,7 +2903,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2989,7 +3013,7 @@
                  <string>Typ osnowy</string>
                 </property>
                 <property name="alignment">
-                  <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_25">
                  <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -3083,7 +3107,7 @@
                  <string>Rodzaj katalogów</string>
                 </property>
                 <property name="alignment">
-                  <set>Qt::AlignHCenter|Qt::AlignTop</set>
+                 <set>Qt::AlignCenter</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_27">
                  <item>
@@ -3304,7 +3328,7 @@
               <string>Skala</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -3438,7 +3462,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -3473,7 +3497,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
@@ -3542,6 +3566,12 @@
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+                <property name="maxVisibleItems">
+                 <number>10</number>
+                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -3557,7 +3587,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="archiwalne_powiat_cmbbx"/>
+               <widget class="QComboBox" name="archiwalne_powiat_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
