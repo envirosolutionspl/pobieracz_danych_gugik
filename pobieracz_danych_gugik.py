@@ -1330,8 +1330,22 @@ class PobieraczDanychGugik:
             msgbox.exec_()
             return False
 
-        od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
-        do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
+        od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
+        do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
+
+        try:
+            od_data = int(od_data_text)
+        except ValueError:
+            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowa data początkowa.")
+            msgbox.exec_()
+            return False   
+        try:
+            do_data = int(do_data_text)
+        except ValueError:
+            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowa data początkowa.")
+            msgbox.exec_()
+            return False                  
+
         roznica = do_data - od_data
 
         data_lista = []
