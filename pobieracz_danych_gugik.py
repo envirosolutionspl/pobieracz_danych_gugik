@@ -17,7 +17,7 @@ from .tasks import (
     DownloadTrees3dTask
 )
 import processing
-
+from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
 import requests
@@ -1325,37 +1325,56 @@ class PobieraczDanychGugik:
         elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
             standard = ["LOD1", "LOD2"]
         elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Nie wybrano standardu")
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:", "Nie wybrano standardu")
             msgbox.exec_()
             return False
 
         od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
         do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
 
-        try:
-            od_data = int(od_data_text)
-        except ValueError:
-            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowa data początkowa.")
-            msgbox.exec_()
-            return False   
-        try:
-            do_data = int(do_data_text)
-        except ValueError:
-            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowa data początkowa.")
-            msgbox.exec_()
-            return False                  
+        def model3d_poprawnosc_dat(od_data_text, do_data_text):
+            current_year = datetime.now().year
+            min_year = 1970
+
+            try:
+                od_data = int(od_data_text)
+                if od_data < min_year or od_data > current_year:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data początkowa musi być w przedziale od {min_year} do {current_year}.")
+                    msgbox.exec_()
+                    return False, None, None
+            except ValueError:
+                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowy format daty początkowej.")
+                msgbox.exec_()
+                return False, None, None
+
+            try:
+                do_data = int(do_data_text)
+                if do_data < min_year or do_data > current_year:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data końcowa musi być w przedziale od {min_year} do {current_year}.")
+                    msgbox.exec_()
+                    return False, None, None
+            except ValueError:
+                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowy format daty końcowej.")
+                msgbox.exec_()
+                return False, None, None
+
+            return True, od_data, do_data
+
+        valid, od_data, do_data = model3d_poprawnosc_dat(od_data_text, do_data_text)
+
+        if not valid:
+            return False
 
         roznica = do_data - od_data
 
         data_lista = []
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
+                                f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
-            for rok in range(int(od_data), int(do_data) + 1):
+            for rok in range(od_data, do_data + 1):
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
@@ -1377,6 +1396,7 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
+
 
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
