@@ -1,3 +1,5 @@
+from datetime import datetime
+
 AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
 BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
 BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
@@ -29,7 +31,6 @@ ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewo
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
-from datetime import datetime
 CURRENT_YEAR = datetime.now().year
 MIN_YEAR_BUILDINGS_3D = 1970
 

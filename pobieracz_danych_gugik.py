@@ -1307,6 +1307,31 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
+    def model3d_poprawnosc_dat(self, od_data_text, do_data_text):
+        od_data = None
+        do_data = None
+        for data_text, label in [(od_data_text, "początkowa"), (do_data_text, "końcowa")]:
+            try:
+                year = int(data_text)
+                
+                if year < MIN_YEAR_BUILDINGS_3D or year > CURRENT_YEAR:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {label} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
+                    msgbox.exec_()
+                    return False, None, None
+                
+                if label == "początkowa":
+                    od_data = year
+                elif label == "końcowa":
+                    do_data = year
+            
+            except ValueError:
+                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {label}.")
+                msgbox.exec_()
+                return False, None, None
+            
+        return True, od_data, do_data
+
+
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
         connection = service_api.check_internet_connection()
@@ -1332,25 +1357,7 @@ class PobieraczDanychGugik:
         od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
         do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
 
-        def model3d_poprawnosc_dat(od_data_text, do_data_text):
-            for data_text, label in [(od_data_text, "początkowa"), (do_data_text, "końcowa")]:
-                try:
-                    year = int(data_text)
-                    if year < MIN_YEAR_BUILDINGS_3D  or year > CURRENT_YEAR:
-                        msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {label} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D } do {CURRENT_YEAR}.")
-                        msgbox.exec_()
-                        return False, None, None
-                    if label == "początkowa":
-                        od_data = year
-                    else:
-                        do_data = year
-                except ValueError:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {label}.")
-                    msgbox.exec_()
-                    return False, None, None
-            return True, od_data, do_data
-
-        valid, od_data, do_data = model3d_poprawnosc_dat (od_data_text, do_data_text)
+        valid, od_data, do_data = self.model3d_poprawnosc_dat(od_data_text, do_data_text)
 
         if not valid:
             return False
@@ -1386,7 +1393,6 @@ class PobieraczDanychGugik:
         )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
-
 
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
