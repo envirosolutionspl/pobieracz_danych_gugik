@@ -17,7 +17,7 @@ from .tasks import (
     DownloadTrees3dTask
 )
 import processing
-
+from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
 import requests
@@ -1325,23 +1325,46 @@ class PobieraczDanychGugik:
         elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
             standard = ["LOD1", "LOD2"]
         elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Nie wybrano standardu")
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:", "Nie wybrano standardu")
             msgbox.exec_()
             return False
 
-        od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
-        do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
+        od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
+        do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
+
+        def model3d_poprawnosc_dat(od_data_text, do_data_text):
+            for data_text, label in [(od_data_text, "początkowa"), (do_data_text, "końcowa")]:
+                try:
+                    year = int(data_text)
+                    if year < MIN_YEAR_BUILDINGS_3D  or year > CURRENT_YEAR:
+                        msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {label} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D } do {CURRENT_YEAR}.")
+                        msgbox.exec_()
+                        return False, None, None
+                    if label == "początkowa":
+                        od_data = year
+                    else:
+                        do_data = year
+                except ValueError:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {label}.")
+                    msgbox.exec_()
+                    return False, None, None
+            return True, od_data, do_data
+
+        valid, od_data, do_data = model3d_poprawnosc_dat (od_data_text, do_data_text)
+
+        if not valid:
+            return False
+
         roznica = do_data - od_data
 
         data_lista = []
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
+                                f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
-            for rok in range(int(od_data), int(do_data) + 1):
+            for rok in range(od_data, do_data + 1):
                 data_lista.append(rok)
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
