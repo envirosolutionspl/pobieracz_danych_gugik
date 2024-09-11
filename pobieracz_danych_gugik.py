@@ -5,7 +5,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING
+from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, MIN_YEAR_BUILDINGS_3D
 
 from .uldk import RegionFetch
 from .tasks import (
@@ -1333,34 +1333,24 @@ class PobieraczDanychGugik:
         do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
 
         def model3d_poprawnosc_dat(od_data_text, do_data_text):
-            current_year = datetime.now().year
-            min_year = 1970
-
-            try:
-                od_data = int(od_data_text)
-                if od_data < min_year or od_data > current_year:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data początkowa musi być w przedziale od {min_year} do {current_year}.")
+            for data_text, label in [(od_data_text, "początkowa"), (do_data_text, "końcowa")]:
+                try:
+                    year = int(data_text)
+                    if year < MIN_YEAR_BUILDINGS_3D  or year > CURRENT_YEAR:
+                        msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {label} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D } do {CURRENT_YEAR}.")
+                        msgbox.exec_()
+                        return False, None, None
+                    if label == "początkowa":
+                        od_data = year
+                    else:
+                        do_data = year
+                except ValueError:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {label}.")
                     msgbox.exec_()
                     return False, None, None
-            except ValueError:
-                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowy format daty początkowej.")
-                msgbox.exec_()
-                return False, None, None
-
-            try:
-                do_data = int(do_data_text)
-                if do_data < min_year or do_data > current_year:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data końcowa musi być w przedziale od {min_year} do {current_year}.")
-                    msgbox.exec_()
-                    return False, None, None
-            except ValueError:
-                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", "Nieprawidłowy format daty końcowej.")
-                msgbox.exec_()
-                return False, None, None
-
             return True, od_data, do_data
 
-        valid, od_data, do_data = model3d_poprawnosc_dat(od_data_text, do_data_text)
+        valid, od_data, do_data = model3d_poprawnosc_dat (od_data_text, do_data_text)
 
         if not valid:
             return False

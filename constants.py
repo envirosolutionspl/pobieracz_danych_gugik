@@ -29,6 +29,10 @@ ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewo
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
+from datetime import datetime
+CURRENT_YEAR = datetime.now().year
+MIN_YEAR_BUILDINGS_3D = 1970
+
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',
     'orto_pixelTo_lineEdit',
