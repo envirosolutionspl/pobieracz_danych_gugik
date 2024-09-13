@@ -5,7 +5,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, MIN_YEAR_BUILDINGS_3D
+from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
 from .uldk import RegionFetch
 from .tasks import (
@@ -1307,29 +1307,32 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    def model3d_poprawnosc_dat(self, od_data_text, do_data_text):
-        od_data = None
-        do_data = None
-        for data_text, label in [(od_data_text, "początkowa"), (do_data_text, "końcowa")]:
-            try:
-                year = int(data_text)
-                
-                if year < MIN_YEAR_BUILDINGS_3D or year > CURRENT_YEAR:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {label} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
+    def model3d_poprawnosc_dat(self, dict_od_do_data):
+        """
+        Funkcja sprawdza warunki dla zakresu dat w których zostały opracowane modele LOD budynków
+        """
+
+        od_data = ""
+        do_data = ""
+
+        try:
+            od_data = int(dict_od_do_data.get("początkowa"))
+            do_data = int(dict_od_do_data.get("końcowa"))
+            
+            for year in [od_data, do_data]:
+                if year not in OKRES_DOSTEPNYCH_DANYCH_LOD:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {"początkowa" if year == od_data else "końcowa"} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
                     msgbox.exec_()
                     return False, None, None
-                
-                if label == "początkowa":
-                    od_data = year
-                elif label == "końcowa":
-                    do_data = year
-            
-            except ValueError:
-                msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {label}.")
-                msgbox.exec_()
-                return False, None, None
-            
-        return True, od_data, do_data
+        
+        except ValueError as err:
+            error_value = err.args[0].split(" ")[-1]
+            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {error_value}.")
+            msgbox.exec_()
+            return False, None, None
+        
+        else:
+            return True, od_data, do_data
 
 
     def model3d_selected_powiat_btn_clicked(self):
@@ -1357,22 +1360,25 @@ class PobieraczDanychGugik:
         od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
         do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
 
-        valid, od_data, do_data = self.model3d_poprawnosc_dat(od_data_text, do_data_text)
+        dict_od_do_data = {
+            "początkowa":od_data_text,
+            "końcowa": do_data_text,
+        }
+
+        valid, od_data, do_data = self.model3d_poprawnosc_dat(dict_od_do_data)
 
         if not valid:
             return False
 
         roznica = do_data - od_data
 
-        data_lista = []
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
-            for rok in range(od_data, do_data + 1):
-                data_lista.append(rok)
+            data_lista = [rok for rok in range(od_data, do_data + 1)]
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
         if not powiat_name:
