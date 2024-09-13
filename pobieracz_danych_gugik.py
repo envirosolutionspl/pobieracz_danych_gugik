@@ -5,7 +5,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING
+from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
 from .uldk import RegionFetch
 from .tasks import (
@@ -17,7 +17,7 @@ from .tasks import (
     DownloadTrees3dTask
 )
 import processing
-
+from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
 import requests
@@ -1307,6 +1307,34 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
+    def model3d_poprawnosc_dat(self, dict_od_do_data):
+        """
+        Funkcja sprawdza warunki dla zakresu dat w których zostały opracowane modele LOD budynków
+        """
+
+        od_data = ""
+        do_data = ""
+
+        try:
+            od_data = int(dict_od_do_data.get("początkowa"))
+            do_data = int(dict_od_do_data.get("końcowa"))
+            
+            for year in [od_data, do_data]:
+                if year not in OKRES_DOSTEPNYCH_DANYCH_LOD:
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {"początkowa" if year == od_data else "końcowa"} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
+                    msgbox.exec_()
+                    return False, None, None
+        
+        except ValueError as err:
+            error_value = err.args[0].split(" ")[-1]
+            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {error_value}.")
+            msgbox.exec_()
+            return False, None, None
+        
+        else:
+            return True, od_data, do_data
+
+
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
         connection = service_api.check_internet_connection()
@@ -1325,24 +1353,32 @@ class PobieraczDanychGugik:
         elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
             standard = ["LOD1", "LOD2"]
         elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Nie wybrano standardu")
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:", "Nie wybrano standardu")
             msgbox.exec_()
             return False
 
-        od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
-        do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
+        od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
+        do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
+
+        dict_od_do_data = {
+            "początkowa":od_data_text,
+            "końcowa": do_data_text,
+        }
+
+        valid, od_data, do_data = self.model3d_poprawnosc_dat(dict_od_do_data)
+
+        if not valid:
+            return False
+
         roznica = do_data - od_data
 
-        data_lista = []
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
+                                f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
-            for rok in range(int(od_data), int(do_data) + 1):
-                data_lista.append(rok)
+            data_lista = [rok for rok in range(od_data, do_data + 1)]
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
         if not powiat_name:
