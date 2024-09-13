@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>402</width>
-    <height>919</height>
+    <width>396</width>
+    <height>903</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -35,8 +35,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>382</width>
-         <height>877</height>
+         <width>376</width>
+         <height>859</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -233,7 +233,11 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wfs_service_cmbbx"/>
+               <widget class="QComboBox" name="wfs_service_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_19">
@@ -243,7 +247,11 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="wfs_layer_cmbbx"/>
+               <widget class="QComboBox" name="wfs_layer_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
