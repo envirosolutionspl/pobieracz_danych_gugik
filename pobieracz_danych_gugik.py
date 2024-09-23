@@ -1321,7 +1321,7 @@ class PobieraczDanychGugik:
             
             for year in [od_data, do_data]:
                 if year not in OKRES_DOSTEPNYCH_DANYCH_LOD:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {"początkowa" if year == od_data else "końcowa"} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
+                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
                     msgbox.exec_()
                     return False, None, None
         
