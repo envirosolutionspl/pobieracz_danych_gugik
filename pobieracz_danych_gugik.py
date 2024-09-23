@@ -1463,23 +1463,37 @@ class PobieraczDanychGugik:
             return
         egib_excel_zakres_danych = ''
 
-        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'powiat'
-        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'wojew'
-        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'kraj'
-
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-        if not powiatName:
-            self.no_area_specified_warning()
-            return
+        wojName = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentText()
         teryt_powiat = self.dockwidget.egib_excel_powiat_cmbbx.currentData()
+        terytWoj = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentData()
 
-        self.iface.messageBar().pushMessage("Informacja",
+        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'powiat'
+            if not powiatName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
                                             level=Qgis.Info, duration=10)
+        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'wojew'
+            if not wojName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {wojName}({terytWoj}) z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'kraj'
+            self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla całej Polski z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+
+        
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1487,7 +1501,7 @@ class PobieraczDanychGugik:
             egib_excel_zakres_danych=egib_excel_zakres_danych,
             rok=rok,
             teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2],
+            teryt_wojewodztwo=terytWoj,
             iface=self.iface
         )
 
