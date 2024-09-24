@@ -22,12 +22,16 @@ class DownloadOsnowaTask(QgsTask):
         for typ in self.typ:
             url = f"{OSNOWA_WMS_URL}teryt={self.teryt_powiat}&typ={typ}"
             with get_legacy_session().get(url, verify=False) as resp:
-                if str(resp.status_code) == '200':
-                    if self.isCanceled():
-                        QgsMessageLog.logMessage('isCanceled')
-                        return False
-                    QgsMessageLog.logMessage(f'pobieram {url}')
-                    service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                if str(resp.status_code) != '200':
+                    return False
+                if self.isCanceled():
+                    QgsMessageLog.logMessage('isCanceled')
+                    return False
+                QgsMessageLog.logMessage(f'pobieram {url}')
+                res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                if not res:
+                    self.exception = exp
+                    return False
         return True
 
     def finished(self, result):
@@ -44,7 +48,7 @@ class DownloadOsnowaTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage('exception')
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane podstawowej osnowy geodezyjnej nie zostały pobrane.'

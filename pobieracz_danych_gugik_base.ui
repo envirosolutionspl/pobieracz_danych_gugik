@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>396</width>
-    <height>903</height>
+    <width>402</width>
+    <height>919</height>
    </rect>
   </property>
   <property name="windowIcon">
@@ -34,9 +34,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>376</width>
-         <height>859</height>
+         <y>-59</y>
+         <width>361</width>
+         <height>1338</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -233,11 +233,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QComboBox" name="wfs_service_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="wfs_service_cmbbx"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_19">
@@ -247,11 +243,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="wfs_layer_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="wfs_layer_cmbbx"/>
               </item>
              </layout>
             </widget>
@@ -1598,12 +1590,6 @@
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="wojewodztwo_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="maxVisibleItems">
-                 <number>10</number>
-                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -1619,14 +1605,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="powiat_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="maxVisibleItems">
-                 <number>10</number>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="powiat_cmbbx"/>
               </item>
              </layout>
             </widget>
@@ -1712,17 +1691,10 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="wfs_egib_powiat_cmbbx"/>
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="wfs_egib_wojewodztwo_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -1870,11 +1842,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="bdoo_wojewodztwo_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="bdoo_wojewodztwo_cmbbx"/>
               </item>
              </layout>
             </widget>
@@ -2078,7 +2046,7 @@
            <string/>
           </property>
           <property name="styleSheet">
-           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 9px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 18px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 27px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 36px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}</string>
+           <string notr="true">QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 4px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;} QgsCollapsibleGroupBoxBasic { border: none; }QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 1px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 2px;}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 9px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 18px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 27px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}QgsCollapsibleGroupBoxBasic, QgsCollapsibleGroupBox {  margin-top: 36px;}QgsCollapsibleGroupBoxBasic::title, QgsCollapsibleGroupBox::title {  subcontrol-origin: margin;  subcontrol-position: top left;  margin-left: 20px;  margin-right: 5px;  left: 0px;  top: 9px;  background-color: rgba(0,0,0,0)}</string>
           </property>
           <property name="title">
            <string>PRG</string>
@@ -2408,122 +2376,37 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="model3d_dateEdit_comboBox_1">
+               <widget class="QDateEdit" name="model3d_dateEdit_1">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="editable">
-                 <bool>true</bool>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
-                <item>
-                <property name="text">
-                  <string>2004</string>
+                <property name="showGroupSeparator" stdset="0">
+                 <bool>false</bool>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2005</string>
+                <property name="time">
+                 <time>
+                  <hour>0</hour>
+                  <minute>0</minute>
+                  <second>0</second>
+                 </time>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2006</string>
+                <property name="displayFormat">
+                 <string>yyyy</string>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2007</string>
+                <property name="date">
+                 <date>
+                  <year>2019</year>
+                  <month>1</month>
+                  <day>1</day>
+                 </date>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2008</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2009</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2010</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2011</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2012</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2013</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2014</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2015</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2016</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2017</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2018</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2019</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2020</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2021</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2022</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2023</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2024</string>
-                </property>
-                </item>
-              </widget>
+               </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_23">
@@ -2545,122 +2428,30 @@
                </widget>
               </item>
               <item>
-              <widget class="QComboBox" name="model3d_dateEdit_comboBox_2">
+               <widget class="QDateEdit" name="model3d_dateEdit_2">
                 <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
-                </sizepolicy>
+                 </sizepolicy>
                 </property>
-                <property name="editable">
-                <bool>true</bool>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
                 </property>
-                <item>
-                <property name="text">
-                  <string>2004</string>
+                <property name="buttonSymbols">
+                 <enum>QAbstractSpinBox::UpDownArrows</enum>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2005</string>
+                <property name="displayFormat">
+                 <string>yyyy</string>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2006</string>
+                <property name="date">
+                 <date>
+                  <year>2022</year>
+                  <month>1</month>
+                  <day>1</day>
+                 </date>
                 </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2007</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2008</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2009</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2010</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2011</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2012</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2013</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2014</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2015</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2016</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2017</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2018</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2019</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2020</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2021</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2022</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2023</string>
-                </property>
-                </item>
-                <item>
-                <property name="text">
-                  <string>2024</string>
-                </property>
-                </item>                
-              </widget>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -3751,12 +3542,6 @@
               </item>
               <item row="0" column="1">
                <widget class="QComboBox" name="archiwalne_wojewodztwo_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-                <property name="maxVisibleItems">
-                 <number>10</number>
-                </property>
                 <item>
                  <property name="text">
                   <string/>
@@ -3772,11 +3557,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QComboBox" name="archiwalne_powiat_cmbbx">
-                <property name="editable">
-                 <bool>true</bool>
-                </property>
-               </widget>
+               <widget class="QComboBox" name="archiwalne_powiat_cmbbx"/>
               </item>
              </layout>
             </widget>

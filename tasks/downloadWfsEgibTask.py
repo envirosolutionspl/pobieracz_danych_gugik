@@ -73,7 +73,7 @@ class DownloadWfsEgibTask(QgsTask):
 
             else:
                 QgsMessageLog.logMessage(self.exception)
-                raise self.exception
+                raise ConnectionError(self.exception)
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

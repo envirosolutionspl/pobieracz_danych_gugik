@@ -19,24 +19,19 @@ class DownloadTrees3dTask(QgsTask):
         self.teryt_powiat = teryt_powiat
         self.result = None
         self.iface = iface
-        self.liczba_poprawny_plik = []
 
     def run(self):
         trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         with get_legacy_session().get(url=trees_url, verify=False) as resp:
-            if str(resp.status_code) == '200':
-                if self.isCanceled():
-                    QgsMessageLog.logMessage('isCanceled')
-                    return False
-                self.liczba_poprawny_plik.append(trees_url)
-                QgsMessageLog.logMessage(f'pobieram {trees_url}')
-                self.result = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
-
-        if len(self.liczba_poprawny_plik) == 0:
-            return False
-        else:
-            return True
+            if str(resp.status_code) != '200':
+                return False
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
+            QgsMessageLog.logMessage(f'pobieram {trees_url}')
+            self.result, self.exception = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
+        return self.result
 
     def finished(self, result):
         if result:
@@ -60,8 +55,7 @@ class DownloadTrees3dTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
-
+                raise ConnectionError(self.exception)
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

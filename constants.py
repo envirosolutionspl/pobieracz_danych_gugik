@@ -1,5 +1,3 @@
-from datetime import datetime
-
 AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
 BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
 BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
@@ -30,10 +28,6 @@ ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wyni
 ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
-
-CURRENT_YEAR = datetime.now().year
-MIN_YEAR_BUILDINGS_3D = 1970
-OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR)
 
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',

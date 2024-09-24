@@ -39,7 +39,7 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             else:
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
+                raise ConnectionError(self.exception)
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Dane opracowania tyflologicznego nie zostały pobrane.")
 
