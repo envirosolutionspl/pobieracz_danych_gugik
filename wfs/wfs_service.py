@@ -8,7 +8,7 @@ try:
 except ImportError:
     from wfs.utils import getTypenamesFromWFS
     from wfs.utils import roundCoordinatesOfWkt
-from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject
+from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsGeometry, QgsRectangle, QgsWkbTypes
 
 
 class WfsFetch:
@@ -70,36 +70,76 @@ class WfsFetch:
         return sub_geometries
 
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
+        """
+        Funkcja pobierająca dane z WFS, dzieląc geometrię na mniejsze części.
+        
+        :param layer: Warstwa, dla której wykonujemy zapytanie.
+        :param wfsService: Nazwa usługi WFS.
+        :param typename: Typ danych.
+        :return: Lista warstw z wynikami WFS.
+        """
         wfsUrl = WFS_URL_MAPPING[wfsService]
         wfsTypename = self.cachedTypenamesDict[wfsService][typename]
+        
+        # Dynamiczne zarządzanie tolerancją
+        area = layer.extent().area()
+
+        # Agregacja i uproszczenie geometrii
         aggregation = processing.run("native:aggregate",
-                       {'INPUT': layer,
-                        'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})
+                    {'INPUT': layer,
+                    'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})
+
         simplification = processing.run("native:simplifygeometries",
-                       {'INPUT': aggregation['OUTPUT'],
-                        'METHOD': 1, 'TOLERANCE': 100, 'OUTPUT': 'TEMPORARY_OUTPUT'})
+                    {'INPUT': aggregation['OUTPUT'],
+                    'METHOD': 1, 'TOLERANCE': 100, 'OUTPUT': 'TEMPORARY_OUTPUT'})
+
         simpleLayer = simplification['OUTPUT']
         feat = next(simpleLayer.getFeatures())
         geom = feat.geometry()
-        wkt = geom.asWkt()
-        wkt = roundCoordinatesOfWkt(wkt)    # zaokrąglanie współrzędnych do liczb całkowitych
+        geometry_type = feat.geometry().type()
 
+        # Jeżeli geometria nie jest punktowa, podziel ją na mniejsze fragmenty
+        geometries = [geom] if geometry_type == QgsWkbTypes.PointGeometry else self.divideGeometry(geom, 6)
 
+        # Inicjalizacja danych WFS (jeden raz)
         dsu = QgsDataSourceUri()
         dsu.setParam('url', wfsUrl)
         dsu.setParam('version', '2.0.0')
         dsu.setParam('typename', wfsTypename)
-        # dsu.setParam( 'maxNumFeatures', '10')
-        # dsu.setParam('srsname', 'urn:ogc:def:crs:EPSG::3857')
         dsu.setParam('srsname', 'EPSG:2180')
-        dsu.setParam('filter', "intersects($geometry, geomFromWKT('%s'))" % wkt)
 
-        # dsu.setParam( 'filter', "intersects($geometry, geomFromWKT('Polygon ((17.84319299999999942 52.99999700000000047, 18.18789100000000047 52.93750200000000206, 18.31216900000000081 52.79166599999999931, 18.06204899999999824 52.77083199999999863, 17.84430300000000003 52.77083900000000227, 17.84319299999999942 52.99999700000000047))'))")
-        l = QgsVectorLayer(dsu.uri(), typename, "WFS")
-        l.updateFields()
-        return l
+        layers = []
+        wkt = roundCoordinatesOfWkt(geom.asWkt())  # Zaokrąglamy współrzędne raz na początku
 
+        # Wykonanie zapytania dla każdej części geometrii
+        for sub_geom in geometries:
+            if dsu.hasParam('filter'):
+                dsu.removeParam('filter')
+            dsu.setParam('filter', "intersects($geometry, geomFromWKT('%s'))" % sub_geom.asWkt())
+            print(dsu.uri())
 
+            # Pobieranie danych z WFS dla każdej części
+            l = QgsVectorLayer(dsu.uri(), typename, "WFS")
+            l.updateFields()
+            layers.append(l)
+
+        # Łączenie warstw tylko jeśli jest ich więcej niż jedna
+        if len(layers) > 1:
+            merged_layer = processing.run("native:mergevectorlayers",
+                                        {'LAYERS': layers, 'CRS': 'EPSG:2180', 'OUTPUT': 'TEMPORARY_OUTPUT'})['OUTPUT']
+        else:
+            merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
+
+        # Usunięcie zduplikowanych geometrii z połączonej warstwy
+        dissole_layer = processing.run(
+            "native:deleteduplicategeometries", {
+                'INPUT': merged_layer,
+                'OUTPUT': 'TEMPORARY_OUTPUT'
+            }
+        )['OUTPUT']
+
+        print("Final layer = ", dissole_layer)
+        return dissole_layer
 
 
 
