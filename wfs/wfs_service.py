@@ -42,6 +42,32 @@ class WfsFetch:
                 return {}
         return self.cachedTypenamesDict[serviceName]
 
+    def divideGeometry(self, geometry, parts):
+        """
+        Funkcja dzieląca geometrię na mniejsze części.
+        
+        :param geometry: Geometria, która ma zostać podzielona.
+        :param parts: Liczba części, na które ma zostać podzielona geometria.
+        :return: Lista mniejszych geometrii.
+        """
+        bounds = geometry.boundingBox()
+        width = bounds.width() / parts
+        height = bounds.height() / parts
+
+        sub_geometries = []
+        for i in range(parts):
+            for j in range(parts):
+                sub_bounds = QgsRectangle(
+                    bounds.xMinimum() + i * width,
+                    bounds.yMinimum() + j * height,
+                    bounds.xMinimum() + (i + 1) * width,
+                    bounds.yMinimum() + (j + 1) * height
+                )
+                sub_geometry = geometry.intersection(QgsGeometry.fromRect(sub_bounds))
+                if not sub_geometry.isEmpty():
+                    sub_geometries.append(sub_geometry)
+        
+        return sub_geometries
 
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
         wfsUrl = WFS_URL_MAPPING[wfsService]
