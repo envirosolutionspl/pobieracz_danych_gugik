@@ -57,6 +57,24 @@ def retreiveFile(url, destFolder, obj):
         resp = get_legacy_session().get(url=url, verify=False, stream=True, timeout=10)
         if str(resp.status_code) == '404':
             return False, "Plik nie istnieje"
+        saved = True
+        try:
+            if os.path.exists(path):
+                os.remove(path)
+            with open(path, 'wb') as f:
+                for chunk in resp.iter_content(chunk_size=8192):
+                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
+                    if obj.isCanceled():
+                        resp.close()
+                        saved = False
+                        break
+                    f.write(chunk)
+        except IOError:
+            return False, "Błąd zapisu pliku"
+        resp.close()
+        if saved:
+            utils.openFile(destFolder)
+            return True, True
         else:
             saved = True
             try:
