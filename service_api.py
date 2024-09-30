@@ -73,32 +73,12 @@ def retreiveFile(url, destFolder, obj):
             return False, "Błąd zapisu pliku"
         resp.close()
         if saved:
+            print("Sprawdzenie")
             utils.openFile(destFolder)
-            return True, True
+            return True   
         else:
-            saved = True
-            try:
-                if os.path.exists(path):
-                    os.remove(path)
-
-                with open(path, 'wb') as f:
-                    for chunk in resp.iter_content(chunk_size=8192):
-                        """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                        if not check_internet_connection():
-                            return False, 'Połączenie zostało przerwane'
-                        if obj.isCanceled():
-                            resp.close()
-                            saved = False
-                            break
-                        f.write(chunk)
-            except IOError:
-                return False, "Błąd zapisu pliku"
-            if saved:
-                utils.openFile(destFolder)
-                return True
-            else:
-                os.remove(path)
-                return False, "Pobieranie przerwane" 
+            os.remove(path)
+            return False, "Pobieranie przerwane" 
     except requests.exceptions.Timeout:
         return False
     except requests.exceptions.ConnectionError as err:
