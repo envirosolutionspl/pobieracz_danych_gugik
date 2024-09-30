@@ -64,9 +64,9 @@ class DownloadNmptTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise ConnectionError(self.exception)
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+                raise self.exception
             self.iface.messageBar().pushMessage(
                 'Błąd',
                 'Dane NMPT nie zostały pobrane.',

@@ -12,6 +12,8 @@ from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadTrees3dTask(QgsTask):
+    """QgsTask pobierania modeli 3D drzew"""
+
     def __init__(self, description, folder, teryt_powiat, iface):
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
@@ -41,21 +43,17 @@ class DownloadTrees3dTask(QgsTask):
                                                 level=Qgis.Success,
                                                 duration=10)
         else:
-            if len(self.liczba_poprawny_plik) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleniono danych spełniających kryteria")
-                msgbox.exec_()
-            else:
-                self.iface.messageBar().pushMessage("Błąd",
-                                                    "z modelami 3D drzew nie zostały pobrane.",
-                                                    level=Qgis.Warning,
-                                                    duration=10)
-
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
+            elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise ConnectionError(self.exception)
+                raise self.exception
+            self.iface.messageBar().pushMessage(
+                'Błąd',
+                'Dane z modelami 3D drzew nie zostały pobrane.',
+                level=Qgis.Warning,
+                duration=10
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

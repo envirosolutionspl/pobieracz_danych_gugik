@@ -60,9 +60,9 @@ class DownloadMozaikaTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise ConnectionError(self.exception)
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane linii mozaikowania nie zostały pobrane.'

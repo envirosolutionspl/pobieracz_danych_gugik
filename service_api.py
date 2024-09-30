@@ -58,8 +58,7 @@ def retreiveFile(url, destFolder, obj):
             return False, "Plik nie istnieje"
         saved = True
         try:
-            if os.path.exists(path):
-                os.remove(path)
+            cleanup_file(path)
             with open(path, 'wb') as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""

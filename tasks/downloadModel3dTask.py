@@ -9,7 +9,7 @@ from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadModel3dTask(QgsTask):
-    """QgsTask pobierania PRG"""
+    """QgsTask pobierania modeli 3D"""
 
     def __init__(self, description, folder, teryt_powiat, teryt_wojewodztwo, standard, data_lista, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -82,9 +82,9 @@ class DownloadModel3dTask(QgsTask):
 
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise ConnectionError(self.exception)
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+                raise self.exception
 
 
     def cancel(self):

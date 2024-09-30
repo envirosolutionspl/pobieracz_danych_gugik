@@ -70,10 +70,10 @@ class DownloadWfsEgibTask(QgsTask):
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
                 msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
                 msgbox.exec_()
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+                raise self.exception
 
-            else:
-                QgsMessageLog.logMessage(self.exception)
-                raise ConnectionError(self.exception)
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

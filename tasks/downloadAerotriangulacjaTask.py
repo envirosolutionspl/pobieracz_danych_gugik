@@ -6,7 +6,7 @@ from .. import service_api, utils
 
 
 class DownloadAerotriangulacjaTask(QgsTask):
-    """QgsTask pobierania areotriangulacji"""
+    """QgsTask pobierania aerotriangulacji"""
 
     def __init__(self, description, aerotriangulacjaList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -59,12 +59,12 @@ class DownloadAerotriangulacjaTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise ConnectionError(self.exception)
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane o areotriangulacji nie zostały pobrane.'
+                'Dane o aerotriangulacji nie zostały pobrane.'
             )
 
     def cancel(self):
