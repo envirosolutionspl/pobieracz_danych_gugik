@@ -2,15 +2,13 @@ from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
     )
 
-from qgis.PyQt.QtCore import pyqtSignal
 
 from ..constants import BDOT_FORMAT_URL_MAPPING
-from .. import service_api, utils
+from .. import service_api
 
 
 class DownloadBdotTask(QgsTask):
     """QgsTask pobierania BDOT10k"""
-    task_finished = pyqtSignal(object, object)
 
     def __init__(self, description, folder, level, format_danych, teryt, iface):
         """
@@ -21,8 +19,6 @@ class DownloadBdotTask(QgsTask):
         """
         super().__init__(description, QgsTask.CanCancel)
         self.folder = folder
-        # self.total = 0
-        # self.iterations = 0
         self.exception = None
         self.iface = iface
         self.result = None
@@ -39,13 +35,32 @@ class DownloadBdotTask(QgsTask):
             self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.zip"
 
     def run(self):
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        QgsMessageLog.logMessage('pobieram ' + self.url)
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        QgsMessageLog.logMessage(f'pobieram {self.url}')
         self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        self.task_finished.emit(self.result, self.exception)
-        if self.isCanceled():
-            return False
-        return True
+        return not self.isCanceled()
+
+    def finished(self, result):
+        if result:
+            QgsMessageLog.logMessage('sukces')
+            self.iface.messageBar().pushMessage(
+                'Sukces',
+                'Udało się! Dane BDOT10k zostały pobrane.',
+                level=Qgis.Success,
+                duration=10
+            )
+        else:
+            if self.exception is None:
+                QgsMessageLog.logMessage('finished with false')
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage('exception')
+                raise self.exception
+            self.iface.messageBar().pushMessage(
+                'Błąd',
+                'Dane BDOT10k nie zostały pobrane.',
+                level=Qgis.Warning,
+                duration=10
+            )
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')
