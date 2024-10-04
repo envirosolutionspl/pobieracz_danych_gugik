@@ -23,6 +23,7 @@ def getRequest(params, url):
             attempt += 1
             time.sleep(2)
 
+
 def retreiveFile(url, destFolder, obj):
     file_name = url.split('/')[-1]
     if '?' in file_name:

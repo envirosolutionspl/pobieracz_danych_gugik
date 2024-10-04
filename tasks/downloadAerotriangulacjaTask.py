@@ -27,14 +27,18 @@ class DownloadAerotriangulacjaTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.aerotriangulacjaList)
+        results = []
         for areo in self.aerotriangulacjaList:
             areo_url = areo.get('url')
             if self.isCanceled():
                 QgsMessageLog('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {areo_url}')
-            service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
+            res, exp = service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 
