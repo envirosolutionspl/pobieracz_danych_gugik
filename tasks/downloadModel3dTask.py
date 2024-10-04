@@ -19,7 +19,6 @@ class DownloadModel3dTask(QgsTask):
         self.teryt_wojewodztwo = teryt_wojewodztwo
         self.standard = standard
         self.data_lista = data_lista
-        self.liczba_dobrych_url = []
         self.iface = iface
 
     def run(self):
@@ -39,17 +38,15 @@ class DownloadModel3dTask(QgsTask):
                     f'{BUDYNKI_3D_WMS_URL}{standard}/{self.teryt_powiat}.zip',
                 )
             )
+        results = []
         for url in list_url:
-            with get_legacy_session().get(url=url, verify=False) as resp:
-                if str(resp.status_code) != '200':
-                    return False
-                if self.isCanceled():
-                    QgsMessageLog.logMessage('isCanceled')
-                    return False
-                self.liczba_dobrych_url.append(url)
-                QgsMessageLog.logMessage(f'pobieram {url}')
-                service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-        return len(self.liczba_dobrych_url) != 0
+            if self.isCanceled():
+                QgsMessageLog.logMessage('isCanceled')
+                return False
+            QgsMessageLog.logMessage(f'pobieram {url}')
+            res, _ = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            results.append(res)
+        return any(results)
 
     def finished(self, result):
         if result:
@@ -67,19 +64,12 @@ class DownloadModel3dTask(QgsTask):
                 duration=0
             )
         else:
-            if len(self.liczba_dobrych_url) == 0:
-                msgbox = QMessageBox(
-                    QMessageBox.Information,
-                    'Komunikat',
-                    'Nie znaleniono danych spełniających kryteria'
-                )
-                msgbox.exec_()
-            else:
-                self.iface.messageBar().pushWarning(
-                    'Błąd',
-                    'Dane modelu 3D budynków nie zostały pobrane.'
-                )
-
+            self.iface.messageBar().pushMessage(
+                'Błąd',
+                'Dane modelu 3D budynków nie zostały pobrane.',
+                level=Qgis.Warning,
+                duration=10
+            )
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
