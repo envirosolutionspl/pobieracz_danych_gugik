@@ -29,14 +29,18 @@ class DownloadLasTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.lasList)
+        results = []
         for las in self.lasList:
             las_url = las.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {las_url}')
-            service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
+            res, _ = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 

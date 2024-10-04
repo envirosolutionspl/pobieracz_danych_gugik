@@ -24,19 +24,19 @@ class DownloadWizKartoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.wizKartoList)
-
+        results = []
         for wizKarto in self.wizKartoList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
-            QgsMessageLog.logMessage('start ' + wizKarto.url)
-            fileName = wizKarto.url.split("/")[-1]
-            service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {wizKarto.url}')
+            res, _ = service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-
-        # utworz plik csv z podsumowaniem
+            results.append(res)
+        if not any(results):
+            return False
         self.createCsvReport()
         return True
 

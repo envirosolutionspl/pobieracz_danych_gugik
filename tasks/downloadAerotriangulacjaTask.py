@@ -34,7 +34,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
                 QgsMessageLog('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {areo_url}')
-            res, exp = service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
+            res, _ = service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):

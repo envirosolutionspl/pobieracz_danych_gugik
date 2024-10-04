@@ -26,6 +26,7 @@ class DownloadOrtofotoTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.ortoList)
+        results = []
         for orto in self.ortoList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
@@ -34,8 +35,11 @@ class DownloadOrtofotoTask(QgsTask):
             if not orto_url:
                 continue
             QgsMessageLog.logMessage(f'start {orto_url}')
-            service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
+            res, _ = service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 

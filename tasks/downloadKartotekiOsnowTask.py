@@ -26,14 +26,18 @@ class DownloadKartotekiOsnowTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.kartotekiOsnowList)
+        results = []
         for kartotekaOsnow in self.kartotekiOsnowList:
             obj_url = kartotekaOsnow.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {obj_url}')
-            service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            res, _ = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 

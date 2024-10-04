@@ -4,6 +4,7 @@ from qgis.core import (
     )
 from .. import service_api, utils
 
+
 class DownloadOpracowaniaTyflologiczneTask(QgsTask):
     """QgsTask pobierania opracowań tyflologicznych"""
 
@@ -16,17 +17,10 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
         self.iface = iface
 
     def run(self):
-
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        # total = len(self.nmtList)
-
-        QgsMessageLog.logMessage('pobieram ' + self.url)
-        # fileName = self.url.split("/")[-2]
-        print(self.folder)
+        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        QgsMessageLog.logMessage(f'pobieram {self.url}')
         service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        if self.isCanceled():
-            return False
-        return True
+        return not self.isCanceled()
 
     def finished(self, result):
 

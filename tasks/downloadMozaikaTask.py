@@ -26,15 +26,18 @@ class DownloadMozaikaTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.mozaikaList)
-
+        results = []
         for mozaika in self.mozaikaList:
             mozaika_url = mozaika.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {mozaika_url}')
-            service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
+            res, _ = service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 
