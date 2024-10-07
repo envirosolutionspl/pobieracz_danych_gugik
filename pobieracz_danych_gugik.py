@@ -1426,15 +1426,15 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
-    def egib_wfs_download_task(self, powiat_name, teryt, final_path, wfs_dict, wfs_type):
+    def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
         """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
         if not hasattr(self, wfs_dict):
-            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict() if wfs_type == 'EGiB' else egib_api.get_wfs_rcin_dict())
+            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict())
         if not getattr(self, wfs_dict):
             return
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla {wfs_type} {powiat_name}({teryt})',
-            folder=final_path, 
+            folder=self.dockwidget.folder_fileWidget.filePath(), 
             teryt=teryt,
             wfs_url=getattr(self, wfs_dict).get(teryt),
             iface=self.iface,
@@ -1459,10 +1459,6 @@ class PobieraczDanychGugik:
             return
         teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
         
-        base_folder_name = f"{teryt}_wfs_data"
-        final_path = os.path.join(path, base_folder_name) 
-        if not os.path.exists(final_path):
-            os.makedirs(final_path)
         self.iface.messageBar().pushMessage(
             "Informacja",
             f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
@@ -1470,9 +1466,7 @@ class PobieraczDanychGugik:
             duration=10
         )
         #Pobieranie paczki WFS EGiB
-        self.egib_wfs_download_task(powiat_name, teryt, final_path, 'egib_wfs_dict', 'EGiB')
-        #Pobieranie paczki WFS RCiN
-        self.egib_wfs_download_task(powiat_name, teryt, final_path, 'rcin_wfs_dict', 'RCiN')
+        self.egib_wfs_download_task(powiat_name, teryt, 'egib_wfs_dict', 'EGiB')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
