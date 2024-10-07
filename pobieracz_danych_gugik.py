@@ -1426,6 +1426,23 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
+    def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
+        """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
+        if not hasattr(self, wfs_dict):
+            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict())
+        if not getattr(self, wfs_dict):
+            return
+        task = DownloadWfsEgibTask(
+            description=f'Pobieranie powiatowej paczki WFS dla {wfs_type} {powiat_name}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(), 
+            teryt=teryt,
+            wfs_url=getattr(self, wfs_dict).get(teryt),
+            iface=self.iface,
+            plugin_dir=self.plugin_dir
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
         connection = service_api.check_internet_connection()
@@ -1436,32 +1453,20 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-        powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
-        if not powiatName:
+        powiat_name = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        if not powiat_name:
             self.no_area_specified_warning()
             return
         teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
+        
         self.iface.messageBar().pushMessage(
             "Informacja",
-            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
             level=Qgis.Info,
             duration=10
         )
-        if not hasattr(self, 'egib_wfs_dict'):
-            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
-        if not self.egib_wfs_dict:
-            return
-
-        task = DownloadWfsEgibTask(
-            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt=teryt,
-            wfs_url=self.egib_wfs_dict.get(teryt),
-            iface=self.iface,
-            plugin_dir=self.plugin_dir
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        #Pobieranie paczki WFS EGiB
+        self.egib_wfs_download_task(powiat_name, teryt, 'egib_wfs_dict', 'EGiB')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
