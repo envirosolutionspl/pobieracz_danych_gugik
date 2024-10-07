@@ -26,7 +26,7 @@ def get_wfs_dict(filter_name):
 
     for row in table.iterfind('.//tr'):
         cells = [cell for cell in row.iterfind('td')]
-        if len(cells) < 8:  
+        if len(cells) < 7:  
             continue
         nazwa_zbioru = next(cells[2].itertext()).strip()
 
