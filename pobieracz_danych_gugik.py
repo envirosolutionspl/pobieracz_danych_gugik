@@ -5,7 +5,8 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
+from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
 from .uldk import RegionFetch
 from .tasks import (
@@ -487,19 +488,23 @@ class PobieraczDanychGugik:
 
     def filterOrtoList(self, ortoList):
         """Filtruje listę ortofotomap"""
-        
+
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if
+                            orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
+                            orto.get('ukladWspolrzednych').split(":")[
+                                0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('aktualnosc')) >= str(self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                            str(orto.get('aktualnosc')) >= str(
+                                self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.orto_to_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('aktualnosc')) <= str(self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                            str(orto.get('aktualnosc')) <= str(
+                                self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.orto_source_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('zrodloDanych') == self.dockwidget.orto_source_cmbbx.currentText()]
@@ -547,7 +552,7 @@ class PobieraczDanychGugik:
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=200 if isNmpt else 400)
-                        
+
             # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
 
@@ -653,28 +658,36 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+
             if self.dockwidget.nmt_from_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(
+                    self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+
             if self.dockwidget.nmt_to_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(
+                    self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
 
             if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(
+                    self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.nmt_pixelTo_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(
+                    self.dockwidget.nmt_pixelTo_lineEdit.text())]
+
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+
             if self.dockwidget.nmt_mhTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -775,19 +788,23 @@ class PobieraczDanychGugik:
                            las.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           str(las.get('aktualnosc')) >= str(self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                           str(las.get('aktualnosc')) >= str(
+                               self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.las_to_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           str(las.get('aktualnosc')) <= str(self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                           str(las.get('aktualnosc')) <= str(
+                               self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.las_full_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if
                            las.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.las_pixelFrom_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) >= str(
+                               self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) <= str(
+                               self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
                 lasList = [las for las in lasList if
                            str(las.get('bladSredniWysokosci')) >= str(self.dockwidget.las_mhFrom_lineEdit.text())]
@@ -896,22 +913,28 @@ class PobieraczDanychGugik:
         if self.dockwidget.reflectance_filter_groupBox.isChecked():
             if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
+                                   reflectance.get('ukladWspolrzednych').split(":")[
+                                       0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
             if self.dockwidget.reflectance_from_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('aktualnosc')) >= str(self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                   str(reflectance.get('aktualnosc')) >= str(
+                                       self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_to_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('aktualnosc')) <= str(self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                   str(reflectance.get('aktualnosc')) <= str(
+                                       self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) >= str(self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) >= str(
+                                       self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) <= str(
+                                       self.dockwidget.las_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.get('zrodloDanych') == self.dockwidget.reflectance_source_cmbbx.currentText()]
+                                   reflectance.get(
+                                       'zrodloDanych') == self.dockwidget.reflectance_source_cmbbx.currentText()]
         return reflectanceList
 
     def downloadReflectanceFile(self, reflectance, folder):
@@ -1058,7 +1081,7 @@ class PobieraczDanychGugik:
         else:
             if exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
+            elif isinstance(exception, BaseException):
                 QgsMessageLog.logMessage("exception")
                 raise exception
             self.iface.messageBar().pushMessage(
@@ -1318,22 +1341,25 @@ class PobieraczDanychGugik:
         try:
             od_data = int(dict_od_do_data.get("początkowa"))
             do_data = int(dict_od_do_data.get("końcowa"))
-            
+
             for year in [od_data, do_data]:
                 if year not in OKRES_DOSTEPNYCH_DANYCH_LOD:
-                    msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.")
+                    msgbox = QMessageBox(
+                        QMessageBox.Warning,
+                        "Błąd",
+                        f'''Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.'''
+                    )
                     msgbox.exec_()
                     return False, None, None
-        
+
         except ValueError as err:
             error_value = err.args[0].split(" ")[-1]
             msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {error_value}.")
             msgbox.exec_()
             return False, None, None
-        
+
         else:
             return True, od_data, do_data
-
 
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
@@ -1361,7 +1387,7 @@ class PobieraczDanychGugik:
         do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
 
         dict_od_do_data = {
-            "początkowa":od_data_text,
+            "początkowa": od_data_text,
             "końcowa": do_data_text,
         }
 
@@ -1374,7 +1400,7 @@ class PobieraczDanychGugik:
 
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
+                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
@@ -1400,6 +1426,23 @@ class PobieraczDanychGugik:
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
+    def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
+        """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
+        if not hasattr(self, wfs_dict):
+            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict())
+        if not getattr(self, wfs_dict):
+            return
+        task = DownloadWfsEgibTask(
+            description=f'Pobieranie powiatowej paczki WFS dla {wfs_type} {powiat_name}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(), 
+            teryt=teryt,
+            wfs_url=getattr(self, wfs_dict).get(teryt),
+            iface=self.iface,
+            plugin_dir=self.plugin_dir
+        )
+        QgsApplication.taskManager().addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
         connection = service_api.check_internet_connection()
@@ -1410,32 +1453,20 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-        powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
-        if not powiatName:
+        powiat_name = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        if not powiat_name:
             self.no_area_specified_warning()
             return
         teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
+        
         self.iface.messageBar().pushMessage(
             "Informacja",
-            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
             level=Qgis.Info,
             duration=10
         )
-        if not hasattr(self, 'egib_wfs_dict'):
-            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
-        if not self.egib_wfs_dict:
-            return
-
-        task = DownloadWfsEgibTask(
-            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            teryt=teryt,
-            wfs_url=self.egib_wfs_dict.get(teryt),
-            iface=self.iface,
-            plugin_dir=self.plugin_dir
-        )
-        QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        #Pobieranie paczki WFS EGiB
+        self.egib_wfs_download_task(powiat_name, teryt, 'egib_wfs_dict', 'EGiB')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
@@ -1463,23 +1494,37 @@ class PobieraczDanychGugik:
             return
         egib_excel_zakres_danych = ''
 
-        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'powiat'
-        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'wojew'
-        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'kraj'
-
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-        if not powiatName:
-            self.no_area_specified_warning()
-            return
+        wojName = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentText()
         teryt_powiat = self.dockwidget.egib_excel_powiat_cmbbx.currentData()
+        terytWoj = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentData()
 
-        self.iface.messageBar().pushMessage("Informacja",
+        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'powiat'
+            if not powiatName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
                                             level=Qgis.Info, duration=10)
+        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'wojew'
+            if not wojName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {wojName}({terytWoj}) z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'kraj'
+            self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla całej Polski z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+
+        
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1487,7 +1532,7 @@ class PobieraczDanychGugik:
             egib_excel_zakres_danych=egib_excel_zakres_danych,
             rok=rok,
             teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2],
+            teryt_wojewodztwo=terytWoj,
             iface=self.iface
         )
 
@@ -2114,16 +2159,20 @@ class PobieraczDanychGugik:
         if self.dockwidget.zdjecia_lotnicze_filter_groupBox.isChecked():
             if not (self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.get('przestrzenBarwna') == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
+                                       zdjecie.get(
+                                           'przestrzenBarwna') == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
             if self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       str(zdjecie.get('dataNalotu')) >= str(self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                       str(zdjecie.get('dataNalotu')) >= str(
+                                           self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       str(zdjecie.get('dataNalotu')) <= str(self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                       str(zdjecie.get('dataNalotu')) <= str(
+                                           self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.get('zrodloDanych') == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
+                                       zdjecie.get(
+                                           'zrodloDanych') == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
 
         return zdjeciaLotniczeList
 
