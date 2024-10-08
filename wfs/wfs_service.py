@@ -1,6 +1,6 @@
 import processing
 
-from ..constants import WFS_URL_MAPPING
+from ..constants import WFS_URL_MAPPING, POZIOMY_UPROSZCZENIA
 
 try:
     from .utils import getTypenamesFromWFS
