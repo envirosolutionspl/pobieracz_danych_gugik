@@ -58,9 +58,14 @@ class WfsFetch:
         
 
         # Agregacja i uproszczenie geometrii
-        aggregation = processing.run("native:aggregate",
-                    {'INPUT': layer,
-                    'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})['OUTPUT']
+        aggregation = processing.run(
+            "native:aggregate",{
+                'INPUT': layer,
+                'GROUP_BY': 'NULL', 
+                'AGGREGATES': [], 
+                'OUTPUT': 'TEMPORARY_OUTPUT'
+                }
+            )['OUTPUT']
         
         feat = aggregation.getFeature(1)
         length = feat.geometry().length()
@@ -71,7 +76,8 @@ class WfsFetch:
                     "native:simplifygeometries",{
                         'INPUT': aggregation,
                         'METHOD': 1, 
-                        'TOLERANCE': POZIOMY_UPROSZCZENIA[poziom], 'OUTPUT': 'TEMPORARY_OUTPUT'
+                        'TOLERANCE': POZIOMY_UPROSZCZENIA[poziom], 
+                        'OUTPUT': 'TEMPORARY_OUTPUT'
                     }
                 )
                 break
@@ -80,7 +86,8 @@ class WfsFetch:
                     "native:simplifygeometries",{
                         'INPUT': aggregation,
                         'METHOD': 1, 
-                        'TOLERANCE': POZIOMY_UPROSZCZENIA[50000000], 'OUTPUT': 'TEMPORARY_OUTPUT'
+                        'TOLERANCE': POZIOMY_UPROSZCZENIA[50000000], 
+                        'OUTPUT': 'TEMPORARY_OUTPUT'
                     }
                 )
 
@@ -115,8 +122,14 @@ class WfsFetch:
 
         # Łączenie warstw tylko jeśli jest ich więcej niż jedna
         if len(layers) > 1:
-            merged_layer = processing.run("native:mergevectorlayers",
-                                        {'LAYERS': layers, 'CRS': 'EPSG:2180', 'OUTPUT': 'TEMPORARY_OUTPUT'})['OUTPUT']
+            merged_layer = processing.run(
+                "native:mergevectorlayers",
+                {
+                    'LAYERS': layers, 
+                    'CRS': 'EPSG:2180', 
+                    'OUTPUT': 'TEMPORARY_OUTPUT'
+                }
+            )['OUTPUT']
         else:
             merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
 
