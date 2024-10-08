@@ -42,33 +42,6 @@ class WfsFetch:
                 return {}
         return self.cachedTypenamesDict[serviceName]
 
-    def divideGeometry(self, geometry, parts):
-        """
-        Funkcja dzieląca geometrię na mniejsze części.
-        
-        :param geometry: Geometria, która ma zostać podzielona.
-        :param parts: Liczba części, na które ma zostać podzielona geometria.
-        :return: Lista mniejszych geometrii.
-        """
-        bounds = geometry.boundingBox()
-        width = bounds.width() / parts
-        height = bounds.height() / parts
-
-        sub_geometries = []
-        for i in range(parts):
-            for j in range(parts):
-                sub_bounds = QgsRectangle(
-                    bounds.xMinimum() + i * width,
-                    bounds.yMinimum() + j * height,
-                    bounds.xMinimum() + (i + 1) * width,
-                    bounds.yMinimum() + (j + 1) * height
-                )
-                sub_geometry = geometry.intersection(QgsGeometry.fromRect(sub_bounds))
-                if not sub_geometry.isEmpty():
-                    sub_geometries.append(sub_geometry)
-        
-        return sub_geometries
-
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
         """
         Funkcja pobierająca dane z WFS, dzieląc geometrię na mniejsze części.
@@ -99,7 +72,8 @@ class WfsFetch:
         geometry_type = feat.geometry().type()
 
         # Jeżeli geometria nie jest punktowa, podziel ją na mniejsze fragmenty
-        geometries = [geom] if geometry_type == QgsWkbTypes.PointGeometry else self.divideGeometry(geom, 6)
+        geometries = [geom] 
+        
 
         # Inicjalizacja danych WFS (jeden raz)
         dsu = QgsDataSourceUri()
@@ -115,8 +89,8 @@ class WfsFetch:
         for sub_geom in geometries:
             if dsu.hasParam('filter'):
                 dsu.removeParam('filter')
-            dsu.setParam('filter', "intersects($geometry, geomFromWKT('%s'))" % sub_geom.asWkt())
-            print(dsu.uri())
+            wkt = roundCoordinatesOfWkt(sub_geom.asWkt())
+            dsu.setParam('filter', "intersects($geometry, geomFromWKT('%s'))" % wkt)
 
             # Pobieranie danych z WFS dla każdej części
             l = QgsVectorLayer(dsu.uri(), typename, "WFS")
@@ -131,15 +105,13 @@ class WfsFetch:
             merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
 
         # Usunięcie zduplikowanych geometrii z połączonej warstwy
-        dissole_layer = processing.run(
+        processedLayer = processing.run(
             "native:deleteduplicategeometries", {
                 'INPUT': merged_layer,
                 'OUTPUT': 'TEMPORARY_OUTPUT'
             }
         )['OUTPUT']
-
-        print("Final layer = ", dissole_layer)
-        return dissole_layer
+        return processedLayer
 
 
 
