@@ -20,7 +20,7 @@ class DownloadMesh3dTask(QgsTask):
                 QgsMessageLog('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {obj_url}')
-            service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            _, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
         self.create_report()
         return True

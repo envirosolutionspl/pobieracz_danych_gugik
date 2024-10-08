@@ -44,7 +44,7 @@ class DownloadModel3dTask(QgsTask):
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'pobieram {url}')
-            res, _ = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             results.append(res)
         return any(results)
 

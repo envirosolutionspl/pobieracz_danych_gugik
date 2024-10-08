@@ -32,7 +32,6 @@ class DownloadArchiwalnyBdotTask(QgsTask):
                 self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
                 return not self.isCanceled()
 
-
     def finished(self, result):
         if self.page_exist == 'NO':
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")

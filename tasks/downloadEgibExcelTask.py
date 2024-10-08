@@ -46,7 +46,7 @@ class DownloadEgibExcelTask(QgsTask):
                         QgsMessageLog.logMessage('isCanceled')
                         return False
                     QgsMessageLog.logMessage('pobieram ' + url)
-                    res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                    res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
                     if not res:
                         self.exception = exp
                         return False

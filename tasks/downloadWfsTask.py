@@ -35,7 +35,7 @@ class DownloadWfsTask(QgsTask):
                 return False
             fileName = url.split("/")[-1]
             QgsMessageLog.logMessage(f'start {fileName}')
-            status, _ = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            status, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
             self.setProgress(self.progress() + 100 / total)

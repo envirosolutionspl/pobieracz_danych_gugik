@@ -35,7 +35,7 @@ class DownloadBdooTask(QgsTask):
     def run(self):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         QgsMessageLog.logMessage(f'pobieram {self.url}')
-        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        _, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
 
     def finished(self, result):

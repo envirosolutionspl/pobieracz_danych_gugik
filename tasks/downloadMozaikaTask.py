@@ -33,7 +33,7 @@ class DownloadMozaikaTask(QgsTask):
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {mozaika_url}')
-            res, _ = service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
