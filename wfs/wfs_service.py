@@ -55,16 +55,34 @@ class WfsFetch:
         wfsTypename = self.cachedTypenamesDict[wfsService][typename]
         
         # Dynamiczne zarządzanie tolerancją
-        area = layer.extent().area()
+        
 
         # Agregacja i uproszczenie geometrii
         aggregation = processing.run("native:aggregate",
                     {'INPUT': layer,
-                    'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})
-
-        simplification = processing.run("native:simplifygeometries",
-                    {'INPUT': aggregation['OUTPUT'],
-                    'METHOD': 1, 'TOLERANCE': 100, 'OUTPUT': 'TEMPORARY_OUTPUT'})
+                    'GROUP_BY': 'NULL', 'AGGREGATES': [], 'OUTPUT': 'TEMPORARY_OUTPUT'})['OUTPUT']
+        
+        feat = aggregation.getFeature(1)
+        length = feat.geometry().length()
+      
+        for poziom in POZIOMY_UPROSZCZENIA.keys():
+            if length <= poziom:
+                simplification = processing.run(
+                    "native:simplifygeometries",{
+                        'INPUT': aggregation,
+                        'METHOD': 1, 
+                        'TOLERANCE': POZIOMY_UPROSZCZENIA[poziom], 'OUTPUT': 'TEMPORARY_OUTPUT'
+                    }
+                )
+                break
+        else:
+            simplification = processing.run(
+                    "native:simplifygeometries",{
+                        'INPUT': aggregation,
+                        'METHOD': 1, 
+                        'TOLERANCE': POZIOMY_UPROSZCZENIA[50000000], 'OUTPUT': 'TEMPORARY_OUTPUT'
+                    }
+                )
 
         simpleLayer = simplification['OUTPUT']
         feat = next(simpleLayer.getFeatures())
@@ -83,8 +101,6 @@ class WfsFetch:
         dsu.setParam('srsname', 'EPSG:2180')
 
         layers = []
-        wkt = roundCoordinatesOfWkt(geom.asWkt())  # Zaokrąglamy współrzędne raz na początku
-
         # Wykonanie zapytania dla każdej części geometrii
         for sub_geom in geometries:
             if dsu.hasParam('filter'):
