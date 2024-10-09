@@ -75,6 +75,7 @@ def retreiveFile(url, destFolder, obj):
                         break
                     f.write(chunk)
                     chunks_made += len(chunk)
+                    
         except IOError:
             return False, "Błąd zapisu pliku"
         resp.close()

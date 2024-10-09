@@ -233,3 +233,17 @@ WFS_URL_MAPPING = {
     'NMPT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
     'NMPT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
 }
+
+POZIOMY_UPROSZCZENIA = {
+    1000 : 50,
+    5000: 10, 
+    10000 : 50,
+    50000 : 100,
+    100000 : 500,
+    500000 : 2000,
+    1000000: 5000,
+    5000000: 10000,
+    10000000: 50000,
+    50000000: 100000
+
+}
