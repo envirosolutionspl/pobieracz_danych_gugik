@@ -49,7 +49,7 @@ class DownloadModel3dTask(QgsTask):
         return any(results)
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             msgbox = QMessageBox(
                 QMessageBox.Information,
                 'Komunikat',
@@ -64,17 +64,14 @@ class DownloadModel3dTask(QgsTask):
                 duration=0
             )
         else:
-            self.iface.messageBar().pushMessage(
+            self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane modelu 3D budynków nie zostały pobrane.',
-                level=Qgis.Warning,
-                duration=10
+                'Dane modelu 3D budynków nie zostały pobrane.'
             )
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
 
 
     def cancel(self):
