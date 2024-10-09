@@ -1452,7 +1452,7 @@ class PobieraczDanychGugik:
             return
 
         task = DownloadWfsEgibTask(
-            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
             wfs_url=self.egib_wfs_dict.get(teryt),
