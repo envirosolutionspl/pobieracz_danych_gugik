@@ -7,6 +7,7 @@ from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 
+from ..service_api import check_internet_connection
 from ..wfs.httpsAdapter import get_legacy_session
 
 
@@ -15,16 +16,16 @@ class WfsEgib:
     def save_xml(self, folder, url, teryt):
         """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
         """W przypadku błędów przekazuje ich opis"""
+        if not check_internet_connection():
+            return 'Połączenie zostało przerwane'
         try:
-            with get_legacy_session().get(url, verify=False, timeout=30) as resp:
+            with get_legacy_session().get(url, verify=False) as resp:
                 if str(resp.status_code) == '404':
                     name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
                 else:
-                    with open(folder + 'egib_wfs.xml', 'wb') as f:
+                    with open(f'{folder}egib_wfs.xml', 'wb') as f:
                         f.write(resp.content)
                     name_error = "brak"
-        except requests.exceptions.Timeout:
-            name_error = 'Przekroczono czas oczekiwania na odpowiedź serwera.'
         except requests.exceptions.SSLError:
             name_error = f"- (teryt: {teryt}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url}"
         except IOError:
@@ -33,10 +34,8 @@ class WfsEgib:
             name_error = f"- (teryt: {teryt}) Błąd ConnectionError. Problem związany z połączeniem. URL do pliku \n{url}"
         except Exception:
             name_error = f"- (teryt: {teryt}) Nieznany błąd. URL do pliku \n{url}"
-
         if name_error != "brak":
             name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
-
         return name_error
 
     def work_on_xml(self, folder, url, teryt):
@@ -92,22 +91,23 @@ class WfsEgib:
         if name_error == "brak":
             url_main = url.split('?')[0]
 
-            name_error_lista = []
             name_error_lista_brak = []
 
+            name_error_lista = []
             for layer in name_layers:
-
                 if prefix == 'ewns':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
+                    url_gml = f"{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
                 elif prefix == 'ms':
-                    url_gml = url_main + f"?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
+                    url_gml = f"{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
                 else:
-                    url_gml = url_main + '?request=getFeature&version=2.0.0&service=WFS&typename=' + layer
+                    url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typename={layer}'
 
                 print(url_gml)
                 sleep(1)
+                if not check_internet_connection():
+                    return 'Połączenie zostało przerwane'
                 try:
-                    with get_legacy_session().get(url_gml, verify=False, timeout=60) as resp:
+                    with get_legacy_session().get(url_gml, verify=False) as resp:
                         if str(resp.status_code) == '404':
                             name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
                             name_error_lista.append(name_error)
@@ -121,8 +121,6 @@ class WfsEgib:
                                 name_error_lista.append(name_error)
                             else:
                                 name_error_lista_brak.append(f"{layer.split(':')[-1]}")
-                except requests.exceptions.Timeout:
-                    name_error = 'Przekroczono czas oczekiwania na odpowiedź serwera.'
                 except requests.exceptions.SSLError:
                     name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błędy weryfikacji SSL. Może to "
                                   f"wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}")
@@ -138,23 +136,20 @@ class WfsEgib:
                 except Exception:
                     name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Nieznany błąd. "
                                   f"URL do pliku \n{url_gml}")
-            if len(name_error_lista) != 0:
+            if name_error_lista:
                 name_error_brak = ', '.join(name_error_lista_brak)
                 name_error = '\n\n '.join(name_error_lista)
                 name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
-                if len(name_error_brak) != 0:
+                if name_error_brak != "":
                     name_error = name_error + "\n\nPrawidłowe warstwy:  " + name_error_brak
         return name_error
 
     def egib_wfs(self, teryt, wfs, folder):
         """Tworzy nowy folder dla plików XML"""
-
-        wfs = wfs + "?service=WFS&request=GetCapabilities"
+        wfs = f"{wfs}?service=WFS&request=GetCapabilities"
         path = os.path.join(folder, f'{teryt}_wfs_egib_{uuid.uuid4()}/')
         os.mkdir(path)
-        name_error = self.save_gml(path, wfs, teryt)
-
-        return name_error
+        return self.save_gml(path, wfs, teryt)
 
 
 if __name__ == '__main__':

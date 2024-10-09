@@ -28,14 +28,18 @@ class DownloadNmptTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.nmptList)
+        results = []
         for nmpt in self.nmptList:
             nmpt_url = nmpt.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {nmpt_url}')
-            service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         utils.openFile(self.folder)
         if self.isCanceled():
@@ -64,14 +68,11 @@ class DownloadNmptTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushMessage(
                 'Błąd',
-                'Dane NMPT nie zostały pobrane.',
-                level=Qgis.Warning,
-                duration=10
+                'Dane NMPT nie zostały pobrane.'
             )
 
     def cancel(self):

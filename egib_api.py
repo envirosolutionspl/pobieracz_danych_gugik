@@ -3,18 +3,20 @@ from qgis.utils import iface
 import requests
 from lxml import etree
 
+from .service_api import check_internet_connection
 from .constants import EGIB_WFS_URL
 from .wfs.httpsAdapter import get_legacy_session
 
 def get_wfs_dict(filter_name):
     data_dict = {}
     try:
-        with get_legacy_session().get(url=EGIB_WFS_URL, verify=False, timeout=30) as resp:
+        with get_legacy_session().get(url=EGIB_WFS_URL, verify=False) as resp:
             if resp.status_code != 200:
                 return
     except requests.exceptions.ConnectionError:
         iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem - nie można pobrać adresu WFS.')
         return
+
     except requests.exceptions.Timeout:
         iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
         return

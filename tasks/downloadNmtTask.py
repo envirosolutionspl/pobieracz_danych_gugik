@@ -28,14 +28,18 @@ class DownloadNmtTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.nmtList)
+        results = []
         for nmt in self.nmtList:
             nmt_url = nmt.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {nmt_url}')
-            service_api.retreiveFile(url=nmt_url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=nmt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return not self.isCanceled()
 
@@ -49,7 +53,7 @@ class DownloadNmtTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -61,9 +65,8 @@ class DownloadNmtTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane NMT/NMPT nie zostały pobrane.'

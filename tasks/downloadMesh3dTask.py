@@ -20,13 +20,13 @@ class DownloadMesh3dTask(QgsTask):
                 QgsMessageLog('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {obj_url}')
-            service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            _, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
         self.create_report()
         return True
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -37,14 +37,11 @@ class DownloadMesh3dTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
-            self.iface.messageBar().pushMessage(
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
+            self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane modelu siatkowego 3D nie zostały pobrane.',
-                level=Qgis.Warning,
-                duration=10
+                'Dane modelu siatkowego 3D nie zostały pobrane.'
             )
 
     def cancel(self):
