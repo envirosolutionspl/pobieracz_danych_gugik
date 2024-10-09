@@ -53,7 +53,10 @@ def retreiveFile(url, destFolder, obj):
 
     path = os.path.join(destFolder, file_name)
     try:
-        resp = get_legacy_session().get(url=url, verify=False, stream=True)
+        resp = get_legacy_session().get(url=url, verify=False, stream=True, timeout=20)
+        total_size = len(resp.content)
+        chunks_made = 0
+
         if str(resp.status_code) == '404':
             resp.close()
             return False, "Plik nie istnieje"
@@ -63,13 +66,15 @@ def retreiveFile(url, destFolder, obj):
             with open(path, 'wb') as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                    if not check_internet_connection():
-                        return False, 'Połączenie zostało przerwane'
+                    if round(chunks_made/total_size,2) % 0.25 == 0:
+                        if not check_internet_connection():
+                            return False, 'Połączenie zostało przerwane'
                     if obj.isCanceled():
                         resp.close()
                         saved = False
                         break
                     f.write(chunk)
+                    chunks_made += len(chunk)
         except IOError:
             return False, "Błąd zapisu pliku"
         resp.close()
