@@ -48,16 +48,13 @@ class DownloadEgibExcelTask(QgsTask):
                     QgsMessageLog.logMessage('pobieram ' + url)
                     res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
                     if not res:
-                        self.exception = exp
-                        return False
-                else:
-                    return False
+                        return False, self.exception
         if self.isCanceled():
             return False
         return True
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -70,7 +67,6 @@ class DownloadEgibExcelTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane zestawień zbiorczych EGiB nie zostały pobrane.'
