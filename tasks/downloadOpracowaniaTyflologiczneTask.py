@@ -1,8 +1,7 @@
-import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog, Qgis
     )
-from .. import service_api, utils
+from .. import service_api
 
 
 class DownloadOpracowaniaTyflologiczneTask(QgsTask):
@@ -24,7 +23,7 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
 
     def finished(self, result):
 
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane opracowania tyflologicznego zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
@@ -33,7 +32,6 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Dane opracowania tyflologicznego nie zostały pobrane.")
 

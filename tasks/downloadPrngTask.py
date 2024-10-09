@@ -27,7 +27,7 @@ class DownloadPrngTask(QgsTask):
         return not self.isCanceled()
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -40,7 +40,6 @@ class DownloadPrngTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane PRNG nie zostały pobrane.'

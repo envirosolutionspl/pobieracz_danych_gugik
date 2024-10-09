@@ -51,7 +51,7 @@ class DownloadReflectanceTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -64,7 +64,6 @@ class DownloadReflectanceTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane obrazów intensywności nie zostały pobrane.'

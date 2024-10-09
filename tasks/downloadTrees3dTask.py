@@ -33,10 +33,10 @@ class DownloadTrees3dTask(QgsTask):
                 return False
             QgsMessageLog.logMessage(f'pobieram {trees_url}')
             self.result, self.exception = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
-        return self.result
+        return not self.isCanceled()
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces",
                                                 "Udało się! Dane z modelami 3D drzew zostały pobrane.",

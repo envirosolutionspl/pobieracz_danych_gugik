@@ -70,12 +70,9 @@ class DownloadNmptTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushMessage(
                 'Błąd',
-                'Dane NMPT nie zostały pobrane.',
-                level=Qgis.Warning,
-                duration=10
+                'Dane NMPT nie zostały pobrane.'
             )
 
     def cancel(self):

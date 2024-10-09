@@ -52,7 +52,7 @@ class DownloadWfsTask(QgsTask):
         result is the return value from self.run.
         """
         
-        if result is True:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -70,7 +70,7 @@ class DownloadWfsTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
+            elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage('exception')
             self.iface.messageBar().pushWarning(
                 'Błąd',
