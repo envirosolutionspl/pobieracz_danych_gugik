@@ -57,6 +57,7 @@ class PobieraczDanychGugik:
         self.plugin_dir = os.path.dirname(__file__)
 
         self.settings = QgsSettings()
+        self.task_mngr = QgsApplication.taskManager()
 
         # Declare instance attributes
         self.actions = []
@@ -391,7 +392,7 @@ class PobieraczDanychGugik:
                                urlList=urlList,
                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                iface=self.iface)
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def canvasWfs_clicked(self, point):
@@ -477,7 +478,7 @@ class PobieraczDanychGugik:
                                             ortoList=ortoList,
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasOrto_clicked(self, point):
@@ -628,7 +629,7 @@ class PobieraczDanychGugik:
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        isNmpt=False,
                                        iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
             elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
@@ -638,7 +639,7 @@ class PobieraczDanychGugik:
                                         folder=self.dockwidget.folder_fileWidget.filePath(),
                                         isNmpt=True,
                                         iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasNmt_clicked(self, point):
@@ -770,7 +771,7 @@ class PobieraczDanychGugik:
                                        lasList=lasList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasLas_clicked(self, point):
@@ -898,7 +899,7 @@ class PobieraczDanychGugik:
                                                reflectanceList=reflectanceList,
                                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                                iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasReflectance_clicked(self, point):
@@ -986,8 +987,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        task.task_finished.connect(self.bdot_task_finished)
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
@@ -1030,7 +1030,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
@@ -1066,30 +1066,8 @@ class PobieraczDanychGugik:
             teryt=None,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
-
-    def bdot_task_finished(self, result, exception):
-        if result:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                "Sukces",
-                "Udało się! Dane BDOT10k zostały pobrane.",
-                level=Qgis.Success,
-                duration=10
-            )
-        else:
-            if exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-                raise exception
-            self.iface.messageBar().pushMessage(
-                "Błąd",
-                "Dane BDOT10k nie zostały pobrane.",
-                level=Qgis.Warning,
-                duration=10
-            )
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
@@ -1120,7 +1098,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdoo_selected_polska_btn_clicked(self):
@@ -1145,7 +1123,7 @@ class PobieraczDanychGugik:
             teryt=None,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion PRNG
@@ -1192,7 +1170,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1305,7 +1283,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def invoke_task_3d_trees(self):
@@ -1327,7 +1305,7 @@ class PobieraczDanychGugik:
             teryt_powiat=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def model3d_poprawnosc_dat(self, dict_od_do_data):
@@ -1347,7 +1325,9 @@ class PobieraczDanychGugik:
                     msgbox = QMessageBox(
                         QMessageBox.Warning,
                         "Błąd",
-                        f'''Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.'''
+                        f'''
+                        Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.
+                        '''
                     )
                     msgbox.exec_()
                     return False, None, None
@@ -1423,7 +1403,7 @@ class PobieraczDanychGugik:
             data_lista=data_lista,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
@@ -1465,8 +1445,22 @@ class PobieraczDanychGugik:
             level=Qgis.Info,
             duration=10
         )
-        #Pobieranie paczki WFS EGiB
-        self.egib_wfs_download_task(powiat_name, teryt, 'egib_wfs_dict', 'EGiB')
+
+        if not hasattr(self, 'egib_wfs_dict'):
+            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
+        if not self.egib_wfs_dict:
+            return
+
+        task = DownloadWfsEgibTask(
+            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(),
+            teryt=teryt,
+            wfs_url=self.egib_wfs_dict.get(teryt),
+            iface=self.iface,
+            plugin_dir=self.plugin_dir
+        )
+        self.task_mngr.addTask(task)
+        QgsMessageLog.logMessage('runtask')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
@@ -1536,7 +1530,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1571,7 +1565,7 @@ class PobieraczDanychGugik:
             url=atlas_url,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1617,7 +1611,7 @@ class PobieraczDanychGugik:
             typ=typ,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def mesh3d_fromLayer_btn_clicked(self):
@@ -1700,8 +1694,7 @@ class PobieraczDanychGugik:
     def downloadMesh3dForSinglePoint(self, point):
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=QgsProject.instance().crs(),
-            project=QgsProject.instance()
+            project=self.project
         )
         mesh_objs = mesh3d_api.getMesh3dListbyPoint1992(point=point1992)
         self.filterMeshListAndRunTask(mesh_objs)
@@ -1727,7 +1720,7 @@ class PobieraczDanychGugik:
                                                     aerotriangulacjaList=aerotriangulacjaList,
                                                     folder=self.dockwidget.folder_fileWidget.filePath(),
                                                     iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def filterMeshListAndRunTask(self, mesh_objs):
@@ -1755,7 +1748,7 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def canvasAerotriangulacja_clicked(self, point):
@@ -1839,7 +1832,7 @@ class PobieraczDanychGugik:
                                            mozaikaList=mozaikaList,
                                            folder=self.dockwidget.folder_fileWidget.filePath(),
                                            iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasMozaika_clicked(self, point):
@@ -1924,7 +1917,7 @@ class PobieraczDanychGugik:
                                             wizKartoList=wizKartoList,
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasWizualizacja_karto_clicked(self, point):
@@ -2012,7 +2005,7 @@ class PobieraczDanychGugik:
                     kartotekiOsnowList=kartotekiOsnowList,
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasKartoteki_osnow_clicked(self, point):
@@ -2060,7 +2053,7 @@ class PobieraczDanychGugik:
             rok=rok,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -2150,7 +2143,7 @@ class PobieraczDanychGugik:
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface
                 )
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def filterzdjeciaLotniczeList(self, zdjeciaLotniczeList):
@@ -2255,7 +2248,7 @@ class PobieraczDanychGugik:
                 task = downloadTask(f'Pobieranie plików {dataType}',
                                     dataList,
                                     self.dockwidget.folder_fileWidget.filePath())
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def capture_btn_clicked(self, clickTool):

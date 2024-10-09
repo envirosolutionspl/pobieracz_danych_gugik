@@ -59,7 +59,7 @@ class DownloadWfsEgibTask(QgsTask):
         """W ramach powiatu mogą wystąpić prawidłowe warswy oraz nieprawidłowe - ta informacja zostanie przedstawiona 
         użytkownikowi w osobnym okienku"""
 
-        if result and self.name_error == "brak":
+        if result and self.name_error == "brak" and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
@@ -70,10 +70,9 @@ class DownloadWfsEgibTask(QgsTask):
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
                 msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
                 msgbox.exec_()
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
 
-            else:
-                QgsMessageLog.logMessage(self.exception)
-                raise self.exception
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

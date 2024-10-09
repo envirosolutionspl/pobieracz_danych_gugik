@@ -26,14 +26,18 @@ class DownloadReflectanceTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.reflectanceList)
+        results = []
         for reflectance in self.reflectanceList:
             reflectance_url = reflectance.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {reflectance_url}')
-            service_api.retreiveFile(url=reflectance_url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=reflectance_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 
@@ -47,7 +51,7 @@ class DownloadReflectanceTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -58,9 +62,8 @@ class DownloadReflectanceTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane obrazów intensywności nie zostały pobrane.'

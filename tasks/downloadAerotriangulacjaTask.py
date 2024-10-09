@@ -6,7 +6,7 @@ from .. import service_api, utils
 
 
 class DownloadAerotriangulacjaTask(QgsTask):
-    """QgsTask pobierania areotriangulacji"""
+    """QgsTask pobierania aerotriangulacji"""
 
     def __init__(self, description, aerotriangulacjaList, folder, iface):
         super().__init__(description, QgsTask.CanCancel)
@@ -27,14 +27,18 @@ class DownloadAerotriangulacjaTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.aerotriangulacjaList)
-        for areo in self.aerotriangulacjaList:
-            areo_url = areo.get('url')
+        results = []
+        for aero in self.aerotriangulacjaList:
+            aero_url = aero.get('url')
             if self.isCanceled():
                 QgsMessageLog('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {areo_url}')
-            service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {aero_url}')
+            res, self.exception = service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 
@@ -48,23 +52,22 @@ class DownloadAerotriangulacjaTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
-                'Udało się! Dane o areotriangulacji zostały pobrane.',
+                'Udało się! Dane o aerotriangulacji zostały pobrane.',
                 level=Qgis.Success,
                 duration=0
             )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane o areotriangulacji nie zostały pobrane.'
+                'Dane o aerotriangulacji nie zostały pobrane.'
             )
 
     def cancel(self):
