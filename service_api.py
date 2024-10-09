@@ -4,14 +4,14 @@ from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
-import os, time
+import os, time, socket
 
 
 def getRequest(params, url):
     max_attempts = 3
     attempt = 0
     while attempt <= max_attempts:
-        if not check_internet_connection():
+        if not isInternetConnected():
             return False, 'Połączenie zostało przerwane'
         try:
             with get_legacy_session().get(url=url, params=params, verify=False) as resp:
@@ -53,7 +53,7 @@ def retreiveFile(url, destFolder, obj):
 
     path = os.path.join(destFolder, file_name)
     try:
-        resp = get_legacy_session().get(url=url, verify=False, stream=True, timeout=20)
+        resp = get_legacy_session().get(url=url, verify=False, stream=True)
         total_size = len(resp.content)
         chunks_made = 0
 
@@ -67,7 +67,7 @@ def retreiveFile(url, destFolder, obj):
                 for chunk in resp.iter_content(chunk_size=8192):
                     """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
                     if round(chunks_made/total_size,2) % 0.25 == 0:
-                        if not check_internet_connection():
+                        if not isInternetConnected():
                             return False, 'Połączenie zostało przerwane'
                     if obj.isCanceled():
                         resp.close()
@@ -116,12 +116,28 @@ def getAllLayers(url, service):
 
 def check_internet_connection():
     try:
-        resp = get_legacy_session().get(url='https://uldk.gugik.gov.pl/', verify=False, timeout=20)
+        resp = get_legacy_session().get(url='https://uldk.gugik.gov.pl/', verify=False)
         return resp.status_code == 200
     except Timeout:
         return False
     except ConnectionError:
         return False
+    
+
+def isInternetConnected():
+    try:
+        host = socket.gethostbyname("www.google.com")
+        s = socket.create_connection((host, 80), 2)
+        shutDownConnection(s)
+        return True
+    except Timeout:
+        return False
+    except ConnectionError:
+        return False
+
+
+def shutDownConnection(socket):
+    socket.close()
 
 
 def cleanup_file(path):
