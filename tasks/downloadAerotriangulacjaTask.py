@@ -29,7 +29,6 @@ class DownloadAerotriangulacjaTask(QgsTask):
         total = len(self.aerotriangulacjaList)
         results = []
         for aero in self.aerotriangulacjaList:
-            print(aero)
             aero_url = aero.get('url')
             if self.isCanceled():
                 QgsMessageLog('isCanceled')
@@ -66,7 +65,6 @@ class DownloadAerotriangulacjaTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane o aerotriangulacji nie zostały pobrane.'
