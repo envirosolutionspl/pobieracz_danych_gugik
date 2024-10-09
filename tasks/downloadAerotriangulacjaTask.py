@@ -28,13 +28,14 @@ class DownloadAerotriangulacjaTask(QgsTask):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.aerotriangulacjaList)
         results = []
-        for areo in self.aerotriangulacjaList:
-            areo_url = areo.get('url')
+        for aero in self.aerotriangulacjaList:
+            print(aero)
+            aero_url = aero.get('url')
             if self.isCanceled():
                 QgsMessageLog('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {areo_url}')
-            res, self.exception = service_api.retreiveFile(url=areo_url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'start {aero_url}')
+            res, self.exception = service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
@@ -52,11 +53,11 @@ class DownloadAerotriangulacjaTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
-                'Udało się! Dane o areotriangulacji zostały pobrane.',
+                'Udało się! Dane o aerotriangulacji zostały pobrane.',
                 level=Qgis.Success,
                 duration=0
             )
