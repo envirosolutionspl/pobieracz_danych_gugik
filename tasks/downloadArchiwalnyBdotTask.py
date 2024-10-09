@@ -33,8 +33,12 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
         if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            self.iface.messageBar().pushMessage(
+                "Sukces", 
+                "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
+                level=Qgis.Success, 
+                duration=0
+            )
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
