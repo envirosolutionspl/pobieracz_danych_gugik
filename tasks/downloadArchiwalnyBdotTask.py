@@ -21,23 +21,17 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
     def run(self):
         QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        with get_legacy_session().get(url=self.url, verify=False) as resp:
-            if str(resp.status_code) == '404':
-                self.page_exist = 'NO'
-                return False
-            else:
-                self.page_exist = 'YES'
-                QgsMessageLog.logMessage(f'pobieram {self.url}')
-                # fileName = self.url.split("/")[-1]
-                self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-                return not self.isCanceled()
+        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        # fileName = self.url.split("/")[-1]
+        self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        return not self.isCanceled()
 
     def finished(self, result):
         if self.page_exist == 'NO':
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
 
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
@@ -46,7 +40,6 @@ class DownloadArchiwalnyBdotTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Archiwalne dane BDOT10k nie zostały pobrane.")
 
