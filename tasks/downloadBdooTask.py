@@ -53,7 +53,6 @@ class DownloadBdooTask(QgsTask):
                 QgsMessageLog.logMessage('finished with false')
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane BDOO nie zostały pobrane.'
