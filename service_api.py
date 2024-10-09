@@ -3,7 +3,7 @@ from qgis.utils import iface
 from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
-import requests
+from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
 import os, time
 
 
@@ -19,7 +19,7 @@ def getRequest(params, url):
                     return True, resp.text
                 else:
                     return False, f'Błąd {resp.status_code}'
-        except requests.exceptions.ConnectionError:
+        except ConnectionError:
             attempt += 1
             time.sleep(2)
 
@@ -84,9 +84,10 @@ def retreiveFile(url, destFolder, obj):
         else:
             cleanup_file(path)
             return False, "Pobieranie przerwane"
-    except requests.exceptions.ConnectionError as err:
+        
+    except (ConnectionError, ChunkedEncodingError):
         cleanup_file(path)
-        return False, err
+        return False, 'Połączenie zostało przerwane'
 
 
 def getAllLayers(url, service):
@@ -116,9 +117,9 @@ def check_internet_connection():
     try:
         resp = get_legacy_session().get(url='https://uldk.gugik.gov.pl/', verify=False, timeout=20)
         return resp.status_code == 200
-    except requests.exceptions.Timeout:
+    except Timeout:
         return False
-    except requests.exceptions.ConnectionError:
+    except ConnectionError:
         return False
 
 
