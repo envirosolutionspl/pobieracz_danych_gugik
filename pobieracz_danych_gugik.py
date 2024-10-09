@@ -1674,8 +1674,7 @@ class PobieraczDanychGugik:
     def downloadMesh3dForSinglePoint(self, point):
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=QgsProject.instance().crs(),
-            project=QgsProject.instance()
+            project=self.project
         )
         mesh_objs = mesh3d_api.getMesh3dListbyPoint1992(point=point1992)
         self.filterMeshListAndRunTask(mesh_objs)
