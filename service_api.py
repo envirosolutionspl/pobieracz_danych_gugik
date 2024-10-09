@@ -83,7 +83,7 @@ def retreiveFile(url, destFolder, obj):
             return True, True
         else:
             cleanup_file(path)
-            return False, "Pobieranie przerwane"
+            return False, "Połączenie zostało przerwane"
         
     except (ConnectionError, ChunkedEncodingError):
         cleanup_file(path)
