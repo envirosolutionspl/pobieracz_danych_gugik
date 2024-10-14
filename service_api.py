@@ -4,7 +4,7 @@ from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
-import os, time, socket, datetime
+import os, time, socket
 
 
 def getRequest(params, url):
