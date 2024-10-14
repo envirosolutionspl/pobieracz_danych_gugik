@@ -56,6 +56,7 @@ def retreiveFile(url, destFolder, obj):
     try:
         resp = get_legacy_session().get(url=url, verify=False, stream=True)
         total_size = len(resp.content)
+        perc_progress_prev = 0
         chunks_made = 0
 
         if str(resp.status_code) == '404':
@@ -67,11 +68,13 @@ def retreiveFile(url, destFolder, obj):
             with open(path, 'wb') as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                    if round(chunks_made/total_size,2) % 0.25 == 0:
+                    perc_progress = round(chunks_made/total_size,2)
+                    
+                    if perc_progress % 0.25 == 0 and perc_progress_prev != perc_progress:
+                        perc_progress_prev = perc_progress                      
                         if not isInternetConnected():
                             return False, 'Połączenie zostało przerwane'
-                        else:
-                            return True, True
+                        
                     if obj.isCanceled():
                         resp.close()
                         saved = False
