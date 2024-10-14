@@ -52,6 +52,7 @@ def retreiveFile(url, destFolder, obj):
         file_name = f"podstawowa_osnowa_{file_name}"
 
     path = os.path.join(destFolder, file_name)
+    
     try:
         resp = get_legacy_session().get(url=url, verify=False, stream=True)
         total_size = len(resp.content)
@@ -69,6 +70,8 @@ def retreiveFile(url, destFolder, obj):
                     if round(chunks_made/total_size,2) % 0.25 == 0:
                         if not isInternetConnected():
                             return False, 'Połączenie zostało przerwane'
+                        else:
+                            return True, True
                     if obj.isCanceled():
                         resp.close()
                         saved = False
