@@ -5,7 +5,8 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
 from qgis.gui import *
 from qgis.core import *
 
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING
+from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
 from .uldk import RegionFetch
 from .tasks import (
@@ -17,7 +18,7 @@ from .tasks import (
     DownloadTrees3dTask
 )
 import processing
-
+from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
 import requests
@@ -30,7 +31,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
-plugin_version = '1.2.2'
+plugin_version = '1.2.3'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -56,6 +57,7 @@ class PobieraczDanychGugik:
         self.plugin_dir = os.path.dirname(__file__)
 
         self.settings = QgsSettings()
+        self.task_mngr = QgsApplication.taskManager()
 
         # Declare instance attributes
         self.actions = []
@@ -300,7 +302,6 @@ class PobieraczDanychGugik:
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
-
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
@@ -333,8 +334,7 @@ class PobieraczDanychGugik:
 
     def downloadWfsForLayer(self, layer):
         """Pobiera dane WFS """
-
-        if (isinstance(layer, QgsPointXY)):
+        if isinstance(layer, QgsPointXY):
             vp = QgsVectorLayer(f'Point?crs={self.project.crs().authid()}', "vectpoi", "memory")
             feature = QgsFeature()
             feature.setGeometry(QgsGeometry.fromPointXY(layer))
@@ -392,7 +392,7 @@ class PobieraczDanychGugik:
                                urlList=urlList,
                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                iface=self.iface)
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def canvasWfs_clicked(self, point):
@@ -478,7 +478,7 @@ class PobieraczDanychGugik:
                                             ortoList=ortoList,
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasOrto_clicked(self, point):
@@ -489,19 +489,23 @@ class PobieraczDanychGugik:
 
     def filterOrtoList(self, ortoList):
         """Filtruje listę ortofotomap"""
-        
+
         if self.dockwidget.orto_filter_groupBox.isChecked():
             if not (self.dockwidget.orto_kolor_cmbbx.currentText() == 'wszystkie'):
-                ortoList = [orto for orto in ortoList if orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
+                ortoList = [orto for orto in ortoList if
+                            orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.orto_crs_cmbbx.currentText()]
+                            orto.get('ukladWspolrzednych').split(":")[
+                                0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('aktualnosc')) >= str(self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                            str(orto.get('aktualnosc')) >= str(
+                                self.dockwidget.orto_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.orto_to_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('aktualnosc')) <= str(self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                            str(orto.get('aktualnosc')) <= str(
+                                self.dockwidget.orto_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.orto_source_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('zrodloDanych') == self.dockwidget.orto_source_cmbbx.currentText()]
@@ -549,7 +553,7 @@ class PobieraczDanychGugik:
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=200 if isNmpt else 400)
-                        
+
             # zablokowanie klawisza pobierania
             self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
 
@@ -625,7 +629,7 @@ class PobieraczDanychGugik:
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        isNmpt=False,
                                        iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
             elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
@@ -635,7 +639,7 @@ class PobieraczDanychGugik:
                                         folder=self.dockwidget.folder_fileWidget.filePath(),
                                         isNmpt=True,
                                         iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasNmt_clicked(self, point):
@@ -655,28 +659,36 @@ class PobieraczDanychGugik:
 
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+
             if self.dockwidget.nmt_from_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(
+                    self.dockwidget.nmt_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+
             if self.dockwidget.nmt_to_dateTimeEdit.date():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) <= str(
+                    self.dockwidget.nmt_to_dateTimeEdit.dateTime().toPyDateTime().date())]
 
             if self.dockwidget.nmt_full_cmbbx.currentText() != 'wszystkie':
-                nmtList = [nmt for nmt in nmtList if nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
+
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.nmt_pixelFrom_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(
+                    self.dockwidget.nmt_pixelFrom_lineEdit.text())]
+
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.nmt_pixelTo_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(
+                    self.dockwidget.nmt_pixelTo_lineEdit.text())]
+
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
-            
+                nmtList = [nmt for nmt in nmtList if
+                           str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+
             if self.dockwidget.nmt_mhTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                nmtList = [nmt for nmt in nmtList if
+                           str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -759,7 +771,7 @@ class PobieraczDanychGugik:
                                        lasList=lasList,
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasLas_clicked(self, point):
@@ -777,19 +789,23 @@ class PobieraczDanychGugik:
                            las.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           str(las.get('aktualnosc')) >= str(self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                           str(las.get('aktualnosc')) >= str(
+                               self.dockwidget.las_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.las_to_dateTimeEdit.date():
                 lasList = [las for las in lasList if
-                           str(las.get('aktualnosc')) <= str(self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                           str(las.get('aktualnosc')) <= str(
+                               self.dockwidget.las_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.las_full_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if
                            las.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) >= str(self.dockwidget.las_pixelFrom_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) >= str(
+                               self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
+                           str(las.get('charakterystykaPrzestrzenna')) <= str(
+                               self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
                 lasList = [las for las in lasList if
                            str(las.get('bladSredniWysokosci')) >= str(self.dockwidget.las_mhFrom_lineEdit.text())]
@@ -883,7 +899,7 @@ class PobieraczDanychGugik:
                                                reflectanceList=reflectanceList,
                                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                                iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasReflectance_clicked(self, point):
@@ -898,22 +914,28 @@ class PobieraczDanychGugik:
         if self.dockwidget.reflectance_filter_groupBox.isChecked():
             if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
+                                   reflectance.get('ukladWspolrzednych').split(":")[
+                                       0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
             if self.dockwidget.reflectance_from_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('aktualnosc')) >= str(self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                   str(reflectance.get('aktualnosc')) >= str(
+                                       self.dockwidget.reflectance_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_to_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('aktualnosc')) <= str(self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                   str(reflectance.get('aktualnosc')) <= str(
+                                       self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) >= str(self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) >= str(
+                                       self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) <= str(self.dockwidget.las_pixelTo_lineEdit.text())]
+                                   str(reflectance.get('wielkoscPiksela')) <= str(
+                                       self.dockwidget.las_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.get('zrodloDanych') == self.dockwidget.reflectance_source_cmbbx.currentText()]
+                                   reflectance.get(
+                                       'zrodloDanych') == self.dockwidget.reflectance_source_cmbbx.currentText()]
         return reflectanceList
 
     def downloadReflectanceFile(self, reflectance, folder):
@@ -944,6 +966,9 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            self.show_unavailable_format()
+            return
 
         powiatName = self.dockwidget.powiat_cmbbx.currentText()
         if not powiatName:
@@ -962,8 +987,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        task.task_finished.connect(self.bdot_task_finished)
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
@@ -986,6 +1010,9 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            self.show_unavailable_format()
+            return
 
         wojewodztwoName = self.dockwidget.wojewodztwo_cmbbx.currentText()
         if not wojewodztwoName:
@@ -1003,7 +1030,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdot_polska_btn_clicked(self):
@@ -1026,6 +1053,8 @@ class PobieraczDanychGugik:
             format_danych = "GML 2011"
         elif self.dockwidget.bdot_gpkg_rdbtn.isChecked():
             format_danych = "GPKG"
+        elif self.dockwidget.bdot_parquet_rdbtn.isChecked():
+            format_danych = 'BDOT10k_GeoParquet'
         self.iface.messageBar().pushMessage("Informacja",
                                             'Pobieranie paczki BDOT10k dla całego kraju',
                                             level=Qgis.Info, duration=10)
@@ -1037,30 +1066,8 @@ class PobieraczDanychGugik:
             teryt=None,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
-
-    def bdot_task_finished(self, result, exception):
-        if result:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                "Sukces",
-                "Udało się! Dane BDOT10k zostały pobrane.",
-                level=Qgis.Success,
-                duration=10
-            )
-        else:
-            if exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage("exception")
-                raise exception
-            self.iface.messageBar().pushMessage(
-                "Błąd",
-                "Dane BDOT10k nie zostały pobrane.",
-                level=Qgis.Warning,
-                duration=10
-            )
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
@@ -1091,7 +1098,7 @@ class PobieraczDanychGugik:
             teryt=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def bdoo_selected_polska_btn_clicked(self):
@@ -1116,7 +1123,7 @@ class PobieraczDanychGugik:
             teryt=None,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion PRNG
@@ -1163,7 +1170,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1264,6 +1271,9 @@ class PobieraczDanychGugik:
             self.url = f"{PRG_URL}jednostki_administracyjne_{prg_format_danych}"
             description = f'Pobieranie danych z Państwowego Rejestru Granic - jednostki administracyjne całego kraju - format {prg_format_danych}'
 
+        if 'None' in self.url:
+            self.no_area_specified_warning()
+            return
         self.iface.messageBar().pushMessage("Informacja", description, level=Qgis.Info, duration=10)
 
         task = DownloadPrgTask(
@@ -1273,7 +1283,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def invoke_task_3d_trees(self):
@@ -1295,8 +1305,41 @@ class PobieraczDanychGugik:
             teryt_powiat=teryt,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
+
+    def model3d_poprawnosc_dat(self, dict_od_do_data):
+        """
+        Funkcja sprawdza warunki dla zakresu dat w których zostały opracowane modele LOD budynków
+        """
+
+        od_data = ""
+        do_data = ""
+
+        try:
+            od_data = int(dict_od_do_data.get("początkowa"))
+            do_data = int(dict_od_do_data.get("końcowa"))
+
+            for year in [od_data, do_data]:
+                if year not in OKRES_DOSTEPNYCH_DANYCH_LOD:
+                    msgbox = QMessageBox(
+                        QMessageBox.Warning,
+                        "Błąd",
+                        f'''
+                        Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.
+                        '''
+                    )
+                    msgbox.exec_()
+                    return False, None, None
+
+        except ValueError as err:
+            error_value = err.args[0].split(" ")[-1]
+            msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {error_value}.")
+            msgbox.exec_()
+            return False, None, None
+
+        else:
+            return True, od_data, do_data
 
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
@@ -1316,24 +1359,32 @@ class PobieraczDanychGugik:
         elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
             standard = ["LOD1", "LOD2"]
         elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Nie wybrano standardu")
+            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:", "Nie wybrano standardu")
             msgbox.exec_()
             return False
 
-        od_data = int(str(self.dockwidget.model3d_dateEdit_1.dateTime().toPyDateTime().date())[0:4])
-        do_data = int(str(self.dockwidget.model3d_dateEdit_2.dateTime().toPyDateTime().date())[0:4])
+        od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
+        do_data_text = self.dockwidget.model3d_dateEdit_comboBox_2.currentText()
+
+        dict_od_do_data = {
+            "początkowa": od_data_text,
+            "końcowa": do_data_text,
+        }
+
+        valid, od_data, do_data = self.model3d_poprawnosc_dat(dict_od_do_data)
+
+        if not valid:
+            return False
+
         roznica = do_data - od_data
 
-        data_lista = []
         if roznica < 0:
             msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
                                  f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             msgbox.exec_()
             return False
         else:
-            for rok in range(int(od_data), int(do_data) + 1):
-                data_lista.append(rok)
+            data_lista = [rok for rok in range(od_data, do_data + 1)]
 
         powiat_name = self.dockwidget.model3d_powiat_cmbbx.currentText()
         if not powiat_name:
@@ -1352,6 +1403,23 @@ class PobieraczDanychGugik:
             data_lista=data_lista,
             iface=self.iface
         )
+        self.task_mngr.addTask(task)
+        QgsMessageLog.logMessage('runtask')
+
+    def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
+        """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
+        if not hasattr(self, wfs_dict):
+            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict())
+        if not getattr(self, wfs_dict):
+            return
+        task = DownloadWfsEgibTask(
+            description=f'Pobieranie powiatowej paczki WFS dla {wfs_type} {powiat_name}({teryt})',
+            folder=self.dockwidget.folder_fileWidget.filePath(), 
+            teryt=teryt,
+            wfs_url=getattr(self, wfs_dict).get(teryt),
+            iface=self.iface,
+            plugin_dir=self.plugin_dir
+        )
         QgsApplication.taskManager().addTask(task)
         QgsMessageLog.logMessage('runtask')
 
@@ -1365,31 +1433,33 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-        powiatName = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
-        if not powiatName:
+        powiat_name = self.dockwidget.wfs_egib_powiat_cmbbx.currentText()
+        if not powiat_name:
             self.no_area_specified_warning()
             return
         teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
+        
         self.iface.messageBar().pushMessage(
             "Informacja",
-            f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
             level=Qgis.Info,
             duration=10
         )
+
         if not hasattr(self, 'egib_wfs_dict'):
             setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
         if not self.egib_wfs_dict:
             return
 
         task = DownloadWfsEgibTask(
-            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiatName}({teryt})',
+            description=f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
             wfs_url=self.egib_wfs_dict.get(teryt),
             iface=self.iface,
             plugin_dir=self.plugin_dir
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def radioButton_powiaty_egib_excel(self):
@@ -1418,23 +1488,37 @@ class PobieraczDanychGugik:
             return
         egib_excel_zakres_danych = ''
 
-        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'powiat'
-        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'wojew'
-        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
-            egib_excel_zakres_danych = 'kraj'
-
         rok = self.dockwidget.egib_excel_dateEdit_comboBox.currentText()
         powiatName = self.dockwidget.egib_excel_powiat_cmbbx.currentText()
-        if not powiatName:
-            self.no_area_specified_warning()
-            return
+        wojName = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentText()
         teryt_powiat = self.dockwidget.egib_excel_powiat_cmbbx.currentData()
+        terytWoj = self.dockwidget.egib_excel_wojewodztwo_cmbbx.currentData()
 
-        self.iface.messageBar().pushMessage("Informacja",
+        if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'powiat'
+            if not powiatName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
                                             f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
                                             level=Qgis.Info, duration=10)
+        elif self.dockwidget.wojew_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'wojew'
+            if not wojName:
+                self.no_area_specified_warning()
+                return
+            else:
+                self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {wojName}({terytWoj}) z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+        elif self.dockwidget.kraj_egib_excel_rdbtn.isChecked():
+            egib_excel_zakres_danych = 'kraj'
+            self.iface.messageBar().pushMessage("Informacja",
+                                            f'Pobieranie danych z Zestawień Zbiorczych EGiB dla całej Polski z roku {rok}',
+                                            level=Qgis.Info, duration=10)
+
+        
 
         task = DownloadEgibExcelTask(
             description=f'Pobieranie danych z Zestawień Zbiorczych EGiB dla {powiatName}({teryt_powiat}) z roku {rok}',
@@ -1442,11 +1526,11 @@ class PobieraczDanychGugik:
             egib_excel_zakres_danych=egib_excel_zakres_danych,
             rok=rok,
             teryt_powiat=teryt_powiat,
-            teryt_wojewodztwo=teryt_powiat[0:2],
+            teryt_wojewodztwo=terytWoj,
             iface=self.iface
         )
 
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1481,7 +1565,7 @@ class PobieraczDanychGugik:
             url=atlas_url,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -1527,7 +1611,7 @@ class PobieraczDanychGugik:
             typ=typ,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def mesh3d_fromLayer_btn_clicked(self):
@@ -1610,8 +1694,7 @@ class PobieraczDanychGugik:
     def downloadMesh3dForSinglePoint(self, point):
         point1992 = utils.pointTo2180(
             point=point,
-            sourceCrs=QgsProject.instance().crs(),
-            project=QgsProject.instance()
+            project=self.project
         )
         mesh_objs = mesh3d_api.getMesh3dListbyPoint1992(point=point1992)
         self.filterMeshListAndRunTask(mesh_objs)
@@ -1637,7 +1720,7 @@ class PobieraczDanychGugik:
                                                     aerotriangulacjaList=aerotriangulacjaList,
                                                     folder=self.dockwidget.folder_fileWidget.filePath(),
                                                     iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def filterMeshListAndRunTask(self, mesh_objs):
@@ -1665,7 +1748,7 @@ class PobieraczDanychGugik:
             folder=self.dockwidget.folder_fileWidget.filePath(),
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     def canvasAerotriangulacja_clicked(self, point):
@@ -1749,7 +1832,7 @@ class PobieraczDanychGugik:
                                            mozaikaList=mozaikaList,
                                            folder=self.dockwidget.folder_fileWidget.filePath(),
                                            iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasMozaika_clicked(self, point):
@@ -1834,7 +1917,7 @@ class PobieraczDanychGugik:
                                             wizKartoList=wizKartoList,
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasWizualizacja_karto_clicked(self, point):
@@ -1922,7 +2005,7 @@ class PobieraczDanychGugik:
                     kartotekiOsnowList=kartotekiOsnowList,
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface)
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def canvasKartoteki_osnow_clicked(self, point):
@@ -1952,6 +2035,9 @@ class PobieraczDanychGugik:
             format_danych = "SHP"
 
         powiatName = self.dockwidget.archiwalne_powiat_cmbbx.currentText()
+        if not powiatName:
+            self.no_area_specified_warning()
+            return
         teryt = self.dockwidget.archiwalne_powiat_cmbbx.currentData()
         rok = self.dockwidget.archiwalne_bdot_dateEdit_comboBox.currentText()
 
@@ -1967,7 +2053,7 @@ class PobieraczDanychGugik:
             rok=rok,
             iface=self.iface
         )
-        QgsApplication.taskManager().addTask(task)
+        self.task_mngr.addTask(task)
         QgsMessageLog.logMessage('runtask')
 
     # endregion
@@ -2057,7 +2143,7 @@ class PobieraczDanychGugik:
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface
                 )
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def filterzdjeciaLotniczeList(self, zdjeciaLotniczeList):
@@ -2066,16 +2152,20 @@ class PobieraczDanychGugik:
         if self.dockwidget.zdjecia_lotnicze_filter_groupBox.isChecked():
             if not (self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.get('przestrzenBarwna') == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
+                                       zdjecie.get(
+                                           'przestrzenBarwna') == self.dockwidget.zdjecia_lotnicze_kolor_cmbbx.currentText()]
             if self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       str(zdjecie.get('dataNalotu')) >= str(self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                       str(zdjecie.get('dataNalotu')) >= str(
+                                           self.dockwidget.zdjecia_lotnicze_from_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.date():
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       str(zdjecie.get('dataNalotu')) <= str(self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date())]
+                                       str(zdjecie.get('dataNalotu')) <= str(
+                                           self.dockwidget.zdjecia_lotnicze_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if not (self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText() == 'wszystkie'):
                 zdjeciaLotniczeList = [zdjecie for zdjecie in zdjeciaLotniczeList if
-                                       zdjecie.get('zrodloDanych') == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
+                                       zdjecie.get(
+                                           'zrodloDanych') == self.dockwidget.zdjecia_lotnicze_source_cmbbx.currentText()]
 
         return zdjeciaLotniczeList
 
@@ -2158,7 +2248,7 @@ class PobieraczDanychGugik:
                 task = downloadTask(f'Pobieranie plików {dataType}',
                                     dataList,
                                     self.dockwidget.folder_fileWidget.filePath())
-                QgsApplication.taskManager().addTask(task)
+                self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
     def capture_btn_clicked(self, clickTool):
@@ -2186,13 +2276,25 @@ class PobieraczDanychGugik:
             return True
 
     def no_area_specified_warning(self):
-        self.iface.messageBar().pushWarning(
-            "Ostrzeżenie:", 'Nie wskazano obszaru.')
+        self.iface.messageBar().pushMessage(
+            'Ostrzeżenie',
+            'Nie wskazano obszaru',
+            level=Qgis.Warning,
+            duration=5
+        )
 
     def show_no_connection_message(self):
         self.iface.messageBar().pushMessage(
             "Błąd",
             "Brak połączenia z internetem",
+            level=Qgis.Warning,
+            duration=10
+        )
+
+    def show_unavailable_format(self):
+        self.iface.messageBar().pushMessage(
+            "Informacja",
+            "Dla podanego obszaru nie ma dostępnego pliku w formacie GeoParquet",
             level=Qgis.Warning,
             duration=10
         )

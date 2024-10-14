@@ -1,3 +1,5 @@
+from datetime import datetime
+
 AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
 BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
 BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
@@ -28,6 +30,10 @@ ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wyni
 ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
+
+CURRENT_YEAR = datetime.now().year
+MIN_YEAR_BUILDINGS_3D = 1970
+OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',
@@ -193,6 +199,7 @@ BDOT_FORMAT_URL_MAPPING = {
     'SHP': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/SHP/',
     'GML 2011': 'https://opendata.geoportal.gov.pl/bdot10k/',
     'GPKG': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GPKG/',
+    'BDOT10k_GeoParquet': 'https://opendata.geoportal.gov.pl/bdot10k/schemat2021/GeoParquet/',
 }
 
 
@@ -225,4 +232,18 @@ WFS_URL_MAPPING = {
     'NMT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelTerenuEVRF2007/WFS/Skorowidze',
     'NMPT (PL-KRON86-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuKRON86/WFS/Skorowidze',
     'NMPT (PL-EVRF2007-NH)': 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NumerycznyModelPokryciaTerenuEVRF2007/WFS/Skorowidze'
+}
+
+POZIOMY_UPROSZCZENIA = {
+    1000 : 50,
+    5000: 10, 
+    10000 : 50,
+    50000 : 100,
+    100000 : 500,
+    500000 : 2000,
+    1000000: 5000,
+    5000000: 10000,
+    10000000: 50000,
+    50000000: 100000
+
 }

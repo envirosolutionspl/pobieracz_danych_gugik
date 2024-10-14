@@ -26,15 +26,18 @@ class DownloadMozaikaTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.mozaikaList)
-
+        results = []
         for mozaika in self.mozaikaList:
             mozaika_url = mozaika.get('url')
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {mozaika_url}')
-            service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
+            res, self.exception = service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
+            results.append(res)
+        if not any(results):
+            return False
         self.create_report()
         return True
 
@@ -48,7 +51,7 @@ class DownloadMozaikaTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -60,9 +63,8 @@ class DownloadMozaikaTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane linii mozaikowania nie zostały pobrane.'

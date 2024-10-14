@@ -23,11 +23,11 @@ class DownloadPrngTask(QgsTask):
     def run(self):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         QgsMessageLog.logMessage(f'pobieram {self.url}')
-        service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        _, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
 
     def finished(self, result):
-        if result:
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -38,9 +38,8 @@ class DownloadPrngTask(QgsTask):
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
-                QgsMessageLog.logMessage('exception')
-                raise self.exception
+            elif isinstance(self.exception, BaseException):
+                QgsMessageLog.logMessage("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane PRNG nie zostały pobrane.'

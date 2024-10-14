@@ -27,15 +27,19 @@ class DownloadWfsTask(QgsTask):
         """
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         total = len(self.urlList)
+        objs = 0
+
         for url in self.urlList:
             if self.isCanceled():
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             fileName = url.split("/")[-1]
             QgsMessageLog.logMessage(f'start {fileName}')
-            service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            status, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            if status is True:
+                objs += 1
             self.setProgress(self.progress() + 100 / total)
-        return True
+        return objs == total
 
     def finished(self, result):
         """
@@ -47,7 +51,8 @@ class DownloadWfsTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result:
+        
+        if result and self.exception != 'Połączenie zostało przerwane':
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -55,12 +60,18 @@ class DownloadWfsTask(QgsTask):
                 level=Qgis.Success,
                 duration=0
             )
+
+        elif result is False:
+            self.iface.messageBar().pushMessage(
+                'Ostrzeżenie:', 
+                'Nie pobrano pełnego zbioru danych',
+                level=Qgis.Warning,
+                duration=5)
         else:
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
-            else:
+            elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage('exception')
-                raise self.exception
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane WFS nie zostały pobrane.'
