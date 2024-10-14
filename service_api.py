@@ -4,7 +4,7 @@ from . import utils
 from .wfs.httpsAdapter import get_legacy_session
 import lxml.etree as ET
 from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
-import os, time, socket
+import os, time, socket, datetime
 
 
 def getRequest(params, url):
@@ -55,7 +55,6 @@ def retreiveFile(url, destFolder, obj):
     
     try:
         resp = get_legacy_session().get(url=url, verify=False, stream=True)
-        total_size = len(resp.content)
         chunks_made = 0
 
         if str(resp.status_code) == '404':
@@ -64,14 +63,15 @@ def retreiveFile(url, destFolder, obj):
         saved = True
         try:
             cleanup_file(path)
+            
             with open(path, 'wb') as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-                    if round(chunks_made/total_size,2) % 0.25 == 0:
+
+                    if chunks_made % 10000000 == 0:                      
                         if not isInternetConnected():
                             return False, 'Połączenie zostało przerwane'
-                        else:
-                            return True, True
+                        
                     if obj.isCanceled():
                         resp.close()
                         saved = False
