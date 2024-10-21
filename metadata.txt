@@ -7,7 +7,7 @@ name=Pobieracz danych GUGiK
 qgisMinimumVersion=3.4
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
 
-version=1.2.3
+version=1.2.4
 
 author=EnviroSolutions Sp. z o.o.
 email=office@envirosolutions.pl
@@ -55,18 +55,20 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  Wersja 1.2.3
-  * Poprawa działania powiadomień użytkownika
-  * Optymalizacja działania zakładki WFS dla większych obszarów
-  * Zmiana formatu wybierania daty dla pobierania budynków LOD
-  * Dodanie skróconej listy rozwijalnej dla większości obiektów typu ComboBox
-  * Naprawa wyglądu wtyczki dla ciemnego motywu
-  * Naprawa działania zakładki WFS
-  * Naprawa błędu generowanego przy nie wybraniu województwa, powiatu lub gminy
-  * Naprawa błędnej ilości zwracanych obiektów przez wtyczkę
-  * Dodanie nowego formatu danych BDOT 10K (geoparquet - tylko dla całego kraju)
-  * Dodanie cyklicznego sprawdzania połączenia z internetem w przypadku pobierania większych plików
-  * Przyspieszenie działania sprawdzenia połączenia z internetem
+  Wersja 1.2.4
+  * Naprawa wyglądu wtyczki w ciemnym motywie
+#  Wersja 1.2.3
+#  * Poprawa działania powiadomień użytkownika
+#  * Optymalizacja działania zakładki WFS dla większych obszarów
+#  * Zmiana formatu wybierania daty dla pobierania budynków LOD
+#  * Dodanie skróconej listy rozwijalnej dla większości obiektów typu ComboBox
+#  * Naprawa wyglądu wtyczki dla ciemnego motywu
+#  * Naprawa działania zakładki WFS
+#  * Naprawa błędu generowanego przy nie wybraniu województwa, powiatu lub gminy
+#  * Naprawa błędnej ilości zwracanych obiektów przez wtyczkę
+#  * Dodanie nowego formatu danych BDOT 10K (geoparquet - tylko dla całego kraju)
+#  * Dodanie cyklicznego sprawdzania połączenia z internetem w przypadku pobierania większych plików
+#  * Przyspieszenie działania sprawdzenia połączenia z internetem
 #  Wersja 1.2.2
 #  * Zwiększenie dokładności pobierania danych NMT i NMPT w zakładce "Usługa WMS/Geoportal"
 #  Wersja 1.2.1
