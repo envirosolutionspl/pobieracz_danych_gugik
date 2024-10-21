@@ -144,9 +144,9 @@
           <property name="title">
            <string>Sposób wyszukiwania danych</string>
           </property>
-		    <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-			</property>  
+          <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+		  </property>  
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <layout class="QGridLayout" name="gridLayout_8">
@@ -203,9 +203,9 @@
           <property name="title">
            <string>Scieżka zapisu plików</string>
           </property>
-          <property name="alignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
-             </property>  
+		  <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+          </property>  
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QgsFileWidget" name="folder_fileWidget"/>
