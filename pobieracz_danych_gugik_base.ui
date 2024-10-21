@@ -144,7 +144,7 @@
           <property name="title">
            <string>Sposób wyszukiwania danych</string>
           </property>
-             <property name="alignment">
+		    <property name="alignment">
               <set>Qt::AlignHCenter|Qt::AlignTop</set>
 			</property>  
           <layout class="QHBoxLayout" name="horizontalLayout_6">
