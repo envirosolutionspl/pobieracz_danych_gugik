@@ -145,8 +145,8 @@
            <string>Sposób wyszukiwania danych</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+		  </property>  
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <layout class="QGridLayout" name="gridLayout_8">
@@ -203,9 +203,9 @@
           <property name="title">
            <string>Scieżka zapisu plików</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
+		  <property name="alignment">
+           <set>Qt::AlignHCenter|Qt::AlignTop</set>
+          </property>  
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QgsFileWidget" name="folder_fileWidget"/>
@@ -625,8 +625,8 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>  
              <layout class="QHBoxLayout" name="horizontalLayout_3">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="nmt_rdbtn">
@@ -654,8 +654,8 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>   
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="arcinfo_rdbtn">
@@ -686,8 +686,8 @@
               <string>Układ współrzędnych wysokościowych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>   
              <layout class="QHBoxLayout" name="horizontalLayout_55">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                <widget class="QRadioButton" name="kron86_rdbtn">
@@ -1798,9 +1798,9 @@
            </item>
            <item>
             <widget class="QGroupBox" name="groupBox_14">
-             <property name="title">
-              <string>Data</string>
-             </property>
+             <property name="alignment">
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>   
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -1957,7 +1957,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2002,7 +2002,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_10">
               <item>
@@ -2123,7 +2123,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2170,7 +2170,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -2362,7 +2362,7 @@
               <string>Standard</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2388,7 +2388,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_12">
               <item>
@@ -2891,7 +2891,7 @@
               <string>Zakres zestawień</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_13">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -2927,7 +2927,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
@@ -3088,7 +3088,7 @@
               <string>Rodzaj danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <property name="flat">
               <bool>false</bool>
@@ -3198,7 +3198,7 @@
                  <string>Typ osnowy</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_25">
                  <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -3292,7 +3292,7 @@
                  <string>Rodzaj katalogów</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_27">
                  <item>
@@ -3513,7 +3513,7 @@
               <string>Skala</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_23">
               <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -3647,7 +3647,7 @@
               <string>Format danych</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <property name="flat">
               <bool>true</bool>
@@ -3682,7 +3682,7 @@
               <string>Data</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_16">
               <item>
