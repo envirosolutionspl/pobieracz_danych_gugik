@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>362</width>
+    <height>185</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Nowości EnviroSolutions - Wybór branży</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" rowspan="2" colspan="2">
+    <layout class="QGridLayout" name="gridLayout_2" rowminimumheight="0,0,0,0,0">
+     <property name="bottomMargin">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>10</number>
+     </property>
+     <item row="1" column="0">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Pomóż nam lepiej dostosować&lt;br/&gt;bezpłatne wtyczki.&lt;br/&gt;Wskaż którą branżę reprezentujesz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+      <widget class="QComboBox" name="comboBox">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="locale">
+        <locale language="Polish" country="Poland"/>
+       </property>
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>Nie wybrano</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Energetyka/OZE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Urząd</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Transport/Drogi</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Planowanie/Geodezja</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>WodKan</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Środowisko</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Rolnictwo/Leśnictwo</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Telkom</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Edukacja</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Inne</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>IT</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Nieruchomości</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>5</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>10</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="3" column="1">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>Zapisz</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
