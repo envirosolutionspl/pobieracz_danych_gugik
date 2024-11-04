@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox, QDialog
 from qgis.gui import *
 from qgis.core import *
 
@@ -25,6 +25,7 @@ import requests
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
+from .qgis_feed import QgisFeedDialog
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
@@ -46,9 +47,18 @@ class PobieraczDanychGugik:
             application at run time.
         :type iface: QgsInterface
         """
+        self.settings = QgsSettings()
         if Qgis.QGIS_VERSION_INT >= 31000:
             from .qgis_feed import QgisFeed
-            self.feed = QgisFeed()
+            self.selected_industry = self.settings.value("selected_industry", None)
+            show_dialog = self.settings.value("showDialog", True, type=bool)
+
+            if self.selected_industry is None and show_dialog:
+                self.showBranchSelectionDialog()
+
+            select_indust_session = self.settings.value('selected_industry')
+
+            self.feed = QgisFeed(selected_industry=select_indust_session, plugin_name=plugin_name)
             self.feed.initFeed()
 
         # Save reference to the QGIS interface
@@ -56,7 +66,6 @@ class PobieraczDanychGugik:
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
 
-        self.settings = QgsSettings()
         self.task_mngr = QgsApplication.taskManager()
 
         # Declare instance attributes
@@ -171,6 +180,17 @@ class PobieraczDanychGugik:
             self.toolbar.removeAction(action)
         # remove the toolbar
         del self.toolbar
+
+
+    def showBranchSelectionDialog(self):
+        self.qgisfeed_dialog = QgisFeedDialog()
+
+        if self.qgisfeed_dialog.exec_() == QDialog.Accepted:
+            self.selected_branch = self.qgisfeed_dialog.comboBox.currentText()
+
+            #Zapis w QGIS3.ini
+            self.settings.setValue("selected_industry", self.selected_branch)
+            self.settings.setValue("showDialog", False)
 
     # --------------------------------------------------------------------------
 
