@@ -75,8 +75,8 @@ class QgisFeed:
             # ponizszy fragment odpowiada za mozliwosc ciaglego wyswietlania wiadomosci
             # przy wlaczeniu qgis za kazdym razem
 
-            check_fetch = self.checkIsFetchTime()
-            if check_fetch is True: self.s.remove(key)
+            # check_fetch = self.checkIsFetchTime()
+            # if check_fetch is True: self.s.remove(key)
 
     def removeDismissed(self):
         """
@@ -94,7 +94,8 @@ class QgisFeed:
                         )
                 ):
                     self.s.remove(key)
-                self.s.remove(key)
+                # self.s.remove(key)
+        self.s.sync()
 
     def checkIsFetchTime(self):
         """

@@ -5,7 +5,6 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox, QDialog
 from qgis.gui import *
 from qgis.core import *
 
-from .qgis_feed import QgisFeedDialog
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
     MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
@@ -26,6 +25,7 @@ import requests
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
+from .qgis_feed import QgisFeedDialog
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
