@@ -4,7 +4,7 @@
 
 [general]
 name=Pobieracz danych GUGiK
-qgisMinimumVersion=3.4
+qgisMinimumVersion=3.22
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
 
 version=1.2.4
