@@ -35,7 +35,7 @@ CURRENT_YEAR = datetime.now().year
 MIN_YEAR_BUILDINGS_3D = 1970
 OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 
-FEED_URL = 'http://109.199.119.187:8005/'
+FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
 
 DOUBLE_VALIDATOR_OBJECTS = [
     'orto_pixelFrom_lineEdit',
