@@ -5,6 +5,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox, QDialog
 from qgis.gui import *
 from qgis.core import *
 
+from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
     MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
