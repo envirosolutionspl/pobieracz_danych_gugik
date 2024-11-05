@@ -26,13 +26,14 @@ import requests
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
+from .qgis_feed import QgisFeedDialog
 import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
-plugin_version = '1.2.4'
+plugin_version = '1.2.5'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 

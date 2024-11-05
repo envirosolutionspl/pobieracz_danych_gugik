@@ -1,5 +1,10 @@
-from qgis.core import (QgsNewsFeedParser, QgsSettings, QgsNewsFeedModel,
-                       QgsMessageLog, QgsApplication)
+
+from qgis.core import (
+    QgsNewsFeedParser,
+    QgsSettings,
+    QgsMessageLog
+)
+
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog, QComboBox, QPushButton
@@ -9,6 +14,7 @@ import os
 import unicodedata
 
 from .constants import INDUSTRIES, FEED_URL
+
 
 
 class QgisFeed:
@@ -37,7 +43,7 @@ class QgisFeed:
         na forme zapisana w qgis settingsach
         """
 
-        return re.sub(r'://|\.|:|/\?|=|&|-|:', '', url)
+        return re.sub(r'://|\.|:|/\?|=|&|-', '', url)
 
     def create_slug(self, text):
         """
@@ -57,15 +63,19 @@ class QgisFeed:
         """
         Function registers QGIS Feed
         """
+
         QgsMessageLog.logMessage('Registering feed')
         for key in self.s.allKeys():
             if self.envirosolutionsFeedPattern_old.match(key) or self.envirosolutionsFeedPattern_new.match(key):
-                finalKey = re.sub(r'(\d+)', r'9999\1', key.replace(self.industry_url_short, 'httpsfeedqgisorg'))
+                finalKey = re.sub(
+                    r'(\d+)',
+                    r'9999\1',
+                    key.replace(self.industry_url_short, 'httpsfeedqgisorg')
+                )
                 self.s.setValue(finalKey, self.s.value(key))
 
             # ponizszy fragment odpowiada za mozliwosc ciaglego wyswietlania wiadomosci
             # przy wlaczeniu qgis za kazdym razem
-
             if 'cache' in key:
                 check_fetch = self.checkIsFetchTime()
                 if check_fetch is True: self.s.remove(key)
@@ -90,6 +100,15 @@ class QgisFeed:
                         )
                 ):
                     self.s.remove(key)
+                # self.s.remove(key)
+        self.s.sync()
+
+    def checkIsFetchTime(self):
+        """
+        Function check if the fetch time from QGIS Feed was already registered
+        """
+        return self.s.contains(f"core/NewsFeed/{self.industry_url_short}/lastFetchTime") \
+            or self.s.contains(f"app/news-feed/items/{self.industry_url_short}/last-fetch-time")
 
     def checkIsFetchTime(self):
         """
@@ -122,7 +141,10 @@ class QgisFeedDialog(QDialog):
 
     def loadPreviousSelection(self):
         settings = QgsSettings()
-        if previous_selection := settings.value("selected_industry"):
+        
+        previous_selection = settings.value("selected_industry")
+        if previous_selection:
+
             index = self.comboBox.findText(previous_selection)
             if index != -1:
                 self.comboBox.setCurrentIndex(index)
