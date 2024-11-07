@@ -57,6 +57,7 @@ hasProcessingProvider=no
 changelog=
   Wersja 1.2.5
   * Modyfikacja QGIS-feed
+  * Zmiana minimalnej wersji QGIS na 3.22
 #  Wersja 1.2.4
 #  * Naprawa wyglądu wtyczki w ciemnym motywie
 #  Wersja 1.2.3
