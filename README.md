@@ -65,7 +65,7 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 2. Po przefiltrowaniu pobierane są wybrane przez użytkownika warstwy.
 
 **UWAGA:** 
-* Warunkiem koniecznym do prawidłowego działania wtyczki jest posiadanie wersji QGIS 3.22 lub wyższej.
+* Warunkiem koniecznym do prawidłowego działania wtyczki jest posiadanie wersji QGIS 3.4.15 lub wyższej.
 * Na niestandardowych wersjach programu QGIS (np. Flatpak, Snap) możliwe są błędy importu bibliotek. Jeżeli wystąpi taka sytuacja, należy zgodnie z instrukcją producenta oprogramowania doinstalować brakujące biblioteki.
 
 ## EN
@@ -131,6 +131,6 @@ The download process can be stopped. To do this, click on the blue bar at the bo
 2. After filtering, the layers selected by the user are downloaded.
 
 **NOTE:** 
-* A necessary condition for the proper functioning of the plugin is having QGIS version 3.22 or higher. 
+* A necessary condition for the proper functioning of the plugin is having QGIS version 3.4.15 or higher. 
 * On non-standard versions of QGIS (e.g., Flatpak, Snap), there may be errors importing libraries. If this situation occurs, according to the software manufacturer's instructions, the necessary libraries should be installed.
 
