@@ -23,7 +23,7 @@ class DownloadPrgTask(QgsTask):
         return not self.isCanceled()
 
     def finished(self, result):
-        if result and self.exception != 'Połączenie zostało przerwane':
+        if result and not self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane PRG zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
