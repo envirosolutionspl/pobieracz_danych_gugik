@@ -26,7 +26,7 @@ class DownloadMesh3dTask(QgsTask):
         return True
 
     def finished(self, result):
-        if result and self.exception != 'Połączenie zostało przerwane':
+        if result and not self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',

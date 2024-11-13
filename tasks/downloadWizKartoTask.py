@@ -50,7 +50,7 @@ class DownloadWizKartoTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result and self.exception != 'Połączenie zostało przerwane':
+        if result and not self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 "Sukces", 

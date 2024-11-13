@@ -49,7 +49,7 @@ class DownloadModel3dTask(QgsTask):
         return any(results)
 
     def finished(self, result):
-        if result and self.exception != 'Połączenie zostało przerwane':
+        if result and not self.exception:
             msgbox = QMessageBox(
                 QMessageBox.Information,
                 'Komunikat',
