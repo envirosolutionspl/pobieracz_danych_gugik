@@ -51,7 +51,7 @@ class DownloadKartotekiOsnowTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result and not self.exception:
+        if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
