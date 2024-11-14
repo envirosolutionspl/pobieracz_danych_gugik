@@ -29,8 +29,8 @@ class DownloadOsnowaTask(QgsTask):
                     return False
                 QgsMessageLog.logMessage(f'pobieram {url}')
                 res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                self.exception = exp
                 if not res:
-                    self.exception = exp
                     return False
         return True
 
