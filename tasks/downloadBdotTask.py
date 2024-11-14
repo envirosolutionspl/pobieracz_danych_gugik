@@ -42,7 +42,7 @@ class DownloadBdotTask(QgsTask):
 
     def finished(self, result):
         
-        if result and not self.exception:
+        if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
