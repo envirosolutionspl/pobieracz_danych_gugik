@@ -33,7 +33,7 @@ from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, refl
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
 
 """Wersja wtyczki"""
-plugin_version = '1.2.7'
+plugin_version = '1.2.8'
 plugin_name = 'Pobieracz Danych GUGiK'
 
 
@@ -743,10 +743,8 @@ class PobieraczDanychGugik:
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
             for point in points:
                 sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
-                
-                if sub_list:
-                    las_list.extend(sub_list)
-
+                if not sub_list:
+                    continue
                 las_list.extend(sub_list)
             self.filterLasListAndRunTask(las_list)
         else:
@@ -835,11 +833,6 @@ class PobieraczDanychGugik:
             if self.dockwidget.las_mhTo_lineEdit.text():
                 lasList = [las for las in lasList if
                            str(las.get('bladSredniWysokosci')) <= str(self.dockwidget.las_mhTo_lineEdit.text())]
-        
-        # ograniczenie tylko do najnowszego
-        if self.dockwidget.laz_newest_chkbx.isChecked():
-            lasList = utils.onlyNewest(lasList)
-            
         return lasList
 
     def downloadLaFile(self, las, folder):
