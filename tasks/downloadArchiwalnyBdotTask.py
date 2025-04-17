@@ -31,7 +31,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
             msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
             msgbox.exec_()
 
-        if result and not self.exception:
+        if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 "Sukces", 

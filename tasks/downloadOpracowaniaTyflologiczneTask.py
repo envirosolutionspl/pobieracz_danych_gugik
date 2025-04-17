@@ -23,7 +23,7 @@ class DownloadOpracowaniaTyflologiczneTask(QgsTask):
 
     def finished(self, result):
 
-        if result and not self.exception:
+        if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane opracowania tyflologicznego zostały pobrane.",
                                                 level=Qgis.Success, duration=0)

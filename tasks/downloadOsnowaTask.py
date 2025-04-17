@@ -29,13 +29,13 @@ class DownloadOsnowaTask(QgsTask):
                     return False
                 QgsMessageLog.logMessage(f'pobieram {url}')
                 res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                self.exception = exp
                 if not res:
-                    self.exception = exp
                     return False
         return True
 
     def finished(self, result):
-        if result and not self.exception:
+        if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
