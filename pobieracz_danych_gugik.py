@@ -743,8 +743,8 @@ class PobieraczDanychGugik:
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
             for point in points:
                 sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
-                if not sub_list:
-                    continue
+                if sub_list:
+                    las_list.extend(sub_list)
                 las_list.extend(sub_list)
             self.filterLasListAndRunTask(las_list)
         else:
@@ -833,7 +833,13 @@ class PobieraczDanychGugik:
             if self.dockwidget.las_mhTo_lineEdit.text():
                 lasList = [las for las in lasList if
                            str(las.get('bladSredniWysokosci')) <= str(self.dockwidget.las_mhTo_lineEdit.text())]
+
+        # ograniczenie tylko do najnowszego
+        if self.dockwidget.laz_newest_chkbx.isChecked():
+            lasList = utils.onlyNewest(lasList)
+
         return lasList
+
 
     def downloadLaFile(self, las, folder):
         """Pobiera plik LAS"""
