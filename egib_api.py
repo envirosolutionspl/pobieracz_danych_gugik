@@ -44,4 +44,4 @@ def get_wfs_dict(filter_name):
     return data_dict
 
 def get_wfs_egib_dict():
-    return get_wfs_dict("Ewidencja gruntów i budynków (EGIB)")
+    return get_wfs_dict("Ewidencja Gruntów i Budynków (EGIB)")
