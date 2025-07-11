@@ -9,6 +9,9 @@ from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
     MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
 
+from . import PLUGIN_VERSION as plugin_version
+from . import PLUGIN_NAME as plugin_name
+
 from .uldk import RegionFetch
 from .tasks import (
     DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
@@ -31,10 +34,6 @@ import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
-
-"""Wersja wtyczki"""
-plugin_version = '1.2.8'
-plugin_name = 'Pobieracz Danych GUGiK'
 
 
 class PobieraczDanychGugik:
