@@ -31,7 +31,8 @@ def getNmtListbyPoint1992(point, isEvrf2007):
 
     resp = service_api.getRequest(params=PARAMS, url=NMT_EVRF_WMS_URL if isEvrf2007 else NMT_KRON86_WMS_URL)
     evrf_resp = service_api.getRequest(params=PARAMS, url=NMT_GRID5M_WMS_URL) if isEvrf2007 else (False, None)
-    
+
+
     if resp[0] or evrf_resp[0]:
         wms_objects = []
         if resp[0]:

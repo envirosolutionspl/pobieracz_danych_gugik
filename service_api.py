@@ -94,27 +94,58 @@ def retreiveFile(url, destFolder, obj):
         return False, 'Połączenie zostało przerwane'
 
 
-def getAllLayers(url, service):
+def getAllLayers(url, service="WMS"):
+    # Poprawne parametry GetCapabilities
     params = {
-        'SERVICE': service,
-        'request': 'GetCapabilities',
-        'INFO_FORMAT': 'text/html'
+        "SERVICE": service,
+        "REQUEST": "GetCapabilities",
+        "VERSION": "1.3.0",
     }
 
-    layers = getRequest(params, url)
-    
-    if layers == None:
-        layers = getRequest(params, url)
-    
-    if not layers[0]:
-        return
-    
-    parser = ET.XMLParser(recover=True)
-    tree = ET.ElementTree(ET.fromstring(layers[1][56:].lstrip(), parser=parser))
+    ok, payload = getRequest(params, url)
+    if not ok or not payload:
+        return []
 
-    # To find elements with tag 'element'
-    layers = [el.text for el in tree.iter() if 'Name' in str(el.tag) and str(el.text) != 'WMS']
-    return layers
+    # Parsowanie XML
+    parser = ET.XMLParser(recover=True)
+    try:
+        root = ET.fromstring(payload.encode("utf-8"), parser=parser)
+    except Exception:
+        # gdyby serwer odesłał już bytes w UTF-8
+        root = ET.fromstring(payload, parser=parser)
+
+    # Obsługa przestrzeni nazw (lub jej braku)
+    #    lxml: root.nsmap może mieć None dla domyślnego ns
+    ns_uri = None
+    try:
+        ns_uri = root.nsmap.get(None)  # domyślna przestrzeń nazw, np. 'http://www.opengis.net/wms'
+    except AttributeError:
+        ns_uri = None  # brak nsmap -> brak przestrzeni nazw
+
+    layers = []
+
+    if ns_uri:
+        # XPath: tylko 'Layer' mające 'Name' -> bierzemy 'Layer/Name'
+        ns = {"wms": ns_uri}
+        names = root.xpath(".//wms:Capability//wms:Layer[wms:Name]/wms:Name", namespaces=ns)
+        layers = [el.text for el in names if el is not None and el.text]
+    else:
+        # Bez przestrzeni nazw – klasyczne ścieżki
+        for layer in root.findall(".//Layer"):
+            name_el = layer.find("Name")
+            if name_el is not None and name_el.text:
+                layers.append(name_el.text)
+
+    # zwróć tylko unikalne nazwy w kolejności wystąpienia
+    seen = set()
+    unique_layers = []
+    for n in layers:
+        if n not in seen:
+            seen.add(n)
+            unique_layers.append(n)
+
+    return unique_layers
+
 
 
 def check_internet_connection():
