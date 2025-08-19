@@ -104,37 +104,39 @@ class WfsEgib:
 
                 print(url_gml)
                 sleep(1)
+                layer_name = layer.split(':')[-1]
                 if not check_internet_connection():
                     return 'Połączenie zostało przerwane'
                 try:
                     with get_legacy_session().get(url_gml, verify=False) as resp:
                         if str(resp.status_code) == '404':
-                            name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
+                            name_error = f"- (teryt: {teryt}, warstwa {layer_name}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
                             name_error_lista.append(name_error)
                         else:
-                            with open(os.path.join(folder, teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml'), 'wb') as f:
+                            layer_path = folder + teryt + '_' + layer_name + '_egib_wfs_gml.gml'
+                            with open(layer_path, 'wb') as f:
                                 f.write(resp.content)
                                 name_error = "brak"
-                            size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
+                            size = os.path.getsize(layer_path)
                             if size <= 9000:
-                                name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Za mały rozmiar pliku; błąd pobierania. URL do pliku \n{url_gml}."
+                                name_error = f"- (teryt: {teryt}, warstwa {layer_name}) Za mały rozmiar pliku; błąd pobierania. URL do pliku \n{url_gml}."
                                 name_error_lista.append(name_error)
                             else:
-                                name_error_lista_brak.append(f"{layer.split(':')[-1]}")
+                                name_error_lista_brak.append(f"{layer_name}")
                 except requests.exceptions.SSLError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błędy weryfikacji SSL. Może to "
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błędy weryfikacji SSL. Może to "
                                   f"wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except IOError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd IOError. Błąd zapisu pliku."
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błąd IOError. Błąd zapisu pliku."
                                   f" URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except requests.exceptions.ConnectionError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Błąd ConnectionError. "
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błąd ConnectionError. "
                                   f"Problem związany z połączeniem. URL do pliku \n{url_gml}")
                     name_error_lista.append(name_error)
                 except Exception:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Nieznany błąd. "
+                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Nieznany błąd. "
                                   f"URL do pliku \n{url_gml}")
             if name_error_lista:
                 name_error_brak = ', '.join(name_error_lista_brak)
