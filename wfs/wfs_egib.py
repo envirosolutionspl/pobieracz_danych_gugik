@@ -1,12 +1,10 @@
-import uuid
-
 import requests
 import os
 import xml.etree.ElementTree as ET
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
-
+from datetime import datetime
 from ..service_api import check_internet_connection
 from ..wfs.httpsAdapter import get_legacy_session
 
@@ -149,7 +147,8 @@ class WfsEgib:
     def egib_wfs(self, teryt, wfs, folder):
         """Tworzy nowy folder dla plików XML"""
         wfs = f"{wfs}?service=WFS&request=GetCapabilities"
-        path = os.path.join(folder, f'{teryt}_wfs_egib_{uuid.uuid4()}/')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(folder, f'{teryt}_wfs_egib_{timestamp}/')
         os.mkdir(path)
         return self.save_gml(path, wfs, teryt)
 
