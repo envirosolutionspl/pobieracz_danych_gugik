@@ -32,7 +32,8 @@ class WfsEgib:
             name_error = f"- (teryt: {teryt}) Błąd IOError. Błąd zapisu pliku. URL do pliku \n{url}"
         except requests.exceptions.ConnectionError:
             name_error = f"- (teryt: {teryt}) Błąd ConnectionError. Problem związany z połączeniem. URL do pliku \n{url}"
-        except Exception:
+        except Exception as e:
+            print(type(e).__name__)  # debug
             name_error = f"- (teryt: {teryt}) Nieznany błąd. URL do pliku \n{url}"
         if name_error != "brak":
             name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
@@ -47,35 +48,35 @@ class WfsEgib:
 
         if name_error == "brak":
             try:
-                ns = etree.parse(folder + 'egib_wfs.xml')
-                ns = ns.getroot().nsmap
-                if None in ns:
-                    ns['xmlns'] = ns.pop(None)
                 tree = ET.parse(folder + 'egib_wfs.xml')
                 root = tree.getroot()
 
                 name_layers = []
 
-                for child in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-                    name = child.find('xmlns:Name', ns)
-                    name_layers.append(name.text)
+                # Użyj bezpośrednio namespace URI
+                wfs_ns = {"wfs": "http://www.opengis.net/wfs/2.0"}
 
-                # print("name_layers: ", name_layers)
+                for child in root.findall('./wfs:FeatureTypeList/wfs:FeatureType', wfs_ns):
+                    name = child.find('wfs:Name', wfs_ns)
+                    if name is not None:
+                        name_layers.append(name.text)
 
-                if 'ewns:' in name_layers[0]:
-                    prefix = 'ewns'
-                elif 'ms:' in name_layers[0]:
-                    prefix = 'ms'
-                else:
-                    prefix = None
+                # Określ prefiks
+                if name_layers:
+                    if 'ewns:' in name_layers[0]:
+                        prefix = 'ewns'
+                    elif 'ms:' in name_layers:
+                        prefix = 'ms'
+                    else:
+                        prefix = None
 
             except XMLSyntaxError:
                 name_error = f"- (teryt: {teryt}) Błąd XMLSyntaxError. Problem związany parsowaniem pliku XML. URL do pliku \n{url}"
-            except Exception:
-                name_error = f"- (teryt: {teryt}) Nieznany błąd. URL do pliku \n{url}"
-
-            # print("prefix: ", prefix)
-            # print('ns: ', ns)
+            except IndexError:
+                name_error = f"- (teryt: {teryt}) Błąd indeksu. URL do pliku \n{url}"
+            except Exception as e:
+                print(type(e).__name__)  # debug
+                name_error = f"- (teryt: {teryt}) Nieznany błąd: {str(e)}. URL do pliku \n{url}"
 
             if name_error != "brak":
                 name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
@@ -87,7 +88,6 @@ class WfsEgib:
         """W przypadku błędów przekazuje ich opis"""
 
         name_error, name_layers, prefix = self.work_on_xml(folder, url, teryt)
-
         if name_error == "brak":
             url_main = url.split('?')[0]
 
@@ -99,6 +99,8 @@ class WfsEgib:
                     url_gml = f"{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
                 elif prefix == 'ms':
                     url_gml = f"{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
+                elif prefix is None:
+                    url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typenames={layer}'
                 else:
                     url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typename={layer}'
 
@@ -112,7 +114,7 @@ class WfsEgib:
                             name_error = f"- (teryt: {teryt}, warstwa {layer.split(':')[-1]}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
                             name_error_lista.append(name_error)
                         else:
-                            with open(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml', 'wb') as f:
+                            with open(os.path.join(folder, teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml'), 'wb') as f:
                                 f.write(resp.content)
                                 name_error = "brak"
                             size = os.path.getsize(folder + teryt + '_' + layer.split(':')[-1] + '_egib_wfs_gml.gml')
