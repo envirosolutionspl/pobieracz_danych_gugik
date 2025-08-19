@@ -519,7 +519,7 @@ class PobieraczDanychGugik:
                             orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.get('ukladWspolrzednych').split(":")[
+                            orto.get('ukladWspolrzednychPoziomych').split(":")[
                                 0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
@@ -590,7 +590,6 @@ class PobieraczDanychGugik:
                     point=point,
                     isEvrf2007=isEvrf2007
                 )
-
                 if resp:
                     nmtList.extend(resp if isNmpt else resp[1])
                 else:
@@ -619,6 +618,7 @@ class PobieraczDanychGugik:
             point=point1992,
             isEvrf2007=isEvrf2007
         )
+
         if resp:
             nmtList = resp if isNmpt else resp[1]
             self.filterNmtListAndRunTask(nmtList, isNmpt)
@@ -683,7 +683,7 @@ class PobieraczDanychGugik:
         if self.dockwidget.nmt_filter_groupBox.isChecked():
             if self.dockwidget.nmt_crs_cmbbx.currentText() != 'wszystkie':
                 nmtList = [nmt for nmt in nmtList if
-                           nmt.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
+                           nmt.get('ukladWspolrzednychPoziomych').split(":")[0] == self.dockwidget.nmt_crs_cmbbx.currentText()]
 
             if self.dockwidget.nmt_from_dateTimeEdit.date():
                 nmtList = [nmt for nmt in nmtList if str(nmt.get('aktualnosc')) >= str(
@@ -805,11 +805,10 @@ class PobieraczDanychGugik:
 
     def filterLasList(self, lasList):
         """Filtruje listę LAS"""
-
         if self.dockwidget.las_filter_groupBox.isChecked():
             if not (self.dockwidget.las_crs_cmbbx.currentText() == 'wszystkie'):
                 lasList = [las for las in lasList if
-                           las.get('ukladWspolrzednych').split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
+                           las.get('ukladWspolrzednychPoziomych').split(":")[0] == self.dockwidget.las_crs_cmbbx.currentText()]
             if self.dockwidget.las_from_dateTimeEdit.date():
                 lasList = [las for las in lasList if
                            str(las.get('aktualnosc')) >= str(
@@ -943,7 +942,7 @@ class PobieraczDanychGugik:
         if self.dockwidget.reflectance_filter_groupBox.isChecked():
             if not (self.dockwidget.reflectance_crs_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   reflectance.get('ukladWspolrzednych').split(":")[
+                                   reflectance.get('ukladWspolrzednychPoziomych').split(":")[
                                        0] == self.dockwidget.reflectance_crs_cmbbx.currentText()]
             if self.dockwidget.reflectance_from_dateTimeEdit.date():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
