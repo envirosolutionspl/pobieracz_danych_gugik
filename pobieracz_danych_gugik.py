@@ -158,6 +158,9 @@ class PobieraczDanychGugik:
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
 
+        # zwijanie groupboxow przy wylaczeniu
+        self.change_groupboxes_visibility()
+
         # disconnects
         self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
 
@@ -315,9 +318,9 @@ class PobieraczDanychGugik:
         self.dockwidget.show()
 
     def change_groupboxes_visibility(self):
+
         for rdbtn, groupboxes in GROUPBOXES_VISIBILITY_MAP.items():
             visible = getattr(self.dockwidget, rdbtn).isChecked()
-
             for groupbox in groupboxes:
                 getattr(self.dockwidget, groupbox).setVisible(visible)
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
