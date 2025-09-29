@@ -1,11 +1,14 @@
 import os, datetime
+
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtGui import QPixmap, QIcon
+
 from qgis.core import (
     QgsApplication, QgsTask, QgsMessageLog, Qgis
 )
-from qgis.PyQt.QtWidgets import QMessageBox
+
 from .. import service_api, utils
 from ..wfs import WfsEgib
-from PyQt5.QtGui import QPixmap, QIcon
 
 
 class DownloadWfsEgibTask(QgsTask):
