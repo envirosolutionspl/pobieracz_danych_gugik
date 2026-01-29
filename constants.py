@@ -131,7 +131,7 @@ ADMINISTRATIVE_UNITS_OBJECTS = {
 
 YEARS_COMBOBOXES = {
     'bdoo_dateEdit_comboBox': ['2022', '2021', '2015'],
-    'egib_excel_dateEdit_comboBox': ['2022', '2021', '2020'],
+    'egib_excel_dateEdit_comboBox': ['2025', '2024', '2023', '2022', '2021', '2020'],
     'archiwalne_bdot_dateEdit_comboBox': ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
 }
 
