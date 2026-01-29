@@ -326,7 +326,7 @@ class PobieraczDanychGugik:
                 getattr(self.dockwidget, groupbox).setCollapsed(visible)
 
     def wfs_fromLayer_btn_clicked(self):
-        """Kliknięcie plawisza pobierania danych WFS przez wybór warstwą wektorową"""
+        """Kliknięcie klawisza pobierania danych WFS przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
@@ -421,6 +421,10 @@ class PobieraczDanychGugik:
     def canvasWfs_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.wfsClickTool)
         self.downloadWfsForLayer(point)
 
@@ -507,6 +511,10 @@ class PobieraczDanychGugik:
     def canvasOrto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.ortoClickTool)
         self.downloadOrtoForSinglePoint(point)
 
@@ -558,7 +566,7 @@ class PobieraczDanychGugik:
     # region NMT/NMPT
 
     def nmt_fromLayer_btn_clicked(self):
-        """Kliknięcie plawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
+        """Kliknięcie klawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
         connection = service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
@@ -668,7 +676,10 @@ class PobieraczDanychGugik:
     def canvasNmt_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
         """point - QgsPointXY"""
-
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.nmtClickTool)
         self.downloadNmtForSinglePoint(point)
 
@@ -800,6 +811,10 @@ class PobieraczDanychGugik:
     def canvasLas_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór LAS z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.lasClickTool)
         self.downloadLasForSinglePoint(point)
 
@@ -933,6 +948,10 @@ class PobieraczDanychGugik:
     def canvasReflectance_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Intensywności z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.reflectanceClickTool)
         self.downloadReflectanceForSinglePoint(point)
 
@@ -1782,10 +1801,20 @@ class PobieraczDanychGugik:
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
         self.downloadAerotriangulacjiForSinglePoint(point)
 
     def canvasMesh_clicked(self, point):
+        """Zdarzenie kliknięcia przez wybór Siatki modeli 3D z mapy"""
+        """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.mesh3dClickTool)
         self.downloadMesh3dForSinglePoint(point)
 
@@ -1866,6 +1895,10 @@ class PobieraczDanychGugik:
     def canvasMozaika_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Linii Mozaikowania z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.mozaikaClickTool)
         self.downloadMozaikaForSinglePoint(point)
 
@@ -1951,6 +1984,10 @@ class PobieraczDanychGugik:
     def canvasWizualizacja_karto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Wizualizacji Kartograficznej BDOT10k z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
 
@@ -2039,6 +2076,10 @@ class PobieraczDanychGugik:
     def canvasKartoteki_osnow_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Archiwalnych kartotek osnów geodezyjnych z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.kartoteki_osnowClickTool)
         self.downloadKartotekiOsnowForSinglePoint(point)
 
@@ -2200,6 +2241,10 @@ class PobieraczDanychGugik:
     def canvasZdjecia_lotnicze_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
+        connection = service_api.check_internet_connection()
+        if not connection:
+            self.show_no_connection_message()
+            return
         self.canvas.unsetMapTool(self.zdjecia_lotniczeClickTool)
         self.downloadZdjeciaLotniczeForSinglePoint(point)
 
