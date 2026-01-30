@@ -34,6 +34,7 @@ class DownloadEgibExcelTask(QgsTask):
 
             url_czesc = f"{EGIB_WMS_URL}{self.rok}/{self.teryt_wojewodztwo}/{nazwa_teryt_wojewodztwa}"
         elif self.zakres_danych == 'kraj':
+            # zmiana nazwy pliku dla całego kraju od 2024 z Polska na PL
             if self.rok < '2024':
                 url_czesc = f"{EGIB_WMS_URL}{self.rok}/Polska"
             else:
