@@ -22,26 +22,34 @@ class DownloadBdotTask(QgsTask):
         self.exception = None
         self.iface = iface
         self.result = None
+        self.level = level
+        self.teryt = teryt
+        self.format_danych = format_danych
         self._construct_url(level, teryt, format_danych)
 
-    def _construct_url(self, level: int, teryt: str, data_format: str) -> None:
+    def _construct_url(self, level: int, teryt: str, data_format: str, upper: bool = False) -> None:
         prefix = BDOT_FORMAT_URL_MAPPING.get(data_format)
         data_format = data_format.strip().split()[0]
+        zip_suffix = "zip"
+        if upper:
+            zip_suffix = "ZIP"
         if level == 0:
-            self.url = f"{prefix}Polska_{data_format}.zip"
+            self.url = f"{prefix}Polska_{data_format}.{zip_suffix}"
         elif level == 1:
-            self.url = f"{prefix}{teryt}/{teryt}_{data_format}.zip"
+            self.url = f"{prefix}{teryt}/{teryt}_{data_format}.{zip_suffix}"
         elif level == 2:
-            self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.zip"
+            self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.{zip_suffix}"
 
     def run(self):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         QgsMessageLog.logMessage(f'pobieram {self.url}')
         self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        return not self.isCanceled()
+        if not self.result:
+            self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
+            self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        return self.result and not self.isCanceled()
 
     def finished(self, result):
-        
         if result and self.exception:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
