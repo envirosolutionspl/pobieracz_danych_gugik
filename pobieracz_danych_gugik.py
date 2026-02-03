@@ -527,7 +527,7 @@ class PobieraczDanychGugik:
                             orto.get('kolor') == self.dockwidget.orto_kolor_cmbbx.currentText()]
             if not (self.dockwidget.orto_crs_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
-                            orto.get('ukladWspolrzednychPoziomych').split(":")[
+                            orto.get('ukladWspolrzednychPoziomych') and orto.get('ukladWspolrzednychPoziomych').split(":")[
                                 0] == self.dockwidget.orto_crs_cmbbx.currentText()]
             if self.dockwidget.orto_from_dateTimeEdit.date():
                 ortoList = [orto for orto in ortoList if
