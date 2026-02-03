@@ -55,7 +55,10 @@ def createPointsFromLineLayer(layer, density):
     points = []
     for feat in layer.getFeatures():
         geom = feat.geometry()
-        for point in geom.densifyByDistance(density).vertices():
+        if not geom or geom.isNull():
+            continue
+        densified_geom = geom.densifyByDistance(density)
+        for point in densified_geom.vertices():
             if point not in points:
                 points.append(point)
     return points
