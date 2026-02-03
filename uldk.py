@@ -1,41 +1,41 @@
-from .constants import ULDK_GMINA_DICT_URL, ULDK_POWIAT_DICT_URL, ULDK_WOJEWODZTWO_DICT_URL
-from .wfs.httpsAdapter import get_legacy_session
+import requests
+from qgis.core import QgsMessageLog
+from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT
 
 
 class RegionFetch:
     def __init__(self):
-        self.wojewodztwoDict = self.__fetchWojewodztwoDict()
-        self.powiatDict = self.__fetchPowiatDict()
-        self.gminaDict = self.__fetchGminaDict()
-        self.filteredPowiatDict = {}
-        self.filteredGminaDict = {}
+        self.wojewodztwoDict = self.get_wojewodztwo_dict()
 
     @staticmethod
-    def fetch_unit_dict(url):
+    def fetch_unit_dict(endpoint):
         unit_dict = {}
-        with get_legacy_session().get(url=url, verify=False) as resp:
-            resp_text = resp.text.strip().split('\n')
-            if not resp_text:
-                return
-            for el in resp_text[1:]:
-                split = el.split('|')
-                unit_dict[split[1]] = split[0]
+        url = f"{LOCAL_API_URL}{endpoint}"
+        try:
+            QgsMessageLog.logMessage(f"Pobieranie danych z: {url}", "PobieraczDanych")
+            resp = requests.get(url, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                for item in data:
+                    unit_dict[item['teryt']] = item['name']
+            else:
+                QgsMessageLog.logMessage(f"Błąd HTTP {resp.status_code} przy pobieraniu: {url}", "PobieraczDanych")
+        except Exception as e:
+            QgsMessageLog.logMessage(f"Wyjątek przy pobieraniu {url}: {str(e)}", "PobieraczDanych")
         return unit_dict
 
-    def __fetchGminaDict(self):
-        return self.fetch_unit_dict(ULDK_GMINA_DICT_URL)
-
-    def __fetchPowiatDict(self):
-        return self.fetch_unit_dict(ULDK_POWIAT_DICT_URL)
-
-    def __fetchWojewodztwoDict(self):
-        return self.fetch_unit_dict(ULDK_WOJEWODZTWO_DICT_URL)
+    def get_wojewodztwo_dict(self):
+        return self.fetch_unit_dict(GET_VOIVODESHIP_ENDPOINT)
 
     def get_powiat_by_teryt(self, teryt):
-        return {key: val for key, val in self.powiatDict.items() if key.startswith(teryt)}
+        if not teryt:
+            return {}
+        return self.fetch_unit_dict(GET_COUNTY_ENDPOINT.format(teryt=teryt))
 
     def get_gmina_by_teryt(self, teryt):
-        return {key: val for key, val in self.gminaDict.items() if key.startswith(teryt)}
+        if not teryt:
+            return {}
+        return self.fetch_unit_dict(GET_COMMUNE_ENDPOINT.format(teryt=teryt))
 
 
 if __name__ == '__main__':

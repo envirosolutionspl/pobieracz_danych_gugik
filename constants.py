@@ -25,9 +25,11 @@ TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
 WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
 ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
 
-ULDK_GMINA_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,teryt'
-ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt'
-ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
+# endpointy do lokalnego api
+LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
+GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
+GET_COUNTY_ENDPOINT = "/getCounty/{teryt}"
+GET_COMMUNE_ENDPOINT = "/getCommune/{teryt}"
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
