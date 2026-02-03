@@ -32,7 +32,7 @@ class DownloadBdotTask(QgsTask):
         data_format = data_format.strip().split()[0]
         zip_suffix = "zip"
         if upper:
-            zip_suffix = "ZIP"
+            zip_suffix = zip_suffix.upper()
         if level == 0:
             self.url = f"{prefix}Polska_{data_format}.{zip_suffix}"
         elif level == 1:
