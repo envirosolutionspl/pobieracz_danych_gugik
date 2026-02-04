@@ -373,41 +373,72 @@ class PobieraczDanychGugik:
             typename=self.dockwidget.wfs_layer_cmbbx.currentText())
         skorowidzeLayer.updatedFields.connect(self.test)
         if skorowidzeLayer.isValid():
-            urls = []
             self.project.addMapLayer(skorowidzeLayer)
-            layerWithAttributes = self.project.mapLayer(skorowidzeLayer.id())
+            features = list(skorowidzeLayer.getFeatures())
+            
+            service_name = self.dockwidget.wfs_service_cmbbx.currentText()
 
-            for feat in layerWithAttributes.getFeatures():
-                urls.append(feat['url_do_pobrania'])
+            # Filtrowanie
+            if service_name == 'Ortofotomapa':
+                # Pobranie parametrów z UI
+                f_color = self.dockwidget.wfs_kolor_choice.currentText()
+                f_source = self.dockwidget.wfs_source_choice.currentText()
+                f_crs = self.dockwidget.wfs_crs_choice.currentText()
+                
+                # Pobranie pikseli
+                try:
+                    f_pix_from = float(self.dockwidget.wfs_pixelFrom_choice.text().replace(',', '.')) if self.dockwidget.wfs_pixelFrom_choice.text() else 0
+                    f_pix_to = float(self.dockwidget.wfs_pixelTo_choice.text().replace(',', '.')) if self.dockwidget.wfs_pixelTo_choice.text() else 999
+                except:
+                    f_pix_from, f_pix_to = 0, 999
 
-            # wyswietl komunikat pytanie
+                filtered_features = []
+                for f in features:
+                    # Kolor
+                    if f_color != "wszystkie" and str(f['kolor']) != f_color:
+                        continue
+                    # Źródło
+                    if f_source != "wszystkie" and str(f['zrodlo_danych']) != f_source:
+                        continue
+                    # CRS
+                    if f_crs != "wszystkie":
+                        if f_crs not in str(f['uklad_xy']):
+                            continue
+                    # Piksel
+                    try:
+                        pix_val = float(f['piksel'])
+                        if not (f_pix_from <= pix_val <= f_pix_to):
+                            continue
+                    except: pass # jeśli brak pola piksel, nie odrzucaj
+                    
+                    filtered_features.append(f)
+                
+                features = filtered_features
+
+            # Usunięcie duplikatów URL
+            urls = []
+            seen_urls = set()
+            for feat in features:
+                url = feat['url_do_pobrania']
+                if url and url not in seen_urls:
+                    urls.append(url)
+                    seen_urls.add(url)
+
+            # Komunikat
             if len(urls) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
-                msgbox.exec_()
-
-                self.project.removeMapLayer(skorowidzeLayer.id())
-
-                self.canvas.refresh()
+                QMessageBox.information(None, "Komunikat", "Brak danych spełniających Twoje filtry.")
                 return
-            else:
-                msgbox = QMessageBox(QMessageBox.Question,
-                                     "Potwierdź pobieranie",
-                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                         urls))
-                msgbox.addButton(QMessageBox.Yes)
-                msgbox.addButton(QMessageBox.No)
-                msgbox.setDefaultButton(QMessageBox.No)
-                reply = msgbox.exec()
 
-                if reply == QMessageBox.Yes:
-                    # pobieranie
-                    self.runWfsTask(urls)
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
-                else:
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
+            reply = QMessageBox.question(None, "Potwierdź", f"Znaleziono {len(urls)} plików. Pobrać?", QMessageBox.Yes | QMessageBox.No)
+            
+            if reply == QMessageBox.Yes:
+                # pobieranie
+                self.runWfsTask(urls)
+                self.project.removeMapLayer(skorowidzeLayer.id())
+                self.canvas.refresh()
+            else:
+                self.project.removeMapLayer(skorowidzeLayer.id())
+                self.canvas.refresh()
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
