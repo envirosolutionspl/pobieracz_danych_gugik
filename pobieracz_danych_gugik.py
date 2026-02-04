@@ -221,6 +221,9 @@ class PobieraczDanychGugik:
 
         self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
         self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
+        
+        self.dockwidget.wfs_service_cmbbx.currentTextChanged.connect(self.toggle_ortho_filters_visibility)
+        self.toggle_ortho_filters_visibility()
 
         self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
         self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
@@ -439,6 +442,30 @@ class PobieraczDanychGugik:
             else:
                 self.project.removeMapLayer(skorowidzeLayer.id())
                 self.canvas.refresh()
+
+    def toggle_ortho_filters_visibility(self):
+        """Pokazuje/ukrywa filtry ortofotomapy w zależności od wybranej usługi"""
+        group_box = (
+            getattr(self.dockwidget, 'groupWfsOrthoFilters', None)
+            or getattr(self.dockwidget, 'groupOrthoFilters', None)
+        )
+
+        if not group_box:
+            return
+
+        service_name = self.dockwidget.wfs_service_cmbbx.currentText()
+        is_ortho = service_name == 'Ortofotomapa'
+
+        # enable / disable
+        group_box.setEnabled(is_ortho)
+
+        # checkbox w nagłówku
+        if hasattr(group_box, 'setChecked'):
+            group_box.setChecked(is_ortho)
+
+        # zwijanie / rozwijanie
+        if hasattr(group_box, 'setCollapsed'):
+            group_box.setCollapsed(not is_ortho)
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
