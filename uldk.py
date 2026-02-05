@@ -1,6 +1,6 @@
-import requests
+from .network_utils import NetworkUtils
 from qgis.core import QgsMessageLog
-from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT
+from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT, TIMEOUT_MS
 
 
 class RegionFetch:
@@ -13,15 +13,13 @@ class RegionFetch:
         url = f"{LOCAL_API_URL}{endpoint}"
         try:
             QgsMessageLog.logMessage(f"Pobieranie danych z: {url}", "PobieraczDanych")
-            resp = requests.get(url, timeout=5)
-            if resp.status_code == 200:
-                data = resp.json()
-                for item in data:
-                    unit_dict[item['teryt']] = item['name']
-            else:
-                QgsMessageLog.logMessage(f"Błąd HTTP {resp.status_code} przy pobieraniu: {url}", "PobieraczDanych")
+            data = NetworkUtils.fetch_json(url, timeout_ms=TIMEOUT_MS)
+            for item in data:
+                unit_dict[item['teryt']] = item['name']
+        except (TimeoutError, ConnectionError) as e:
+            QgsMessageLog.logMessage(f"Błąd połączenia przy pobieraniu {url}: {str(e)}", "PobieraczDanych", level=2)
         except Exception as e:
-            QgsMessageLog.logMessage(f"Wyjątek przy pobieraniu {url}: {str(e)}", "PobieraczDanych")
+            QgsMessageLog.logMessage(f"Inny błąd przy pobieraniu {url}: {str(e)}", "PobieraczDanych", level=2)
         return unit_dict
 
     def get_wojewodztwo_dict(self):

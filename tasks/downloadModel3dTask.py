@@ -5,7 +5,6 @@ from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BUDYNKI_3D_WMS_URL
 from .. import service_api, utils
-from ..wfs.httpsAdapter import get_legacy_session
 
 
 class DownloadModel3dTask(QgsTask):

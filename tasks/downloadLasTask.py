@@ -36,11 +36,18 @@ class DownloadLasTask(QgsTask):
                 QgsMessageLog.logMessage('isCanceled')
                 return False
             QgsMessageLog.logMessage(f'start {las_url}')
-            res, self.exception = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
+            success, message = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-            results.append(res)
+            results.append(success)
+            if not success:
+                self.exception = message
+                
         if not any(results):
             return False
+            
+        if all(results):
+            self.exception = True
+            
         self.create_report()
         return True
 
@@ -63,13 +70,11 @@ class DownloadLasTask(QgsTask):
                 duration=0
             )
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            QgsMessageLog.logMessage(f"Błąd LAZ: {error_msg}")
             self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane LAZ nie zostały pobrane.'
+                f'Dane LAZ nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):

@@ -43,14 +43,21 @@ class DownloadBdotTask(QgsTask):
     def run(self):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         QgsMessageLog.logMessage(f'pobieram {self.url}')
-        self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.result = success
+        self.exception = message
+        
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
-            self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            QgsMessageLog.logMessage(f'Próba 2: pobieram {self.url}')
+            success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            self.result = success
+            self.exception = message
+            
         return self.result and not self.isCanceled()
 
     def finished(self, result):
-        if result and self.exception:
+        if result:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
@@ -59,13 +66,11 @@ class DownloadBdotTask(QgsTask):
                 duration=10
             )
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage('exception')
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            QgsMessageLog.logMessage(f'Błąd pobierania: {error_msg}')
             self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane BDOT10k nie zostały pobrane.'
+                f'Dane BDOT10k nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):

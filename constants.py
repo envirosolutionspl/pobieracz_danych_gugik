@@ -31,6 +31,14 @@ GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
 GET_COUNTY_ENDPOINT = "/getCounty/{teryt}"
 GET_COMMUNE_ENDPOINT = "/getCommune/{teryt}"
 
+# parametry do pobierania danych 
+TIMEOUT_MS = 5000
+MAX_ATTEMPTS = 3
+
+# minimalny rozmiar pliku do pobrania danych (~9KB)
+MIN_FILE_SIZE = 9000
+
+
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
 CURRENT_YEAR = datetime.now().year

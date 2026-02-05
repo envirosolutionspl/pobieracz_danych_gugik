@@ -1,4 +1,3 @@
-import requests
 import os
 import xml.etree.ElementTree as ET
 from time import sleep
@@ -6,52 +5,48 @@ from lxml import etree
 from lxml.etree import XMLSyntaxError
 from datetime import datetime
 from ..service_api import check_internet_connection
-from ..wfs.httpsAdapter import get_legacy_session
+from ..network_utils import NetworkUtils
+from ..constants import MIN_FILE_SIZE
 
 
 class WfsEgib:
 
     def save_xml(self, folder, url, teryt):
-        """Zapisuje plik XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
-        """W przypadku błędów przekazuje ich opis"""
+        """Zapisuje plik XML dla zapytania getCapabilities"""
         if not check_internet_connection():
             return 'Połączenie zostało przerwane'
+        
+        path = os.path.join(folder, 'egib_wfs.xml')
+        error_reason = None
+
         try:
-            with get_legacy_session().get(url, verify=False) as resp:
-                if str(resp.status_code) == '404':
-                    name_error = f"- (teryt: {teryt}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url}"
-                else:
-                    with open(f'{folder}egib_wfs.xml', 'wb') as f:
-                        f.write(resp.content)
-                    name_error = "brak"
-        except requests.exceptions.SSLError:
-            name_error = f"- (teryt: {teryt}) Błędy weryfikacji SSL. Może to wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url}"
-        except IOError:
-            name_error = f"- (teryt: {teryt}) Błąd IOError. Błąd zapisu pliku. URL do pliku \n{url}"
-        except requests.exceptions.ConnectionError:
-            name_error = f"- (teryt: {teryt}) Błąd ConnectionError. Problem związany z połączeniem. URL do pliku \n{url}"
+            NetworkUtils.download_file(url, path)
+        except (IOError, OSError) as e:
+            error_reason = f"Błąd zapisu pliku (IOError): {e}"
+        except ConnectionError as e:
+            error_reason = "Błędy weryfikacji SSL (certyfikat)" if "SSL" in str(e) else f"Błąd połączenia: {e}"
+        except TimeoutError:
+            error_reason = "Przekroczono czas oczekiwania (Timeout)"
         except Exception as e:
-            print(type(e).__name__)  # debug
-            name_error = f"- (teryt: {teryt}) Nieznany błąd. URL do pliku \n{url}"
-        if name_error != "brak":
-            name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
-        return name_error
+            error_reason = f"Nieoczekiwany błąd: {e}"
+            
+        if error_reason:
+            return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {error_reason}. URL: \n{url}"
+            
+        return "brak"
 
     def work_on_xml(self, folder, url, teryt):
         """Pracuje na pliku XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
-        """Zwraca listę warstw EGiB dostępnych dla wybranego powiatu"""
         name_error = self.save_xml(folder, url, teryt)
         name_layers = None
         prefix = None
 
         if name_error == "brak":
+            error_reason = None
             try:
-                tree = ET.parse(folder + 'egib_wfs.xml')
+                tree = ET.parse(os.path.join(folder, 'egib_wfs.xml'))
                 root = tree.getroot()
-
                 name_layers = []
-
-                # Użyj bezpośrednio namespace URI
                 wfs_ns = {"wfs": "http://www.opengis.net/wfs/2.0"}
 
                 for child in root.findall('./wfs:FeatureTypeList/wfs:FeatureType', wfs_ns):
@@ -59,92 +54,78 @@ class WfsEgib:
                     if name is not None:
                         name_layers.append(name.text)
 
-                # Określ prefiks
                 if name_layers:
                     if 'ewns:' in name_layers[0]:
                         prefix = 'ewns'
-                    elif 'ms:' in name_layers:
+                    elif 'ms:' in name_layers[0]:
                         prefix = 'ms'
-                    else:
-                        prefix = None
-
-            except XMLSyntaxError:
-                name_error = f"- (teryt: {teryt}) Błąd XMLSyntaxError. Problem związany parsowaniem pliku XML. URL do pliku \n{url}"
-            except IndexError:
-                name_error = f"- (teryt: {teryt}) Błąd indeksu. URL do pliku \n{url}"
+            except ET.ParseError:
+                error_reason = "Błąd parsowania pliku XML. Serwer zwrócił niepoprawne dane"
             except Exception as e:
-                print(type(e).__name__)  # debug
-                name_error = f"- (teryt: {teryt}) Nieznany błąd: {str(e)}. URL do pliku \n{url}"
+                error_reason = f"Błąd przy przetwarzaniu XML: {str(e)}"
 
-            if name_error != "brak":
-                name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
+            if error_reason:
+                name_error = f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {error_reason}. URL: \n{url}"
 
         return name_error, name_layers, prefix
 
     def save_gml(self, folder, url, teryt):
         """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty"""
-        """W przypadku błędów przekazuje ich opis"""
-
         name_error, name_layers, prefix = self.work_on_xml(folder, url, teryt)
-        if name_error == "brak":
-            url_main = url.split('?')[0]
+        if name_error != "brak":
+            return name_error
 
-            name_error_lista_brak = []
+        url_main = url.split('?')[0]
+        name_error_lista_brak = [] # Sukcesy
+        name_error_lista = []      # Błędy
 
-            name_error_lista = []
-            for layer in name_layers:
-                if prefix == 'ewns':
-                    url_gml = f"{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
-                elif prefix == 'ms':
-                    url_gml = f"{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
-                elif prefix is None:
-                    url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typenames={layer}'
+        for layer in name_layers:
+            if prefix == 'ewns':
+                url_gml = f"{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
+            elif prefix == 'ms':
+                url_gml = f"{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
+            else:
+                url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}'
+
+            print(url_gml)
+            sleep(1)
+            layer_name = layer.split(':')[-1]
+            if not check_internet_connection():
+                return 'Połączenie zostało przerwane'
+            
+            layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
+            error_reason = None
+
+            try:
+                NetworkUtils.download_file(url_gml, layer_path)
+                # Sprawdzenie rozmiaru
+                if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
+                    error_reason = "Za mały rozmiar pliku; błąd pobierania danych (prawdopodobnie brak danych dla tego obszaru)"
                 else:
-                    url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typename={layer}'
+                    name_error_lista_brak.append(layer_name)
+            except (IOError, OSError) as e:
+                error_reason = f"Błąd zapisu pliku (IOError): {e}"
+            except ConnectionError as e:
+                error_reason = "Błędy weryfikacji SSL (certyfikat)" if "SSL" in str(e) else f"Błąd połączenia: {e}"
+            except TimeoutError:
+                error_reason = "Przekroczono czas oczekiwania (Timeout)"
+            except InterruptedError:
+                return "Pobieranie przerwane przez użytkownika"
+            except Exception as e:
+                error_reason = f"Nieoczekiwany błąd: {e}"
 
-                print(url_gml)
-                sleep(1)
-                layer_name = layer.split(':')[-1]
-                if not check_internet_connection():
-                    return 'Połączenie zostało przerwane'
-                try:
-                    with get_legacy_session().get(url_gml, verify=False) as resp:
-                        if str(resp.status_code) == '404':
-                            name_error = f"- (teryt: {teryt}, warstwa {layer_name}) Serwer nie może znaleźć żądanego pliku. URL do pliku \n{url_gml}"
-                            name_error_lista.append(name_error)
-                        else:
-                            layer_path = folder + teryt + '_' + layer_name + '_egib_wfs_gml.gml'
-                            with open(layer_path, 'wb') as f:
-                                f.write(resp.content)
-                                name_error = "brak"
-                            size = os.path.getsize(layer_path)
-                            if size <= 9000:
-                                name_error = f"- (teryt: {teryt}, warstwa {layer_name}) Za mały rozmiar pliku; błąd pobierania. URL do pliku \n{url_gml}."
-                                name_error_lista.append(name_error)
-                            else:
-                                name_error_lista_brak.append(f"{layer_name}")
-                except requests.exceptions.SSLError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błędy weryfikacji SSL. Może to "
-                                  f"wskazywać na problem z serwerem i/lub jego certyfikatem. URL do pliku \n{url_gml}")
-                    name_error_lista.append(name_error)
-                except IOError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błąd IOError. Błąd zapisu pliku."
-                                  f" URL do pliku \n{url_gml}")
-                    name_error_lista.append(name_error)
-                except requests.exceptions.ConnectionError:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Błąd ConnectionError. "
-                                  f"Problem związany z połączeniem. URL do pliku \n{url_gml}")
-                    name_error_lista.append(name_error)
-                except Exception:
-                    name_error = (f"- (teryt: {teryt}, warstwa {layer_name}) Nieznany błąd. "
-                                  f"URL do pliku \n{url_gml}")
-            if name_error_lista:
-                name_error_brak = ', '.join(name_error_lista_brak)
-                name_error = '\n\n '.join(name_error_lista)
-                name_error = "Nieprawidłowe warstwy: " + '\n\n ' + name_error
-                if name_error_brak != "":
-                    name_error = name_error + "\n\nPrawidłowe warstwy:  " + name_error_brak
-        return name_error
+            if error_reason:
+                full_msg = f"- (teryt: {teryt}, warstwa {layer_name}) {error_reason}. URL: \n{url_gml}"
+                name_error_lista.append(full_msg)
+
+        # --- Generowanie raportu końcowego ---
+        if name_error_lista:
+            report_parts = ["Nieprawidłowe warstwy: \n\n " + '\n\n '.join(name_error_lista)]
+            if name_error_lista_brak:
+                report_parts.append("Prawidłowe warstwy:  " + ', '.join(name_error_lista_brak))
+            return "\n\n".join(report_parts)
+            
+        return "brak"
 
     def egib_wfs(self, teryt, wfs, folder):
         """Tworzy nowy folder dla plików XML"""

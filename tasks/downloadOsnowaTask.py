@@ -2,9 +2,9 @@ from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
 )
 
-from ..constants import OSNOWA_WMS_URL
+from ..constants import OSNOWA_WMS_URL, TIMEOUT_MS
 from .. import service_api, utils
-from ..wfs.httpsAdapter import get_legacy_session
+from ..network_utils import NetworkUtils
 
 
 class DownloadOsnowaTask(QgsTask):
@@ -21,17 +21,20 @@ class DownloadOsnowaTask(QgsTask):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         for typ in self.typ:
             url = f"{OSNOWA_WMS_URL}teryt={self.teryt_powiat}&typ={typ}"
-            with get_legacy_session().get(url, verify=False) as resp:
-                if str(resp.status_code) != '200':
-                    return False
-                if self.isCanceled():
-                    QgsMessageLog.logMessage('isCanceled')
-                    return False
+            
+            if self.isCanceled():
+                return False
+                
+            try:
+                NetworkUtils.fetch_content(url, timeout_ms=TIMEOUT_MS)
                 QgsMessageLog.logMessage(f'pobieram {url}')
                 res, exp = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
                 self.exception = exp
                 if not res:
                     return False
+            except Exception as e:
+                QgsMessageLog.logMessage(f'Błąd przy sprawdzaniu/pobieraniu {url}: {str(e)}')
+                return False
         return True
 
     def finished(self, result):

@@ -1,27 +1,24 @@
 from qgis.utils import iface
-
-import requests
+from qgis.core import QgsMessageLog
 from lxml import etree
 
+from .network_utils import NetworkUtils
 from .service_api import check_internet_connection
-from .constants import EGIB_WFS_URL
-from .wfs.httpsAdapter import get_legacy_session
+from .constants import EGIB_WFS_URL, TIMEOUT_MS
 
 def get_wfs_dict(filter_name):
     data_dict = {}
     try:
-        with get_legacy_session().get(url=EGIB_WFS_URL, verify=False) as resp:
-            if resp.status_code != 200:
-                return
-    except requests.exceptions.ConnectionError:
-        iface.messageBar().pushWarning("Ostrzeżenie:", 'Brak połączenia z internetem - nie można pobrać adresu WFS.')
+        content = NetworkUtils.fetch_content(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
+    except TimeoutError:
+        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera EGIB.')
+        return
+    except (ConnectionError, Exception) as e:
+        iface.messageBar().pushWarning("Ostrzeżenie:", f'Błąd połączenia z serwerem EGIB: {str(e)}')
+        QgsMessageLog.logMessage(f"Błąd przy pobieraniu {EGIB_WFS_URL}: {str(e)}", "PobieraczDanych")
         return
 
-    except requests.exceptions.Timeout:
-        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera.')
-        return
-
-    root = etree.HTML(resp.content)
+    root = etree.HTML(content)
     table = root.xpath('.//table[contains(@class, "table")]')[0]
     if table is None:
         return

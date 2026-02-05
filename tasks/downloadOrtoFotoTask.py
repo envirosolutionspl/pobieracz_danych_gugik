@@ -35,11 +35,18 @@ class DownloadOrtofotoTask(QgsTask):
             if not orto_url:
                 continue
             QgsMessageLog.logMessage(f'start {orto_url}')
-            res, self.exception = service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
+            success, message = service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-            results.append(res)
+            results.append(success)
+            if not success:
+                self.exception = message
+
         if not any(results):
             return False
+            
+        if all(results):
+            self.exception = True
+            
         self.create_report()
         return True
 
@@ -62,13 +69,11 @@ class DownloadOrtofotoTask(QgsTask):
                 duration=0
             )
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            QgsMessageLog.logMessage(f"Błąd Ortofoto: {error_msg}")
             self.iface.messageBar().pushWarning(
                 'Błąd',
-                'Dane z ortofotomapy nie zostały pobrane.'
+                f'Dane z ortofotomapy nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):

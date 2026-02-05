@@ -25,7 +25,6 @@ import processing
 from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
-import requests
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
@@ -157,6 +156,8 @@ class PobieraczDanychGugik:
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
+        if self.dockwidget is None:
+            return
 
         # zwijanie groupboxow przy wylaczeniu
         self.change_groupboxes_visibility()
@@ -318,6 +319,8 @@ class PobieraczDanychGugik:
         self.dockwidget.show()
 
     def change_groupboxes_visibility(self):
+        if self.dockwidget is None:
+            return
 
         for rdbtn, groupboxes in GROUPBOXES_VISIBILITY_MAP.items():
             visible = getattr(self.dockwidget, rdbtn).isChecked()

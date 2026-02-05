@@ -1,33 +1,24 @@
-from qgis.utils import iface
-
+from .constants import TIMEOUT_MS, MAX_ATTEMPTS
 from . import utils
-
 import lxml.etree as ET
-from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
-import os, time, socket
-
-
-def _get_session():
-    from .wfs.httpsAdapter import get_legacy_session
-    return get_legacy_session()
-
-
+import os, time, urllib.error
+from .network_utils import NetworkUtils
 
 def getRequest(params, url):
-    max_attempts = 3
     attempt = 0
-    while attempt <= max_attempts:
-        if not isInternetConnected():
-            return False, 'Połączenie zostało przerwane'
+    while attempt <= MAX_ATTEMPTS:
         try:
-            with _get_session().get(url=url, params=params, verify=False) as resp:
-                if resp.status_code == 200:
-                    return True, resp.text
-                else:
-                    return False, f'Błąd {resp.status_code}'
-        except ConnectionError:
+            content = NetworkUtils.fetch_content(url, params=params, timeout_ms=TIMEOUT_MS * 2)
+            return True, content
+        except (TimeoutError, ConnectionError) as e:
             attempt += 1
+            if attempt > MAX_ATTEMPTS:
+                return False, f'Błąd po {MAX_ATTEMPTS} próbach połączenia: {str(e)}'
             time.sleep(2)
+        except urllib.error.HTTPError as e:
+            return False, f'Serwer zwrócił błąd HTTP {e.code}: {e.reason}'
+        except Exception as e:
+            return False, f'Nieoczekiwany błąd sieci: {str(e)}'
 
 
 def retreiveFile(url, destFolder, obj):
@@ -60,43 +51,19 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
     
     try:
-        resp = _get_session().get(url=url, verify=False, stream=True)
-        chunks_made = 0
-        if str(resp.status_code) == '404':
-            resp.close()
-            return False, "Plik nie istnieje"
-        saved = True
-        try:
-            cleanup_file(path)
-            
-            with open(path, 'wb') as f:
-                for chunk in resp.iter_content(chunk_size=8192):
-                    """Pobieramy plik w kawałkach dzięki czemu możliwe jest przerwanie w trakcie pobierania"""
-
-                    if chunks_made % 10000000 == 0:                      
-                        if not isInternetConnected():
-                            return False, 'Połączenie zostało przerwane'
-                        
-                    if obj.isCanceled():
-                        resp.close()
-                        saved = False
-                        break
-                    f.write(chunk)
-                    chunks_made += len(chunk)
-                    
-        except IOError:
-            return False, "Błąd zapisu pliku"
-        resp.close()
-        if saved:
-            utils.openFile(destFolder)
-            return True, True
-        else:
-            cleanup_file(path)
-            return False, "Połączenie zostało przerwane"
-        
-    except (ConnectionError, ChunkedEncodingError):
         cleanup_file(path)
-        return False, 'Połączenie zostało przerwane'
+        NetworkUtils.download_file(url, path, obj=obj)
+        utils.openFile(destFolder)
+        return True, True
+    except InterruptedError:
+        cleanup_file(path)
+        return False, "Pobieranie zostało anulowane."
+    except (TimeoutError, ConnectionError, urllib.error.HTTPError) as e:
+        cleanup_file(path)
+        return False, f"Błąd pobierania pliku: {str(e)}"
+    except Exception as e:
+        cleanup_file(path)
+        return False, f"Nieoczekiwany błąd przy zapisie: {str(e)}"
 
 
 def getAllLayers(url, service="WMS"):
@@ -154,29 +121,16 @@ def getAllLayers(url, service="WMS"):
 
 
 def check_internet_connection():
+    # próba połączenia z serwerem np. gugik
     try:
-        resp = _get_session().get(url='https://uldk.gugik.gov.pl/', verify=False)
-        return resp.status_code == 200
-    except Timeout:
-        return False
-    except ConnectionError:
+        NetworkUtils.fetch_content('https://uldk.gugik.gov.pl/', timeout_ms=TIMEOUT_MS)
+        return True
+    except Exception:
         return False
     
 
 def isInternetConnected():
-    try:
-        host = socket.gethostbyname("www.google.com")
-        s = socket.create_connection((host, 80), 2)
-        shutDownConnection(s)
-        return True
-    except Timeout:
-        return False
-    except ConnectionError:
-        return False
-
-
-def shutDownConnection(socket):
-    socket.close()
+    return check_internet_connection()
 
 
 def cleanup_file(path):

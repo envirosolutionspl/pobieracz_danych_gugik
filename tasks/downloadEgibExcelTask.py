@@ -2,10 +2,9 @@ from qgis.core import (
     QgsTask, QgsMessageLog, Qgis
 )
 
-from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING
+from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING, TIMEOUT_MS
 from .. import service_api, utils
-from ..wfs.httpsAdapter import get_legacy_session
-
+from ..network_utils import NetworkUtils
 
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
@@ -44,18 +43,22 @@ class DownloadEgibExcelTask(QgsTask):
         list_url.append(url_czesc + '.xls')
 
         for url in list_url:
-            with get_legacy_session().get(url, verify=False) as resp:
-                if str(resp.status_code) == '200':
-                    if self.isCanceled():
-                        QgsMessageLog.logMessage('isCanceled')
-                        return False
-                    QgsMessageLog.logMessage('pobieram ' + url)
-                    res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-                    if not res:
-                        return False, self.exception
-        if self.isCanceled():
-            return False
-        return True
+            if self.isCanceled():
+                return False
+                
+            try:
+                NetworkUtils.fetch_content(url, timeout_ms=TIMEOUT_MS)
+                QgsMessageLog.logMessage('pobieram ' + url)
+                res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                if res:
+                    return True
+                else:
+                    return False
+            except (TimeoutError, ConnectionError, Exception):
+                QgsMessageLog.logMessage(f"Błąd pobierania pliku {url}, pomijam.")
+                continue
+        
+        return False
 
     def finished(self, result):
         

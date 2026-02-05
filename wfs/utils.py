@@ -1,6 +1,8 @@
-import requests, re
+import re
+import urllib.error
 import xml.etree.ElementTree as ET
-from .httpsAdapter import get_legacy_session
+from ..constants import TIMEOUT_MS
+from ..network_utils import NetworkUtils
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -18,20 +20,24 @@ def getTypenamesFromWFS(wfsUrl):
         'request': 'GetCapabilities',
     }
     try:
-        with get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False) as resp:
-            r_txt = resp.text
-            if resp.status_code == 200:
-                typenamesDict = {}
-                root = ET.fromstring(r_txt)
-                for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-                    name = featureType.find('.xmlns:Name', ns).text
-                    title = featureType.find('.xmlns:Title', ns).text
-                    typenamesDict[title] = name
-                return True, typenamesDict
-            else:
-                return False, f'Błąd {resp.status_code}'
-    except requests.exceptions.ConnectionError:
-        return False, "Błąd połączenia"
+        content = NetworkUtils.fetch_content(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+        typenamesDict = {}
+        root = ET.fromstring(content)
+        for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
+            name = featureType.find('.xmlns:Name', ns).text
+            title = featureType.find('.xmlns:Title', ns).text
+            typenamesDict[title] = name
+        return True, typenamesDict
+    except TimeoutError:
+        return False, "Przekroczono czas oczekiwania na odpowiedź serwera WFS."
+    except ConnectionError:
+        return False, "Błąd połączenia z serwerem WFS. Sprawdź połączenie internetowe."
+    except urllib.error.HTTPError as e:
+        return False, f"Serwer WFS zwrócił błąd HTTP {e.code}: {e.reason}"
+    except ET.ParseError:
+        return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
+    except Exception as e:
+        return False, f"Nieoczekiwany błąd przy pobieraniu warstw WFS: {str(e)}"
 
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')

@@ -19,21 +19,20 @@ class DownloadPrgTask(QgsTask):
     def run(self):
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
         QgsMessageLog.logMessage(f'pobieram {self.url}')
-        _, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        return not self.isCanceled()
+        success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.exception = message
+        return success and not self.isCanceled()
 
     def finished(self, result):
-        if result and self.exception:
+        if result:
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane PRG zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            QgsMessageLog.logMessage(f"Błąd PRG: {error_msg}")
             self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane PRG nie zostały pobrane.")
+                                                f"Dane PRG nie zostały pobrane: {error_msg}")
 
     def cancel(self):
         QgsMessageLog.logMessage('cancel')

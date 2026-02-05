@@ -6,10 +6,9 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.utils import iface
 
-from ..constants import TREES3D_URL
+from ..constants import TREES3D_URL, TIMEOUT_MS
 from .. import service_api
-from ..wfs.httpsAdapter import get_legacy_session
-
+from ..network_utils import NetworkUtils
 
 class DownloadTrees3dTask(QgsTask):
     """QgsTask pobierania modeli 3D drzew"""
@@ -25,15 +24,18 @@ class DownloadTrees3dTask(QgsTask):
     def run(self):
         trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
         QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        with get_legacy_session().get(url=trees_url, verify=False) as resp:
-            if str(resp.status_code) != '200':
-                return False
-            if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
-                return False
+        
+        if self.isCanceled():
+            return False
+            
+        try:
+            NetworkUtils.fetch_content(trees_url, timeout_ms=TIMEOUT_MS)
             QgsMessageLog.logMessage(f'pobieram {trees_url}')
             self.result, self.exception = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
-        return not self.isCanceled()
+            return not self.isCanceled()
+        except Exception as e:
+            QgsMessageLog.logMessage(f'Błąd przy sprawdzaniu/pobieraniu modeli 3D: {str(e)}')
+            return False
 
     def finished(self, result):
         if result and self.exception:
