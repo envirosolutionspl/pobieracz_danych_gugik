@@ -7,7 +7,7 @@ from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, KEY_COLOR, KEY_SOURCE, KEY_CRS, KEY_PIXEL_FROM, KEY_PIXEL_TO
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -387,11 +387,11 @@ class PobieraczDanychGugik:
 
                 filters = {}
                 # Pobranie parametrów z UI
-                filters['kolor'] = self.dockwidget.wfs_kolor_choice.currentText()
-                filters['zrodlo_danych'] = self.dockwidget.wfs_source_choice.currentText()
-                filters['uklad_xy'] = self.dockwidget.wfs_crs_choice.currentText()
-                filters['piksel_od'] = self.dockwidget.wfs_pixelFrom_choice.value()
-                filters['piksel_do'] = self.dockwidget.wfs_pixelTo_choice.value()
+                filters[KEY_COLOR] = self.dockwidget.wfs_kolor_choice.currentText()
+                filters[KEY_SOURCE] = self.dockwidget.wfs_source_choice.currentText()
+                filters[KEY_CRS] = self.dockwidget.wfs_crs_choice.currentText()
+                filters[KEY_PIXEL_FROM] = self.dockwidget.wfs_pixelFrom_choice.value()
+                filters[KEY_PIXEL_TO] = self.dockwidget.wfs_pixelTo_choice.value()
 
                 # Filtracja
                 filtered_features = filterWfsFeaturesByUsersInput(features, filters)
@@ -578,15 +578,15 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.orto_full_cmbbx.currentText()]
-            val_from = self.dockwidget.orto_pixelFrom_lineEdit.value()
-            if val_from > 0:
+            min_val_pixels = self.dockwidget.orto_pixelFrom_lineEdit.value()
+            if min_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) >= val_from]
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) >= min_val_pixels]
 
-            val_to = self.dockwidget.orto_pixelTo_lineEdit.value()
-            if val_to > 0:
+            max_val_pixels = self.dockwidget.orto_pixelTo_lineEdit.value()
+            if max_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) <= val_to]
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) <= max_val_pixels]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
