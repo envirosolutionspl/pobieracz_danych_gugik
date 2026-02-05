@@ -25,7 +25,7 @@ import processing
 from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
-import requests
+
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
@@ -34,6 +34,8 @@ import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
+
+from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
 class PobieraczDanychGugik:
@@ -379,49 +381,25 @@ class PobieraczDanychGugik:
             self.project.addMapLayer(skorowidzeLayer)
             features = list(skorowidzeLayer.getFeatures())
             
-            service_name = self.dockwidget.wfs_service_cmbbx.currentText()
+            service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
 
-            # Filtrowanie
-            if service_name == 'Ortofotomapa':
+            if service_name == 'ortofotomapa':
+
+                filters = {}
                 # Pobranie parametrów z UI
-                f_color = self.dockwidget.wfs_kolor_choice.currentText()
-                f_source = self.dockwidget.wfs_source_choice.currentText()
-                f_crs = self.dockwidget.wfs_crs_choice.currentText()
-                
-                # Pobranie pikseli
-                try:
-                    f_pix_from = float(self.dockwidget.wfs_pixelFrom_choice.text().replace(',', '.')) if self.dockwidget.wfs_pixelFrom_choice.text() else 0
-                    f_pix_to = float(self.dockwidget.wfs_pixelTo_choice.text().replace(',', '.')) if self.dockwidget.wfs_pixelTo_choice.text() else 999
-                except:
-                    f_pix_from, f_pix_to = 0, 999
+                filters['kolor'] = self.dockwidget.wfs_kolor_choice.currentText()
+                filters['zrodlo_danych'] = self.dockwidget.wfs_source_choice.currentText()
+                filters['uklad_xy'] = self.dockwidget.wfs_crs_choice.currentText()
+                filters['piksel_od'] = self.dockwidget.wfs_pixelFrom_choice.value()
+                filters['piksel_do'] = self.dockwidget.wfs_pixelTo_choice.value()
 
-                filtered_features = []
-                for f in features:
-                    # Kolor
-                    if f_color != "wszystkie" and str(f['kolor']) != f_color:
-                        continue
-                    # Źródło
-                    if f_source != "wszystkie" and str(f['zrodlo_danych']) != f_source:
-                        continue
-                    # CRS
-                    if f_crs != "wszystkie":
-                        if f_crs not in str(f['uklad_xy']):
-                            continue
-                    # Piksel
-                    try:
-                        pix_val = float(f['piksel'])
-                        if not (f_pix_from <= pix_val <= f_pix_to):
-                            continue
-                    except: pass # jeśli brak pola piksel, nie odrzucaj
-                    
-                    filtered_features.append(f)
-                
-                features = filtered_features
+                # Filtracja
+                filtered_features = filterWfsFeaturesByUsersInput(features, filters)
 
             # Usunięcie duplikatów URL
             urls = []
             seen_urls = set()
-            for feat in features:
+            for feat in filtered_features:
                 url = feat['url_do_pobrania']
                 if url and url not in seen_urls:
                     urls.append(url)
@@ -430,6 +408,7 @@ class PobieraczDanychGugik:
             # Komunikat
             if len(urls) == 0:
                 QMessageBox.information(None, "Komunikat", "Brak danych spełniających Twoje filtry.")
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
                 return
 
             reply = QMessageBox.question(None, "Potwierdź", f"Znaleziono {len(urls)} plików. Pobrać?", QMessageBox.Yes | QMessageBox.No)
@@ -437,11 +416,9 @@ class PobieraczDanychGugik:
             if reply == QMessageBox.Yes:
                 # pobieranie
                 self.runWfsTask(urls)
-                self.project.removeMapLayer(skorowidzeLayer.id())
-                self.canvas.refresh()
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
             else:
-                self.project.removeMapLayer(skorowidzeLayer.id())
-                self.canvas.refresh()
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
 
     def toggle_ortho_filters_visibility(self):
         """Pokazuje/ukrywa filtry ortofotomapy w zależności od wybranej usługi"""
@@ -453,8 +430,8 @@ class PobieraczDanychGugik:
         if not group_box:
             return
 
-        service_name = self.dockwidget.wfs_service_cmbbx.currentText()
-        is_ortho = service_name == 'Ortofotomapa'
+        service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
+        is_ortho = service_name == 'ortofotomapa'
 
         # enable / disable
         group_box.setEnabled(is_ortho)
@@ -601,12 +578,15 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.orto_full_cmbbx.currentText()]
-            if self.dockwidget.orto_pixelFrom_lineEdit.text():
+            val_from = self.dockwidget.orto_pixelFrom_lineEdit.value()
+            if val_from > 0:
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) >= str(self.dockwidget.orto_pixelFrom_lineEdit.text())]
-            if self.dockwidget.orto_pixelTo_lineEdit.text():
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) >= val_from]
+
+            val_to = self.dockwidget.orto_pixelTo_lineEdit.value()
+            if val_to > 0:
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) <= str(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) <= val_to]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():

@@ -251,30 +251,6 @@
              <layout class="QVBoxLayout" name="verticalLayout_25">
               <item>
                <layout class="QGridLayout" name="gridLayout_6">
-                <item row="3" column="0">
-                 <widget class="QLabel" name="label_67">
-                  <property name="text">
-                   <string>Wielkość pixela od (w metrach):</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QLabel" name="label_68">
-                  <property name="text">
-                   <string>Wielkość pixela do (w metrach):</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1">
-                 <widget class="QgsFilterLineEdit" name="wfs_pixelFrom_choice">
-                  <property name="text">
-                   <string>0.01</string>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="1">
                  <widget class="QComboBox" name="wfs_crs_choice">
                   <item>
@@ -294,29 +270,20 @@
                   </item>
                  </widget>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QComboBox" name="wfs_kolor_choice">
-                  <item>
-                   <property name="text">
-                    <string>wszystkie</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>RGB</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>CIR</string>
-                   </property>
-                  </item>
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="wfs_pixelFrom_choice">
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.100000000000000</double>
+                  </property>
                  </widget>
                 </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="label_66">
+                <item row="4" column="0">
+                 <widget class="QLabel" name="label_68">
                   <property name="text">
-                   <string>Źródło danych:</string>
+                   <string>Wielkość pixela do (w metrach):</string>
                   </property>
                  </widget>
                 </item>
@@ -346,6 +313,39 @@
                   </property>
                  </widget>
                 </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_66">
+                  <property name="text">
+                   <string>Źródło danych:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_67">
+                  <property name="text">
+                   <string>Wielkość pixela od (w metrach):</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="wfs_kolor_choice">
+                  <item>
+                   <property name="text">
+                    <string>wszystkie</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>RGB</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>CIR</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
                 <item row="1" column="0">
                  <widget class="QLabel" name="label_65">
                   <property name="text">
@@ -354,12 +354,12 @@
                  </widget>
                 </item>
                 <item row="4" column="1">
-                 <widget class="QgsFilterLineEdit" name="wfs_pixelTo_choice">
-                  <property name="text">
-                   <string>5.00</string>
+                 <widget class="QDoubleSpinBox" name="wfs_pixelTo_choice">
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
                   </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
+                  <property name="value">
+                   <double>5.000000000000000</double>
                   </property>
                  </widget>
                 </item>
@@ -501,16 +501,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="1">
-                 <widget class="QgsFilterLineEdit" name="orto_pixelTo_lineEdit">
-                  <property name="text">
-                   <string>5.00</string>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="6" column="0">
                  <widget class="QLabel" name="label_13">
                   <property name="text">
@@ -632,16 +622,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="1">
-                 <widget class="QgsFilterLineEdit" name="orto_pixelFrom_lineEdit">
-                  <property name="text">
-                   <string>0.01</string>
-                  </property>
-                  <property name="qgisRelation" stdset="0">
-                   <string notr="true"/>
-                  </property>
-                 </widget>
-                </item>
                 <item row="4" column="0">
                  <widget class="QLabel" name="label_11">
                   <property name="text">
@@ -672,6 +652,26 @@
                  <widget class="QLabel" name="label_3">
                   <property name="text">
                    <string>Układ współrzędnych:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <widget class="QDoubleSpinBox" name="orto_pixelFrom_lineEdit">
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>0.100000000000000</double>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QDoubleSpinBox" name="orto_pixelTo_lineEdit">
+                  <property name="singleStep">
+                   <double>0.100000000000000</double>
+                  </property>
+                  <property name="value">
+                   <double>5.000000000000000</double>
                   </property>
                  </widget>
                 </item>

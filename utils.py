@@ -124,3 +124,10 @@ def remove_duplicates_from_list_of_dicts(dict_list: List[Dict[Any, Any]]) -> Lis
             seen.add(fset)
             unique_dict_list.append(_dict)
     return unique_dict_list
+
+def remove_layer(project, canvas, layer_id):
+    layer = project.mapLayer(layer_id)
+    if layer:
+        project.removeMapLayer(layer_id)
+        canvas.refresh()
+
