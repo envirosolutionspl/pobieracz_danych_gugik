@@ -7,7 +7,7 @@ from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, KEY_COLOR, KEY_SOURCE, KEY_CRS, KEY_PIXEL_FROM, KEY_PIXEL_TO
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, WFS_FILTER_KEYS
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -387,14 +387,17 @@ class PobieraczDanychGugik:
 
                 filters = {}
                 # Pobranie parametrów z UI
-                filters[KEY_COLOR] = self.dockwidget.wfs_kolor_choice.currentText()
-                filters[KEY_SOURCE] = self.dockwidget.wfs_source_choice.currentText()
-                filters[KEY_CRS] = self.dockwidget.wfs_crs_choice.currentText()
-                filters[KEY_PIXEL_FROM] = self.dockwidget.wfs_pixelFrom_choice.value()
-                filters[KEY_PIXEL_TO] = self.dockwidget.wfs_pixelTo_choice.value()
+                fk = WFS_FILTER_KEYS
+                filters[fk['COLOR']] = self.dockwidget.wfs_kolor_choice.currentText()
+                filters[fk['SOURCE']] = self.dockwidget.wfs_source_choice.currentText()
+                filters[fk['CRS']] = self.dockwidget.wfs_crs_choice.currentText()
+                filters[fk['PIXEL_FROM']] = self.dockwidget.wfs_pixelFrom_choice.value()
+                filters[fk['PIXEL_TO']] = self.dockwidget.wfs_pixelTo_choice.value()
 
                 # Filtracja
                 filtered_features = filterWfsFeaturesByUsersInput(features, filters)
+            else:
+                filtered_features = features
 
             # Usunięcie duplikatów URL
             urls = []

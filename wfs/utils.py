@@ -1,7 +1,7 @@
 import requests, re
 import xml.etree.ElementTree as ET
 from .httpsAdapter import get_legacy_session
-from ..constants import KEY_COLOR, KEY_SOURCE, KEY_CRS, KEY_PIXEL_FROM, KEY_PIXEL_TO, ATTR_WFS_COLOR, ATTR_WFS_SOURCE, ATTR_WFS_CRS, ATTR_WFS_PIXEL
+from ..constants import WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
 from qgis.core import QgsMessageLog
 
 def getTypenamesFromWFS(wfsUrl):
@@ -43,40 +43,50 @@ def filterWfsFeaturesByUsersInput(features, filters):
     """Filtrowanie warstw zgodnie z parametrami wpisanymi przez użytkownika"""
     filtered_features = []
     
+    # Skróty dla czytelności
+    fk = WFS_FILTER_KEYS
+    attr = WFS_ATTRIBUTES
+
     # Pre-cache constant filter values
-    filter_kolor = filters[KEY_COLOR]
-    is_color_active = filter_kolor != "wszystkie"
+    filter_kolor = filters[fk['COLOR']]
+    is_color_active = filter_kolor != VALUE_ALL
     
-    filter_zrodlo = filters[KEY_SOURCE]
-    is_zrodlo_active = filter_zrodlo != "wszystkie"
+    filter_zrodlo = filters[fk['SOURCE']]
+    is_zrodlo_active = filter_zrodlo != VALUE_ALL
     
-    filter_crs = filters[KEY_CRS]
-    is_crs_active = filter_crs != "wszystkie"
+    filter_crs = filters[fk['CRS']]
+    is_crs_active = filter_crs != VALUE_ALL
     
-    min_val_pixels = filters[KEY_PIXEL_FROM]
-    max_val_pixels = filters[KEY_PIXEL_TO]
+    min_val_pixels = filters[fk['PIXEL_FROM']]
+    max_val_pixels = filters[fk['PIXEL_TO']]
     is_pixel_filter_active = min_val_pixels > 0 or max_val_pixels > 0
 
     for f in features:
         # Kolor
-        if is_color_active and str(f[ATTR_WFS_COLOR]) != filter_kolor:
+        if is_color_active and str(f[attr['COLOR']]) != filter_kolor:
             continue
         # Źródło
-        if is_zrodlo_active and str(f[ATTR_WFS_SOURCE]) != filter_zrodlo:
+        if is_zrodlo_active and str(f[attr['SOURCE']]) != filter_zrodlo:
             continue
         # CRS
-        if is_crs_active and filter_crs not in str(f[ATTR_WFS_CRS]):
+        if is_crs_active and filter_crs not in str(f[attr['CRS']]):
             continue
         # Piksel
         if is_pixel_filter_active:
             try:
-                pix_val = float(f[ATTR_WFS_PIXEL])
+                pix_val = float(f[attr['PIXEL']])
                 if min_val_pixels > 0 and pix_val < min_val_pixels:
                     continue
                 if max_val_pixels > 0 and pix_val > max_val_pixels:
                     continue
-            except (ValueError, TypeError, KeyError):
-                QgsMessageLog.logMessage('Błędne wartości pola pikseli. Zignorowano filtr pikseli.')
+            except TypeError:
+                QgsMessageLog.logMessage('Pusta wartość pola pikseli. Zignorowano filtr pikseli.')
+                pass
+            except KeyError:
+                QgsMessageLog.logMessage('Brak pola pikseli. Zignorowano filtr pikseli.')
+                pass 
+            except Exception as e:
+                QgsMessageLog.logMessage(f'Wystąpił błąd podczas filtrowania pikseli: {str(e)}')
                 pass # jeśli brak pola piksel, nie odrzucaj
 
         filtered_features.append(f)
