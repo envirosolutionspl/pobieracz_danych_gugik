@@ -133,14 +133,7 @@ class WfsFetch:
         else:
             merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
 
-        # Usunięcie zduplikowanych geometrii z połączonej warstwy
-        processedLayer = processing.run(
-            "native:deleteduplicategeometries", {
-                'INPUT': merged_layer,
-                'OUTPUT': 'TEMPORARY_OUTPUT'
-            }
-        )['OUTPUT']
-        return processedLayer
+        return merged_layer
 
 
 

@@ -20,6 +20,7 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 - Ortofotomapy RGB/CIR - ortofotomapa cyfrowa i zobrazowanie w bliskiej podczerwieni
 - Numeryczny model terenu (NMT)/Numeryczny model pokrycia terenu (NMPT) - Układy wysokościowe PL-EVRF2007-NH, PL-KRON86-NH (ASC)
 - Dane pomiarowe LIDAR w postaci plików LAS - Układy wysokościowe PL-EVRF2007-NH, PL-KRON86-NH (LAZ)
+- Obrazy intensywności - opracowane na podstawie skanowania laserowego (LIDAR)
 
 #### Usługa WFS:
 - Ortofotomapa wraz ze skorowidzem
@@ -95,6 +96,7 @@ The download process can be stopped. To do this, click on the blue bar at the bo
 - LIDAR measurement data with index map
 - Digital Terrain Model (DTM) with index map
 - Digital Surface Model (DSM) with index map
+- Intensity images - based on LIDAR scanning
 
 #### Data Package:
 - Data packages of the Topographic Objects Database 1:10000 (BDOT10K) - county, voivodeship, or national (SHP, GML, GPKG)
