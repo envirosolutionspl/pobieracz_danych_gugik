@@ -7,7 +7,7 @@ from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, WFS_FILTER_KEYS
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -25,7 +25,7 @@ import processing
 from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
-import requests
+
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
@@ -34,6 +34,8 @@ import os.path
 
 from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
+
+from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
 class PobieraczDanychGugik:
@@ -221,6 +223,9 @@ class PobieraczDanychGugik:
 
         self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.wfsClickTool))
         self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfs_fromLayer_btn_clicked)
+        
+        self.dockwidget.wfs_service_cmbbx.currentTextChanged.connect(self.toggle_ortho_filters_visibility)
+        self.toggle_ortho_filters_visibility()
 
         self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.capture_btn_clicked(self.ortoClickTool))
         self.dockwidget.orto_fromLayer_btn.clicked.connect(self.orto_fromLayer_btn_clicked)
@@ -373,41 +378,74 @@ class PobieraczDanychGugik:
             typename=self.dockwidget.wfs_layer_cmbbx.currentText())
         skorowidzeLayer.updatedFields.connect(self.test)
         if skorowidzeLayer.isValid():
-            urls = []
             self.project.addMapLayer(skorowidzeLayer)
-            layerWithAttributes = self.project.mapLayer(skorowidzeLayer.id())
+            features = list(skorowidzeLayer.getFeatures())
+            
+            service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
 
-            for feat in layerWithAttributes.getFeatures():
-                urls.append(feat['url_do_pobrania'])
+            if service_name == 'ortofotomapa':
 
-            # wyswietl komunikat pytanie
-            if len(urls) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
-                msgbox.exec_()
+                filters = {}
+                # Pobranie parametrów z UI
+                fk = WFS_FILTER_KEYS
+                filters[fk['COLOR']] = self.dockwidget.wfs_kolor_choice.currentText()
+                filters[fk['SOURCE']] = self.dockwidget.wfs_source_choice.currentText()
+                filters[fk['CRS']] = self.dockwidget.wfs_crs_choice.currentText()
+                filters[fk['PIXEL_FROM']] = self.dockwidget.wfs_pixelFrom_choice.value()
+                filters[fk['PIXEL_TO']] = self.dockwidget.wfs_pixelTo_choice.value()
 
-                self.project.removeMapLayer(skorowidzeLayer.id())
-
-                self.canvas.refresh()
-                return
+                # Filtracja
+                filtered_features = filterWfsFeaturesByUsersInput(features, filters)
             else:
-                msgbox = QMessageBox(QMessageBox.Question,
-                                     "Potwierdź pobieranie",
-                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                         urls))
-                msgbox.addButton(QMessageBox.Yes)
-                msgbox.addButton(QMessageBox.No)
-                msgbox.setDefaultButton(QMessageBox.No)
-                reply = msgbox.exec()
+                filtered_features = features
 
-                if reply == QMessageBox.Yes:
-                    # pobieranie
-                    self.runWfsTask(urls)
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
-                else:
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
+            # Usunięcie duplikatów URL
+            urls = []
+            seen_urls = set()
+            for feat in filtered_features:
+                url = feat['url_do_pobrania']
+                if url and url not in seen_urls:
+                    urls.append(url)
+                    seen_urls.add(url)
+
+            # Komunikat
+            if len(urls) == 0:
+                QMessageBox.information(None, "Komunikat", "Brak danych spełniających Twoje filtry.")
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
+                return
+
+            reply = QMessageBox.question(None, "Potwierdź", f"Znaleziono {len(urls)} plików. Pobrać?", QMessageBox.Yes | QMessageBox.No)
+            
+            if reply == QMessageBox.Yes:
+                # pobieranie
+                self.runWfsTask(urls)
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
+            else:
+                utils.remove_layer(self.project, self.canvas, skorowidzeLayer.id())
+
+    def toggle_ortho_filters_visibility(self):
+        """Pokazuje/ukrywa filtry ortofotomapy w zależności od wybranej usługi"""
+        group_box = (
+            getattr(self.dockwidget, 'groupWfsOrthoFilters', None)
+            or getattr(self.dockwidget, 'groupOrthoFilters', None)
+        )
+
+        if not group_box:
+            return
+
+        service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
+        is_ortho = service_name == 'ortofotomapa'
+
+        # enable / disable
+        group_box.setEnabled(is_ortho)
+
+        # checkbox w nagłówku
+        if hasattr(group_box, 'setChecked'):
+            group_box.setChecked(is_ortho)
+
+        # zwijanie / rozwijanie
+        if hasattr(group_box, 'setCollapsed'):
+            group_box.setCollapsed(not is_ortho)
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
@@ -543,12 +581,15 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.orto_full_cmbbx.currentText()]
-            if self.dockwidget.orto_pixelFrom_lineEdit.text():
+            min_val_pixels = self.dockwidget.orto_pixelFrom_lineEdit.value()
+            if min_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) >= str(self.dockwidget.orto_pixelFrom_lineEdit.text())]
-            if self.dockwidget.orto_pixelTo_lineEdit.text():
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) >= min_val_pixels]
+
+            max_val_pixels = self.dockwidget.orto_pixelTo_lineEdit.value()
+            if max_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) <= str(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                            float(str(orto.get('wielkoscPiksela')).replace(',', '.')) <= max_val_pixels]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():

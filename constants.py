@@ -25,6 +25,26 @@ TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
 WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
 ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
 
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+
 # endpointy do lokalnego api
 LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
 GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
@@ -40,8 +60,6 @@ OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
 
 DOUBLE_VALIDATOR_OBJECTS = [
-    'orto_pixelFrom_lineEdit',
-    'orto_pixelTo_lineEdit',
     'nmt_pixelFrom_lineEdit',
     'nmt_pixelTo_lineEdit',
     'nmt_mhFrom_lineEdit',
