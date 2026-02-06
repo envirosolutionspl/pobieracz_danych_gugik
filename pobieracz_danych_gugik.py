@@ -584,10 +584,10 @@ class PobieraczDanychGugik:
             min_val_pixels = self.dockwidget.orto_pixelFrom_lineEdit.value()
             if min_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            float(orto.get('wielkoscPiksela', 0)) >= float(self.dockwidget.orto_pixelFrom_lineEdit.text())]
+                            utils.getSafelyFloat(orto.get('wielkoscPiksela', 0)) >= utils.getSafelyFloat(self.dockwidget.orto_pixelFrom_lineEdit.text())]
             if self.dockwidget.orto_pixelTo_lineEdit.text():
                 ortoList = [orto for orto in ortoList if
-                            float(orto.get('wielkoscPiksela', 0)) <= float(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                            utils.getSafelyFloat(orto.get('wielkoscPiksela', 0)) <= utils.getSafelyFloat(self.dockwidget.orto_pixelTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
@@ -748,20 +748,20 @@ class PobieraczDanychGugik:
                            nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
 
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if float(nmt.get('charakterystykaPrzestrzenna', 0)) >= float(
+                nmtList = [nmt for nmt in nmtList if utils.getSafelyFloat(nmt.get('charakterystykaPrzestrzenna', 0)) >= utils.getSafelyFloat(
                     self.dockwidget.nmt_pixelFrom_lineEdit.text())]
 
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if float(nmt.get('charakterystykaPrzestrzenna', 0)) <= float(
+                nmtList = [nmt for nmt in nmtList if utils.getSafelyFloat(nmt.get('charakterystykaPrzestrzenna', 0)) <= utils.getSafelyFloat(
                     self.dockwidget.nmt_pixelTo_lineEdit.text())]
 
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           float(nmt.get('bladSredniWysokosci', 0)) >= float(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                           utils.getSafelyFloat(nmt.get('bladSredniWysokosci', 0)) >= utils.getSafelyFloat(self.dockwidget.nmt_mhFrom_lineEdit.text())]
 
             if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           float(nmt.get('bladSredniWysokosci', 0)) <= float(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                           utils.getSafelyFloat(nmt.get('bladSredniWysokosci', 0)) <= utils.getSafelyFloat(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -876,18 +876,18 @@ class PobieraczDanychGugik:
                            las.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           float(las.get('charakterystykaPrzestrzenna', 0)) >= float(
+                           utils.getSafelyFloat(las.get('charakterystykaPrzestrzenna', 0)) >= utils.getSafelyFloat(
                                self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           float(las.get('charakterystykaPrzestrzenna', 0)) <= float(
+                           utils.getSafelyFloat(las.get('charakterystykaPrzestrzenna', 0)) <= utils.getSafelyFloat(
                                self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           float(las.get('bladSredniWysokosci', 0)) >= float(self.dockwidget.las_mhFrom_lineEdit.text())]
+                           utils.getSafelyFloat(las.get('bladSredniWysokosci', 0)) >= utils.getSafelyFloat(self.dockwidget.las_mhFrom_lineEdit.text())]
             if self.dockwidget.las_mhTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           float(las.get('bladSredniWysokosci', 0)) <= float(self.dockwidget.las_mhTo_lineEdit.text())]
+                           utils.getSafelyFloat(las.get('bladSredniWysokosci', 0)) <= utils.getSafelyFloat(self.dockwidget.las_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.laz_newest_chkbx.isChecked():
@@ -1012,11 +1012,11 @@ class PobieraczDanychGugik:
                                        self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   float(reflectance.get('wielkoscPiksela', 0)) >= float(
+                                   utils.getSafelyFloat(reflectance.get('wielkoscPiksela', 0)) >= utils.getSafelyFloat(
                                        self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   float(reflectance.get('wielkoscPiksela', 0)) <= float(
+                                   utils.getSafelyFloat(reflectance.get('wielkoscPiksela', 0)) <= utils.getSafelyFloat(
                                        self.dockwidget.reflectance_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
