@@ -2,7 +2,7 @@ import datetime
 
 from .constants import ODBICIOWOSC_WMS_URL, ODBICIOWOWSC_SKOROWIDZE_LAYERS
 from . import service_api
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 
 
 def getReflectanceListbyPoint1992(point):
@@ -28,7 +28,7 @@ def getReflectanceListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=ODBICIOWOSC_WMS_URL)
-    return _convert_attributes(get_wms_objects(resp))
+    return _convert_attributes(getWmsObject(resp))
 
 
 def _convert_attributes(elems_list):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .constants import ZDJECIA_LOTNICZE_WMS_URL
 from . import service_api
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 
 
 def getZdjeciaLotniczeListbyPoint1992(point):
@@ -33,7 +33,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=ZDJECIA_LOTNICZE_WMS_URL)
-    return _convert_attributes(get_wms_objects(resp))
+    return _convert_attributes(getWmsObject(resp))
 
 
 def _convert_attributes(elems_list):

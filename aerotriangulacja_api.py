@@ -1,5 +1,5 @@
 from .constants import AEROTRAINGULACJA_WMS_URL, AEROTRAINGULACJA_SKOROWIDZE_LAYERS
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 from . import service_api
 
 
@@ -28,4 +28,4 @@ def getAerotriangulacjaListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=AEROTRAINGULACJA_WMS_URL)
-    return get_wms_objects(resp)
+    return getWmsObject(resp)

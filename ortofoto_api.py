@@ -1,5 +1,5 @@
 from .constants import ORTOFOTOMAPA_WMS_URL
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 from . import service_api
 
 def getOrtoListbyPoint1992(point):
@@ -29,4 +29,4 @@ def getOrtoListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=ORTOFOTOMAPA_WMS_URL)
-    return get_wms_objects(resp)
+    return getWmsObject(resp)

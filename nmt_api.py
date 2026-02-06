@@ -1,6 +1,6 @@
 from .constants import NMT_EVRF_WMS_URL, NMT_GRID5M_WMS_URL, NMT_KRON86_WMS_URL
 from . import service_api
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 from .utils import remove_duplicates_from_list_of_dicts
 
 def getNmtListbyPoint1992(point, isEvrf2007):
@@ -10,7 +10,7 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     
     bbox = '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50)
     
-    def get_wms_data(url):
+    def getWmsData(url):
         layers = service_api.getAllLayers(url=url, service='WMS')
         if not layers:
             return False, None
@@ -37,17 +37,17 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     wms_objects = []
     
     if isEvrf2007:
-        resp_1m = get_wms_data(NMT_EVRF_WMS_URL)
+        resp_1m = getWmsData(NMT_EVRF_WMS_URL)
         if resp_1m[0]:
-            wms_objects += get_wms_objects(resp_1m)
+            wms_objects += getWmsObject(resp_1m)
             
-        resp_5m = get_wms_data(NMT_GRID5M_WMS_URL)
+        resp_5m = getWmsData(NMT_GRID5M_WMS_URL)
         if resp_5m[0]:
-            wms_objects += get_wms_objects(resp_5m)
+            wms_objects += getWmsObject(resp_5m)
     else:
-        resp_kron = get_wms_data(NMT_KRON86_WMS_URL)
+        resp_kron = getWmsData(NMT_KRON86_WMS_URL)
         if resp_kron[0]:
-            wms_objects += get_wms_objects(resp_kron)
+            wms_objects += getWmsObject(resp_kron)
 
     if wms_objects:
         return True, remove_duplicates_from_list_of_dicts(wms_objects)
