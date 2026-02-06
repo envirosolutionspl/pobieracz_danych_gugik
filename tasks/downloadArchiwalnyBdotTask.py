@@ -15,7 +15,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.page_exist = None
         self.folder = folder
         self.exception = None
-        self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip'
+        self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}_{rok}.zip'
         self.iface = iface
         self.result = None
 

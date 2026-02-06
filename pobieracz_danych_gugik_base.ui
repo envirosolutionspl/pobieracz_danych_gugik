@@ -1206,13 +1206,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Układ współrzędnych płaskich:</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="1">
                  <widget class="QgsDateTimeEdit" name="las_from_dateTimeEdit">
                   <property name="date">
@@ -1354,6 +1347,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_66">
+                  <property name="text">
+                   <string>Układ współrzędnych płaskich:</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
              </layout>
@@ -1464,13 +1464,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_3">
-                  <property name="text">
-                   <string>Układ współrzędnych:</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="3" column="1">
                  <widget class="QComboBox" name="reflectance_source_cmbbx">
                   <item>
@@ -1556,6 +1549,13 @@
                  <widget class="QLabel" name="label_13">
                   <property name="text">
                    <string>Wielkość piksela od (w metrach):</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_65">
+                  <property name="text">
+                   <string>Układ współrzędnych:</string>
                   </property>
                  </widget>
                 </item>
