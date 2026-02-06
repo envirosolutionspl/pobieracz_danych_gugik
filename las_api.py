@@ -1,7 +1,7 @@
 import datetime
 
 from .constants import LAS_EVRF_WMS_URL, LAS_KRON86_WMS_URL
-from .wms.utils import get_wms_objects
+from .wms.utils import getWmsObject
 
 try:
     from . import service_api
@@ -38,7 +38,7 @@ def getLasListbyPoint1992(point, isEvrf2007):
 
     resp = service_api.getRequest(params=PARAMS, url=_url)
 
-    return _convert_attributes(get_wms_objects(resp))
+    return _convert_attributes(getWmsObject(resp))
 
 
 def _convert_attributes(elems_list):
