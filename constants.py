@@ -31,6 +31,22 @@ GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
 GET_COUNTY_ENDPOINT = "/getCounty/{teryt}"
 GET_COMMUNE_ENDPOINT = "/getCommune/{teryt}"
 
+# parametry do wms
+WMS_GET_FEATURE_INFO_PARAMS = {
+    'SERVICE': 'WMS',
+    'request': 'GetFeatureInfo',
+    'version': '1.3.0',
+    'styles': '',
+    'crs': 'EPSG:2180',
+    'width': '101',
+    'height': '101',
+    'format': 'image/png',
+    'transparent': 'true',
+    'i': '50',
+    'j': '50',
+    'INFO_FORMAT': 'text/html'
+}
+
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
 CURRENT_YEAR = datetime.now().year

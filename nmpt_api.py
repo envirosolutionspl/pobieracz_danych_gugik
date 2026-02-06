@@ -1,4 +1,4 @@
-from .constants import NMPT_EVRF_WMS_URL, NMPT_KRON86_WMS_URL
+from .constants import NMPT_EVRF_WMS_URL, NMPT_KRON86_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS
 from . import service_api
 from .wms.utils import getWmsObject
 
@@ -9,25 +9,16 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     y = point.y()
 
     _url = NMPT_EVRF_WMS_URL if isEvrf2007 else NMPT_KRON86_WMS_URL
-    layers = service_api.getAllLayers(url=_url, service='WMS')
+    layers = service_api.getAllLayers(url=_url, service=WMS_GET_FEATURE_INFO_PARAMS['SERVICE'])
+    if not layers:
+        return []
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.3.0',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(layers),
-        'styles': '',
-        'crs': 'EPSG:2180',
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
         'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50)
+    })
     
-    resp = service_api.getRequest(params=PARAMS, url=_url)
+    resp = service_api.getRequest(params=params, url=_url)
     return getWmsObject(resp)
