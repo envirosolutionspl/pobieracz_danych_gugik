@@ -107,6 +107,15 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             combo_obj.setItemData(idx, val)
         combo_obj.setCurrentIndex(-1)
 
+        # Resetuj wszystkie kolejne zależne combobox'y
+        current_combo = dependent_combo
+        while current_combo in ADMINISTRATIVE_UNITS_OBJECTS:
+            next_dependent_combo = ADMINISTRATIVE_UNITS_OBJECTS[current_combo][1]
+            next_combo_obj = getattr(self, next_dependent_combo)
+            next_combo_obj.clear()
+            next_combo_obj.setCurrentIndex(-1)
+            current_combo = next_dependent_combo
+
     def wfs_service_cmbbx_currentTextChanged(self, text):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
