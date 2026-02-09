@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo, create_report
 
 
 class DownloadNmtTask(QgsTask):
@@ -26,15 +25,15 @@ class DownloadNmtTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.nmtList)
         results = []
         for nmt in self.nmtList:
             nmt_url = nmt.get('url')
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {nmt_url}')
+            pushLogInfo(f'start {nmt_url}')
             res, self.exception = service_api.retreiveFile(url=nmt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
@@ -54,7 +53,7 @@ class DownloadNmtTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane NMT/NMPT zostały pobrane.',
@@ -64,16 +63,16 @@ class DownloadNmtTask(QgsTask):
 
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane NMT/NMPT nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):
@@ -91,7 +90,7 @@ class DownloadNmtTask(QgsTask):
             'aktualnosc_rok': 'aktualnoscRok',
             'zrodlo_danych': 'zrDanych'
         }
-        utils.create_report(
+        create_report(
             os.path.join(self.folder, 'pobieracz_nmpt' if self.isNmpt else 'pobieracz_nmt'),
             headers_mapping,
             self.nmtList

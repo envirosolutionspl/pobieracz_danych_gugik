@@ -3,11 +3,10 @@ import os, datetime
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QPixmap, QIcon
 
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-)
+from qgis.core import QgsApplication, QgsTask, Qgis
 
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo, openFile
 from ..wfs import WfsEgib
 
 
@@ -36,15 +35,15 @@ class DownloadWfsEgibTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        QgsMessageLog.logMessage('start ' + self.wfs_url)
+        pushLogInfo('Started task "{}"'.format(self.description()))
+        pushLogInfo('start ' + self.wfs_url)
 
         self.wfsEgib = WfsEgib()
         self.name_error = self.wfsEgib.egib_wfs(self.teryt, self.wfs_url, self.folder)
         if self.name_error == 'brak':
-            utils.openFile(self.folder)
+            openFile(self.folder)
         if self.isCanceled():
-            QgsMessageLog.logMessage('isCanceled')
+            pushLogInfo('isCanceled')
             return False
         return True
 
@@ -63,20 +62,20 @@ class DownloadWfsEgibTask(QgsTask):
         użytkownikowi w osobnym okienku"""
         
         if result and self.name_error == "brak" and self.exception is None:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
 
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
                 msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
                 msgbox.exec_()
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
 
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

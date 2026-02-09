@@ -1,10 +1,15 @@
 import datetime
-from qgis.core import QgsCoordinateReferenceSystem
 from typing import List, Dict, Any
-
+from . import PLUGIN_NAME
 import processing, sys, os
-from qgis.core import *
-
+from qgis.core import (
+    Qgis,
+    QgsMessageLog,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransform
+)
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtGui import QIcon
 
 def onlyNewest(data_file_list):
     """filtruje listę tylko do najnowszych plików według arkuszy"""
@@ -124,3 +129,64 @@ def remove_duplicates_from_list_of_dicts(dict_list: List[Dict[Any, Any]]) -> Lis
             seen.add(fset)
             unique_dict_list.append(_dict)
     return unique_dict_list
+
+def pushMessageBoxCritical(parent, title: str, message: str):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Critical,
+        title,
+        message,
+        QMessageBox.StandardButton.Ok,
+        parent
+    )
+    if hasattr(parent, 'plugin_icon'):
+        msg_box.setWindowIcon(QIcon(parent.plugin_icon))
+    msg_box.exec()
+
+def pushMessageBox(parent, message):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Information,
+        'Informacja',
+        message,
+        QMessageBox.StandardButton.Ok,
+        parent
+    )
+    if hasattr(parent, 'plugin_icon'):
+        msg_box.setWindowIcon(QIcon(parent.plugin_icon))
+    msg_box.exec()
+
+def pushMessage(iface, message: str) -> None:
+    iface.messageBar().pushMessage(
+        'Informacja',
+        message,
+        level=Qgis.Info,
+        duration=10
+    )
+
+def pushWarning(iface, message: str) -> None:
+    iface.messageBar().pushMessage(
+        'Ostrzeżenie',
+        message,
+        level=Qgis.Warning,
+        duration=10
+    )
+
+def pushLogInfo(message: str) -> None:
+    QgsMessageLog.logMessage(
+        message,
+        tag=PLUGIN_NAME,
+        level=Qgis.Info
+    )
+
+def pushLogWarning(message: str) -> None:
+    QgsMessageLog.logMessage(
+        message,
+        tag=PLUGIN_NAME,
+        level=Qgis.Warning
+    )
+
+def pushLogCritical(message: str) -> None:
+    QgsMessageLog.logMessage(
+        message,
+        tag=PLUGIN_NAME,
+        level=Qgis.Critical
+    )

@@ -1,8 +1,10 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, Qgis
     )
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
+
 
 
 
@@ -27,15 +29,15 @@ class DownloadLasTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.lasList)
         results = []
         for las in self.lasList:
             las_url = las.get('url')
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {las_url}')
+            pushLogInfo(f'start {las_url}')
             success, message = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(success)
@@ -62,7 +64,7 @@ class DownloadLasTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane LAZ zostały pobrane.',
@@ -71,14 +73,14 @@ class DownloadLasTask(QgsTask):
             )
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            QgsMessageLog.logMessage(f"Błąd LAZ: {error_msg}")
+            pushLogInfo(f"Błąd LAZ: {error_msg}")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 f'Dane LAZ nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):

@@ -1,22 +1,18 @@
 from qgis.utils import iface
-from qgis.core import QgsMessageLog
+from .utils import pushWarning
 from lxml import etree
 
 from .network_utils import NetworkUtils
 from .service_api import check_internet_connection
-from .constants import EGIB_WFS_URL, TIMEOUT_MS
+from .constants import EGIB_WFS_URL, TIMEOUT_MS 
 
 def get_wfs_dict(filter_name):
     data_dict = {}
-    try:
-        content = NetworkUtils.fetch_content(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
-    except TimeoutError:
-        iface.messageBar().pushWarning('Ostrzeżenie:', 'Przekroczono czas oczekiwania na odpowiedź serwera EGIB.')
+    success, content = NetworkUtils.fetchContent(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
+    if not success:
+        pushWarning(iface, 'Ostrzeżenie:', content)
         return
-    except (ConnectionError, Exception) as e:
-        iface.messageBar().pushWarning("Ostrzeżenie:", f'Błąd połączenia z serwerem EGIB: {str(e)}')
-        QgsMessageLog.logMessage(f"Błąd przy pobieraniu {EGIB_WFS_URL}: {str(e)}", "PobieraczDanych")
-        return
+
 
     root = etree.HTML(content)
     table = root.xpath('.//table[contains(@class, "table")]')[0]

@@ -1,6 +1,7 @@
 import os
-from qgis.core import QgsTask, QgsMessageLog, Qgis
-from .. import service_api, utils
+from qgis.core import QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo, create_report
 
 
 class DownloadMesh3dTask(QgsTask):
@@ -12,14 +13,14 @@ class DownloadMesh3dTask(QgsTask):
         self.iface = iface
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.mesh_objs)
         for obj in self.mesh_objs:
             obj_url = obj.get('url')
             if self.isCanceled():
-                QgsMessageLog('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {obj_url}')
+            pushLogInfo(f'start {obj_url}')
             _, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
         self.create_report()
@@ -27,7 +28,7 @@ class DownloadMesh3dTask(QgsTask):
 
     def finished(self, result):
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane siatkowego modelu 3D zostały pobrane.',
@@ -36,16 +37,16 @@ class DownloadMesh3dTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane modelu siatkowego 3D nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):
@@ -63,4 +64,4 @@ class DownloadMesh3dTask(QgsTask):
             'aktualnosc_rok': 'aktualnoscRok',
             'zrodlo_danych': 'zrDanych',
         }
-        utils.create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), headers_mapping, self.mesh_objs)
+        create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), headers_mapping, self.mesh_objs)

@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-)
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadWizKartoTask(QgsTask):
@@ -24,14 +23,14 @@ class DownloadWizKartoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.wizKartoList)
         results = []
         for wizKarto in self.wizKartoList:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {wizKarto.url}')
+            pushLogInfo(f'start {wizKarto.url}')
             res, self.exception = service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
@@ -51,7 +50,7 @@ class DownloadWizKartoTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 "Sukces", 
                 "Udało się! Dane wizualizacji kartograficznej BDOT10k zostały pobrane.",
@@ -60,16 +59,16 @@ class DownloadWizKartoTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 "Błąd",
                 "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane."
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def createCsvReport(self):

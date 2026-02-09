@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo, create_report
 
 class DownloadOrtofotoTask(QgsTask):
     """QgsTask pobierania ortofotomap"""
@@ -24,17 +23,17 @@ class DownloadOrtofotoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.ortoList)
         results = []
         for orto in self.ortoList:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
             orto_url = orto.get('url')
             if not orto_url:
                 continue
-            QgsMessageLog.logMessage(f'start {orto_url}')
+            pushLogInfo(f'start {orto_url}')
             success, message = service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(success)
@@ -61,7 +60,7 @@ class DownloadOrtofotoTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane z ortofotomapy zostały pobrane.',
@@ -70,14 +69,14 @@ class DownloadOrtofotoTask(QgsTask):
             )
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            QgsMessageLog.logMessage(f"Błąd Ortofoto: {error_msg}")
+            pushLogInfo(f"Błąd Ortofoto: {error_msg}")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 f'Dane z ortofotomapy nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):
@@ -94,4 +93,4 @@ class DownloadOrtofotoTask(QgsTask):
             'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
             'aktualnosc_rok': 'aktualnoscRok'
         }
-        utils.create_report(os.path.join(self.folder, 'pobieracz_ortofoto'), headers_mapping, self.ortoList)
+        create_report(os.path.join(self.folder, 'pobieracz_ortofoto'), headers_mapping, self.ortoList)

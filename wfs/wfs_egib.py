@@ -6,7 +6,7 @@ from lxml.etree import XMLSyntaxError
 from datetime import datetime
 from ..service_api import check_internet_connection
 from ..network_utils import NetworkUtils
-from ..constants import MIN_FILE_SIZE
+from ..constants import MIN_FILE_SIZE, CAPABILITIES_FILE_NAME
 
 
 class WfsEgib:
@@ -16,22 +16,11 @@ class WfsEgib:
         if not check_internet_connection():
             return 'Połączenie zostało przerwane'
         
-        path = os.path.join(folder, 'egib_wfs.xml')
-        error_reason = None
+        path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
-        try:
-            NetworkUtils.download_file(url, path)
-        except (IOError, OSError) as e:
-            error_reason = f"Błąd zapisu pliku (IOError): {e}"
-        except ConnectionError as e:
-            error_reason = "Błędy weryfikacji SSL (certyfikat)" if "SSL" in str(e) else f"Błąd połączenia: {e}"
-        except TimeoutError:
-            error_reason = "Przekroczono czas oczekiwania (Timeout)"
-        except Exception as e:
-            error_reason = f"Nieoczekiwany błąd: {e}"
-            
-        if error_reason:
-            return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {error_reason}. URL: \n{url}"
+        success, result = NetworkUtils.downloadFile(url, path)
+        if not success:
+            return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {result}. URL: \n{url}"
             
         return "brak"
 
@@ -97,20 +86,20 @@ class WfsEgib:
             error_reason = None
 
             try:
-                NetworkUtils.download_file(url_gml, layer_path)
-                # Sprawdzenie rozmiaru
-                if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
-                    error_reason = "Za mały rozmiar pliku; błąd pobierania danych (prawdopodobnie brak danych dla tego obszaru)"
+                success, result = NetworkUtils.downloadFile(url_gml, layer_path)
+                if success: 
+                    # Sprawdzenie rozmiaru
+                    if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
+                        error_reason = "Za mały rozmiar pliku; błąd pobierania danych (prawdopodobnie brak danych dla tego obszaru)"
+                    else:
+                        name_error_lista_brak.append(layer_name)
                 else:
-                    name_error_lista_brak.append(layer_name)
-            except (IOError, OSError) as e:
-                error_reason = f"Błąd zapisu pliku (IOError): {e}"
-            except ConnectionError as e:
-                error_reason = "Błędy weryfikacji SSL (certyfikat)" if "SSL" in str(e) else f"Błąd połączenia: {e}"
-            except TimeoutError:
-                error_reason = "Przekroczono czas oczekiwania (Timeout)"
-            except InterruptedError:
-                return "Pobieranie przerwane przez użytkownika"
+                    error_reason = result
+            
+            except IOError:
+                error_reason = "Błąd zapisu pliku (IOError)"
+            except OSError:
+                error_reason = "Błąd zapisu pliku (OSError)"
             except Exception as e:
                 error_reason = f"Nieoczekiwany błąd: {e}"
 

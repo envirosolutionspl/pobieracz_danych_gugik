@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo
 
 class DownloadWfsTask(QgsTask):
     """QgsTask pobierania WFS"""
@@ -25,16 +24,16 @@ class DownloadWfsTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.urlList)
         objs = 0
 
         for url in self.urlList:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
             fileName = url.split("/")[-1]
-            QgsMessageLog.logMessage(f'start {fileName}')
+            pushLogInfo(f'start {fileName}')
             status, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
@@ -53,7 +52,7 @@ class DownloadWfsTask(QgsTask):
         """
         
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane WFS zostały pobrane.',
@@ -69,14 +68,14 @@ class DownloadWfsTask(QgsTask):
                 duration=5)
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage('exception')
+                pushLogInfo('exception')
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane WFS nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

@@ -1,10 +1,13 @@
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsTask, Qgis
 )
+
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BDOT_WMS_URL
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
+
 
 class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
@@ -19,8 +22,8 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.result = None
 
     def run(self):
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        pushLogInfo('Started task "{}"'.format(self.description()))
+        pushLogInfo(f'pobieram {self.url}')
         # fileName = self.url.split("/")[-1]
         self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
@@ -31,7 +34,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
             msgbox.exec_()
 
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 "Sukces", 
                 "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
@@ -40,12 +43,12 @@ class DownloadArchiwalnyBdotTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Archiwalne dane BDOT10k nie zostały pobrane.")
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

@@ -1,8 +1,10 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, Qgis
     )
-from .. import service_api, utils
+
+from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadAerotriangulacjaTask(QgsTask):
@@ -25,15 +27,15 @@ class DownloadAerotriangulacjaTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.aerotriangulacjaList)
         results = []
         for aero in self.aerotriangulacjaList:
             aero_url = aero.get('url')
             if self.isCanceled():
-                QgsMessageLog('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {aero_url}')
+            pushLogInfo(f'start {aero_url}')
             res, self.exception = service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
@@ -53,7 +55,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane o aerotriangulacji zostały pobrane.',
@@ -62,16 +64,16 @@ class DownloadAerotriangulacjaTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane o aerotriangulacji nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):

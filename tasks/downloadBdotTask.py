@@ -1,10 +1,10 @@
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsTask, Qgis
     )
-
 
 from ..constants import BDOT_FORMAT_URL_MAPPING
 from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadBdotTask(QgsTask):
@@ -41,15 +41,15 @@ class DownloadBdotTask(QgsTask):
             self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.{zip_suffix}"
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'pobieram {self.url}')
         success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.result = success
         self.exception = message
         
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
-            QgsMessageLog.logMessage(f'Próba 2: pobieram {self.url}')
+            pushLogInfo(f'Próba 2: pobieram {self.url}')
             success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
             self.result = success
             self.exception = message
@@ -58,7 +58,7 @@ class DownloadBdotTask(QgsTask):
 
     def finished(self, result):
         if result:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane BDOT10k zostały pobrane.',
@@ -67,12 +67,12 @@ class DownloadBdotTask(QgsTask):
             )
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            QgsMessageLog.logMessage(f'Błąd pobierania: {error_msg}')
+            pushLogInfo(f'Błąd pobierania: {error_msg}')
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 f'Dane BDOT10k nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-)
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from .. import service_api
+from ..utils import pushLogInfo, create_report
 
 
 class DownloadZdjeciaLotniczeTask(QgsTask):
@@ -26,15 +25,15 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         total = len(self.zdjeciaLotniczeList)
         results = []
         for zdj in self.zdjeciaLotniczeList:
             zdj_url = zdj.get('url')
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'start {zdj_url}')
+            pushLogInfo(f'start {zdj_url}')
             res, self.exception = service_api.retreiveFile(url=zdj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
@@ -54,7 +53,7 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane zdjęć lotniczych zostały pobrane.',
@@ -63,16 +62,16 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane zdjęć lotniczych nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
     def create_report(self):
@@ -90,4 +89,4 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
             'karta_pracy': 'kartaPracy',
         }
         obj_list = [{**obj, 'url': obj.get('url', '').split('/')[-1]} for obj in zdjeciaLotniczeList_all]
-        utils.create_report(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze'), headers_mapping, obj_list)
+        create_report(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze'), headers_mapping, obj_list)

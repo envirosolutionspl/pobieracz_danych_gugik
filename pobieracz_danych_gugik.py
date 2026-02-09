@@ -158,7 +158,6 @@ class PobieraczDanychGugik:
         """Cleanup necessary items here when plugin dockwidget is closed"""
         if self.dockwidget is None:
             return
-
         # zwijanie groupboxow przy wylaczeniu
         self.change_groupboxes_visibility()
 
@@ -419,7 +418,7 @@ class PobieraczDanychGugik:
                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                iface=self.iface)
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def canvasWfs_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
@@ -433,7 +432,7 @@ class PobieraczDanychGugik:
 
     def downloadWfsFile(self, orto, folder):
         """Pobiera plik z wfs"""
-        QgsMessageLog.logMessage('start ' + orto.url)
+        utils.pushLogInfo('start ' + orto.url)
         service_api.retreiveFile(url=orto.url, destFolder=folder)
 
     # endregion
@@ -509,7 +508,7 @@ class PobieraczDanychGugik:
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasOrto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
@@ -561,7 +560,7 @@ class PobieraczDanychGugik:
 
     def downloadOrtoFile(self, orto, folder):
         """Pobiera plik ortofotomapy"""
-        QgsMessageLog.logMessage('start ' + orto.url)
+        utils.pushLogInfo('start ' + orto.url)
         service_api.retreiveFile(url=orto.url, destFolder=folder)
 
     # endregion
@@ -664,7 +663,7 @@ class PobieraczDanychGugik:
                                        isNmpt=False,
                                        iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
             elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
                 # pobieranie NMTP
@@ -674,7 +673,7 @@ class PobieraczDanychGugik:
                                         isNmpt=True,
                                         iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasNmt_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
@@ -734,7 +733,7 @@ class PobieraczDanychGugik:
 
     def downloadNmtFile(self, nmt, folder):
         """Pobiera plik NMT/NMPT"""
-        QgsMessageLog.logMessage('start ' + nmt.url)
+        utils.pushLogInfo('start ' + nmt.url)
         service_api.retreiveFile(url=nmt.url, destFolder=folder)
 
     # endregion
@@ -809,7 +808,7 @@ class PobieraczDanychGugik:
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasLas_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór LAS z mapy"""
@@ -862,7 +861,7 @@ class PobieraczDanychGugik:
 
     def downloadLaFile(self, las, folder):
         """Pobiera plik LAS"""
-        QgsMessageLog.logMessage('start ' + las.url)
+        utils.pushLogInfo('start ' + las.url)
         service_api.retreiveFile(url=las.url, destFolder=folder)
 
     # endregion
@@ -946,7 +945,7 @@ class PobieraczDanychGugik:
                                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                                iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasReflectance_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Intensywności z mapy"""
@@ -990,7 +989,7 @@ class PobieraczDanychGugik:
 
     def downloadReflectanceFile(self, reflectance, folder):
         """Pobiera plik LAS"""
-        QgsMessageLog.logMessage('start ' + reflectance.url)
+        utils.pushLogInfo('start ' + reflectance.url)
         service_api.retreiveFile(url=reflectance.url, destFolder=folder)
 
     # endregion
@@ -1038,7 +1037,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def bdot_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla województwa"""
@@ -1081,7 +1080,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def bdot_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla całej Polski"""
@@ -1117,7 +1116,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
@@ -1149,7 +1148,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def bdoo_selected_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla całej Polski"""
@@ -1174,7 +1173,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # endregion PRNG
     def prng_selected_btn_clicked(self):
@@ -1221,7 +1220,7 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # endregion
 
@@ -1334,7 +1333,7 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def invoke_task_3d_trees(self):
         connection = service_api.check_internet_connection()
@@ -1356,7 +1355,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def model3d_poprawnosc_dat(self, dict_od_do_data):
         """
@@ -1454,7 +1453,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
         """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
@@ -1471,7 +1470,7 @@ class PobieraczDanychGugik:
             plugin_dir=self.plugin_dir
         )
         QgsApplication.taskManager().addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
@@ -1510,7 +1509,7 @@ class PobieraczDanychGugik:
             plugin_dir=self.plugin_dir
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
@@ -1581,7 +1580,7 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # endregion
 
@@ -1616,7 +1615,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # endregion
 
@@ -1662,7 +1661,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def mesh3d_fromLayer_btn_clicked(self):
         connection = service_api.check_internet_connection()
@@ -1771,7 +1770,7 @@ class PobieraczDanychGugik:
                                                     folder=self.dockwidget.folder_fileWidget.filePath(),
                                                     iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def filterMeshListAndRunTask(self, mesh_objs):
         if not mesh_objs:
@@ -1799,7 +1798,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
@@ -1893,7 +1892,7 @@ class PobieraczDanychGugik:
                                            folder=self.dockwidget.folder_fileWidget.filePath(),
                                            iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasMozaika_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Linii Mozaikowania z mapy"""
@@ -1982,7 +1981,7 @@ class PobieraczDanychGugik:
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasWizualizacja_karto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Wizualizacji Kartograficznej BDOT10k z mapy"""
@@ -2074,7 +2073,7 @@ class PobieraczDanychGugik:
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface)
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def canvasKartoteki_osnow_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Archiwalnych kartotek osnów geodezyjnych z mapy"""
@@ -2126,7 +2125,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+        utils.pushLogInfo('runtask')
 
     # endregion
 
@@ -2216,7 +2215,7 @@ class PobieraczDanychGugik:
                     iface=self.iface
                 )
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def filterzdjeciaLotniczeList(self, zdjeciaLotniczeList):
         """Filtruje listę zdjęć lotniczych"""
@@ -2325,7 +2324,7 @@ class PobieraczDanychGugik:
                                     dataList,
                                     self.dockwidget.folder_fileWidget.filePath())
                 self.task_mngr.addTask(task)
-                QgsMessageLog.logMessage('runtask')
+                utils.pushLogInfo('runtask')
 
     def capture_btn_clicked(self, clickTool):
         """Kliknięcie klawisza pobierania danych przez wybór z mapy"""

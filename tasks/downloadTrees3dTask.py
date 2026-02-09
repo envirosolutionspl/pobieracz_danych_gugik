@@ -1,6 +1,4 @@
-from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
-)
+from qgis.core import QgsTask, Qgis
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from qgis.PyQt.QtCore import pyqtSignal
@@ -9,6 +7,7 @@ from qgis.utils import iface
 from ..constants import TREES3D_URL, TIMEOUT_MS
 from .. import service_api
 from ..network_utils import NetworkUtils
+from ..utils import pushLogInfo
 
 class DownloadTrees3dTask(QgsTask):
     """QgsTask pobierania modeli 3D drzew"""
@@ -22,33 +21,41 @@ class DownloadTrees3dTask(QgsTask):
         self.iface = iface
 
     def run(self):
-        trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        
-        if self.isCanceled():
-            return False
+            trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
+            pushLogInfo(f'Started task "{self.description()}"')
             
-        try:
-            NetworkUtils.fetch_content(trees_url, timeout_ms=TIMEOUT_MS)
-            QgsMessageLog.logMessage(f'pobieram {trees_url}')
+            if self.isCanceled():
+                return False
+
+            success_check, result_check = NetworkUtils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS)
+
+            if not success_check:
+                pushLogInfo(f'Błąd przy sprawdzaniu dostępności {trees_url}: {result_check}')
+                self.exception = result_check 
+                return False
+                
+            pushLogInfo(f'pobieram {trees_url}')
+            
             self.result, self.exception = service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
+            
+            if not self.result:
+                pushLogInfo(f'Błąd przy pobieraniu modeli 3D: {self.exception}')
+                return False
+                
             return not self.isCanceled()
-        except Exception as e:
-            QgsMessageLog.logMessage(f'Błąd przy sprawdzaniu/pobieraniu modeli 3D: {str(e)}')
-            return False
 
     def finished(self, result):
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage("Sukces",
                                                 "Udało się! Dane z modelami 3D drzew zostały pobrane.",
                                                 level=Qgis.Success,
                                                 duration=10)
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
                 raise self.exception
             self.iface.messageBar().pushMessage(
                 'Błąd',
@@ -58,7 +65,7 @@ class DownloadTrees3dTask(QgsTask):
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
 
 

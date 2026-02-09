@@ -1,10 +1,9 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
+from qgis.core import QgsApplication, QgsTask, Qgis
 
 from ..constants import PRNG_WMS_URL
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadPrngTask(QgsTask):
@@ -21,14 +20,14 @@ class DownloadPrngTask(QgsTask):
         self.url = f"{PRNG_WMS_URL}{self.rodzaj}_{self.format_danych}.zip"
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'pobieram {self.url}')
         _, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
 
     def finished(self, result):
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane PRNG zostały pobrane.',
@@ -37,14 +36,14 @@ class DownloadPrngTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane PRNG nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

@@ -7,18 +7,14 @@ from .network_utils import NetworkUtils
 def getRequest(params, url):
     attempt = 0
     while attempt <= MAX_ATTEMPTS:
-        try:
-            content = NetworkUtils.fetch_content(url, params=params, timeout_ms=TIMEOUT_MS * 2)
-            return True, content
-        except (TimeoutError, ConnectionError) as e:
-            attempt += 1
-            if attempt > MAX_ATTEMPTS:
-                return False, f'Błąd po {MAX_ATTEMPTS} próbach połączenia: {str(e)}'
-            time.sleep(2)
-        except urllib.error.HTTPError as e:
-            return False, f'Serwer zwrócił błąd HTTP {e.code}: {e.reason}'
-        except Exception as e:
-            return False, f'Nieoczekiwany błąd sieci: {str(e)}'
+        attempt += 1
+        success, result = NetworkUtils.fetchContent(url, params=params, timeout_ms=TIMEOUT_MS * 2)
+        if success:
+            return True, result
+        time.sleep(2)
+    return False, "Nieudana próba połączenia"
+
+
 
 
 def retreiveFile(url, destFolder, obj):
@@ -49,21 +45,14 @@ def retreiveFile(url, destFolder, obj):
         file_name = f"podstawowa_osnowa_{file_name}"
 
     path = os.path.join(destFolder, file_name)
-    
-    try:
-        cleanup_file(path)
-        NetworkUtils.download_file(url, path, obj=obj)
+    cleanup_file(path)
+
+    success, result = NetworkUtils.downloadFile(url, path, obj=obj)
+    if success:
         utils.openFile(destFolder)
         return True, True
-    except InterruptedError:
-        cleanup_file(path)
-        return False, "Pobieranie zostało anulowane."
-    except (TimeoutError, ConnectionError, urllib.error.HTTPError) as e:
-        cleanup_file(path)
-        return False, f"Błąd pobierania pliku: {str(e)}"
-    except Exception as e:
-        cleanup_file(path)
-        return False, f"Nieoczekiwany błąd przy zapisie: {str(e)}"
+    cleanup_file(path)
+    return False, result
 
 
 def getAllLayers(url, service="WMS"):
@@ -122,15 +111,8 @@ def getAllLayers(url, service="WMS"):
 
 def check_internet_connection():
     # próba połączenia z serwerem np. gugik
-    try:
-        NetworkUtils.fetch_content('https://uldk.gugik.gov.pl/', timeout_ms=TIMEOUT_MS)
-        return True
-    except Exception:
-        return False
-    
-
-def isInternetConnected():
-    return check_internet_connection()
+    success, _ = NetworkUtils.fetchContent('https://uldk.gugik.gov.pl/', timeout_ms=TIMEOUT_MS)
+    return success
 
 
 def cleanup_file(path):

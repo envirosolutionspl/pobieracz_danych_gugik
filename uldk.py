@@ -1,5 +1,5 @@
 from .network_utils import NetworkUtils
-from qgis.core import QgsMessageLog
+from .utils import pushLogInfo
 from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT, TIMEOUT_MS
 
 
@@ -7,19 +7,23 @@ class RegionFetch:
     def __init__(self):
         self.wojewodztwoDict = self.get_wojewodztwo_dict()
 
+
     @staticmethod
     def fetch_unit_dict(endpoint):
         unit_dict = {}
         url = f"{LOCAL_API_URL}{endpoint}"
+        pushLogInfo(f"Pobieranie danych z: {url}")
+        success, result = NetworkUtils.fetchJson(url, timeout_ms=TIMEOUT_MS)
+        if not success:
+            pushLogInfo(result)
+            return unit_dict
         try:
-            QgsMessageLog.logMessage(f"Pobieranie danych z: {url}", "PobieraczDanych")
-            data = NetworkUtils.fetch_json(url, timeout_ms=TIMEOUT_MS)
-            for item in data:
+            for item in result:
                 unit_dict[item['teryt']] = item['name']
-        except (TimeoutError, ConnectionError) as e:
-            QgsMessageLog.logMessage(f"Błąd połączenia przy pobieraniu {url}: {str(e)}", "PobieraczDanych", level=2)
+        except KeyError as e:
+            pushLogInfo(f"Struktura danych jest niepoprawna: {str(e)}")
         except Exception as e:
-            QgsMessageLog.logMessage(f"Inny błąd przy pobieraniu {url}: {str(e)}", "PobieraczDanych", level=2)
+            pushLogInfo(f"Inny błąd przy pobieraniu: {str(e)}")
         return unit_dict
 
     def get_wojewodztwo_dict(self):
@@ -35,6 +39,3 @@ class RegionFetch:
             return {}
         return self.fetch_unit_dict(GET_COMMUNE_ENDPOINT.format(teryt=teryt))
 
-
-if __name__ == '__main__':
-    regionFetch = RegionFetch()

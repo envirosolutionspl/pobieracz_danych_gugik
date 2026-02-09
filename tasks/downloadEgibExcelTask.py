@@ -1,9 +1,10 @@
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsTask, Qgis
 )
 
 from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING, TIMEOUT_MS
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
 from ..network_utils import NetworkUtils
 
 class DownloadEgibExcelTask(QgsTask):
@@ -45,25 +46,23 @@ class DownloadEgibExcelTask(QgsTask):
         for url in list_url:
             if self.isCanceled():
                 return False
-                
-            try:
-                NetworkUtils.fetch_content(url, timeout_ms=TIMEOUT_MS)
-                QgsMessageLog.logMessage('pobieram ' + url)
-                res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-                if res:
-                    return True
-                else:
-                    return False
-            except (TimeoutError, ConnectionError, Exception):
-                QgsMessageLog.logMessage(f"Błąd pobierania pliku {url}, pomijam.")
+            success_check, result_check = NetworkUtils.fetchContent(url, timeout_ms=TIMEOUT_MS)
+            if not success_check:
+                pushLogInfo(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
                 continue
-        
+            pushLogInfo('pobieram ' + url)
+            res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            if res:
+                return True
+            else:
+                pushLogInfo(f"Błąd pobierania pliku {url}: {self.exception}. Pomijam.")
+                continue
         return False
 
     def finished(self, result):
         
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.',
@@ -72,14 +71,14 @@ class DownloadEgibExcelTask(QgsTask):
             )
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane zestawień zbiorczych EGiB nie zostały pobrane.'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

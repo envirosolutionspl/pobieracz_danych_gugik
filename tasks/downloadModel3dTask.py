@@ -1,10 +1,9 @@
-from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
-)
+from qgis.core import QgsTask, Qgis
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BUDYNKI_3D_WMS_URL
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadModel3dTask(QgsTask):
@@ -23,7 +22,7 @@ class DownloadModel3dTask(QgsTask):
 
     def run(self):
         list_url = []
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        pushLogInfo(f'Started task "{self.description()}"')
         for standard in self.standard:
             for rok in self.data_lista:
                 list_url.extend(
@@ -41,9 +40,9 @@ class DownloadModel3dTask(QgsTask):
         results = []
         for url in list_url:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                pushLogInfo('isCanceled')
                 return False
-            QgsMessageLog.logMessage(f'pobieram {url}')
+            pushLogInfo(f'pobieram {url}')
             res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 self.liczba_dobrych_url.append(url)
@@ -60,7 +59,7 @@ class DownloadModel3dTask(QgsTask):
                 )
                 msgbox.exec_()
             
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane modelu 3D budynków zostały pobrane.',
@@ -73,11 +72,11 @@ class DownloadModel3dTask(QgsTask):
                 'Dane modelu 3D budynków nie zostały pobrane.'
             )
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                pushLogInfo('finished with false')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                pushLogInfo("exception")
 
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()

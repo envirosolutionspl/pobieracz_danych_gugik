@@ -1,5 +1,7 @@
 from datetime import datetime
 
+EGIB_WFS_CAPABILITIES_FILENAME = 'egib_wfs.xml'
+
 AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
 BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
 BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
@@ -38,6 +40,28 @@ MAX_ATTEMPTS = 3
 # minimalny rozmiar pliku do pobrania danych (~9KB)
 MIN_FILE_SIZE = 9000
 
+# nazwa pliku z danymi z WFS
+CAPABILITIES_FILE_NAME = 'egib_wfs.xml'
+
+# lista namespace'ów dla usług WFS
+WFS_NAMESPACES = {'ows': "http://www.opengis.net/ows/1.1",
+        'fes': "http://www.opengis.net/fes/2.0",
+        'gugik': "http://www.gugik.gov.pl",
+        'gml': "http://www.opengis.net/gml/3.2",
+        'wfs': "http://www.opengis.net/wfs/2.0",
+        'xlink': "http://www.w3.org/1999/xlink",
+        'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+        'xmlns': "http://www.opengis.net/wfs/2.0"
+        }
+
+
+# lista namespace'ów dla usług WMS
+WMS_NAMESPACES = {'sld': "http://www.opengis.net/sld",
+          'ms': "http://mapserver.gis.umn.edu/mapserver",
+          'xlink': "http://www.w3.org/1999/xlink",
+          'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+          'xmlns': "http://www.opengis.net/wms"
+          }
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 

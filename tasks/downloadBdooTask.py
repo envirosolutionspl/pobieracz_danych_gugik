@@ -1,10 +1,11 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, Qgis
     )
 
 from ..constants import BDOO_WMS_URL
-from .. import service_api, utils
+from .. import service_api
+from ..utils import pushLogInfo
 
 
 class DownloadBdooTask(QgsTask):
@@ -33,15 +34,15 @@ class DownloadBdooTask(QgsTask):
         self.iface = iface
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'pobieram {self.url}')
         success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.exception = message
         return success and not self.isCanceled()
 
     def finished(self, result):
         if result:
-            QgsMessageLog.logMessage('sukces')
+            pushLogInfo('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane BDOO zostały pobrane.',
@@ -50,12 +51,12 @@ class DownloadBdooTask(QgsTask):
             )
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            QgsMessageLog.logMessage(f"Błąd BDOO: {error_msg}")
+            pushLogInfo(f"Błąd BDOO: {error_msg}")
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 f'Dane BDOO nie zostały pobrane: {error_msg}'
             )
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        pushLogInfo('cancel')
         super().cancel()
