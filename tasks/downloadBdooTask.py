@@ -4,7 +4,7 @@ from qgis.core import (
     )
 
 from ..constants import BDOO_WMS_URL
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo
 
 
@@ -32,17 +32,18 @@ class DownloadBdooTask(QgsTask):
             # self.url = f"https://opendata.geoportal.gov.pl/bdot10k/{teryt[:2]}/{teryt}_GML.zip"
 
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         pushLogInfo(f'pobieram {self.url}')
-        success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.exception = message
         return success and not self.isCanceled()
 
     def finished(self, result):
         if result:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane BDOO')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane BDOO zostały pobrane.',
@@ -58,5 +59,5 @@ class DownloadBdooTask(QgsTask):
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych BDOO')
         super().cancel()

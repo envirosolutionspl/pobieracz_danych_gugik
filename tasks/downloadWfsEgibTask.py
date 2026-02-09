@@ -35,7 +35,7 @@ class DownloadWfsEgibTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo('Started task "{}"'.format(self.description()))
+        pushLogInfo('Rozpoczęto zadanie: "{}"'.format(self.description()))
         pushLogInfo('start ' + self.wfs_url)
 
         self.wfsEgib = WfsEgib()
@@ -62,20 +62,20 @@ class DownloadWfsEgibTask(QgsTask):
         użytkownikowi w osobnym okienku"""
         
         if result and self.name_error == "brak" and self.exception is None:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane EGiB')
             self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
                                                 level=Qgis.Success, duration=0)
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych EGiB')
 
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
                 msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
                 msgbox.exec_()
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych EGiB. Wystąpił błąd: " + str(self.exception))
 
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych EGiB')
         super().cancel()

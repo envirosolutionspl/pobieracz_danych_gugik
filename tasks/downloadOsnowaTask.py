@@ -1,7 +1,7 @@
 from qgis.core import QgsTask, Qgis
 
 from ..constants import OSNOWA_WMS_URL, TIMEOUT_MS
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..network_utils import NetworkUtils
 from ..utils import pushLogInfo
 
@@ -15,16 +15,18 @@ class DownloadOsnowaTask(QgsTask):
         self.teryt_powiat = teryt_powiat
         self.typ = typ
         self.iface = iface
+        self.service_api = ServiceAPI()
+        self.network_utils = NetworkUtils()
 
     def run(self):
-            pushLogInfo(f'Started task "{self.description()}"')
+            pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
             
             for typ in self.typ:
                 url = f"{OSNOWA_WMS_URL}teryt={self.teryt_powiat}&typ={typ}"
                 
                 if self.isCanceled():
                     return False
-                success_check, result_check = NetworkUtils.fetchContent(url, timeout_ms=TIMEOUT_MS)
+                success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS)
 
                 if not success_check:
                     pushLogInfo(f'Błąd przy sprawdzaniu dostępności {url}: {result_check}')
@@ -32,7 +34,7 @@ class DownloadOsnowaTask(QgsTask):
                     
                 pushLogInfo(f'pobieram {url}')
                 
-                res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+                res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
                 
                 if not res:
                     pushLogInfo(f'Błąd przy pobieraniu pliku {url}: {self.exception}')
@@ -41,7 +43,7 @@ class DownloadOsnowaTask(QgsTask):
 
     def finished(self, result):
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane podstawowej osnowy geodezyjnej')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane podstawowej osnowy geodezyjnej zostały pobrane.',
@@ -50,14 +52,14 @@ class DownloadOsnowaTask(QgsTask):
             )
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych podstawowej osnowy geodezyjnej')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych podstawowej osnowy geodezyjnej. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane podstawowej osnowy geodezyjnej nie zostały pobrane.'
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych podstawowej osnowy geodezyjnej')
         super().cancel()

@@ -1,13 +1,14 @@
 import datetime
 
 from .constants import ODBICIOWOSC_WMS_URL, ODBICIOWOWSC_SKOROWIDZE_LAYERS
-from . import service_api
+from .service_api import ServiceAPI
 from .wms.utils import get_wms_objects
 
 
 def getReflectanceListbyPoint1992(point):
     x = point.x()
     y = point.y()
+    service_api = ServiceAPI()
 
     PARAMS = {
         'SERVICE': 'WMS',

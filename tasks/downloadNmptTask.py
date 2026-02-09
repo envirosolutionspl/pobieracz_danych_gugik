@@ -1,7 +1,8 @@
 import os, datetime
 from qgis.core import QgsApplication, QgsTask, Qgis
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo, create_report, openFile
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadNmptTask(QgsTask):
@@ -16,6 +17,7 @@ class DownloadNmptTask(QgsTask):
         self.exception = None
         self.isNmpt = isNmpt
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -25,7 +27,7 @@ class DownloadNmptTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.nmptList)
         results = []
         for nmpt in self.nmptList:
@@ -34,12 +36,17 @@ class DownloadNmptTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {nmpt_url}')
-            res, self.exception = service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+
+        create_report(
+            os.path.join(self.folder, 'pobieracz_nmpt'),
+            HEADERS_MAPPING['NMT_HEADERS'],
+            self.nmptList
+        )
         openFile(self.folder)
         if self.isCanceled():
             return False
@@ -56,7 +63,7 @@ class DownloadNmptTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane NMPT')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane NMPT zostały pobrane.',
@@ -66,36 +73,14 @@ class DownloadNmptTask(QgsTask):
 
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych NMPT')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych NMPT. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushMessage(
                 'Błąd',
                 'Dane NMPT nie zostały pobrane.'
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych NMPT')
         super().cancel()
-
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'format': 'format',
-            'godlo': 'godlo',
-            'aktualnosc': 'aktualnosc',
-            'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
-            'dokladnosc_pionowa': 'bladSredniWysokosci',
-            'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
-            'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
-            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok',
-            'zrodlo_danych': 'zrDanych',
-            'data_dodania_do_PZGIK': 'dt_pzgik'
-        }
-        create_report(
-            os.path.join(self.folder, 'pobieracz_nmpt'),
-            headers_mapping,
-            self.nmptList
-        )

@@ -5,7 +5,7 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BDOT_WMS_URL
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo
 
 
@@ -20,12 +20,13 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}.zip'
         self.iface = iface
         self.result = None
+        self.service_api = ServiceAPI()
 
     def run(self):
-        pushLogInfo('Started task "{}"'.format(self.description()))
+        pushLogInfo('Rozpoczęto zadanie: "{}"'.format(self.description()))
         pushLogInfo(f'pobieram {self.url}')
         # fileName = self.url.split("/")[-1]
-        self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.result, self.exception = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
 
     def finished(self, result):
@@ -34,7 +35,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
             msgbox.exec_()
 
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane archiwalne BDOT10k')
             self.iface.messageBar().pushMessage(
                 "Sukces", 
                 "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
@@ -43,12 +44,12 @@ class DownloadArchiwalnyBdotTask(QgsTask):
             )
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrac dane archiwalne BDOT10k')
             elif isinstance(self.exception, BaseException):
                 pushLogInfo("exception")
             self.iface.messageBar().pushWarning("Błąd",
                                                 "Archiwalne dane BDOT10k nie zostały pobrane.")
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych archiwalnych BDOT10k')
         super().cancel()

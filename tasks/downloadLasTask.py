@@ -2,8 +2,9 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, Qgis
     )
-from .. import service_api
-from ..utils import pushLogInfo
+from ..service_api import ServiceAPI
+from ..utils import pushLogInfo, create_report
+from ..constants import HEADERS_MAPPING
 
 
 
@@ -15,10 +16,13 @@ class DownloadLasTask(QgsTask):
         super().__init__(description, QgsTask.CanCancel)
         self.lasList = lasList
         self.folder = folder
-        self.total = 0
+        self.total = len(self.lasList)
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
+        self.errors = []
+        self.success_count = 0
 
 
     def run(self):
@@ -29,8 +33,7 @@ class DownloadLasTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
-        total = len(self.lasList)
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         results = []
         for las in self.lasList:
             las_url = las.get('url')
@@ -38,19 +41,23 @@ class DownloadLasTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {las_url}')
-            success, message = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
-            self.setProgress(self.progress() + 100 / total)
+            success, message = self.service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
+            self.setProgress(self.progress() + 100 / self.total)
             results.append(success)
-            if not success:
-                self.exception = message
-                
-        if not any(results):
+            if success:
+                self.success_count += 1
+            else:
+                self.errors.append(f"{las.get('url')}: {message}")
+        
+        # jeżeli nie pobrał się żaden plik, to zwracamy False
+        if self.success_count == 0:
             return False
-            
-        if all(results):
-            self.exception = True
-            
-        self.create_report()
+
+        create_report(
+            os.path.join(self.folder, 'pobieracz_las'),
+            HEADERS_MAPPING['LAS_HEADERS'],
+            self.lasList
+        )
         return True
 
     def finished(self, result):
@@ -63,42 +70,35 @@ class DownloadLasTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result and self.exception:
-            pushLogInfo('sukces')
+        if not result:
+            pushLogInfo("Nie udało się pobrać żadnych plików LAZ")
+            self.iface.messageBar().pushWarning(
+                'Błąd',
+                'Nie udało się pobrać żadnych plików LAZ'
+            )
+            return
+
+        if self.success_count == self.total:
+            pushLogInfo('Pobrano wszystkie dane LAZ')
             self.iface.messageBar().pushMessage(
                 'Sukces',
-                'Udało się! Dane LAZ zostały pobrane.',
+                'Udało się! Wszystkie dane LAZ zostały pobrane.',
                 level=Qgis.Success,
                 duration=0
             )
         else:
-            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            pushLogInfo(f"Błąd LAZ: {error_msg}")
+            pushLogInfo(f"Pobrano {self.success_count}/{self.total} plików LAZ")
+            if self.errors:
+                pushLogInfo("Nie pobrano plików:\n" + "\n".join(self.errors))
             self.iface.messageBar().pushWarning(
-                'Błąd',
-                f'Dane LAZ nie zostały pobrane: {error_msg}'
+                'Częściowy sukces',
+                f"Pobrano {self.success_count}/{self.total} plików LAZ"
             )
 
+
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych LAZ')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'godlo': 'godlo',
-            'format': 'format',
-            'aktualnosc': 'aktulnosc',
-            'dokladnosc_pionowa': 'bladSredniWysokosci',
-            'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
-            'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
-            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok'
-        }
-        utils.create_report(
-            os.path.join(self.folder, 'pobieracz_las'),
-            headers_mapping,
-            self.lasList
-        )
+
 

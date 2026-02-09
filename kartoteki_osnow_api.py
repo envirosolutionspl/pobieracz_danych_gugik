@@ -1,7 +1,7 @@
 import re
 
 from .constants import KARTOTEKI_OSNOW_WMS_URL, KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS, KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL
-from . import service_api
+from .service_api import ServiceAPI
 
 
 def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
@@ -27,7 +27,7 @@ def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-
+    service_api = ServiceAPI()
     resp = service_api.getRequest(params=PARAMS, url=KARTOTEKI_OSNOW_WMS_URL)
     url_wzorzec = re.compile(r'http.+.zip')
     kartoteki_osnowList = []

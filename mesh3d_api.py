@@ -1,7 +1,7 @@
 import re
 
 from .wms.utils import get_wms_objects
-from . import service_api
+from .service_api import ServiceAPI
 
 URL = "https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/ModeleSiatkowe3D?"
 c = re.compile(r"\{{1}.*\}{1}")
@@ -31,5 +31,6 @@ def getMesh3dListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+    service_api = ServiceAPI()
     resp = service_api.getRequest(params=PARAMS, url=URL)
     return get_wms_objects(resp)

@@ -4,29 +4,33 @@ from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 from datetime import datetime
-from ..service_api import check_internet_connection
+from ..service_api import ServiceAPI
 from ..network_utils import NetworkUtils
-from ..constants import MIN_FILE_SIZE, CAPABILITIES_FILE_NAME
+from ..constants import MIN_FILE_SIZE, CAPABILITIES_FILE_NAME, GML_URL_TEMPLATES
 
 
 class WfsEgib:
 
-    def save_xml(self, folder, url, teryt):
+    def __init__(self):
+        self.service_api = ServiceAPI()
+        self.network_utils = NetworkUtils()
+
+    def saveXml(self, folder, url, teryt):
         """Zapisuje plik XML dla zapytania getCapabilities"""
-        if not check_internet_connection():
+        if not self.service_api.check_internet_connection():
             return 'Połączenie zostało przerwane'
         
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
-        success, result = NetworkUtils.downloadFile(url, path)
+        success, result = self.network_utils.downloadFile(url, path)
         if not success:
             return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {result}. URL: \n{url}"
             
         return "brak"
 
-    def work_on_xml(self, folder, url, teryt):
+    def workOnXml(self, folder, url, teryt):
         """Pracuje na pliku XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
-        name_error = self.save_xml(folder, url, teryt)
+        name_error = self.saveXml(folder, url, teryt)
         name_layers = None
         prefix = None
 
@@ -58,9 +62,9 @@ class WfsEgib:
 
         return name_error, name_layers, prefix
 
-    def save_gml(self, folder, url, teryt):
+    def saveGml(self, folder, url, teryt):
         """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty"""
-        name_error, name_layers, prefix = self.work_on_xml(folder, url, teryt)
+        name_error, name_layers, prefix = self.workOnXml(folder, url, teryt)
         if name_error != "brak":
             return name_error
 
@@ -69,24 +73,22 @@ class WfsEgib:
         name_error_lista = []      # Błędy
 
         for layer in name_layers:
-            if prefix == 'ewns':
-                url_gml = f"{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)"
-            elif prefix == 'ms':
-                url_gml = f"{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)"
+            if prefix in GML_URL_TEMPLATES:
+                url_gml = GML_URL_TEMPLATES[prefix].format(url_main=url_main, layer=layer)
             else:
-                url_gml = f'{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}'
+                url_gml = GML_URL_TEMPLATES['default'].format(url_main=url_main, layer=layer)
 
             print(url_gml)
             sleep(1)
             layer_name = layer.split(':')[-1]
-            if not check_internet_connection():
+            if not self.service_api.check_internet_connection():
                 return 'Połączenie zostało przerwane'
             
             layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
             error_reason = None
 
             try:
-                success, result = NetworkUtils.downloadFile(url_gml, layer_path)
+                success, result = self.network_utils.downloadFile(url_gml, layer_path)
                 if success: 
                     # Sprawdzenie rozmiaru
                     if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
@@ -122,7 +124,7 @@ class WfsEgib:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(folder, f'{teryt}_wfs_egib_{timestamp}/')
         os.mkdir(path)
-        return self.save_gml(path, wfs, teryt)
+        return self.saveGml(path, wfs, teryt)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,8 @@
 import os
 from qgis.core import QgsTask, Qgis
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo, create_report
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadMesh3dTask(QgsTask):
@@ -11,9 +12,10 @@ class DownloadMesh3dTask(QgsTask):
         self.folder = folder
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.mesh_objs)
         for obj in self.mesh_objs:
             obj_url = obj.get('url')
@@ -21,14 +23,14 @@ class DownloadMesh3dTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {obj_url}')
-            _, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            _, self.exception = self.service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-        self.create_report()
+        create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), HEADERS_MAPPING['MESH3D_HEADERS'], self.mesh_objs)
         return True
 
     def finished(self, result):
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane siatkowego modelu 3D')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane siatkowego modelu 3D zostały pobrane.',
@@ -37,31 +39,14 @@ class DownloadMesh3dTask(QgsTask):
             )
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych siatkowego modelu 3D')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych siatkowego modelu 3D. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane modelu siatkowego 3D nie zostały pobrane.'
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych siatkowego modelu 3D')
         super().cancel()
-
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'modul': 'modul',
-            'aktualnosc': 'aktualnosc',
-            'format': 'format',
-            'blad_sredni_wysokosci': 'bladSredniWysokosci',
-            'blad_sredni_polozenia': 'bladSredniPolozenia',
-            'uklad_wspolrzednych_poziomych': 'ukladWspolrzednychPoziomych',
-            'uklad_wspolrzednych_pionowych': 'ukladWspolrzednychPionowych',
-            'modul_archiwizacji': 'modulArchiwizacji',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok',
-            'zrodlo_danych': 'zrDanych',
-        }
-        create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), headers_mapping, self.mesh_objs)

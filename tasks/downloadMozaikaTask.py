@@ -1,7 +1,8 @@
 import os, datetime
 from qgis.core import QgsApplication, QgsTask, Qgis
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo, create_report
+from ..constants import HEADERS_MAPPING
 
 class DownloadMozaikaTask(QgsTask):
     """QgsTask pobierania intensywności"""
@@ -14,6 +15,7 @@ class DownloadMozaikaTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -23,7 +25,7 @@ class DownloadMozaikaTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.mozaikaList)
         results = []
         for mozaika in self.mozaikaList:
@@ -32,12 +34,12 @@ class DownloadMozaikaTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {mozaika_url}')
-            res, self.exception = service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=mozaika_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+        self._createReport()
         return True
 
     def finished(self, result):
@@ -51,7 +53,7 @@ class DownloadMozaikaTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane linii mozaikowania')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane linii mozaikowania zostały pobrane.',
@@ -61,25 +63,19 @@ class DownloadMozaikaTask(QgsTask):
 
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych linii mozaikowania')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych linii mozaikowania. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane linii mozaikowania nie zostały pobrane.'
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych linii mozaikowania')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'Nazwa pliku': 'url',
-            'Identyfikator Linii Mozaikowania': 'id',
-            'Numer zgłoszenia': 'zgloszenie',
-            'Rok': 'rok',
-        }
+    def _createReport(self):
         for obj in self.mozaikaList:
             obj['rok'] = obj.get('zgloszenie').split('.')[3]
-        create_report(os.path.join(self.folder, 'pobieracz_mozaika'), headers_mapping, self.mozaikaList)
+        create_report(os.path.join(self.folder, 'pobieracz_mozaika'), HEADERS_MAPPING['MOZAIKA_HEADERS'], self.mozaikaList)

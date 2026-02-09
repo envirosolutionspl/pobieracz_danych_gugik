@@ -1,6 +1,6 @@
 import os, datetime
 from qgis.core import QgsApplication, QgsTask, Qgis
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo
 
 
@@ -14,6 +14,7 @@ class DownloadWizKartoTask(QgsTask):
         self.total = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -23,7 +24,7 @@ class DownloadWizKartoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.wizKartoList)
         results = []
         for wizKarto in self.wizKartoList:
@@ -31,7 +32,7 @@ class DownloadWizKartoTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {wizKarto.url}')
-            res, self.exception = service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=wizKarto.url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
@@ -50,7 +51,7 @@ class DownloadWizKartoTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane wizualizacji kartograficznej BDOT10k')
             self.iface.messageBar().pushMessage(
                 "Sukces", 
                 "Udało się! Dane wizualizacji kartograficznej BDOT10k zostały pobrane.",
@@ -59,16 +60,16 @@ class DownloadWizKartoTask(QgsTask):
             )
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych wizualizacji kartograficznej BDOT10k')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych wizualizacji kartograficznej BDOT10k. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushWarning(
                 "Błąd",
                 "Dane wizualizacji kartograficznej BDOT10k nie zostały pobrane."
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych wizualizacji kartograficznej BDOT10k')
         super().cancel()
 
     def createCsvReport(self):

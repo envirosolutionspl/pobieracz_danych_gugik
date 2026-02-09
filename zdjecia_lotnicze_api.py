@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from .constants import ZDJECIA_LOTNICZE_WMS_URL
-from . import service_api
+from .service_api import ServiceAPI
 from .wms.utils import get_wms_objects
 
 
@@ -11,6 +11,7 @@ def getZdjeciaLotniczeListbyPoint1992(point):
 
     x = point.x()
     y = point.y()
+    service_api = ServiceAPI()
 
     layers = service_api.getAllLayers(url=ZDJECIA_LOTNICZE_WMS_URL, service='WMS')
 

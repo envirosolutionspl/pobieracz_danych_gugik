@@ -2,7 +2,7 @@ import re
 
 from .constants import WIZUALIZACJA_KARTO_WMS_URL, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
     WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
-from . import service_api
+from .service_api import ServiceAPI
 from .models import Wizualizacja_karto
 
 #TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach
@@ -30,6 +30,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
+    service_api = ServiceAPI()
     resp = service_api.getRequest(params=PARAMS, url=WIZUALIZACJA_KARTO_WMS_URL)
     url_wzorzec = re.compile(r'http.+.pdf')
     data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")

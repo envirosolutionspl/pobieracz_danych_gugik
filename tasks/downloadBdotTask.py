@@ -3,7 +3,7 @@ from qgis.core import (
     )
 
 from ..constants import BDOT_FORMAT_URL_MAPPING
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo
 
 
@@ -26,6 +26,7 @@ class DownloadBdotTask(QgsTask):
         self.teryt = teryt
         self.format_danych = format_danych
         self._construct_url(level, teryt, format_danych)
+        self.service_api = ServiceAPI()
 
     def _construct_url(self, level: int, teryt: str, data_format: str, upper: bool = False) -> None:
         prefix = BDOT_FORMAT_URL_MAPPING.get(data_format)
@@ -41,16 +42,16 @@ class DownloadBdotTask(QgsTask):
             self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.{zip_suffix}"
 
     def run(self):
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         pushLogInfo(f'pobieram {self.url}')
-        success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.result = success
         self.exception = message
         
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
             pushLogInfo(f'Próba 2: pobieram {self.url}')
-            success, message = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
             self.result = success
             self.exception = message
             
@@ -58,7 +59,7 @@ class DownloadBdotTask(QgsTask):
 
     def finished(self, result):
         if result:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane BDOT10k')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane BDOT10k zostały pobrane.',
@@ -74,5 +75,5 @@ class DownloadBdotTask(QgsTask):
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych BDOT10k')
         super().cancel()

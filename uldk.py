@@ -5,15 +5,14 @@ from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPO
 
 class RegionFetch:
     def __init__(self):
+        self.network_utils = NetworkUtils()
         self.wojewodztwoDict = self.get_wojewodztwo_dict()
 
-
-    @staticmethod
-    def fetch_unit_dict(endpoint):
+    def fetch_unit_dict(self, endpoint):
         unit_dict = {}
         url = f"{LOCAL_API_URL}{endpoint}"
         pushLogInfo(f"Pobieranie danych z: {url}")
-        success, result = NetworkUtils.fetchJson(url, timeout_ms=TIMEOUT_MS)
+        success, result = self.network_utils.fetchJson(url, timeout_ms=TIMEOUT_MS)
         if not success:
             pushLogInfo(result)
             return unit_dict

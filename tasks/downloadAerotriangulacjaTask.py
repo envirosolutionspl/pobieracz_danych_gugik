@@ -3,8 +3,9 @@ from qgis.core import (
     QgsApplication, QgsTask, Qgis
     )
 
-from .. import service_api
-from ..utils import pushLogInfo
+from ..service_api import ServiceAPI
+from ..utils import pushLogInfo, create_report
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadAerotriangulacjaTask(QgsTask):
@@ -18,6 +19,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -27,7 +29,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.aerotriangulacjaList)
         results = []
         for aero in self.aerotriangulacjaList:
@@ -36,12 +38,12 @@ class DownloadAerotriangulacjaTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {aero_url}')
-            res, self.exception = service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+        self._createReport()
         return True
 
     def finished(self, result):
@@ -55,7 +57,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane o aerotriangulacji')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane o aerotriangulacji zostały pobrane.',
@@ -73,20 +75,14 @@ class DownloadAerotriangulacjaTask(QgsTask):
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych o aerotriangulacji')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'Nazwa pliku': 'url',
-            'Identyfikator aerotriangulacji': 'id',
-            'Numer zgłoszenia': 'zgloszenie',
-            'Rok': 'rok'
-        }
+    def _createReport(self):
         for obj in self.aerotriangulacjaList:
             obj['rok'] = obj.get('zgloszenie').split('.')[3]
-        utils.create_report(
+        create_report(
             os.path.join(self.folder, 'pobieracz_aerotriangulacja'),
-            headers_mapping,
+            HEADERS_MAPPING['AEROTRIANGULATION_HEADERS'],
             self.aerotriangulacjaList
         )

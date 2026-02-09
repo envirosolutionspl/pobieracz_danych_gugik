@@ -31,8 +31,13 @@ from .dialogs import PobieraczDanychDockWidget
 from .qgis_feed import QgisFeedDialog
 import os.path
 
-from . import utils, ortofoto_api, nmt_api, nmpt_api, service_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, egib_api, mesh3d_api
+from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotriangulacja_api, \
+    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, mesh3d_api
+
+from .network_utils import NetworkUtils
+from .egib_api import EgibApi
+from .service_api import ServiceAPI
+from .utils import layerTo2180, pushLogInfo, pointTo2180, onlyNewest, createPointsFromLineLayer, createPointsFromPolygon, createPointsFromPointLayer
 
 
 class PobieraczDanychGugik:
@@ -80,6 +85,10 @@ class PobieraczDanychGugik:
 
         self.project = QgsProject.instance()
 
+        # klasy wykorzystywanych modułów
+        self.egib_api = EgibApi()
+        self.service_api = ServiceAPI()
+
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
         self.ortoClickTool = QgsMapToolEmitPoint(self.canvas)
@@ -104,7 +113,7 @@ class PobieraczDanychGugik:
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartoteki_osnow_clicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjecia_lotnicze_clicked)
-        if service_api.check_internet_connection():
+        if self.service_api.check_internet_connection():
             self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------
@@ -201,7 +210,7 @@ class PobieraczDanychGugik:
         """Run method that loads and starts the plugin"""
         if self.pluginIsActive:
             return
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             self.pluginIsActive = False
@@ -329,7 +338,7 @@ class PobieraczDanychGugik:
 
     def wfs_fromLayer_btn_clicked(self):
         """Kliknięcie klawisza pobierania danych WFS przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -367,7 +376,7 @@ class PobieraczDanychGugik:
             dp.addFeature(feature)
             layer = vp
 
-        layer1992 = utils.layerTo2180(layer=layer)
+        layer1992 = layerTo2180(layer=layer)
 
         skorowidzeLayer = self.dockwidget.wfsFetch.getWfsListbyLayer1992(
             layer=layer1992,
@@ -418,12 +427,12 @@ class PobieraczDanychGugik:
                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                iface=self.iface)
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def canvasWfs_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -432,8 +441,8 @@ class PobieraczDanychGugik:
 
     def downloadWfsFile(self, orto, folder):
         """Pobiera plik z wfs"""
-        utils.pushLogInfo('start ' + orto.url)
-        service_api.retreiveFile(url=orto.url, destFolder=folder)
+        pushLogInfo('start ' + orto.url)
+        self.service_api.retreiveFile(url=orto.url, destFolder=folder)
 
     # endregion
 
@@ -441,7 +450,7 @@ class PobieraczDanychGugik:
 
     def orto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania ortofotomapy przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -478,7 +487,7 @@ class PobieraczDanychGugik:
 
     def downloadOrtoForSinglePoint(self, point):
         """Pobiera ortofotomapę dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -508,12 +517,12 @@ class PobieraczDanychGugik:
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasOrto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór ortofotomapy z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -554,14 +563,14 @@ class PobieraczDanychGugik:
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
-            ortoList = utils.onlyNewest(ortoList)
+            ortoList = onlyNewest(ortoList)
             # print(ortoList)
         return ortoList
 
     def downloadOrtoFile(self, orto, folder):
         """Pobiera plik ortofotomapy"""
-        utils.pushLogInfo('start ' + orto.url)
-        service_api.retreiveFile(url=orto.url, destFolder=folder)
+        pushLogInfo('start ' + orto.url)
+        self.service_api.retreiveFile(url=orto.url, destFolder=folder)
 
     # endregion
 
@@ -569,7 +578,7 @@ class PobieraczDanychGugik:
 
     def nmt_fromLayer_btn_clicked(self):
         """Kliknięcie klawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -615,7 +624,7 @@ class PobieraczDanychGugik:
 
     def downloadNmtForSinglePoint(self, point):
         """Pobiera NMT/NMPT dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -663,7 +672,7 @@ class PobieraczDanychGugik:
                                        isNmpt=False,
                                        iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
             elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
                 # pobieranie NMTP
@@ -673,12 +682,12 @@ class PobieraczDanychGugik:
                                         isNmpt=True,
                                         iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasNmt_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór NMT/NMPT z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -728,13 +737,13 @@ class PobieraczDanychGugik:
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
-            nmtList = utils.onlyNewest(nmtList)
+            nmtList = onlyNewest(nmtList)
         return nmtList
 
     def downloadNmtFile(self, nmt, folder):
         """Pobiera plik NMT/NMPT"""
-        utils.pushLogInfo('start ' + nmt.url)
-        service_api.retreiveFile(url=nmt.url, destFolder=folder)
+        pushLogInfo('start ' + nmt.url)
+        self.service_api.retreiveFile(url=nmt.url, destFolder=folder)
 
     # endregion
 
@@ -742,7 +751,7 @@ class PobieraczDanychGugik:
 
     def las_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -770,11 +779,11 @@ class PobieraczDanychGugik:
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -808,12 +817,12 @@ class PobieraczDanychGugik:
                                        folder=self.dockwidget.folder_fileWidget.filePath(),
                                        iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasLas_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór LAS z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -854,15 +863,15 @@ class PobieraczDanychGugik:
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.laz_newest_chkbx.isChecked():
-            lasList = utils.onlyNewest(lasList)
+            lasList = onlyNewest(lasList)
 
         return lasList
 
 
     def downloadLaFile(self, las, folder):
         """Pobiera plik LAS"""
-        utils.pushLogInfo('start ' + las.url)
-        service_api.retreiveFile(url=las.url, destFolder=folder)
+        pushLogInfo('start ' + las.url)
+        self.service_api.retreiveFile(url=las.url, destFolder=folder)
 
     # endregion
 
@@ -870,7 +879,7 @@ class PobieraczDanychGugik:
 
     def reflectance_fromLayer_btn_clicked(self):
         """Kliknięcie klawisza pobierania Intensywności przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -908,7 +917,7 @@ class PobieraczDanychGugik:
 
     def downloadReflectanceForSinglePoint(self, point):
         """Pobiera Intensywność dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -945,12 +954,12 @@ class PobieraczDanychGugik:
                                                folder=self.dockwidget.folder_fileWidget.filePath(),
                                                iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasReflectance_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Intensywności z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -989,15 +998,15 @@ class PobieraczDanychGugik:
 
     def downloadReflectanceFile(self, reflectance, folder):
         """Pobiera plik LAS"""
-        utils.pushLogInfo('start ' + reflectance.url)
-        service_api.retreiveFile(url=reflectance.url, destFolder=folder)
+        pushLogInfo('start ' + reflectance.url)
+        self.service_api.retreiveFile(url=reflectance.url, destFolder=folder)
 
     # endregion
 
     # region BDOT10k
     def bdot_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla powiatu"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1037,11 +1046,11 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def bdot_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla województwa"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1080,11 +1089,11 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def bdot_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOT10k dla całej Polski"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1116,12 +1125,12 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # region BDOO
     def bdoo_selected_woj_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla województwa"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1148,11 +1157,11 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def bdoo_selected_polska_btn_clicked(self):
         """Pobiera paczkę danych BDOO dla całej Polski"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1173,12 +1182,12 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # endregion PRNG
     def prng_selected_btn_clicked(self):
         """Pobiera paczkę danych PRNG"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1220,7 +1229,7 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # endregion
 
@@ -1276,7 +1285,7 @@ class PobieraczDanychGugik:
 
     def prg_selected_btn_clicked(self):
         """Pobiera paczkę danych PRG"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1333,10 +1342,10 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def invoke_task_3d_trees(self):
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1355,7 +1364,7 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def model3d_poprawnosc_dat(self, dict_od_do_data):
         """
@@ -1392,7 +1401,7 @@ class PobieraczDanychGugik:
 
     def model3d_selected_powiat_btn_clicked(self):
         """Pobiera paczkę danych modulu 3D budynków"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1453,12 +1462,12 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def egib_wfs_download_task(self, powiat_name, teryt, wfs_dict, wfs_type):
         """Pobiera paczkę danych WFS dla określonego typu (EGiB i RCiN)"""
         if not hasattr(self, wfs_dict):
-            setattr(self, wfs_dict, egib_api.get_wfs_egib_dict())
+            setattr(self, wfs_dict, self.egib_api.getWfsEgibDict())
         if not getattr(self, wfs_dict):
             return
         task = DownloadWfsEgibTask(
@@ -1470,11 +1479,11 @@ class PobieraczDanychGugik:
             plugin_dir=self.plugin_dir
         )
         QgsApplication.taskManager().addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def wfs_egib_selected_pow_btn_clicked(self):
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1496,7 +1505,7 @@ class PobieraczDanychGugik:
         )
 
         if not hasattr(self, 'egib_wfs_dict'):
-            setattr(self, 'egib_wfs_dict', egib_api.get_wfs_egib_dict())
+            setattr(self, 'egib_wfs_dict', self.egib_api.getWfsEgibDict())
         if not self.egib_wfs_dict:
             return
 
@@ -1509,7 +1518,7 @@ class PobieraczDanychGugik:
             plugin_dir=self.plugin_dir
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def radioButton_powiaty_egib_excel(self):
         if self.dockwidget.powiat_egib_excel_rdbtn.isChecked():
@@ -1528,7 +1537,7 @@ class PobieraczDanychGugik:
 
     def egib_excel_selected_btn_clicked(self):
         """Pobiera excela z Zestawieniami Zbiorczymi EGiB"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1580,14 +1589,14 @@ class PobieraczDanychGugik:
         )
 
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # endregion
 
     # region opracowania tyflologiczne
     def tyflologiczne_selected_btn_clicked(self):
         """Pobiera opracowania tyflologiczne"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1615,14 +1624,14 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # endregion
 
     # region podstawowa osnowa geodezyjna
     def osnowa_selected_btn_clicked(self):
         """Pobiera podstawową osnowę geodezyjną"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1661,10 +1670,10 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def mesh3d_fromLayer_btn_clicked(self):
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1695,7 +1704,7 @@ class PobieraczDanychGugik:
 
     def aerotriangulacja_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1733,7 +1742,7 @@ class PobieraczDanychGugik:
 
     def downloadAerotriangulacjiForSinglePoint(self, point):
         """Pobiera Aerotriangulacji dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -1741,7 +1750,7 @@ class PobieraczDanychGugik:
         self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
 
     def downloadMesh3dForSinglePoint(self, point):
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -1770,7 +1779,7 @@ class PobieraczDanychGugik:
                                                     folder=self.dockwidget.folder_fileWidget.filePath(),
                                                     iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def filterMeshListAndRunTask(self, mesh_objs):
         if not mesh_objs:
@@ -1798,12 +1807,12 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1813,7 +1822,7 @@ class PobieraczDanychGugik:
     def canvasMesh_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Siatki modeli 3D z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1822,7 +1831,7 @@ class PobieraczDanychGugik:
 
     def linie_mozaikowania_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1861,7 +1870,7 @@ class PobieraczDanychGugik:
 
     def downloadMozaikaForSinglePoint(self, point):
         """Pobiera Linie Mozaikowania dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -1892,12 +1901,12 @@ class PobieraczDanychGugik:
                                            folder=self.dockwidget.folder_fileWidget.filePath(),
                                            iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasMozaika_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Linii Mozaikowania z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1909,7 +1918,7 @@ class PobieraczDanychGugik:
     # region wizualizacja kartograficzna BDOT10k
     def wizualizacja_karto_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Wizualizacji kartograficznej BDOT10k przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1949,7 +1958,7 @@ class PobieraczDanychGugik:
 
     def downloadWizualizacjaKartoForSinglePoint(self, point):
         """Pobiera Wizualizacji Kartograficznej BDOT10k dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -1981,12 +1990,12 @@ class PobieraczDanychGugik:
                                             folder=self.dockwidget.folder_fileWidget.filePath(),
                                             iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasWizualizacja_karto_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Wizualizacji Kartograficznej BDOT10k z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -1998,7 +2007,7 @@ class PobieraczDanychGugik:
     # region archiwalne kartoteki osnów geodezyjnych
     def osnowa_arch_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Archiwalnych kartotek osnów geodezyjnych przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -2038,7 +2047,7 @@ class PobieraczDanychGugik:
 
     def downloadKartotekiOsnowForSinglePoint(self, point):
         """Pobiera Archiwalne kartoteki osnów geodezyjnych dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -2073,12 +2082,12 @@ class PobieraczDanychGugik:
                     folder=self.dockwidget.folder_fileWidget.filePath(),
                     iface=self.iface)
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def canvasKartoteki_osnow_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Archiwalnych kartotek osnów geodezyjnych z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -2090,7 +2099,7 @@ class PobieraczDanychGugik:
     # region dane archiwalne BDOT10k
     def archiwalne_bdot_selected_powiat_btn_clicked(self):
         """Pobiera paczkę archiwalnych danych BDOT10k dla powiatów"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -2125,14 +2134,14 @@ class PobieraczDanychGugik:
             iface=self.iface
         )
         self.task_mngr.addTask(task)
-        utils.pushLogInfo('runtask')
+        pushLogInfo('Dodano nowe zadanie.')
 
     # endregion
 
     # region zdjęcia lotnicze
     def zdjecia_lotnicze_fromLayer_btn_clicked(self):
         """Kliknięcie plawisza pobierania Zdjęć Lotniczych przez wybór warstwą wektorową"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -2169,7 +2178,7 @@ class PobieraczDanychGugik:
 
     def downloadZdjeciaLotniczeForSinglePoint(self, point):
         """Pobiera Zdjecia Lotnicze dla pojedynczego punktu"""
-        point1992 = utils.pointTo2180(
+        point1992 = pointTo2180(
             point=point,
             project=self.project
         )
@@ -2215,7 +2224,7 @@ class PobieraczDanychGugik:
                     iface=self.iface
                 )
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def filterzdjeciaLotniczeList(self, zdjeciaLotniczeList):
         """Filtruje listę zdjęć lotniczych"""
@@ -2243,7 +2252,7 @@ class PobieraczDanychGugik:
     def canvasZdjecia_lotnicze_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
         """point - QgsPointXY"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return
@@ -2265,11 +2274,11 @@ class PobieraczDanychGugik:
             layer = proc['OUTPUT']
 
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
-            points = utils.createPointsFromLineLayer(layer, density)
+            points = createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            points = utils.createPointsFromPolygon(layer, density)
+            points = createPointsFromPolygon(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PointGeometry:
-            points = utils.createPointsFromPointLayer(layer)
+            points = createPointsFromPointLayer(layer)
 
         return points
 
@@ -2324,11 +2333,11 @@ class PobieraczDanychGugik:
                                     dataList,
                                     self.dockwidget.folder_fileWidget.filePath())
                 self.task_mngr.addTask(task)
-                utils.pushLogInfo('runtask')
+                pushLogInfo('Dodano nowe zadanie.')
 
     def capture_btn_clicked(self, clickTool):
         """Kliknięcie klawisza pobierania danych przez wybór z mapy"""
-        connection = service_api.check_internet_connection()
+        connection = self.service_api.check_internet_connection()
         if not connection:
             self.show_no_connection_message()
             return

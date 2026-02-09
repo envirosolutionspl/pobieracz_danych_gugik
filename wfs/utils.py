@@ -11,7 +11,8 @@ def getTypenamesFromWFS(wfsUrl):
         'SERVICE': 'WFS',
         'request': 'GetCapabilities',
     }
-    success, result = NetworkUtils.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+    network_utils = NetworkUtils()
+    success, result = network_utils.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
 
     if not success:
         return False, result

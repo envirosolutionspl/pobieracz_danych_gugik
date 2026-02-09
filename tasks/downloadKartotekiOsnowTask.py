@@ -2,8 +2,9 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, Qgis
 )
-from .. import service_api
-from ..utils import pushLogInfo
+from ..service_api import ServiceAPI
+from ..utils import pushLogInfo, create_report
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadKartotekiOsnowTask(QgsTask):
@@ -16,6 +17,7 @@ class DownloadKartotekiOsnowTask(QgsTask):
         self.total = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -25,7 +27,7 @@ class DownloadKartotekiOsnowTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.kartotekiOsnowList)
         results = []
         for kartotekaOsnow in self.kartotekiOsnowList:
@@ -34,12 +36,17 @@ class DownloadKartotekiOsnowTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'start {obj_url}')
-            res, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+
+        create_report(
+            os.path.join(self.folder, 'pobieracz_archiwalnych_katalogów_osnów_geodezyjnych'),
+            HEADERS_MAPPING['CONTROL_POINT_RECORDS_HEADERS'],
+            self.kartotekiOsnowList
+        )
         return True
 
     def finished(self, result):
@@ -53,7 +60,7 @@ class DownloadKartotekiOsnowTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane archiwalnych kartotek osnów')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane archiwalnych kartotek osnów zostały pobrane.',
@@ -62,26 +69,14 @@ class DownloadKartotekiOsnowTask(QgsTask):
             )
         else:
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych archiwalnych kartotek osnów')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych archiwalnych kartotek osnów. Wystąpił błąd: " + str(self.exception))
             self.iface.messageBar().pushWarning(
                 'Błąd',
                 'Dane archiwalnych kartotek osnów nie zostały pobrane.'
             )
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych archiwalnych kartotek osnów')
         super().cancel()
-
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'rodzaj_katalogu': 'rodzaj_katalogu',
-            'Godło': 'godlo',
-        }
-        utils.create_report(
-            os.path.join(self.folder, 'pobieracz_archiwalnych_katalogów_osnów_geodezyjnych'),
-            headers_mapping,
-            self.kartotekiOsnowList
-        )

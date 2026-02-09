@@ -1,6 +1,6 @@
 from .constants import MOZAIKA_WMS_URL, MOZAIKA_SKOROWIDZE_LAYERS
 from .wms.utils import get_wms_objects
-from . import service_api
+from .service_api import ServiceAPI
 
 def getMozaikaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania linii mozaikowania na podstawie
@@ -25,6 +25,6 @@ def getMozaikaListbyPoint1992(point):
         'j': '50',
         'INFO_FORMAT': 'text/html'
     }
-
+    service_api = ServiceAPI()
     resp = service_api.getRequest(params=PARAMS, url=MOZAIKA_WMS_URL)
     return get_wms_objects(resp)

@@ -27,6 +27,134 @@ TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
 WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
 ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
 
+# url do sprawdzania połączenia z internetem
+ULDK_URL = 'https://uldk.gugik.gov.pl/'
+
+
+# slowniki dla nagłówków 
+HEADERS_MAPPING = {
+    'AERIAL_TRIANGULATION_HEADERS': {
+        'Nazwa pliku': 'url',
+        'Identyfikator aerotriangulacji': 'id',
+        'Numer zgłoszenia': 'zgloszenie',
+        'Rok': 'rok'
+    }, 
+    'CONTROL_POINT_RECORDS_HEADERS': {
+        'nazwa_pliku': 'url',
+        'rodzaj_katalogu': 'rodzaj_katalogu',
+        'Godło': 'godlo',
+    },
+    'LAS_HEADERS': {
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'format': 'format',
+        'aktualnosc': 'aktulnosc',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'MESH3D_HEADERS': {
+        'nazwa_pliku': 'url',
+        'modul': 'modul',
+        'aktualnosc': 'aktualnosc',
+        'format': 'format',
+        'blad_sredni_wysokosci': 'bladSredniWysokosci',
+        'blad_sredni_polozenia': 'bladSredniPolozenia',
+        'uklad_wspolrzednych_poziomych': 'ukladWspolrzednychPoziomych',
+        'uklad_wspolrzednych_pionowych': 'ukladWspolrzednychPionowych',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych', 
+    },
+    'MOZAIKA_HEADERS': {
+        'Nazwa pliku': 'url',
+        'Identyfikator Linii Mozaikowania': 'id',
+        'Numer zgłoszenia': 'zgloszenie',
+        'Rok': 'rok',
+    },
+    'NMPT_HEADERS': {
+        'nazwa_pliku': 'url',
+        'format': 'format',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych',
+        'data_dodania_do_PZGIK': 'dt_pzgik'
+    },
+    'NMT_HEADERS': {
+        'nazwa_pliku': 'url',
+        'format': 'format',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych'
+    },
+    'ORTHOPHOTO_HEADERS': {
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'wielkosc_piksela': 'wielkoscPiksela',
+        'uklad_wspolrzednych': 'ukladWspolrzednych',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'zrodlo_danych': 'zrodloDanych',
+        'kolor': 'kolor',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'REFLECTANCE_HEADERS':{
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'wielkosc_piksela': 'wielkoscPiksela',
+        'uklad_wspolrzednych': 'ukladWspolrzednych',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'zrodlo_danych': 'zrodloDanych',
+        'metoda_zapisu': 'metodaZapisu',
+        'zakres_intensywnosci': 'zakresIntensywnosci',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'AERIAL_PHOTOS': {
+        'nazwa_pliku': 'url',
+        'numer_szeregu': 'nrSzeregu',
+        'numer_zdjęcia': 'nrZdjecia',
+        'rok_wykonania': 'rokWykonania',
+        'data_nalotu': 'dataNalotu',
+        'charakterystyka_przestrzenna': 'charakterystykaPrzestrzenna',
+        'kolor': 'kolor',
+        'źrodło_danych': 'zrodloDanych',
+        'numer_zgłoszenia': 'nrZgloszenia',
+        'karta_pracy': 'kartaPracy',
+    }
+}
+
+# tamplate do pobierania danych GML
+GML_URL_TEMPLATES = {
+    'ewns': "{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)",
+    'ms':   "{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)",
+    'default': "{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}"
+}
+
+
+
+
 # endpointy do lokalnego api
 LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
 GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
@@ -44,24 +172,26 @@ MIN_FILE_SIZE = 9000
 CAPABILITIES_FILE_NAME = 'egib_wfs.xml'
 
 # lista namespace'ów dla usług WFS
-WFS_NAMESPACES = {'ows': "http://www.opengis.net/ows/1.1",
-        'fes': "http://www.opengis.net/fes/2.0",
-        'gugik': "http://www.gugik.gov.pl",
-        'gml': "http://www.opengis.net/gml/3.2",
-        'wfs': "http://www.opengis.net/wfs/2.0",
-        'xlink': "http://www.w3.org/1999/xlink",
-        'xsi': "http://www.w3.org/2001/XMLSchema-instance",
-        'xmlns': "http://www.opengis.net/wfs/2.0"
-        }
+WFS_NAMESPACES = {
+    'ows': "http://www.opengis.net/ows/1.1",
+    'fes': "http://www.opengis.net/fes/2.0",
+    'gugik': "http://www.gugik.gov.pl",
+    'gml': "http://www.opengis.net/gml/3.2",
+    'wfs': "http://www.opengis.net/wfs/2.0",
+    'xlink': "http://www.w3.org/1999/xlink",
+    'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+    'xmlns': "http://www.opengis.net/wfs/2.0"
+}
 
 
 # lista namespace'ów dla usług WMS
-WMS_NAMESPACES = {'sld': "http://www.opengis.net/sld",
-          'ms': "http://mapserver.gis.umn.edu/mapserver",
-          'xlink': "http://www.w3.org/1999/xlink",
-          'xsi': "http://www.w3.org/2001/XMLSchema-instance",
-          'xmlns': "http://www.opengis.net/wms"
-          }
+WMS_NAMESPACES = {
+    'sld': "http://www.opengis.net/sld",
+    'ms': "http://mapserver.gis.umn.edu/mapserver",
+    'xlink': "http://www.w3.org/1999/xlink",
+    'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+    'xmlns': "http://www.opengis.net/wms"
+}
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 

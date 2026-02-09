@@ -2,7 +2,7 @@ from qgis.core import QgsTask, Qgis
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BUDYNKI_3D_WMS_URL
-from .. import service_api
+from ..service_api import ServiceAPI
 from ..utils import pushLogInfo
 
 
@@ -19,10 +19,11 @@ class DownloadModel3dTask(QgsTask):
         self.data_lista = data_lista
         self.iface = iface
         self.liczba_dobrych_url = []
+        self.service_api = ServiceAPI()
 
     def run(self):
         list_url = []
-        pushLogInfo(f'Started task "{self.description()}"')
+        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         for standard in self.standard:
             for rok in self.data_lista:
                 list_url.extend(
@@ -43,7 +44,7 @@ class DownloadModel3dTask(QgsTask):
                 pushLogInfo('isCanceled')
                 return False
             pushLogInfo(f'pobieram {url}')
-            res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 self.liczba_dobrych_url.append(url)
             results.append(res)
@@ -59,7 +60,7 @@ class DownloadModel3dTask(QgsTask):
                 )
                 msgbox.exec_()
             
-            pushLogInfo('sukces')
+            pushLogInfo('Pobrano dane modelu 3D budynków')
             self.iface.messageBar().pushMessage(
                 'Sukces',
                 'Udało się! Dane modelu 3D budynków zostały pobrane.',
@@ -72,11 +73,11 @@ class DownloadModel3dTask(QgsTask):
                 'Dane modelu 3D budynków nie zostały pobrane.'
             )
             if self.exception is None:
-                pushLogInfo('finished with false')
+                pushLogInfo('Nie udało się pobrać danych modelu 3D budynków')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("exception")
+                pushLogInfo("Nie udało się pobrać danych modelu 3D budynków. Wystąpił błąd: " + str(self.exception))
 
 
     def cancel(self):
-        pushLogInfo('cancel')
+        pushLogInfo('Anulowano pobieranie danych modelu 3D budynków')
         super().cancel()
