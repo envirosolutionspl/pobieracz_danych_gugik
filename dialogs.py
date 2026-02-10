@@ -3,10 +3,18 @@
 
 import os
 import warnings
-
+from .utils import isCompatibleQtVersion
+from qgis.PyQt.QtCore import QT_VERSION_STR
 from qgis.PyQt import QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, QRegExp
-from qgis.PyQt.QtGui import QRegExpValidator
+
+from qgis.PyQt.QtCore import pyqtSignal
+
+if isCompatibleQtVersion(QT_VERSION_STR, 6):
+    from qgis.PyQt.QtCore import QRegularExpression
+    from qgis.PyQt.QtGui import QRegularExpressionValidator
+else: 
+    from qgis.PyQt.QtCore import QRegExp
+    from qgis.PyQt.QtGui import QRegExpValidator
 
 from qgis._core import Qgis, QgsMapLayerProxyModel
 from qgis.gui import QgsFileWidget
@@ -67,7 +75,11 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
 
     def setup_validators(self):
-        double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
+
+        if isCompatibleQtVersion(QT_VERSION_STR, 6):
+            double_validator = QRegularExpressionValidator(QRegularExpression("[0-9.]*"))
+        else:
+            double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
         for obj in DOUBLE_VALIDATOR_OBJECTS:
             getattr(self, obj).setValidator(double_validator)
 

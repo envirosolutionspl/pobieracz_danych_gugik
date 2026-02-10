@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QT_VERSION_STR
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox, QDialog
 from qgis.gui import *
@@ -188,7 +188,7 @@ class PobieraczDanychGugik:
     def showBranchSelectionDialog(self):
         self.qgisfeed_dialog = QgisFeedDialog()
 
-        if self.qgisfeed_dialog.exec_() == QDialog.Accepted:
+        if self.qgisfeed_dialog.exec() == QDialog.Accepted:
             self.selected_branch = self.qgisfeed_dialog.comboBox.currentText()
 
             #Zapis w QGIS3.ini
@@ -312,7 +312,10 @@ class PobieraczDanychGugik:
         self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
         # show the dockwidget
-        self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+        if utils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
+        else:
+            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
 
         self.dockwidget.label_55.setMargin(5)
         self.dockwidget.show()
@@ -382,25 +385,19 @@ class PobieraczDanychGugik:
 
             # wyswietl komunikat pytanie
             if len(urls) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
-                msgbox.exec_()
+                utils.pushMessageBox(self.dockwidget, "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
 
                 self.project.removeMapLayer(skorowidzeLayer.id())
 
                 self.canvas.refresh()
                 return
             else:
-                msgbox = QMessageBox(QMessageBox.Question,
-                                     "Potwierdź pobieranie",
-                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                         urls))
-                msgbox.addButton(QMessageBox.Yes)
-                msgbox.addButton(QMessageBox.No)
-                msgbox.setDefaultButton(QMessageBox.No)
-                reply = msgbox.exec()
+                title = "Potwierdź pobieranie"
+                message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                    urls)
+                reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
 
-                if reply == QMessageBox.Yes:
+                if reply:
                     # pobieranie
                     self.runWfsTask(urls)
                     self.project.removeMapLayer(skorowidzeLayer.id())
@@ -487,19 +484,14 @@ class PobieraczDanychGugik:
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
         ortoList = self.filterOrtoList(ortoList)
         if len(ortoList) == 0:
-            QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria").exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     ortoList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                ortoList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie
                 task = DownloadOrtofotoTask(description='Pobieranie plików ortofotomapy',
                                             ortoList=ortoList,
@@ -640,20 +632,15 @@ class PobieraczDanychGugik:
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
         nmtList = self.filterNmtList(nmtList)
         if not nmtList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     nmtList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                nmtList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
 
-            if reply == QMessageBox.Yes and isNmpt is False and self.dockwidget.nmt_rdbtn.isChecked():
+            if reply and isNmpt is False and self.dockwidget.nmt_rdbtn.isChecked():
                 # pobieranie NMT
                 task = DownloadNmtTask(description='Pobieranie plików NMT',
                                        nmtList=nmtList,
@@ -663,7 +650,7 @@ class PobieraczDanychGugik:
                 self.task_mngr.addTask(task)
                 QgsMessageLog.logMessage('runtask')
 
-            elif reply == QMessageBox.Yes and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
+            elif reply and isNmpt is True and self.dockwidget.nmpt_rdbtn.isChecked():
                 # pobieranie NMTP
                 task = DownloadNmptTask(description='Pobieranie plików NMPT',
                                         nmptList=nmtList,
@@ -787,19 +774,14 @@ class PobieraczDanychGugik:
         """Filtruje listę dostępnych plików LAS i uruchamia wątek QgsTask"""
         lasList = self.filterLasList(lasList)
         if not lasList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     lasList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                lasList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie LAS
                 task = DownloadLasTask(description='Pobieranie plików LAZ',
                                        lasList=lasList,
@@ -924,19 +906,14 @@ class PobieraczDanychGugik:
         """Filtruje listę dostępnych plików Intensywności i uruchamia wątek QgsTask"""
         reflectanceList = self.filterReflectanceList(reflectanceList)
         if not reflectanceList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     reflectanceList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                reflectanceList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie reflectance
                 task = DownloadReflectanceTask(description='Pobieranie plików Obrazów Intensywności',
                                                reflectanceList=reflectanceList,
@@ -1376,13 +1353,13 @@ class PobieraczDanychGugik:
                         Data {'początkowa' if year == od_data else 'końcowa'} musi być w przedziale od {MIN_YEAR_BUILDINGS_3D} do {CURRENT_YEAR}.
                         '''
                     )
-                    msgbox.exec_()
+                    msgbox.exec()
                     return False, None, None
 
         except ValueError as err:
             error_value = err.args[0].split(" ")[-1]
             msgbox = QMessageBox(QMessageBox.Warning, "Błąd", f"Nieprawidłowy format - data {error_value}.")
-            msgbox.exec_()
+            msgbox.exec()
             return False, None, None
 
         else:
@@ -1406,8 +1383,7 @@ class PobieraczDanychGugik:
         elif self.dockwidget.model3d_lod1_rdbtn.isChecked() and self.dockwidget.model3d_lod2_rdbtn.isChecked():
             standard = ["LOD1", "LOD2"]
         elif not self.dockwidget.model3d_lod1_rdbtn.isChecked() and not self.dockwidget.model3d_lod2_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:", "Nie wybrano standardu")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie wybrano standardu")
             return False
 
         od_data_text = self.dockwidget.model3d_dateEdit_comboBox_1.currentText()
@@ -1426,9 +1402,7 @@ class PobieraczDanychGugik:
         roznica = do_data - od_data
 
         if roznica < 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, f"Data początkowa ({od_data}) jest większa od daty końcowej ({do_data})")
             return False
         else:
             data_lista = [rok for rok in range(od_data, do_data + 1)]
@@ -1636,9 +1610,7 @@ class PobieraczDanychGugik:
         elif self.dockwidget.osnowa_H_rdbtn.isChecked() and self.dockwidget.osnowa_XY_rdbtn.isChecked():
             typ = ["H", "XY"]
         elif not self.dockwidget.osnowa_H_rdbtn.isChecked() and not self.dockwidget.osnowa_XY_rdbtn.isChecked():
-            msgbox = QMessageBox(QMessageBox.Information, "Ostrzeżenie:",
-                                 f"Nie wybrano typu osnowy")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie wybrano typu osnowy")
             return False
 
         powiat_name = self.dockwidget.osnowa_powiat_cmbbx.currentText()
@@ -1749,19 +1721,14 @@ class PobieraczDanychGugik:
     def filterAerotriangulacjaListAndRunTask(self, aerotriangulacjaList):
         """Filtruje listę dostępnych plików Areotriangulacji i uruchamia wątek QgsTask"""
         if not aerotriangulacjaList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     aerotriangulacjaList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                aerotriangulacjaList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie areotriangulacji
                 task = DownloadAerotriangulacjaTask(description='Pobieranie plików danych o aerotriangulacji',
                                                     aerotriangulacjaList=aerotriangulacjaList,
@@ -1772,31 +1739,20 @@ class PobieraczDanychGugik:
 
     def filterMeshListAndRunTask(self, mesh_objs):
         if not mesh_objs:
-            msgbox = QMessageBox(
-                QMessageBox.Information,
-                'Komunikat',
-                'Nie znaleniono danych spełniających kryteria'
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
+            return
+        title = "Potwierdź pobieranie"
+        message = f'Znaleziono {len(mesh_objs)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
+        reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+        if reply:
+            task = DownloadMesh3dTask(
+                description='Pobieranie plików danych siatkowych modeli 3D',
+                mesh_objs=mesh_objs,
+                folder=self.dockwidget.folder_fileWidget.filePath(),
+                iface=self.iface
             )
-            msgbox.exec_()
-            return
-        msgbox = QMessageBox(
-            QMessageBox.Question,
-            'Potwierdź pobieranie',
-            f'Znaleziono {len(mesh_objs)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
-        )
-        msgbox.addButton(QMessageBox.Yes)
-        msgbox.addButton(QMessageBox.No)
-        msgbox.setDefaultButton(QMessageBox.No)
-        if msgbox.exec() == QMessageBox.No:
-            return
-        task = DownloadMesh3dTask(
-            description='Pobieranie plików danych siatkowych modeli 3D',
-            mesh_objs=mesh_objs,
-            folder=self.dockwidget.folder_fileWidget.filePath(),
-            iface=self.iface
-        )
-        self.task_mngr.addTask(task)
-        QgsMessageLog.logMessage('runtask')
+            self.task_mngr.addTask(task)
+            QgsMessageLog.logMessage('runtask')
 
     def canvasAerotriangulacja_clicked(self, point):
         """Zdarzenie kliknięcia przez wybór Aerotriangulacji z mapy"""
@@ -1870,20 +1826,14 @@ class PobieraczDanychGugik:
     def filterMozaikaListAndRunTask(self, mozaikaList):
         """Filtruje listę dostępnych plików Linii Mozaikowania i uruchamia wątek QgsTask"""
         if not mozaikaList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                 "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     mozaikaList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                mozaikaList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie linii mozaikowania
                 task = DownloadMozaikaTask(description='Pobieranie plików danych o linii mozaikowania',
                                            mozaikaList=mozaikaList,
@@ -1959,20 +1909,14 @@ class PobieraczDanychGugik:
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
         """Filtruje listę dostępnych plików Wizualizacji Kartograficznej BDOT10k i uruchamia wątek QgsTask"""
         if not wizKartoList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                 "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     wizKartoList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                wizKartoList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie wizualizacji kartograficznej BDOT10k
                 task = DownloadWizKartoTask(description='Pobieranie danych pdf o wizualizacji kartograficznej BDOT10k',
                                             wizKartoList=wizKartoList,
@@ -2050,20 +1994,14 @@ class PobieraczDanychGugik:
     def filterKartotekiOsnowListAndRunTask(self, kartotekiOsnowList):
         """Filtruje listę dostępnych plików Archiwalnych kartotek osnów i uruchamia wątek QgsTask"""
         if not kartotekiOsnowList:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                 "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     kartotekiOsnowList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                kartotekiOsnowList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie wizualizacji kartograficznej BDOT10k
                 task = DownloadKartotekiOsnowTask(
                     description='Pobieranie danych o archiwalnych kartotekach osnów geodezyjnych',
@@ -2187,24 +2125,14 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if not filtered_list:
-            msgbox = QMessageBox(
-                QMessageBox.Information,
-                'Komunikat',
-                'Nie znaleniono danych spełniających kryteria'
-            )
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(
-                QMessageBox.Question,
-                'Potwierdź pobieranie',
-                f'Znaleziono {len(filtered_list)} plików spełniających kryteria. Czy chcesz je wszystkie pobrać?'
-            )
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                filtered_list)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 task = DownloadZdjeciaLotniczeTask(
                     description='Pobieranie plików zdjęć lotniczych',
                     zdjeciaLotniczeList=filtered_list,
@@ -2304,19 +2232,14 @@ class PobieraczDanychGugik:
 
         # wyswietl komunikat pytanie
         if len(dataList) == 0:
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.dockwidget, "Nie znaleniono danych spełniających kryteria")
             return
         else:
-            msgbox = QMessageBox(QMessageBox.Question,
-                                 "Potwierdź pobieranie",
-                                 "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     dataList))
-            msgbox.addButton(QMessageBox.Yes)
-            msgbox.addButton(QMessageBox.No)
-            msgbox.setDefaultButton(QMessageBox.No)
-            reply = msgbox.exec()
-            if reply == QMessageBox.Yes:
+            title = "Potwierdź pobieranie"
+            message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
+                dataList)
+            reply = utils.pushMessageBoxYesNo(self.dockwidget, title, message)
+            if reply:
                 # pobieranie plików
                 task = downloadTask(f'Pobieranie plików {dataType}',
                                     dataList,

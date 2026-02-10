@@ -1,10 +1,10 @@
 import datetime
 from qgis.core import QgsCoordinateReferenceSystem
 from typing import List, Dict, Any
-
+from .constants import QT_VER
 import processing, sys, os
 from qgis.core import *
-
+from qgis.PyQt.QtWidgets import QMessageBox
 
 def onlyNewest(data_file_list):
     """filtruje listę tylko do najnowszych plików według arkuszy"""
@@ -124,3 +124,37 @@ def remove_duplicates_from_list_of_dicts(dict_list: List[Dict[Any, Any]]) -> Lis
             seen.add(fset)
             unique_dict_list.append(_dict)
     return unique_dict_list
+
+def isCompatibleQtVersion(cur_version, tar_version):
+    return cur_version.startswith(QT_VER[tar_version])
+
+def pushMessageBoxYesNo(parent, title: str, message: str) -> bool:
+    buttons = (
+        QMessageBox.StandardButton.Yes |
+        QMessageBox.StandardButton.No
+    )
+
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Question,
+        title,
+        message,
+        buttons,
+        parent
+    )
+    msg_box.setDefaultButton(QMessageBox.StandardButton.No)
+
+    reply = msg_box.exec()
+    return reply == QMessageBox.StandardButton.Yes
+
+def pushMessageBox(parent, message):
+    msg_box = QMessageBox(
+        QMessageBox.Icon.Information,
+        'Informacja',
+        message,
+        QMessageBox.StandardButton.Ok,
+        parent
+    )
+    if hasattr(parent, 'plugin_icon'):
+        msg_box.setWindowIcon(QIcon(parent.plugin_icon))
+    msg_box.exec()
+

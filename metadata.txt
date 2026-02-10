@@ -12,6 +12,8 @@ version=1.2.11
 author=EnviroSolutions Sp. z o.o.
 email=office@envirosolutions.pl
 
+supportsQt6=true
+
 about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez GUGiK.
   Możliwe jest pobieranie:
   * danych za pomocą wskazania punktu na mapie

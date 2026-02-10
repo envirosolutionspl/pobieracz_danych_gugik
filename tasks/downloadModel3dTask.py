@@ -54,12 +54,7 @@ class DownloadModel3dTask(QgsTask):
     def finished(self, result):
         if result:
             if self.liczba_dobrych_url:
-                msgbox = QMessageBox(
-                    QMessageBox.Information,
-                    'Komunikat',
-                    f'Pobrano {len(self.liczba_dobrych_url)} plików z danymi'
-                )
-                msgbox.exec_()
+                utils.pushMessageBox(self.iface, f'Pobrano {len(self.liczba_dobrych_url)} plików z danymi')
             
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(

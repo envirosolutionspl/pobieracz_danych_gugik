@@ -28,8 +28,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
 
     def finished(self, result):
         if self.page_exist == 'NO':
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            utils.pushMessageBox(self.iface, "Nie znaleniono danych spełniających kryteria")
 
         if result and self.exception:
             QgsMessageLog.logMessage('sukces')

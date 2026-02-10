@@ -70,9 +70,7 @@ class DownloadWfsEgibTask(QgsTask):
             if self.exception is None:
                 QgsMessageLog.logMessage('finished with false')
 
-                msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
-                msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
-                msgbox.exec_()
+                utils.pushMessageBox(self.iface, self.name_error)
             elif isinstance(self.exception, BaseException):
                 QgsMessageLog.logMessage("exception")
 
