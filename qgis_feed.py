@@ -110,13 +110,6 @@ class QgisFeed:
         return self.s.contains(f"core/NewsFeed/{self.industry_url_short}/lastFetchTime") \
             or self.s.contains(f"app/news-feed/items/{self.industry_url_short}/last-fetch-time")
 
-    def checkIsFetchTime(self):
-        """
-        Function check if the fetch time from QGIS Feed was already registered
-        """
-        return self.s.contains(f"core/NewsFeed/{self.industry_url_short}/lastFetchTime") \
-            or self.s.contains(f"app/news-feed/items/{self.industry_url_short}/last-fetch-time")
-
     def initFeed(self):
         """
         Function is a built in QGIS class and it is responsible for firing QGIS Feed
