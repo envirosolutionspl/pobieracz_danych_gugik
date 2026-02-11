@@ -795,8 +795,6 @@ class PobieraczDanychGugik:
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
             for point in points:
                 sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
-                if sub_list:
-                    las_list.extend(sub_list)
                 las_list.extend(sub_list)
             self.filterLasListAndRunTask(las_list)
         else:
