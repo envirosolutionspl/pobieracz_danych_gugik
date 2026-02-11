@@ -1926,13 +1926,7 @@ class PobieraczDanychGugik:
 
         bledy = 0
         layer = self.dockwidget.wizualizacja_karto_mapLayerComboBox.currentLayer()
-        skala_wartosc = '10'
-        if self.dockwidget.wizualizacja_karto_25_rdbtn.isChecked():
-            skala_wartosc = '25'
-        elif self.dockwidget.wizualizacja_karto_50_rdbtn.isChecked():
-            skala_wartosc = '50'
-        elif self.dockwidget.wizualizacja_karto_100_rdbtn.isChecked():
-            skala_wartosc = '100'
+        skala_wartosc = skala_wartosc = self.wybranaSkala()
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
@@ -1967,13 +1961,7 @@ class PobieraczDanychGugik:
             project=self.project,
             dest_crs=CRS
         )
-        skala_wartosc = '10'
-        if self.dockwidget.wizualizacja_karto_25_rdbtn.isChecked():
-            skala_wartosc = '25'
-        elif self.dockwidget.wizualizacja_karto_50_rdbtn.isChecked():
-            skala_wartosc = '50'
-        elif self.dockwidget.wizualizacja_karto_100_rdbtn.isChecked():
-            skala_wartosc = '100'
+        skala_wartosc = self.wybranaSkala()
         
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
             point=point_reprojected,
@@ -2015,6 +2003,23 @@ class PobieraczDanychGugik:
             return
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
+
+    def wybranaSkala(self):
+        """
+        Zwraca klucz dla wybranej skali
+        """
+        btn_map = {
+            self.dockwidget.wizualizacja_karto_10_rdbtn:  '10',
+            self.dockwidget.wizualizacja_karto_25_rdbtn:  '25',
+            self.dockwidget.wizualizacja_karto_50_rdbtn:  '50',
+            self.dockwidget.wizualizacja_karto_100_rdbtn: '100'
+        }
+
+        for btn, key in btn_map.items():
+            if btn.isChecked():
+                return key
+        
+        return '10' # domyślna wartość 10
 
     # endregion
 

@@ -329,21 +329,24 @@ ODBICIOWOWSC_SKOROWIDZE_LAYERS = [
     'SkorowidzeOIZasieg'
 ]
 
-WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS = [
-    'Mapy10k'
-]
-
-WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS = [
-    'Mapy25k'
-]
-
-WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS = [
-    'Mapy50k'
-]
-
-WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS = [
-    'Mapy100k'
-]
+WIZUALIZACJA_KARTO_CONFIG = {
+    '10': {
+        'layers': ['Mapy10k'],
+        'label': '1:10000'
+    },
+    '25': {
+        'layers': ['Mapy25k'],
+        'label': '1:25000'
+    },
+    '50': {
+        'layers': ['Mapy50k'],
+        'label': '1:50000'
+    },
+    '100': {
+        'layers': ['Mapy100k'],
+        'label': '1:100000'
+    }
+}
 
 ADMINISTRATIVE_UNITS_OBJECTS = {
     'wojewodztwo_cmbbx': ('getPowiatByTeryt', 'powiat_cmbbx'),

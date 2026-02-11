@@ -2,10 +2,7 @@ import re
 
 from .constants import (
     WIZUALIZACJA_KARTO_WMS_URL, 
-    WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS,
-    WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS, 
-    WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS,
-    WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS
+    WIZUALIZACJA_KARTO_CONFIG
 )
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
@@ -16,14 +13,11 @@ def getWizualizacjaKartoListbyPoint1992(point, skala):
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-    if skala == '100':
-        layers = WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS
-    elif skala == '25':
-        layers = WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
-    elif skala == '50':
-        layers = WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS
-    else:
-        layers = WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS
+    
+    config = WIZUALIZACJA_KARTO_CONFIG.get(skala)
+
+    layers = config['layers']
+    skala_m = config['label']
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -54,14 +48,6 @@ def getWizualizacjaKartoListbyPoint1992(point, skala):
         for wizKartoElement in wizKartoElementsUrl:
             godlo = wizKartoElement.split('/')[-1].split('.')[0]
             wizKartoElementsData = data_wzorzec.findall(resp[1])[id]
-            if skala == '10':
-                skala_m = '1:10000'
-            elif skala == '25':
-                skala_m = '1:25000'
-            elif skala == '50':
-                skala_m = '1:50000'
-            else:
-                skala_m = '1:100000'
             id = id + 1
             params["url"] = wizKartoElement
             params["data"] = wizKartoElementsData
