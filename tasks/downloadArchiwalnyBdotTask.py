@@ -2,8 +2,6 @@ from qgis.core import (
     QgsTask, Qgis
 )
 
-from qgis.PyQt.QtWidgets import QMessageBox
-
 from ..constants import BDOT_WMS_URL
 from ..utils import MessageUtils, ServiceAPI
 

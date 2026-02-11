@@ -1,6 +1,3 @@
-import os, datetime
-
-from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QPixmap, QIcon
 
 from qgis.core import QgsApplication, QgsTask, Qgis
@@ -66,9 +63,9 @@ class DownloadWfsEgibTask(QgsTask):
             if self.exception is None:
                 MessageUtils.pushLogWarning('Nie udało się pobrać danych EGiB')
 
-                msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
-                msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
-                msgbox.exec_()
+                title = "Informacje o warstwach EGiB"
+                message = self.name_error
+                MessageUtils.pushMessageBoxCritical(self.iface.mainWindow(), title, message)
             elif isinstance(self.exception, BaseException):
                 MessageUtils.pushLogWarning("Nie udało się pobrać danych EGiB. Wystąpił błąd: " + str(self.exception))
 

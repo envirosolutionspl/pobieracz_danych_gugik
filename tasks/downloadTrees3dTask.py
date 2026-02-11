@@ -1,5 +1,4 @@
 from qgis.core import QgsTask, Qgis
-from qgis.PyQt.QtWidgets import QMessageBox
 
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.utils import iface

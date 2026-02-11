@@ -1,6 +1,6 @@
 import re
 
-from .constants import WIZUALIZACJA_KARTO_WMS_URL, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
+from .constants import WIZUALIZACJA_KARTO_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
     WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
@@ -12,26 +12,14 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
     x = point.x()
     y = point.y()
     layers = WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS if skala_10000 else WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
-
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.1.1',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(layers),
-        'styles': '',
-        'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(layers)
+    })
     service_api = ServiceAPI()
-    resp = service_api.getRequest(params=PARAMS, url=WIZUALIZACJA_KARTO_WMS_URL)
+    resp = service_api.getRequest(params=params, url=WIZUALIZACJA_KARTO_WMS_URL)
     url_wzorzec = re.compile(r'http.+.pdf')
     data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")
     if resp[0]:

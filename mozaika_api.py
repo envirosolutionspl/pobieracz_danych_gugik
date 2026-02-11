@@ -1,4 +1,4 @@
-from .constants import MOZAIKA_WMS_URL, MOZAIKA_SKOROWIDZE_LAYERS
+from .constants import MOZAIKA_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS, MOZAIKA_SKOROWIDZE_LAYERS
 from .wms.utils import getWmsObjects
 from .utils import ServiceAPI
 
@@ -8,23 +8,13 @@ def getMozaikaListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'version': '1.1.1',
         'layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS),
-        'styles': '',
-        'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS)
+    })
     service_api = ServiceAPI()
-    resp = service_api.getRequest(params=PARAMS, url=MOZAIKA_WMS_URL)
+    resp = service_api.getRequest(params=params, url=MOZAIKA_WMS_URL)
     return getWmsObjects(resp)

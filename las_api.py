@@ -1,6 +1,6 @@
 import datetime
 
-from .constants import LAS_EVRF_WMS_URL, LAS_KRON86_WMS_URL
+from .constants import LAS_EVRF_WMS_URL, LAS_KRON86_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS
 from .wms.utils import getWmsObjects
 
 from .utils import ServiceAPI
@@ -15,25 +15,14 @@ def getLasListbyPoint1992(point, isEvrf2007):
 
     if not layers:
         return
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.3.0',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(layers),
-        'styles': '',
-        'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
         'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+    })
     
-    resp = service_api.getRequest(params=PARAMS, url=_url)
+    resp = service_api.getRequest(params=params, url=_url)
 
     return _convertAttributes(getWmsObjects(resp))
 

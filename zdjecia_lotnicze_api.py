@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .constants import ZDJECIA_LOTNICZE_WMS_URL
+from .constants import ZDJECIA_LOTNICZE_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS
 from .utils import ServiceAPI
 from .wms.utils import getWmsObjects
 
@@ -15,25 +15,14 @@ def getZdjeciaLotniczeListbyPoint1992(point):
 
     layers = service_api.getAllLayers(url=ZDJECIA_LOTNICZE_WMS_URL, service='WMS')
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.1.1',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(layers),
-        'styles': '',
-        'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(layers)
+    })
 
-    resp = service_api.getRequest(params=PARAMS, url=ZDJECIA_LOTNICZE_WMS_URL)
+    resp = service_api.getRequest(params=params, url=ZDJECIA_LOTNICZE_WMS_URL)
     return _convertAttributes(getWmsObjects(resp))
 
 

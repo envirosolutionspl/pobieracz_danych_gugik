@@ -153,7 +153,10 @@ GML_URL_TEMPLATES = {
     'default': "{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}"
 }
 
-
+# wersja Qt6
+QT_VER = {
+    6: "6."
+}
 
 
 # WFS 
@@ -195,6 +198,11 @@ WFS_FILTER_KEYS = {
 # wartość filtra wszystkie
 VALUE_ALL = 'wszystkie'
 
+# katalogi osnow
+KATALOGI_OSNOW = {
+    'Kronsztadt60': 'Katalogi_Kronsztadt60',
+    'Kartoteki1942': 'Katalogi_Kartoteki1942'
+}
 
 # endpointy do lokalnego api
 LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
@@ -250,6 +258,11 @@ WMS_GET_FEATURE_INFO_PARAMS = {
     'j': '50',
     'INFO_FORMAT': 'text/html'
 }
+
+# warstwy dla mesh3D
+MESH3D_SKOROWIDZE_LAYERS = [
+    'SkorowidzeModeleSiatkowe3D'
+]
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
