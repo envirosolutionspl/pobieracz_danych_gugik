@@ -38,6 +38,8 @@ from .egib_api import EgibAPI
 from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, GeometryUtils
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
+from .wfs.utils import filterWfsFeaturesByUsersInput
+
 
 class PobieraczDanychGugik:
     """QGIS Plugin Implementation."""

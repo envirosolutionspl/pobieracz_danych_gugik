@@ -176,6 +176,26 @@ WFS_FILTER_KEYS = {
 VALUE_ALL = 'wszystkie'
 
 
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+
 # endpointy do lokalnego api
 LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
 GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
