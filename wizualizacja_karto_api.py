@@ -1,17 +1,29 @@
 import re
 
-from .constants import WIZUALIZACJA_KARTO_WMS_URL, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
-    WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
+from .constants import (
+    WIZUALIZACJA_KARTO_WMS_URL, 
+    WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS,
+    WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS, 
+    WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS,
+    WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS
+)
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
 
 #TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach
-def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
+def getWizualizacjaKartoListbyPoint1992(point, skala):
     """Zwraca listę dostępnych do pobrania wizualizacji kartograficznych BDOT10k na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-    layers = WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS if skala_10000 else WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
+    if skala == '100':
+        layers = WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS
+    elif skala == '25':
+        layers = WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
+    elif skala == '50':
+        layers = WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS
+    else:
+        layers = WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -42,15 +54,19 @@ def getWizualizacjaKartoListbyPoint1992(point, skala_10000):
         for wizKartoElement in wizKartoElementsUrl:
             godlo = wizKartoElement.split('/')[-1].split('.')[0]
             wizKartoElementsData = data_wzorzec.findall(resp[1])[id]
-            if skala_10000:
-                skala = '1:10000'
+            if skala == '10':
+                skala_m = '1:10000'
+            elif skala == '25':
+                skala_m = '1:25000'
+            elif skala == '50':
+                skala_m = '1:50000'
             else:
-                skala = '1:25000'
+                skala_m = '1:100000'
             id = id + 1
             params["url"] = wizKartoElement
             params["data"] = wizKartoElementsData
             params["godlo"] = godlo
-            params["skala"] = skala
+            params["skala"] = skala_m
             wizualizacja_karto = Wizualizacja_karto(**params)
             wizKartoList.append(wizualizacja_karto)
         # print("wizKartoElement: ", wizKartoElement)

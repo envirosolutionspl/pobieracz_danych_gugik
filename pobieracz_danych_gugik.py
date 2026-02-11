@@ -38,8 +38,6 @@ from .egib_api import EgibAPI
 from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, GeometryUtils
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
-from .wfs.utils import filterWfsFeaturesByUsersInput
-
 
 class PobieraczDanychGugik:
     """QGIS Plugin Implementation."""
@@ -1928,7 +1926,13 @@ class PobieraczDanychGugik:
 
         bledy = 0
         layer = self.dockwidget.wizualizacja_karto_mapLayerComboBox.currentLayer()
-        skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
+        skala_wartosc = '10'
+        if self.dockwidget.wizualizacja_karto_25_rdbtn.isChecked():
+            skala_wartosc = '25'
+        elif self.dockwidget.wizualizacja_karto_50_rdbtn.isChecked():
+            skala_wartosc = '50'
+        elif self.dockwidget.wizualizacja_karto_100_rdbtn.isChecked():
+            skala_wartosc = '100'
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
@@ -1938,8 +1942,10 @@ class PobieraczDanychGugik:
 
             wizKartoList = []
             for point in points:
-                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point,
-                                                                                     skala_10000=skala_10000)
+                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
+                    point=point,
+                    skala=skala_wartosc
+                )
                 if subList:
                     wizKartoList.extend(subList)
                 else:
@@ -1961,9 +1967,18 @@ class PobieraczDanychGugik:
             project=self.project,
             dest_crs=CRS
         )
-        skala_10000 = self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked()
-        wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point_reprojected,
-                                                                                  skala_10000=skala_10000)
+        skala_wartosc = '10'
+        if self.dockwidget.wizualizacja_karto_25_rdbtn.isChecked():
+            skala_wartosc = '25'
+        elif self.dockwidget.wizualizacja_karto_50_rdbtn.isChecked():
+            skala_wartosc = '50'
+        elif self.dockwidget.wizualizacja_karto_100_rdbtn.isChecked():
+            skala_wartosc = '100'
+        
+        wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
+            point=point_reprojected,
+            skala=skala_wartosc
+        )
         self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):

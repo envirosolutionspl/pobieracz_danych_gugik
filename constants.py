@@ -337,6 +337,14 @@ WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS = [
     'Mapy25k'
 ]
 
+WIZUALIZACJA_KARTO_50K_SKOROWIDZE_LAYERS = [
+    'Mapy50k'
+]
+
+WIZUALIZACJA_KARTO_100K_SKOROWIDZE_LAYERS = [
+    'Mapy100k'
+]
+
 ADMINISTRATIVE_UNITS_OBJECTS = {
     'wojewodztwo_cmbbx': ('getPowiatByTeryt', 'powiat_cmbbx'),
     'prg_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'prg_powiat_cmbbx'),
