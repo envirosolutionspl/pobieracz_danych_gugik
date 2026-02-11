@@ -35,7 +35,11 @@ def getKartotekiOsnowListbyPoint1992(point, is_kronsztad):
 
             url = f'{KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL}{rodzaj_katalogu}/{godlo}.zip'
                 
-            params = {"url": url, "rodzaj_katalogu": rodzaj_katalogu, "godlo": godlo}
+            params = {
+                "url": url, 
+                "rodzaj_katalogu": rodzaj_katalogu, 
+                "godlo": godlo
+            }
             kartoteki_osnowList.append(params)
             return kartoteki_osnowList
         else:
