@@ -37,7 +37,7 @@ def getQueryableLayersFromWMS(wmsUrl):
         return False, "Błąd połączenia"
 
 
-def get_wms_objects(request_response):
+def getWmsObject(request_response):
     if not request_response[0]:
         return None
     req_elements = expr.findall(request_response[1])

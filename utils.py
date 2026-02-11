@@ -1,5 +1,5 @@
 import datetime
-from qgis.core import QgsCoordinateReferenceSystem
+from qgis.core import QgsCoordinateReferenceSystem, QgsMessageLog, Qgis
 from typing import List, Dict, Any
 
 import processing, sys, os
@@ -55,7 +55,10 @@ def createPointsFromLineLayer(layer, density):
     points = []
     for feat in layer.getFeatures():
         geom = feat.geometry()
-        for point in geom.densifyByDistance(density).vertices():
+        if not geom or geom.isNull():
+            continue
+        densified_geom = geom.densifyByDistance(density)
+        for point in densified_geom.vertices():
             if point not in points:
                 points.append(point)
     return points
@@ -121,3 +124,40 @@ def remove_duplicates_from_list_of_dicts(dict_list: List[Dict[Any, Any]]) -> Lis
             seen.add(fset)
             unique_dict_list.append(_dict)
     return unique_dict_list
+
+def remove_layer(project, canvas, layer_id):
+    layer = project.mapLayer(layer_id)
+    if layer:
+        project.removeMapLayer(layer_id)
+        canvas.refresh()
+
+
+def getSafelyFloat(value):
+    """Konwertuje wartość na float, obsługując przecinki i jednostki (np. '1.00 m')."""
+    if value is None:
+        return 0.0
+
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    if not isinstance(value, str):
+        return 0.0
+
+    val_clean = value.replace(',', '.')
+
+    try:
+        parts = val_clean.split()
+        if not parts:
+            return 0.0
+        val_numeric_candidate = parts[0]
+    except IndexError:
+        QgsMessageLog.logMessage(f"Błąd konwersji wartości na float: {value}", Qgis.Warning)
+        return 0.0
+    try:
+        return float(val_numeric_candidate)
+    except ValueError:
+        QgsMessageLog.logMessage(f"Błąd konwersji wartości na float: {value}", Qgis.Warning)
+        return 0.0
+    except TypeError:
+        QgsMessageLog.logMessage(f"Błąd konwersji wartości na float: {value}", Qgis.Warning)
+        return 0.0

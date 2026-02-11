@@ -25,9 +25,49 @@ TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
 WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
 ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
 
-ULDK_GMINA_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,teryt'
-ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt'
-ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+
+# endpointy do lokalnego api
+LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
+GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
+GET_COUNTY_ENDPOINT = "/getCounty/{teryt}"
+GET_COMMUNE_ENDPOINT = "/getCommune/{teryt}"
+
+CRS = "2180"
+
+# parametry do wms
+WMS_GET_FEATURE_INFO_PARAMS = {
+    'SERVICE': 'WMS',
+    'request': 'GetFeatureInfo',
+    'version': '1.3.0',
+    'styles': '',
+    'crs': 'EPSG:' + CRS,
+    'width': '101',
+    'height': '101',
+    'format': 'image/png',
+    'transparent': 'true',
+    'i': '50',
+    'j': '50',
+    'INFO_FORMAT': 'text/html'
+}
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
@@ -38,8 +78,6 @@ OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
 
 DOUBLE_VALIDATOR_OBJECTS = [
-    'orto_pixelFrom_lineEdit',
-    'orto_pixelTo_lineEdit',
     'nmt_pixelFrom_lineEdit',
     'nmt_pixelTo_lineEdit',
     'nmt_mhFrom_lineEdit',
@@ -131,7 +169,7 @@ ADMINISTRATIVE_UNITS_OBJECTS = {
 
 YEARS_COMBOBOXES = {
     'bdoo_dateEdit_comboBox': ['2022', '2021', '2015'],
-    'egib_excel_dateEdit_comboBox': ['2022', '2021', '2020'],
+    'egib_excel_dateEdit_comboBox': ['2025', '2024', '2023', '2022', '2021', '2020'],
     'archiwalne_bdot_dateEdit_comboBox': ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
 }
 

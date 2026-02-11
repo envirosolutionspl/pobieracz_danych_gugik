@@ -1,10 +1,16 @@
 from qgis.utils import iface
 
 from . import utils
-from .wfs.httpsAdapter import get_legacy_session
+
 import lxml.etree as ET
 from requests.exceptions import (ConnectionError, ChunkedEncodingError, Timeout)
 import os, time, socket
+
+
+def _get_session():
+    from .wfs.httpsAdapter import get_legacy_session
+    return get_legacy_session()
+
 
 
 def getRequest(params, url):
@@ -14,7 +20,7 @@ def getRequest(params, url):
         if not isInternetConnected():
             return False, 'Połączenie zostało przerwane'
         try:
-            with get_legacy_session().get(url=url, params=params, verify=False) as resp:
+            with _get_session().get(url=url, params=params, verify=False) as resp:
                 if resp.status_code == 200:
                     return True, resp.text
                 else:
@@ -54,9 +60,8 @@ def retreiveFile(url, destFolder, obj):
     path = os.path.join(destFolder, file_name)
     
     try:
-        resp = get_legacy_session().get(url=url, verify=False, stream=True)
+        resp = _get_session().get(url=url, verify=False, stream=True)
         chunks_made = 0
-
         if str(resp.status_code) == '404':
             resp.close()
             return False, "Plik nie istnieje"
@@ -150,7 +155,7 @@ def getAllLayers(url, service="WMS"):
 
 def check_internet_connection():
     try:
-        resp = get_legacy_session().get(url='https://uldk.gugik.gov.pl/', verify=False)
+        resp = _get_session().get(url='https://uldk.gugik.gov.pl/', verify=False)
         return resp.status_code == 200
     except Timeout:
         return False

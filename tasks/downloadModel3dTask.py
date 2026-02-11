@@ -20,6 +20,7 @@ class DownloadModel3dTask(QgsTask):
         self.standard = standard
         self.data_lista = data_lista
         self.iface = iface
+        self.liczba_dobrych_url = []
 
     def run(self):
         list_url = []
@@ -45,17 +46,21 @@ class DownloadModel3dTask(QgsTask):
                 return False
             QgsMessageLog.logMessage(f'pobieram {url}')
             res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            if res:
+                self.liczba_dobrych_url.append(url)
             results.append(res)
         return any(results)
 
     def finished(self, result):
-        if result and self.exception:
-            msgbox = QMessageBox(
-                QMessageBox.Information,
-                'Komunikat',
-                f'Pobrano {len(self.liczba_dobrych_url)} pliki z danymi'
-            )
-            msgbox.exec_()
+        if result:
+            if self.liczba_dobrych_url:
+                msgbox = QMessageBox(
+                    QMessageBox.Information,
+                    'Komunikat',
+                    f'Pobrano {len(self.liczba_dobrych_url)} plików z danymi'
+                )
+                msgbox.exec_()
+            
             QgsMessageLog.logMessage('sukces')
             self.iface.messageBar().pushMessage(
                 'Sukces',

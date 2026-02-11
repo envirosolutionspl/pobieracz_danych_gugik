@@ -6,9 +6,9 @@ import warnings
 
 from qgis.PyQt import QtWidgets, uic
 from qgis.PyQt.QtCore import pyqtSignal, QRegExp
-from qgis._core import Qgis, QgsMapLayerProxyModel
+from qgis.PyQt.QtGui import QRegExpValidator
 
-from PyQt5.QtGui import QRegExpValidator
+from qgis._core import Qgis, QgsMapLayerProxyModel
 from qgis.gui import QgsFileWidget
 
 from .constants import ADMINISTRATIVE_UNITS_OBJECTS, DOUBLE_VALIDATOR_OBJECTS, DATA_TIME_OBJECTS, MAP_LAYER_COMBOBOXES, \
