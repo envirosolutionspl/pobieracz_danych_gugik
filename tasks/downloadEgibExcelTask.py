@@ -48,14 +48,14 @@ class DownloadEgibExcelTask(QgsTask):
                 return False
             success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS)
             if not success_check:
-                MessageUtils.pushLogInfo(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
+                MessageUtils.pushLogWarning(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
                 continue
             MessageUtils.pushLogInfo('pobieram ' + url)
             res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 return True
             else:
-                MessageUtils.pushLogInfo(f"Błąd pobierania pliku {url}: {self.exception}. Pomijam.")
+                MessageUtils.pushLogWarning(f"Błąd pobierania pliku {url}: {self.exception}. Pomijam.")
                 continue
         return False
 

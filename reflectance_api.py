@@ -33,13 +33,20 @@ def getReflectanceListbyPoint1992(point):
 
 
 def _convertAttributes(elems_list):
+    """
+    Konwertuje atrybuty elementów WMS na odpowiednie typy.
+    Zapewnia bezpieczeństwo typów danych, przy np. porównywaniu wartości liczbowych.
+    
+    :param elems_list: Lista elementów WMS.
+    :return: Lista elementów WMS z poprawnymi typami atrybutów.
+    """
     for elem in elems_list:
         if 'aktualnosc' in elem:
             elem['aktualnosc'] = datetime.datetime.strptime(elem.get('aktualnosc'), '%Y-%m-%d').date()
         if 'wielkoscPiksela' in elem:
             elem['wielkoscPiksela'] = float(elem.get('wielkoscPiksela'))
         if 'zakresIntensywnosci' in elem:
-            elem['elemzakresIntensywnosci'] = int(elem.get('zakresIntensywnosci'))
+            elem['zakresIntensywnosci'] = int(elem.get('zakresIntensywnosci'))
         if 'aktualnoscRok' in elem:
             elem['aktualnoscRok'] = int(elem.get('aktualnoscRok'))
         if 'dt_pzgik' in elem:

@@ -46,7 +46,7 @@ class DownloadBdooTask(QgsTask):
             MessageUtils.pushSuccess(self.iface, 'Udało się! Dane BDOO zostały pobrane.')
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            MessageUtils.pushLogInfo(f"Błąd BDOO: {error_msg}")
+            MessageUtils.pushLogWarning(f"Błąd BDOO: {error_msg}")
             MessageUtils.pushWarning(self.iface, f'Dane BDOO nie zostały pobrane')
 
     def cancel(self):

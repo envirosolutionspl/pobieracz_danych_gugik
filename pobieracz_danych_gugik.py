@@ -153,7 +153,11 @@ class PobieraczDanychGugik:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/pobieracz_danych_gugik/img/pobieracz_logo.svg'
+        icon_path = os.path.join(
+            self.plugin_dir,
+            'img',
+            'pobieracz_logo.svg'
+        )
         self.addAction(
             icon_path,
             text=u'Pobieracz Danych GUGiK',
@@ -2218,21 +2222,15 @@ class PobieraczDanychGugik:
     def pointsFromVectorLayer(self, layer, density=1000):
         """tworzy punkty do zapytań na podstawie warstwy wektorowej"""
         # zamiana na 1992
-        if layer.crs() != QgsCoordinateReferenceSystem('EPSG:2180'):
-            params = {
-                'INPUT': layer,
-                'TARGET_CRS': QgsCoordinateReferenceSystem('EPSG:2180'),
-                'OPERATION': None,
-                'OUTPUT': 'memory:TEMPORARY_OUTPUT'}
-            proc = processing.run("qgis:reprojectlayer", params)
-            layer = proc['OUTPUT']
+        if layer.crs() != QgsCoordinateReferenceSystem('EPSG:' + CRS):
+            layer = LayersUtils.layerToCrs(layer, CRS)
 
         if layer.geometryType() == QgsWkbTypes.LineGeometry:
-            points = createPointsFromLineLayer(layer, density)
+            points = LayersUtils.createPointsFromLineLayer(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
-            points = createPointsFromPolygon(layer, density)
+            points = LayersUtils.createPointsFromPolygon(layer, density)
         elif layer.geometryType() == QgsWkbTypes.PointGeometry:
-            points = createPointsFromPointLayer(layer)
+            points = LayersUtils.createPointsFromPointLayer(layer)
 
         return points
 
