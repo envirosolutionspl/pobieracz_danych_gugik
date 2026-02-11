@@ -103,6 +103,13 @@ class LayersUtils:
                 for point in geom2.vertices():
                     punktyList.append(point)
         return punktyList
+    
+    @staticmethod
+    def removeLayer(project, canvas, layer_id):
+        layer = project.mapLayer(layer_id)
+        if layer:
+            project.removeMapLayer(layer_id)
+            canvas.refresh()
 
 class FilterUtils:
     
@@ -470,3 +477,36 @@ class ServiceAPI:
     def cleanupFile(self, path):
         if os.path.exists(path):
             os.remove(path)
+
+class GeometryUtils:
+    @staticmethod
+    def getSafelyFloat(value):
+        """Konwertuje wartość na float, obsługując przecinki i jednostki (np. '1.00 m')."""
+        if value is None:
+            return 0.0
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        if not isinstance(value, str):
+            return 0.0
+
+        val_clean = value.replace(',', '.')
+
+        try:
+            parts = val_clean.split()
+            if not parts:
+                return 0.0
+            val_numeric_candidate = parts[0]
+        except IndexError:
+            MessageUtils.pushLogWarning(f"Błąd konwersji wartości na float: {value}")
+            return 0.0
+        try:
+            return float(val_numeric_candidate)
+        except ValueError:
+            MessageUtils.pushLogWarning(f"Błąd konwersji wartości na float: {value}")
+            return 0.0
+        except TypeError:
+            MessageUtils.pushLogWarning(f"Błąd konwersji wartości na float: {value}")
+            return 0.0
+

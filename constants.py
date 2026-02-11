@@ -156,6 +156,26 @@ GML_URL_TEMPLATES = {
 
 
 
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+
 # endpointy do lokalnego api
 LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
 GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
@@ -193,6 +213,23 @@ WMS_NAMESPACES = {
     'xsi': "http://www.w3.org/2001/XMLSchema-instance",
     'xmlns': "http://www.opengis.net/wms"
 }
+CRS = "2180"
+
+# parametry do wms
+WMS_GET_FEATURE_INFO_PARAMS = {
+    'SERVICE': 'WMS',
+    'request': 'GetFeatureInfo',
+    'version': '1.3.0',
+    'styles': '',
+    'crs': 'EPSG:' + CRS,
+    'width': '101',
+    'height': '101',
+    'format': 'image/png',
+    'transparent': 'true',
+    'i': '50',
+    'j': '50',
+    'INFO_FORMAT': 'text/html'
+}
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
@@ -203,8 +240,6 @@ OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
 
 DOUBLE_VALIDATOR_OBJECTS = [
-    'orto_pixelFrom_lineEdit',
-    'orto_pixelTo_lineEdit',
     'nmt_pixelFrom_lineEdit',
     'nmt_pixelTo_lineEdit',
     'nmt_mhFrom_lineEdit',

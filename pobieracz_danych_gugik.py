@@ -7,7 +7,7 @@ from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
 from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, CRS
+    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, CRS, WFS_FILTER_KEYS
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -35,7 +35,9 @@ from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotri
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, mesh3d_api
 
 from .egib_api import EgibAPI
-from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI
+from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, GeometryUtils
+from .wfs.utils import filterWfsFeaturesByUsersInput
+
 
 class PobieraczDanychGugik:
     """QGIS Plugin Implementation."""
@@ -232,6 +234,9 @@ class PobieraczDanychGugik:
         self.dockwidget.wfs_capture_btn.clicked.connect(lambda: self.captureBtnClicked(self.wfsClickTool))
         self.dockwidget.wfs_fromLayer_btn.clicked.connect(self.wfsFromLayerBtnClicked)
 
+        self.dockwidget.wfs_service_cmbbx.currentTextChanged.connect(self.toggle_ortho_filters_visibility)
+        self.toggle_ortho_filters_visibility()
+
         self.dockwidget.orto_capture_btn.clicked.connect(lambda: self.captureBtnClicked(self.ortoClickTool))
         self.dockwidget.orto_fromLayer_btn.clicked.connect(self.ortoFromLayerBtnClicked)
 
@@ -383,41 +388,74 @@ class PobieraczDanychGugik:
             typename=self.dockwidget.wfs_layer_cmbbx.currentText())
         skorowidzeLayer.updatedFields.connect(self.test)
         if skorowidzeLayer.isValid():
-            urls = []
             self.project.addMapLayer(skorowidzeLayer)
-            layerWithAttributes = self.project.mapLayer(skorowidzeLayer.id())
+            features = list(skorowidzeLayer.getFeatures())
+            
+            service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
 
-            for feat in layerWithAttributes.getFeatures():
-                urls.append(feat['url_do_pobrania'])
+            if service_name == 'ortofotomapa':
 
-            # wyswietl komunikat pytanie
-            if len(urls) == 0:
-                msgbox = QMessageBox(QMessageBox.Information, "Komunikat",
-                                     "Nie znaleziono danych we wskazanej warstwie WFS lub obszar wyszukiwania jest zbyt duży dla usługi WFS")
-                msgbox.exec_()
+                filters = {}
+                # Pobranie parametrów z UI
+                fk = WFS_FILTER_KEYS
+                filters[fk['COLOR']] = self.dockwidget.wfs_kolor_choice.currentText()
+                filters[fk['SOURCE']] = self.dockwidget.wfs_source_choice.currentText()
+                filters[fk['CRS']] = self.dockwidget.wfs_crs_choice.currentText()
+                filters[fk['PIXEL_FROM']] = self.dockwidget.wfs_pixelFrom_choice.value()
+                filters[fk['PIXEL_TO']] = self.dockwidget.wfs_pixelTo_choice.value()
 
-                self.project.removeMapLayer(skorowidzeLayer.id())
-
-                self.canvas.refresh()
-                return
+                # Filtracja
+                filtered_features = filterWfsFeaturesByUsersInput(features, filters)
             else:
-                msgbox = QMessageBox(QMessageBox.Question,
-                                     "Potwierdź pobieranie",
-                                     "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                         urls))
-                msgbox.addButton(QMessageBox.Yes)
-                msgbox.addButton(QMessageBox.No)
-                msgbox.setDefaultButton(QMessageBox.No)
-                reply = msgbox.exec()
+                filtered_features = features
 
-                if reply == QMessageBox.Yes:
-                    # pobieranie
-                    self.runWfsTask(urls)
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
-                else:
-                    self.project.removeMapLayer(skorowidzeLayer.id())
-                    self.canvas.refresh()
+            # Usunięcie duplikatów URL
+            urls = []
+            seen_urls = set()
+            for feat in filtered_features:
+                url = feat['url_do_pobrania']
+                if url and url not in seen_urls:
+                    urls.append(url)
+                    seen_urls.add(url)
+
+            # Komunikat
+            if len(urls) == 0:
+                QMessageBox.information(None, "Komunikat", "Brak danych spełniających Twoje filtry.")
+                LayersUtils.removeLayer(self.project, self.canvas, skorowidzeLayer.id())
+                return
+
+            reply = QMessageBox.question(None, "Potwierdź", f"Znaleziono {len(urls)} plików. Pobrać?", QMessageBox.Yes | QMessageBox.No)
+            
+            if reply == QMessageBox.Yes:
+                # pobieranie
+                self.runWfsTask(urls)
+                LayersUtils.removeLayer(self.project, self.canvas, skorowidzeLayer.id())
+            else:
+                LayersUtils.removeLayer(self.project, self.canvas, skorowidzeLayer.id())
+
+    def toggle_ortho_filters_visibility(self):
+        """Pokazuje/ukrywa filtry ortofotomapy w zależności od wybranej usługi"""
+        group_box = (
+            getattr(self.dockwidget, 'groupWfsOrthoFilters', None)
+            or getattr(self.dockwidget, 'groupOrthoFilters', None)
+        )
+
+        if not group_box:
+            return
+
+        service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
+        is_ortho = service_name == 'ortofotomapa'
+
+        # enable / disable
+        group_box.setEnabled(is_ortho)
+
+        # checkbox w nagłówku
+        if hasattr(group_box, 'setChecked'):
+            group_box.setChecked(is_ortho)
+
+        # zwijanie / rozwijanie
+        if hasattr(group_box, 'setCollapsed'):
+            group_box.setCollapsed(not is_ortho)
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
@@ -553,12 +591,13 @@ class PobieraczDanychGugik:
             if not (self.dockwidget.orto_full_cmbbx.currentText() == 'wszystkie'):
                 ortoList = [orto for orto in ortoList if
                             orto.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.orto_full_cmbbx.currentText()]
-            if self.dockwidget.orto_pixelFrom_lineEdit.text():
+            min_val_pixels = self.dockwidget.orto_pixelFrom_lineEdit.value()
+            if min_val_pixels > 0:
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) >= str(self.dockwidget.orto_pixelFrom_lineEdit.text())]
+                            GeometryUtils.getSafelyFloat(orto.get('wielkoscPiksela', 0)) >= GeometryUtils.getSafelyFloat(self.dockwidget.orto_pixelFrom_lineEdit.text())]
             if self.dockwidget.orto_pixelTo_lineEdit.text():
                 ortoList = [orto for orto in ortoList if
-                            str(orto.get('wielkoscPiksela')) <= str(self.dockwidget.orto_pixelTo_lineEdit.text())]
+                            GeometryUtils.getSafelyFloat(orto.get('wielkoscPiksela', 0)) <= GeometryUtils.getSafelyFloat(self.dockwidget.orto_pixelTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.orto_newest_chkbx.isChecked():
@@ -717,20 +756,20 @@ class PobieraczDanychGugik:
                            nmt.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.nmt_full_cmbbx.currentText()]
 
             if self.dockwidget.nmt_pixelFrom_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) >= str(
+                nmtList = [nmt for nmt in nmtList if GeometryUtils.getSafelyFloat(nmt.get('charakterystykaPrzestrzenna', 0)) >= GeometryUtils.getSafelyFloat(
                     self.dockwidget.nmt_pixelFrom_lineEdit.text())]
 
             if self.dockwidget.nmt_pixelTo_lineEdit.text():
-                nmtList = [nmt for nmt in nmtList if str(nmt.get('charakterystykaPrzestrzenna')) <= str(
+                nmtList = [nmt for nmt in nmtList if GeometryUtils.getSafelyFloat(nmt.get('charakterystykaPrzestrzenna', 0)) <= GeometryUtils.getSafelyFloat(
                     self.dockwidget.nmt_pixelTo_lineEdit.text())]
 
             if self.dockwidget.nmt_mhFrom_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('bladSredniWysokosci')) >= str(self.dockwidget.nmt_mhFrom_lineEdit.text())]
+                           GeometryUtils.getSafelyFloat(nmt.get('bladSredniWysokosci', 0)) >= GeometryUtils.getSafelyFloat(self.dockwidget.nmt_mhFrom_lineEdit.text())]
 
             if self.dockwidget.nmt_mhTo_lineEdit.text():
                 nmtList = [nmt for nmt in nmtList if
-                           str(nmt.get('bladSredniWysokosci')) <= str(self.dockwidget.nmt_mhTo_lineEdit.text())]
+                           GeometryUtils.getSafelyFloat(nmt.get('bladSredniWysokosci', 0)) <= GeometryUtils.getSafelyFloat(self.dockwidget.nmt_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.nmt_newest_chkbx.isChecked():
@@ -764,8 +803,6 @@ class PobieraczDanychGugik:
             self.dockwidget.las_fromLayer_btn.setEnabled(False)
             for point in points:
                 sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
-                if sub_list:
-                    las_list.extend(sub_list)
                 las_list.extend(sub_list)
             self.filterLasListAndRunTask(las_list)
         else:
@@ -846,18 +883,18 @@ class PobieraczDanychGugik:
                            las.get('calyArkuszWyeplnionyTrescia') == self.dockwidget.las_full_cmbbx.currentText()]
             if self.dockwidget.las_pixelFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) >= str(
+                           GeometryUtils.getSafelyFloat(las.get('charakterystykaPrzestrzenna', 0)) >= GeometryUtils.getSafelyFloat(
                                self.dockwidget.las_pixelFrom_lineEdit.text())]
             if self.dockwidget.las_pixelTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('charakterystykaPrzestrzenna')) <= str(
+                           GeometryUtils.getSafelyFloat(las.get('charakterystykaPrzestrzenna', 0)) <= GeometryUtils.getSafelyFloat(
                                self.dockwidget.las_pixelTo_lineEdit.text())]
             if self.dockwidget.las_mhFrom_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('bladSredniWysokosci')) >= str(self.dockwidget.las_mhFrom_lineEdit.text())]
+                           GeometryUtils.getSafelyFloat(las.get('bladSredniWysokosci', 0)) >= GeometryUtils.getSafelyFloat(self.dockwidget.las_mhFrom_lineEdit.text())]
             if self.dockwidget.las_mhTo_lineEdit.text():
                 lasList = [las for las in lasList if
-                           str(las.get('bladSredniWysokosci')) <= str(self.dockwidget.las_mhTo_lineEdit.text())]
+                           GeometryUtils.getSafelyFloat(las.get('bladSredniWysokosci', 0)) <= GeometryUtils.getSafelyFloat(self.dockwidget.las_mhTo_lineEdit.text())]
 
         # ograniczenie tylko do najnowszego
         if self.dockwidget.laz_newest_chkbx.isChecked():
@@ -982,12 +1019,12 @@ class PobieraczDanychGugik:
                                        self.dockwidget.reflectance_to_dateTimeEdit.dateTime().toPyDateTime().date())]
             if self.dockwidget.reflectance_pixelFrom_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) >= str(
+                                   GeometryUtils.getSafelyFloat(reflectance.get('wielkoscPiksela', 0)) >= GeometryUtils.getSafelyFloat(
                                        self.dockwidget.reflectance_pixelFrom_lineEdit.text())]
             if self.dockwidget.reflectance_pixelTo_lineEdit.text():
                 reflectanceList = [reflectance for reflectance in reflectanceList if
-                                   str(reflectance.get('wielkoscPiksela')) <= str(
-                                       self.dockwidget.las_pixelTo_lineEdit.text())]
+                                   GeometryUtils.getSafelyFloat(reflectance.get('wielkoscPiksela', 0)) <= GeometryUtils.getSafelyFloat(
+                                       self.dockwidget.reflectance_pixelTo_lineEdit.text())]
             if not (self.dockwidget.reflectance_source_cmbbx.currentText() == 'wszystkie'):
                 reflectanceList = [reflectance for reflectance in reflectanceList if
                                    reflectance.get(
