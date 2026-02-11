@@ -1,8 +1,10 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, Qgis
     )
-from .. import service_api, utils
+from ..utils import MessageUtils, FileUtils, ServiceAPI
+from ..constants import HEADERS_MAPPING
+
 
 
 
@@ -13,10 +15,13 @@ class DownloadLasTask(QgsTask):
         super().__init__(description, QgsTask.CanCancel)
         self.lasList = lasList
         self.folder = folder
-        self.total = 0
+        self.total = len(self.lasList)
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
+        self.errors = []
+        self.success_count = 0
 
 
     def run(self):
@@ -27,21 +32,31 @@ class DownloadLasTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        total = len(self.lasList)
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         results = []
         for las in self.lasList:
             las_url = las.get('url')
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            QgsMessageLog.logMessage(f'start {las_url}')
-            res, self.exception = service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
-            self.setProgress(self.progress() + 100 / total)
-            results.append(res)
-        if not any(results):
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {las_url}')
+            success, message = self.service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
+            self.setProgress(self.progress() + 100 / self.total)
+            results.append(success)
+            if success:
+                self.success_count += 1
+            else:
+                self.errors.append(f"{las.get('url')}: {message}")
+        
+        # jeżeli nie pobrał się żaden plik, to zwracamy False
+        if self.success_count == 0:
             return False
-        self.create_report()
+
+        FileUtils.createReport(
+            os.path.join(self.folder, 'pobieracz_las'),
+            HEADERS_MAPPING['LAS_HEADERS'],
+            self.lasList
+        )
         return True
 
     def finished(self, result):
@@ -54,44 +69,24 @@ class DownloadLasTask(QgsTask):
         to do GUI operations and raise Python exceptions here.
         result is the return value from self.run.
         """
-        if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane LAZ zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+        if not result:
+            MessageUtils.pushLogWarning("Nie udało się pobrać żadnych plików LAZ")
+            MessageUtils.pushWarning(self.iface, 'Nie udało się pobrać żadnych plików LAZ')
+            return
+
+        if self.success_count == self.total:
+            MessageUtils.pushLogInfo('Pobrano wszystkie dane LAZ')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Wszystkie dane LAZ zostały pobrane.')
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane LAZ nie zostały pobrane.'
-            )
+            MessageUtils.pushLogInfo(f"Pobrano {self.success_count}/{self.total} plików LAZ")
+            if self.errors:
+                MessageUtils.pushLogWarning("Nie pobrano plików:\n" + "\n".join(self.errors))
+            MessageUtils.pushWarning(self.iface, f"Pobrano {self.success_count}/{self.total} plików LAZ")
+
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych LAZ')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'godlo': 'godlo',
-            'format': 'format',
-            'aktualnosc': 'aktulnosc',
-            'dokladnosc_pionowa': 'bladSredniWysokosci',
-            'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
-            'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
-            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok'
-        }
-        utils.create_report(
-            os.path.join(self.folder, 'pobieracz_las'),
-            headers_mapping,
-            self.lasList
-        )
+
 

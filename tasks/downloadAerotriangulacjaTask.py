@@ -1,8 +1,9 @@
 import os, datetime
 from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
+    QgsApplication, QgsTask, Qgis
     )
-from .. import service_api, utils
+from ..utils import FileUtils, MessageUtils, ServiceAPI
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadAerotriangulacjaTask(QgsTask):
@@ -16,6 +17,7 @@ class DownloadAerotriangulacjaTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -25,21 +27,21 @@ class DownloadAerotriangulacjaTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.aerotriangulacjaList)
         results = []
         for aero in self.aerotriangulacjaList:
             aero_url = aero.get('url')
             if self.isCanceled():
-                QgsMessageLog('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            QgsMessageLog.logMessage(f'start {aero_url}')
-            res, self.exception = service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {aero_url}')
+            res, self.exception = self.service_api.retreiveFile(url=aero_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+        self._createReport()
         return True
 
     def finished(self, result):
@@ -53,38 +55,24 @@ class DownloadAerotriangulacjaTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane o aerotriangulacji zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane o aerotriangulacji')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane o aerotriangulacji zostały pobrane.')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych o aerotriangulacji')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane o aerotriangulacji nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych o aerotriangulacji. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane o aerotriangulacji nie zostały pobrane.')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych o aerotriangulacji')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'Nazwa pliku': 'url',
-            'Identyfikator aerotriangulacji': 'id',
-            'Numer zgłoszenia': 'zgloszenie',
-            'Rok': 'rok'
-        }
+    def _createReport(self):
         for obj in self.aerotriangulacjaList:
             obj['rok'] = obj.get('zgloszenie').split('.')[3]
-        utils.create_report(
+        FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_aerotriangulacja'),
-            headers_mapping,
+            HEADERS_MAPPING['AEROTRIANGULATION_HEADERS'],
             self.aerotriangulacjaList
         )

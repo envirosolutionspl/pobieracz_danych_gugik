@@ -1,13 +1,14 @@
 import datetime
 
 from .constants import ODBICIOWOSC_WMS_URL, ODBICIOWOWSC_SKOROWIDZE_LAYERS
-from . import service_api
-from .wms.utils import getWmsObject
+from .utils import ServiceAPI
+from .wms.utils import getWmsObjects
 
 
 def getReflectanceListbyPoint1992(point):
     x = point.x()
     y = point.y()
+    service_api = ServiceAPI()
 
     PARAMS = {
         'SERVICE': 'WMS',
@@ -28,17 +29,24 @@ def getReflectanceListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=ODBICIOWOSC_WMS_URL)
-    return _convert_attributes(getWmsObject(resp))
+    return _convertAttributes(getWmsObjects(resp))
 
 
-def _convert_attributes(elems_list):
+def _convertAttributes(elems_list):
+    """
+    Konwertuje atrybuty elementów WMS na odpowiednie typy.
+    Zapewnia bezpieczeństwo typów danych, przy np. porównywaniu wartości liczbowych.
+    
+    :param elems_list: Lista elementów WMS.
+    :return: Lista elementów WMS z poprawnymi typami atrybutów.
+    """
     for elem in elems_list:
         if 'aktualnosc' in elem:
             elem['aktualnosc'] = datetime.datetime.strptime(elem.get('aktualnosc'), '%Y-%m-%d').date()
         if 'wielkoscPiksela' in elem:
             elem['wielkoscPiksela'] = float(elem.get('wielkoscPiksela'))
         if 'zakresIntensywnosci' in elem:
-            elem['elemzakresIntensywnosci'] = int(elem.get('zakresIntensywnosci'))
+            elem['zakresIntensywnosci'] = int(elem.get('zakresIntensywnosci'))
         if 'aktualnoscRok' in elem:
             elem['aktualnoscRok'] = int(elem.get('aktualnoscRok'))
         if 'dt_pzgik' in elem:

@@ -1,10 +1,9 @@
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsTask, Qgis
     )
 
-
 from ..constants import BDOT_FORMAT_URL_MAPPING
-from .. import service_api
+from ..utils import MessageUtils, ServiceAPI
 
 
 class DownloadBdotTask(QgsTask):
@@ -26,6 +25,7 @@ class DownloadBdotTask(QgsTask):
         self.teryt = teryt
         self.format_danych = format_danych
         self._construct_url(level, teryt, format_danych)
+        self.service_api = ServiceAPI()
 
     def _construct_url(self, level: int, teryt: str, data_format: str, upper: bool = False) -> None:
         prefix = BDOT_FORMAT_URL_MAPPING.get(data_format)
@@ -41,33 +41,30 @@ class DownloadBdotTask(QgsTask):
             self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.{zip_suffix}"
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
-        self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Pobieram {self.url}')
+        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.result = success
+        self.exception = message
+        
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
-            self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Próba 2: Pobieram {self.url}')
+            success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            self.result = success
+            self.exception = message
+            
         return self.result and not self.isCanceled()
 
     def finished(self, result):
-        if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane BDOT10k zostały pobrane.',
-                level=Qgis.Success,
-                duration=10
-            )
+        if result:
+            MessageUtils.pushLogInfo('Pobrano dane BDOT10k')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane BDOT10k zostały pobrane.')
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage('exception')
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane BDOT10k nie zostały pobrane.'
-            )
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            MessageUtils.pushLogWarning(f'Błąd podczas pobierania danych BDOT10k: {error_msg}')
+            MessageUtils.pushWarning(self.iface, f'Dane BDOT10k nie zostały pobrane')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych BDOT10k')
         super().cancel()

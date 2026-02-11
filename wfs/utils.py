@@ -1,40 +1,40 @@
-import requests, re
+import re
 import xml.etree.ElementTree as ET
-from .httpsAdapter import get_legacy_session
-from ..constants import WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
-from qgis.core import QgsMessageLog
+from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
+from ..utils import NetworkUtils, MessageUtils
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
-    ns = {'ows': "http://www.opengis.net/ows/1.1",
-          'fes': "http://www.opengis.net/fes/2.0",
-          'gugik': "http://www.gugik.gov.pl",
-          'gml': "http://www.opengis.net/gml/3.2",
-          'wfs': "http://www.opengis.net/wfs/2.0",
-          'xlink': "http://www.w3.org/1999/xlink",
-          'xsi': "http://www.w3.org/2001/XMLSchema-instance",
-          'xmlns': "http://www.opengis.net/wfs/2.0"
-          }
+
     PARAMS = {
         'SERVICE': 'WFS',
         'request': 'GetCapabilities',
     }
-    try:
-        with get_legacy_session().get(url=wfsUrl, params=PARAMS, verify=False) as resp:
-            r_txt = resp.text
-            if resp.status_code == 200:
-                typenamesDict = {}
-                root = ET.fromstring(r_txt)
-                for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', ns):
-                    name = featureType.find('.xmlns:Name', ns).text
-                    title = featureType.find('.xmlns:Title', ns).text
-                    typenamesDict[title] = name
-                return True, typenamesDict
-            else:
-                return False, f'Błąd {resp.status_code}'
-    except requests.exceptions.ConnectionError:
-        return False, "Błąd połączenia"
+    network_utils = NetworkUtils()
+    success, result = network_utils.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
 
+    if not success:
+        return False, result
+
+    content = result 
+    typenamesDict = {}
+
+    try:
+        root = ET.fromstring(content)   
+
+        for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
+            name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
+            title = featureType.find('.xmlns:Title', WFS_NAMESPACES).text
+            typenamesDict[title] = name
+            
+        return True, typenamesDict
+        
+    except ET.ParseError:
+        return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
+    except Exception as e:
+        return False, f"Nieoczekiwany błąd przy przetwarzaniu warstw WFS: {str(e)}"
+
+    
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')
     return c.sub(r'\1', wkt)
@@ -80,13 +80,13 @@ def filterWfsFeaturesByUsersInput(features, filters):
                 if max_val_pixels > 0 and pix_val > max_val_pixels:
                     continue
             except TypeError:
-                QgsMessageLog.logMessage('Pusta wartość pola pikseli. Zignorowano filtr pikseli.')
+                MessageUtils.pushLogWarning('Pusta wartość pola pikseli. Zignorowano filtr pikseli.')
                 pass
             except KeyError:
-                QgsMessageLog.logMessage('Brak pola pikseli. Zignorowano filtr pikseli.')
+                MessageUtils.pushLogWarning('Brak pola pikseli. Zignorowano filtr pikseli.')
                 pass 
             except Exception as e:
-                QgsMessageLog.logMessage(f'Wystąpił błąd podczas filtrowania pikseli: {str(e)}')
+                MessageUtils.pushLogWarning(f'Wystąpił błąd podczas filtrowania pikseli: {str(e)}')
                 pass # jeśli brak pola piksel, nie odrzucaj
 
         filtered_features.append(f)

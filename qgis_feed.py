@@ -1,10 +1,9 @@
 
 from qgis.core import (
     QgsNewsFeedParser,
-    QgsSettings,
-    QgsMessageLog
+    QgsSettings
 )
-
+from .utils import MessageUtils
 from qgis.PyQt.QtCore import QUrl
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog, QComboBox, QPushButton
@@ -64,7 +63,7 @@ class QgisFeed:
         Function registers QGIS Feed
         """
 
-        QgsMessageLog.logMessage('Registering feed')
+        MessageUtils.pushLogInfo('Rejestrowanie feedu')
         for key in self.s.allKeys():
             if self.envirosolutionsFeedPattern_old.match(key) or self.envirosolutionsFeedPattern_new.match(key):
                 finalKey = re.sub(

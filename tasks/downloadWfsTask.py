@@ -1,8 +1,6 @@
-import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+import os
+from qgis.core import QgsTask
+from ..utils import MessageUtils, ServiceAPI
 
 class DownloadWfsTask(QgsTask):
     """QgsTask pobierania WFS"""
@@ -15,6 +13,7 @@ class DownloadWfsTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
 
     def run(self):
@@ -25,17 +24,17 @@ class DownloadWfsTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.urlList)
         objs = 0
 
         for url in self.urlList:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
             fileName = url.split("/")[-1]
-            QgsMessageLog.logMessage(f'start {fileName}')
-            status, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {fileName}')
+            status, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
             self.setProgress(self.progress() + 100 / total)
@@ -53,30 +52,19 @@ class DownloadWfsTask(QgsTask):
         """
         
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane WFS zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane WFS')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane WFS zostały pobrane.')
 
         elif result is False:
-            self.iface.messageBar().pushMessage(
-                'Ostrzeżenie:', 
-                'Nie pobrano pełnego zbioru danych',
-                level=Qgis.Warning,
-                duration=5)
+            MessageUtils.pushLogWarning('Nie pobrano pełnego zbioru danych')
+            MessageUtils.pushWarning(self.iface, 'Nie pobrano pełnego zbioru danych')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+               MessageUtils.pushLogWarning('Nie udało się pobrać danych WFS')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage('exception')
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane WFS nie zostały pobrane.'
-            )
+               MessageUtils.pushLogWarning('Nie udało się pobrać danych WFS. Wystąpił błąd: ' + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane WFS nie zostały pobrane.')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych WFS')
         super().cancel()

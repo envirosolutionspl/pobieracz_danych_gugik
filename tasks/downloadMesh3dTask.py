@@ -1,6 +1,7 @@
 import os
-from qgis.core import QgsTask, QgsMessageLog, Qgis
-from .. import service_api, utils
+from qgis.core import QgsTask, Qgis
+from ..utils import MessageUtils, FileUtils, ServiceAPI
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadMesh3dTask(QgsTask):
@@ -10,57 +11,33 @@ class DownloadMesh3dTask(QgsTask):
         self.folder = folder
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.mesh_objs)
         for obj in self.mesh_objs:
             obj_url = obj.get('url')
             if self.isCanceled():
-                QgsMessageLog('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            QgsMessageLog.logMessage(f'start {obj_url}')
-            _, self.exception = service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {obj_url}')
+            _, self.exception = self.service_api.retreiveFile(url=obj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-        self.create_report()
+        FileUtils.createReport(os.path.join(self.folder, 'pobieracz_mesh3d'), HEADERS_MAPPING['MESH3D_HEADERS'], self.mesh_objs)
         return True
 
     def finished(self, result):
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane siatkowego modelu 3D zostały pobrane.',
-                level=Qgis.Success,
-                duration=10
-            )
+            MessageUtils.pushLogInfo('Pobrano dane siatkowego modelu 3D')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane siatkowego modelu 3D zostały pobrane.')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych siatkowego modelu 3D')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane modelu siatkowego 3D nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych siatkowego modelu 3D. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane modelu siatkowego 3D nie zostały pobrane.')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych siatkowego modelu 3D')
         super().cancel()
-
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'modul': 'modul',
-            'aktualnosc': 'aktualnosc',
-            'format': 'format',
-            'blad_sredni_wysokosci': 'bladSredniWysokosci',
-            'blad_sredni_polozenia': 'bladSredniPolozenia',
-            'uklad_wspolrzednych_poziomych': 'ukladWspolrzednychPoziomych',
-            'uklad_wspolrzednych_pionowych': 'ukladWspolrzednychPionowych',
-            'modul_archiwizacji': 'modulArchiwizacji',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok',
-            'zrodlo_danych': 'zrDanych',
-        }
-        utils.create_report(os.path.join(self.folder, 'pobieracz_mesh3d'), headers_mapping, self.mesh_objs)

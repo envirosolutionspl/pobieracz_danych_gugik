@@ -1,11 +1,8 @@
-from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
-)
+from qgis.core import QgsTask, Qgis
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BUDYNKI_3D_WMS_URL
-from .. import service_api, utils
-from ..wfs.httpsAdapter import get_legacy_session
+from ..utils import MessageUtils, ServiceAPI
 
 
 class DownloadModel3dTask(QgsTask):
@@ -21,10 +18,11 @@ class DownloadModel3dTask(QgsTask):
         self.data_lista = data_lista
         self.iface = iface
         self.liczba_dobrych_url = []
+        self.service_api = ServiceAPI()
 
     def run(self):
         list_url = []
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         for standard in self.standard:
             for rok in self.data_lista:
                 list_url.extend(
@@ -42,10 +40,10 @@ class DownloadModel3dTask(QgsTask):
         results = []
         for url in list_url:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            QgsMessageLog.logMessage(f'pobieram {url}')
-            res, self.exception = service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Pobieram {url}')
+            res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 self.liczba_dobrych_url.append(url)
             results.append(res)
@@ -61,24 +59,16 @@ class DownloadModel3dTask(QgsTask):
                 )
                 msgbox.exec_()
             
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane modelu 3D budynków zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane modelu 3D budynków')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane modelu 3D budynków zostały pobrane.')
         else:
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane modelu 3D budynków nie zostały pobrane.'
-            )
+            MessageUtils.pushWarning(self.iface, 'Dane modelu 3D budynków nie zostały pobrane.')
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych modelu 3D budynków')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych modelu 3D budynków. Wystąpił błąd: " + str(self.exception))
 
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych modelu 3D budynków')
         super().cancel()

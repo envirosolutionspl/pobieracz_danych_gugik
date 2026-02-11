@@ -1,8 +1,7 @@
 import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from ..utils import MessageUtils, FileUtils, ServiceAPI
+from ..constants import HEADERS_MAPPING
 
 class DownloadOrtofotoTask(QgsTask):
     """QgsTask pobierania ortofotomap"""
@@ -15,6 +14,7 @@ class DownloadOrtofotoTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -24,23 +24,31 @@ class DownloadOrtofotoTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.ortoList)
         results = []
         for orto in self.ortoList:
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
             orto_url = orto.get('url')
             if not orto_url:
                 continue
-            QgsMessageLog.logMessage(f'start {orto_url}')
-            res, self.exception = service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {orto_url}')
+            success, message = self.service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-            results.append(res)
+            results.append(success)
+            if not success:
+                self.exception = message
+
         if not any(results):
             return False
-        self.create_report()
+            
+        if all(results):
+            self.exception = True
+            
+        FileUtils.createReport(os.path.join(self.folder, 'pobieracz_ortofoto'), HEADERS_MAPPING['ORTHOPHOTO_HEADERS'], self.ortoList)
+        
         return True
 
     def finished(self, result):
@@ -54,39 +62,15 @@ class DownloadOrtofotoTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane z ortofotomapy zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane ortofotomapy')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane z ortofotomapy zostały pobrane.')
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane z ortofotomapy nie zostały pobrane.'
-            )
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Nieznany błąd"
+            MessageUtils.pushLogWarning(f"Nie udało się pobrać danych ortofotomapy. Wystąpił błąd: {error_msg}")
+            MessageUtils.pushWarning(self.iface, f'Dane z ortofotomapy nie zostały pobrane: {error_msg}')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie ortofotomapy')
         super().cancel()
 
-    def create_report(self):
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'godlo': 'godlo',
-            'aktualnosc': 'aktualnosc',
-            'wielkosc_piksela': 'wielkoscPiksela',
-            'uklad_wspolrzednych': 'ukladWspolrzednych',
-            'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
-            'modul_archiwizacji': 'modulArchiwizacji',
-            'zrodlo_danych': 'zrodloDanych',
-            'kolor': 'kolor',
-            'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
-            'aktualnosc_rok': 'aktualnoscRok'
-        }
-        utils.create_report(os.path.join(self.folder, 'pobieracz_ortofoto'), headers_mapping, self.ortoList)
+ 

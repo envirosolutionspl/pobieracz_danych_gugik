@@ -1,8 +1,5 @@
-import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-    )
-from .. import service_api, utils
+from qgis.core import QgsApplication, QgsTask, Qgis
+from ..utils import MessageUtils, ServiceAPI
 
 
 class DownloadPrgTask(QgsTask):
@@ -15,26 +12,24 @@ class DownloadPrgTask(QgsTask):
         self.exception = None
         self.url = url
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
-        _, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        return not self.isCanceled()
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Pobieram {self.url}')
+        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.exception = message
+        return success and not self.isCanceled()
 
     def finished(self, result):
-        if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane PRG zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+        if result:
+            MessageUtils.pushLogInfo('Pobrano dane PRG')
+            MessageUtils.pushSuccess(self.iface, "Udało się! Dane PRG zostały pobrane.")
         else:
-            if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
-            elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Dane PRG nie zostały pobrane.")
+            error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
+            MessageUtils.pushLogInfo(f"Nie udało się pobrać danych PRG. Wystąpił błąd: {error_msg}")
+            MessageUtils.pushWarning(self.iface, f"Dane PRG nie zostały pobrane: {error_msg}")
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych PRG')
         super().cancel()

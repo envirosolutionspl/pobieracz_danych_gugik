@@ -1,11 +1,12 @@
 from qgis.core import (
-    QgsTask, QgsMessageLog, Qgis
+    QgsTask, Qgis
 )
+
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BDOT_WMS_URL
-from .. import service_api, utils
-from ..wfs.httpsAdapter import get_legacy_session
+from ..utils import MessageUtils, ServiceAPI
+
 
 class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
@@ -18,35 +19,30 @@ class DownloadArchiwalnyBdotTask(QgsTask):
         self.url = f'{BDOT_WMS_URL}{rok}/{format_danych}/{teryt[:2]}/{teryt}_{format_danych}_{rok}.zip'
         self.iface = iface
         self.result = None
+        self.service_api = ServiceAPI()
 
     def run(self):
-        QgsMessageLog.logMessage('Started task "{}"'.format(self.description()))
-        QgsMessageLog.logMessage(f'pobieram {self.url}')
+        MessageUtils.pushLogInfo('Rozpoczęto zadanie: "{}"'.format(self.description()))
+        MessageUtils.pushLogInfo(f'Pobieram {self.url}')
         # fileName = self.url.split("/")[-1]
-        self.result, self.exception = service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.result, self.exception = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         return not self.isCanceled()
 
     def finished(self, result):
         if self.page_exist == 'NO':
-            msgbox = QMessageBox(QMessageBox.Information, "Komunikat", "Nie znaleniono danych spełniających kryteria")
-            msgbox.exec_()
+            MessageUtils.pushLogWarning(f"Nie znaleniono danych spełniających kryteria: {self.url}")
+            MessageUtils.pushWarning(self.iface, "Nie znaleniono danych spełniających kryteria")
 
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                "Sukces", 
-                "Udało się! Archiwalne dane BDOT10k zostały pobrane.",
-                level=Qgis.Success, 
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane archiwalne BDOT10k')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Archiwalne dane BDOT10k zostały pobrane.')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych archiwalnych BDOT10k')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning("Błąd",
-                                                "Archiwalne dane BDOT10k nie zostały pobrane.")
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych archiwalnych BDOT10k. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, "Archiwalne dane BDOT10k nie zostały pobrane.")
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych archiwalnych BDOT10k')
         super().cancel()
