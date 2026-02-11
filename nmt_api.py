@@ -1,6 +1,6 @@
 from .constants import NMT_EVRF_WMS_URL, NMT_GRID5M_WMS_URL, NMT_KRON86_WMS_URL
-from .service_api import ServiceAPI
-from .wms.utils import get_wms_objects
+from .utils import ServiceAPI
+from .wms.utils import getWmsObjects
 
 def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
@@ -36,9 +36,9 @@ def getNmtListbyPoint1992(point, isEvrf2007):
     if resp[0] or evrf_resp[0]:
         wms_objects = []
         if resp[0]:
-            wms_objects += get_wms_objects(resp)
+            wms_objects += getWmsObjects(resp)
         if evrf_resp[0]:
-            wms_objects += get_wms_objects(evrf_resp)
+            wms_objects += getWmsObjects(evrf_resp)
         return True, wms_objects
 
     else:

@@ -1,8 +1,7 @@
 import re
-import urllib.error
 import xml.etree.ElementTree as ET
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES
-from ..network_utils import NetworkUtils
+from ..utils import NetworkUtils
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""

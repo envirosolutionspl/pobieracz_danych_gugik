@@ -1,10 +1,8 @@
 import re
-import urllib.error
 import xml.etree.ElementTree as ET
 
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
-from ..utils import remove_duplicates_from_list_of_dicts
-from ..network_utils import NetworkUtils
+from ..utils import FilterUtils, NetworkUtils
 
 expr = re.compile(r"\{{1}.*\}{1}")
 
@@ -31,7 +29,7 @@ def getQueryableLayersFromWMS(wmsUrl):
             if nameET is not None:
                 queryableLayers.append(nameET.text)
                 
-        queryableLayers = remove_duplicates_from_list_of_dicts(queryableLayers)
+        queryableLayers = FilterUtils.removeDuplicatesFromListOfDicts(queryableLayers)
         
         return True, queryableLayers
         
@@ -41,7 +39,7 @@ def getQueryableLayersFromWMS(wmsUrl):
         return False, f"Błąd pobierania warstw WMS: {str(e)}"
 
 
-def get_wms_objects(request_response):
+def getWmsObjects(request_response):
     if not request_response[0]:
         return None
     req_elements = expr.findall(request_response[1])
@@ -57,7 +55,7 @@ def get_wms_objects(request_response):
                 val = ":".join(item[1:]).strip('"')
             attributes[key] = val
         req_list.append(attributes)
-    return remove_duplicates_from_list_of_dicts(req_list)
+    return FilterUtils.removeDuplicatesFromListOfDicts(req_list)
 
 
 

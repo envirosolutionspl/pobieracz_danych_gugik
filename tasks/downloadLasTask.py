@@ -2,8 +2,7 @@ import os, datetime
 from qgis.core import (
     QgsApplication, QgsTask, Qgis
     )
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo, create_report
+from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
 
@@ -33,14 +32,14 @@ class DownloadLasTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         results = []
         for las in self.lasList:
             las_url = las.get('url')
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            pushLogInfo(f'start {las_url}')
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {las_url}')
             success, message = self.service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / self.total)
             results.append(success)
@@ -53,7 +52,7 @@ class DownloadLasTask(QgsTask):
         if self.success_count == 0:
             return False
 
-        create_report(
+        FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_las'),
             HEADERS_MAPPING['LAS_HEADERS'],
             self.lasList
@@ -71,33 +70,22 @@ class DownloadLasTask(QgsTask):
         result is the return value from self.run.
         """
         if not result:
-            pushLogInfo("Nie udało się pobrać żadnych plików LAZ")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Nie udało się pobrać żadnych plików LAZ'
-            )
+            MessageUtils.pushLogWarning("Nie udało się pobrać żadnych plików LAZ")
+            MessageUtils.pushWarning(self.iface, 'Nie udało się pobrać żadnych plików LAZ')
             return
 
         if self.success_count == self.total:
-            pushLogInfo('Pobrano wszystkie dane LAZ')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Wszystkie dane LAZ zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano wszystkie dane LAZ')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Wszystkie dane LAZ zostały pobrane.')
         else:
-            pushLogInfo(f"Pobrano {self.success_count}/{self.total} plików LAZ")
+            MessageUtils.pushLogInfo(f"Pobrano {self.success_count}/{self.total} plików LAZ")
             if self.errors:
-                pushLogInfo("Nie pobrano plików:\n" + "\n".join(self.errors))
-            self.iface.messageBar().pushWarning(
-                'Częściowy sukces',
-                f"Pobrano {self.success_count}/{self.total} plików LAZ"
-            )
+                MessageUtils.pushLogWarning("Nie pobrano plików:\n" + "\n".join(self.errors))
+            MessageUtils.pushWarning(self.iface, f"Pobrano {self.success_count}/{self.total} plików LAZ")
 
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych LAZ')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych LAZ')
         super().cancel()
 
 

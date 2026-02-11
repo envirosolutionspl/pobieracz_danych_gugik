@@ -1,7 +1,6 @@
-import os, datetime
-from qgis.core import QgsApplication, QgsTask, Qgis
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo, create_report
+import os
+from qgis.core import QgsTask
+from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
 class DownloadReflectanceTask(QgsTask):
@@ -25,22 +24,22 @@ class DownloadReflectanceTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.reflectanceList)
         results = []
         for reflectance in self.reflectanceList:
             reflectance_url = reflectance.get('url')
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            pushLogInfo(f'start {reflectance_url}')
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {reflectance_url}')
             res, self.exception = self.service_api.retreiveFile(url=reflectance_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
         
-        create_report(os.path.join(self.folder, 'pobieracz_intensywnosc'), HEADERS_MAPPING['REFLECTANCE_HEADERS'], self.reflectanceList)
+        FileUtils.createReport(os.path.join(self.folder, 'pobieracz_intensywnosc'), HEADERS_MAPPING['REFLECTANCE_HEADERS'], self.reflectanceList)
 
         return True
 
@@ -55,23 +54,15 @@ class DownloadReflectanceTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('Pobrano dane obrazów intensywności')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane obrazów intensywności zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane obrazów intensywności')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane obrazów intensywności zostały pobrane.')
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych obrazów intensywności')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych obrazów intensywności')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych obrazów intensywności. Wystąpił błąd: " + str(self.exception))
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane obrazów intensywności nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych obrazów intensywności. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane obrazów intensywności nie zostały pobrane.')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych obrazów intensywności')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych obrazów intensywności')
         super().cancel()

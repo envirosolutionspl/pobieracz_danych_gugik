@@ -1,7 +1,6 @@
 import os, datetime
 from qgis.core import QgsApplication, QgsTask, Qgis
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo, create_report, openFile
+from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
 
@@ -27,27 +26,27 @@ class DownloadNmptTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.nmptList)
         results = []
         for nmpt in self.nmptList:
             nmpt_url = nmpt.get('url')
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            pushLogInfo(f'start {nmpt_url}')
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {nmpt_url}')
             res, self.exception = self.service_api.retreiveFile(url=nmpt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
 
-        create_report(
+        FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_nmpt'),
             HEADERS_MAPPING['NMT_HEADERS'],
             self.nmptList
         )
-        openFile(self.folder)
+        FileUtils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True
@@ -63,24 +62,16 @@ class DownloadNmptTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('Pobrano dane NMPT')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane NMPT zostały pobrane.',
-                level=Qgis.Success,
-                duration=10
-            )
+            MessageUtils.pushLogInfo('Pobrano dane NMPT')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane NMPT zostały pobrane.')
 
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych NMPT')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych NMPT')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych NMPT. Wystąpił błąd: " + str(self.exception))
-            self.iface.messageBar().pushMessage(
-                'Błąd',
-                'Dane NMPT nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych NMPT. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane NMPT nie zostały pobrane.')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych NMPT')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych NMPT')
         super().cancel()

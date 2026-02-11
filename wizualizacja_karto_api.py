@@ -2,7 +2,7 @@ import re
 
 from .constants import WIZUALIZACJA_KARTO_WMS_URL, WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS, \
     WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS
-from .service_api import ServiceAPI
+from .utils import ServiceAPI
 from .models import Wizualizacja_karto
 
 #TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach

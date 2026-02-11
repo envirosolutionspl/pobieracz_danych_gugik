@@ -3,9 +3,7 @@ from qgis.core import (
 )
 
 from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING, TIMEOUT_MS
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo
-from ..network_utils import NetworkUtils
+from ..utils import MessageUtils, NetworkUtils, ServiceAPI
 
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
@@ -50,37 +48,29 @@ class DownloadEgibExcelTask(QgsTask):
                 return False
             success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS)
             if not success_check:
-                pushLogInfo(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
+                MessageUtils.pushLogInfo(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
                 continue
-            pushLogInfo('pobieram ' + url)
+            MessageUtils.pushLogInfo('pobieram ' + url)
             res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 return True
             else:
-                pushLogInfo(f"Błąd pobierania pliku {url}: {self.exception}. Pomijam.")
+                MessageUtils.pushLogInfo(f"Błąd pobierania pliku {url}: {self.exception}. Pomijam.")
                 continue
         return False
 
     def finished(self, result):
         
         if result and self.exception:
-            pushLogInfo('Pobrano dane zestawień zbiorczych EGiB')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane zestawień zbiorczych EGiB')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.')
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych zestawień zbiorczych EGiB')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych zestawień zbiorczych EGiB')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych zestawień zbiorczych EGiB. Wystąpił błąd: " + str(self.exception))
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane zestawień zbiorczych EGiB nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych zestawień zbiorczych EGiB. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Nie udało się pobrać danych zestawień zbiorczych EGiB.')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych zestawień zbiorczych EGiB')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych zestawień zbiorczych EGiB')
         super().cancel()

@@ -1,6 +1,6 @@
 from .constants import ORTOFOTOMAPA_WMS_URL
-from .wms.utils import get_wms_objects
-from .service_api import ServiceAPI
+from .wms.utils import getWmsObjects
+from .utils import ServiceAPI
 
 def getOrtoListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania ortofotomap na podstawie
@@ -29,4 +29,4 @@ def getOrtoListbyPoint1992(point):
     }
 
     resp = service_api.getRequest(params=PARAMS, url=ORTOFOTOMAPA_WMS_URL)
-    return get_wms_objects(resp)
+    return getWmsObjects(resp)

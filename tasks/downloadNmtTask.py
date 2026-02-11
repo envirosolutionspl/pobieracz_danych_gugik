@@ -1,7 +1,6 @@
 import os, datetime
 from qgis.core import QgsApplication, QgsTask, Qgis
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo, create_report
+from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
 
@@ -27,22 +26,22 @@ class DownloadNmtTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.nmtList)
         results = []
         for nmt in self.nmtList:
             nmt_url = nmt.get('url')
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            pushLogInfo(f'start {nmt_url}')
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {nmt_url}')
             res, self.exception = self.service_api.retreiveFile(url=nmt_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
         
-        create_report(
+        FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_nmpt' if self.isNmpt else 'pobieracz_nmt'),
             HEADERS_MAPPING['NMT_HEADERS'],
             self.nmtList
@@ -60,26 +59,18 @@ class DownloadNmtTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            pushLogInfo('Pobrano dane NMT')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane NMT/NMPT zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane NMT')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane NMT/NMPT zostały pobrane.')
 
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych NMT')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych NMT')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych NMT. Wystąpił błąd: " + str(self.exception))
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane NMT/NMPT nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych NMT. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane NMT/NMPT nie zostały pobrane.')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych NMT')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych NMT')
         super().cancel()
 
 

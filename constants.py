@@ -1,7 +1,5 @@
 from datetime import datetime
 
-EGIB_WFS_CAPABILITIES_FILENAME = 'egib_wfs.xml'
-
 AEROTRAINGULACJA_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Aerotriangulacja?'
 BDOO_WMS_URL = 'https://opendata.geoportal.gov.pl/bdoo/'
 BDOT_WMS_URL = 'https://opendata.geoportal.gov.pl/Archiwum/bdot10k/'
@@ -30,6 +28,8 @@ ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/
 # url do sprawdzania połączenia z internetem
 ULDK_URL = 'https://uldk.gugik.gov.pl/'
 
+# kod układu współrzędnych
+CRS= "2180"
 
 # slowniki dla nagłówków 
 HEADERS_MAPPING = {
@@ -282,15 +282,15 @@ WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS = [
 ]
 
 ADMINISTRATIVE_UNITS_OBJECTS = {
-    'wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'powiat_cmbbx'),
-    'prg_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'prg_powiat_cmbbx'),
-    'prg_powiat_cmbbx': ('get_gmina_by_teryt', 'prg_gmina_cmbbx'),
-    'model3d_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'model3d_powiat_cmbbx'),
-    'drzewa3d_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'drzewa3d_powiat_cmbbx'),
-    'wfs_egib_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'wfs_egib_powiat_cmbbx'),
-    'egib_excel_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'egib_excel_powiat_cmbbx'),
-    'osnowa_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'osnowa_powiat_cmbbx'),
-    'archiwalne_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'archiwalne_powiat_cmbbx'),
+    'wojewodztwo_cmbbx': ('getPowiatByTeryt', 'powiat_cmbbx'),
+    'prg_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'prg_powiat_cmbbx'),
+    'prg_powiat_cmbbx': ('getGminaByTeryt', 'prg_gmina_cmbbx'),
+    'model3d_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'model3d_powiat_cmbbx'),
+    'drzewa3d_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'drzewa3d_powiat_cmbbx'),
+    'wfs_egib_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'wfs_egib_powiat_cmbbx'),
+    'egib_excel_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'egib_excel_powiat_cmbbx'),
+    'osnowa_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'osnowa_powiat_cmbbx'),
+    'archiwalne_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'archiwalne_powiat_cmbbx'),
 }
 
 YEARS_COMBOBOXES = {

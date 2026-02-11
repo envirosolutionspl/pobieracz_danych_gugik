@@ -1,11 +1,10 @@
 from qgis.utils import iface
-from .utils import pushWarning
+from .utils import MessageUtils, NetworkUtils
 from lxml import etree
 
-from .network_utils import NetworkUtils
 from .constants import EGIB_WFS_URL, TIMEOUT_MS 
 
-class EgibApi:
+class EgibAPI:
     def __init__(self):
         self.network_utils = NetworkUtils()
 
@@ -13,7 +12,8 @@ class EgibApi:
         data_dict = {}
         success, content = self.network_utils.fetchContent(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
         if not success:
-            pushWarning(iface, 'Ostrzeżenie:', content)
+            MessageUtils.pushLogWarning(f"Błąd pobierania danych EGiB: {content}")
+            MessageUtils.pushWarning(iface, 'Ostrzeżenie:', content)
             return
 
 

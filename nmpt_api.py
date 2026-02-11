@@ -1,6 +1,6 @@
 from .constants import NMPT_EVRF_WMS_URL, NMPT_KRON86_WMS_URL
-from .service_api import ServiceAPI
-from .wms.utils import get_wms_objects
+from .utils import ServiceAPI
+from .wms.utils import getWmsObjects
 
 
 def getNmptListbyPoint1992(point, isEvrf2007):
@@ -30,4 +30,4 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     }
     
     resp = service_api.getRequest(params=PARAMS, url=_url)
-    return get_wms_objects(resp)
+    return getWmsObjects(resp)

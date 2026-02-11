@@ -1,7 +1,7 @@
 import re
 
 from .constants import KARTOTEKI_OSNOW_WMS_URL, KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS, KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL
-from .service_api import ServiceAPI
+from .utils import ServiceAPI
 
 
 def getKartotekiOsnowListbyPoint1992(point, katalog_niwelacyjne):

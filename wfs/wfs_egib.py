@@ -4,8 +4,7 @@ from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 from datetime import datetime
-from ..service_api import ServiceAPI
-from ..network_utils import NetworkUtils
+from ..utils import NetworkUtils, ServiceAPI
 from ..constants import MIN_FILE_SIZE, CAPABILITIES_FILE_NAME, GML_URL_TEMPLATES
 
 
@@ -17,7 +16,7 @@ class WfsEgib:
 
     def saveXml(self, folder, url, teryt):
         """Zapisuje plik XML dla zapytania getCapabilities"""
-        if not self.service_api.check_internet_connection():
+        if not self.service_api.checkInternetConnection():
             return 'Połączenie zostało przerwane'
         
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
@@ -48,9 +47,9 @@ class WfsEgib:
                         name_layers.append(name.text)
 
                 if name_layers:
-                    if 'ewns:' in name_layers[0]:
+                    if name_layers[0].startswith('ewns:'):
                         prefix = 'ewns'
-                    elif 'ms:' in name_layers[0]:
+                    elif name_layers[0].startswith('ms:'):
                         prefix = 'ms'
             except ET.ParseError:
                 error_reason = "Błąd parsowania pliku XML. Serwer zwrócił niepoprawne dane"
@@ -62,7 +61,7 @@ class WfsEgib:
 
         return name_error, name_layers, prefix
 
-    def saveGml(self, folder, url, teryt):
+    def saveGML(self, folder, url, teryt):
         """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty"""
         name_error, name_layers, prefix = self.workOnXml(folder, url, teryt)
         if name_error != "brak":
@@ -81,7 +80,7 @@ class WfsEgib:
             print(url_gml)
             sleep(1)
             layer_name = layer.split(':')[-1]
-            if not self.service_api.check_internet_connection():
+            if not self.service_api.checkInternetConnection():
                 return 'Połączenie zostało przerwane'
             
             layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
@@ -118,13 +117,13 @@ class WfsEgib:
             
         return "brak"
 
-    def egib_wfs(self, teryt, wfs, folder):
+    def egibWFS(self, teryt, wfs, folder):
         """Tworzy nowy folder dla plików XML"""
         wfs = f"{wfs}?service=WFS&request=GetCapabilities"
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(folder, f'{teryt}_wfs_egib_{timestamp}/')
         os.mkdir(path)
-        return self.saveGml(path, wfs, teryt)
+        return self.saveGML(path, wfs, teryt)
 
 
 if __name__ == '__main__':

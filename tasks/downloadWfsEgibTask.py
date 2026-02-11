@@ -4,9 +4,7 @@ from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QPixmap, QIcon
 
 from qgis.core import QgsApplication, QgsTask, Qgis
-
-from .. import service_api
-from ..utils import pushLogInfo, openFile
+from ..utils import MessageUtils, FileUtils
 from ..wfs import WfsEgib
 
 
@@ -35,15 +33,15 @@ class DownloadWfsEgibTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo('Rozpoczęto zadanie: "{}"'.format(self.description()))
-        pushLogInfo('start ' + self.wfs_url)
+        MessageUtils.pushLogInfo('Rozpoczęto zadanie: "{}"'.format(self.description()))
+        MessageUtils.pushLogInfo('Rozpoczęto ' + self.wfs_url)
 
         self.wfsEgib = WfsEgib()
-        self.name_error = self.wfsEgib.egib_wfs(self.teryt, self.wfs_url, self.folder)
+        self.name_error = self.wfsEgib.egibWFS(self.teryt, self.wfs_url, self.folder)
         if self.name_error == 'brak':
-            openFile(self.folder)
+            FileUtils.openFile(self.folder)
         if self.isCanceled():
-            pushLogInfo('isCanceled')
+            MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
             return False
         return True
 
@@ -62,20 +60,19 @@ class DownloadWfsEgibTask(QgsTask):
         użytkownikowi w osobnym okienku"""
         
         if result and self.name_error == "brak" and self.exception is None:
-            pushLogInfo('Pobrano dane EGiB')
-            self.iface.messageBar().pushMessage("Sukces", "Udało się! Dane EGiB dla powiatów zostały pobrane.",
-                                                level=Qgis.Success, duration=0)
+            MessageUtils.pushLogInfo('Pobrano dane EGiB')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane EGiB dla powiatów zostały pobrane.')
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych EGiB')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych EGiB')
 
                 msgbox = QMessageBox(QMessageBox.Information, "Informacje o warstwach EGiB ", self.name_error)
                 msgbox.setIconPixmap(QPixmap(f"{self.plugin_dir}\\img\\lightbulb.png"))
                 msgbox.exec_()
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych EGiB. Wystąpił błąd: " + str(self.exception))
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych EGiB. Wystąpił błąd: " + str(self.exception))
 
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych EGiB')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych EGiB')
         super().cancel()

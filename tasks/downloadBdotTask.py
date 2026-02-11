@@ -3,8 +3,7 @@ from qgis.core import (
     )
 
 from ..constants import BDOT_FORMAT_URL_MAPPING
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo
+from ..utils import MessageUtils, ServiceAPI
 
 
 class DownloadBdotTask(QgsTask):
@@ -42,15 +41,15 @@ class DownloadBdotTask(QgsTask):
             self.url = f"{prefix}{teryt[:2]}/{teryt}_{data_format}.{zip_suffix}"
 
     def run(self):
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
-        pushLogInfo(f'pobieram {self.url}')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Pobieram {self.url}')
         success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.result = success
         self.exception = message
         
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
-            pushLogInfo(f'Próba 2: pobieram {self.url}')
+            MessageUtils.pushLogInfo(f'Próba 2: Pobieram {self.url}')
             success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
             self.result = success
             self.exception = message
@@ -59,21 +58,13 @@ class DownloadBdotTask(QgsTask):
 
     def finished(self, result):
         if result:
-            pushLogInfo('Pobrano dane BDOT10k')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane BDOT10k zostały pobrane.',
-                level=Qgis.Success,
-                duration=10
-            )
+            MessageUtils.pushLogInfo('Pobrano dane BDOT10k')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane BDOT10k zostały pobrane.')
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
-            pushLogInfo(f'Błąd pobierania: {error_msg}')
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                f'Dane BDOT10k nie zostały pobrane: {error_msg}'
-            )
+            MessageUtils.pushLogWarning(f'Błąd podczas pobierania danych BDOT10k: {error_msg}')
+            MessageUtils.pushWarning(self.iface, f'Dane BDOT10k nie zostały pobrane')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych BDOT10k')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych BDOT10k')
         super().cancel()

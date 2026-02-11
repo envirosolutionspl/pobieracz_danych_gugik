@@ -1,7 +1,6 @@
-import os, datetime
-from qgis.core import QgsApplication, QgsTask, Qgis
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo
+import os
+from qgis.core import QgsTask
+from ..utils import MessageUtils, ServiceAPI
 
 class DownloadWfsTask(QgsTask):
     """QgsTask pobierania WFS"""
@@ -25,16 +24,16 @@ class DownloadWfsTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.urlList)
         objs = 0
 
         for url in self.urlList:
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
             fileName = url.split("/")[-1]
-            pushLogInfo(f'start {fileName}')
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {fileName}')
             status, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if status is True:
                 objs += 1
@@ -53,30 +52,19 @@ class DownloadWfsTask(QgsTask):
         """
         
         if result and self.exception:
-            pushLogInfo('Pobrano dane WFS')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane WFS zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane WFS')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane WFS zostały pobrane.')
 
         elif result is False:
-            self.iface.messageBar().pushMessage(
-                'Ostrzeżenie:', 
-                'Nie pobrano pełnego zbioru danych',
-                level=Qgis.Warning,
-                duration=5)
+            MessageUtils.pushLogWarning('Nie pobrano pełnego zbioru danych')
+            MessageUtils.pushWarning(self.iface, 'Nie pobrano pełnego zbioru danych')
         else:
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych WFS')
+               MessageUtils.pushLogWarning('Nie udało się pobrać danych WFS')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo('Nie udało się pobrać danych WFS. Wystąpił błąd: ' + str(self.exception))
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane WFS nie zostały pobrane.'
-            )
+               MessageUtils.pushLogWarning('Nie udało się pobrać danych WFS. Wystąpił błąd: ' + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane WFS nie zostały pobrane.')
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych WFS')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych WFS')
         super().cancel()

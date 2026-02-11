@@ -2,8 +2,7 @@ from qgis.core import QgsTask, Qgis
 from qgis.PyQt.QtWidgets import QMessageBox
 
 from ..constants import BUDYNKI_3D_WMS_URL
-from ..service_api import ServiceAPI
-from ..utils import pushLogInfo
+from ..utils import MessageUtils, ServiceAPI
 
 
 class DownloadModel3dTask(QgsTask):
@@ -23,7 +22,7 @@ class DownloadModel3dTask(QgsTask):
 
     def run(self):
         list_url = []
-        pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         for standard in self.standard:
             for rok in self.data_lista:
                 list_url.extend(
@@ -41,9 +40,9 @@ class DownloadModel3dTask(QgsTask):
         results = []
         for url in list_url:
             if self.isCanceled():
-                pushLogInfo('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            pushLogInfo(f'pobieram {url}')
+            MessageUtils.pushLogInfo(f'Pobieram {url}')
             res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
             if res:
                 self.liczba_dobrych_url.append(url)
@@ -60,24 +59,16 @@ class DownloadModel3dTask(QgsTask):
                 )
                 msgbox.exec_()
             
-            pushLogInfo('Pobrano dane modelu 3D budynków')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane modelu 3D budynków zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane modelu 3D budynków')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane modelu 3D budynków zostały pobrane.')
         else:
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane modelu 3D budynków nie zostały pobrane.'
-            )
+            MessageUtils.pushWarning(self.iface, 'Dane modelu 3D budynków nie zostały pobrane.')
             if self.exception is None:
-                pushLogInfo('Nie udało się pobrać danych modelu 3D budynków')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych modelu 3D budynków')
             elif isinstance(self.exception, BaseException):
-                pushLogInfo("Nie udało się pobrać danych modelu 3D budynków. Wystąpił błąd: " + str(self.exception))
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych modelu 3D budynków. Wystąpił błąd: " + str(self.exception))
 
 
     def cancel(self):
-        pushLogInfo('Anulowano pobieranie danych modelu 3D budynków')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych modelu 3D budynków')
         super().cancel()
