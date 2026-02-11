@@ -2,7 +2,7 @@ import re
 
 from .wms.utils import getWmsObjects
 from .utils import ServiceAPI
-from .constants import MESH3D_WMS_URL
+from .constants import MESH3D_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS, MESH3D_SKOROWIDZE_LAYERS
 
 c = re.compile(r"\{{1}.*\}{1}")
 
@@ -10,27 +10,14 @@ c = re.compile(r"\{{1}.*\}{1}")
 def getMesh3dListbyPoint1992(point):
     x = point.x()
     y = point.y()
-    LAYERS = [
-        'SkorowidzeModeleSiatkowe3D'
-    ]
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'version': '1.1.1',
-        'layers': ','.join(LAYERS),
-        'styles': '',
-        'srs': 'EPSG:2180',
+        'layers': ','.join(MESH3D_SKOROWIDZE_LAYERS),
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(LAYERS),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(MESH3D_SKOROWIDZE_LAYERS)
+    })
     service_api = ServiceAPI()
-    resp = service_api.getRequest(params=PARAMS, url=MESH3D_WMS_URL)
+    resp = service_api.getRequest(params=params, url=MESH3D_WMS_URL)
     return getWmsObjects(resp)

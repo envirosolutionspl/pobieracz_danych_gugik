@@ -15,9 +15,9 @@ from qgis.core import (
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer
+from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
-from .constants import TIMEOUT_MS, MAX_ATTEMPTS, ULDK_URL
+from .constants import TIMEOUT_MS, MAX_ATTEMPTS, ULDK_URL, QT_VER
 import lxml.etree as ET
 
 
@@ -165,29 +165,43 @@ class MessageUtils:
 
     @staticmethod
     def pushMessageBoxCritical(parent, title: str, message: str):
-        msg_box = QMessageBox(
-            QMessageBox.Icon.Critical,
-            title,
-            message,
-            QMessageBox.StandardButton.Ok,
-            parent
-        )
+        msg_box = QMessageBox(parent)
+        msg_box.setIcon(QMessageBox.Icon.Critical)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+
         if hasattr(parent, 'plugin_icon'):
             msg_box.setWindowIcon(QIcon(parent.plugin_icon))
+
         msg_box.exec()
 
     @staticmethod
-    def pushMessageBox(parent, message):
-        msg_box = QMessageBox(
-            QMessageBox.Icon.Information,
-            'Informacja',
-            message,
-            QMessageBox.StandardButton.Ok,
-            parent
-        )
+    def pushMessageBoxInfo(parent, title, message):
+        msg_box = QMessageBox(parent)
+        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Ok)
+
         if hasattr(parent, 'plugin_icon'):
             msg_box.setWindowIcon(QIcon(parent.plugin_icon))
+
         msg_box.exec()
+
+    @staticmethod
+    def pushMessageBoxYesNo(parent, title, message):
+        msg_box = QMessageBox(parent)
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setStandardButtons(
+            QMessageBox.StandardButton.Yes |
+            QMessageBox.StandardButton.No
+        )
+
+        result = msg_box.exec()
+        return result == QMessageBox.StandardButton.Yes
 
     @staticmethod
     def pushMessage(iface, message: str) -> None:
@@ -261,6 +275,24 @@ class NetworkUtils:
             
         return False, f"Błąd sieciowy ({error_str}) dla: {url_str}"
 
+    def _hasErrorAccured(self, reply):
+        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            return reply.error() != QNetworkReply.NetworkError.NoError
+        else:
+            return reply.error() != QNetworkReply.NoError
+
+    def _setAttributes(self, request):
+        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            request.setAttribute(
+                QNetworkRequest.Attribute.RedirectPolicyAttribute,
+                QNetworkRequest.RedirectPolicy.NoLessSafeRedirectPolicy
+            )
+        else:
+            request.setAttribute(
+                QNetworkRequest.RedirectPolicyAttribute,
+                QNetworkRequest.NoLessSafeRedirectPolicy
+            )
+            
     def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS*2):
         qurl = QUrl(url)
         if params:
@@ -271,7 +303,7 @@ class NetworkUtils:
             
         request = QNetworkRequest(qurl)
         
-        request.setAttribute(QNetworkRequest.RedirectPolicyAttribute, QNetworkRequest.NoLessSafeRedirectPolicy)
+        self._setAttributes(request)
         
         reply = self.manager.get(request)   
         
@@ -292,7 +324,7 @@ class NetworkUtils:
         
         timer.stop()
         
-        if reply.error() != QNetworkReply.NoError:
+        if self._hasErrorAccured(reply):
             success, error_msg = self._handleReplyError(reply, url)
             reply.deleteLater()
             return success, error_msg
@@ -308,8 +340,6 @@ class NetworkUtils:
         except UnicodeDecodeError:
             return True, f"BinaryData: {len(raw_data)} bytes"
 
-        
-
     def fetchJson(self, url, params=None, timeout_ms=TIMEOUT_MS):
         success, result = self.fetchContent(url, params, timeout_ms)
         if not success:
@@ -318,10 +348,11 @@ class NetworkUtils:
             return True, json.loads(result)
         except json.JSONDecodeError as e:
             return False, f"Błąd JSON: {str(e)}"
-
+  
     def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS * 6):
         request = QNetworkRequest(QUrl(url))
-        request.setAttribute(QNetworkRequest.RedirectPolicyAttribute, QNetworkRequest.NoLessSafeRedirectPolicy)
+
+        self._setAttributes(request)
         
         reply = self.manager.get(request)
         loop = QEventLoop()
@@ -352,7 +383,7 @@ class NetworkUtils:
                         f.write(reply.readAll().data())
                         timer.start(timeout_ms) 
                 
-                if reply.error() != QNetworkReply.NoError:
+                if self._hasErrorAccured(reply):
                     return self._handleReplyError(reply, url)
                     
                 if reply.bytesAvailable() > 0:
@@ -478,7 +509,8 @@ class ServiceAPI:
         if os.path.exists(path):
             os.remove(path)
 
-class GeometryUtils:
+class ParsingUtils:
+
     @staticmethod
     def getSafelyFloat(value):
         """Konwertuje wartość na float, obsługując przecinki i jednostki (np. '1.00 m')."""
@@ -510,3 +542,8 @@ class GeometryUtils:
             MessageUtils.pushLogWarning(f"Błąd konwersji wartości na float: {value}")
             return 0.0
 
+class VersionUtils:
+
+    @staticmethod
+    def isCompatibleQtVersion(cur_version, tar_version):
+        return cur_version.startswith(QT_VER[tar_version])
