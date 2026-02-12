@@ -21,8 +21,6 @@ from .tasks import (
     DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask, DownloadMesh3dTask,
     DownloadTrees3dTask
 )
-import processing
-from datetime import datetime
 # Initialize Qt resources from file resources.py
 from .resources import *
 
@@ -36,8 +34,6 @@ from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotri
 
 from .egib_api import EgibAPI
 from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, ParsingUtils, VersionUtils
-from .wfs.utils import filterWfsFeaturesByUsersInput
-
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
