@@ -32,7 +32,7 @@ about=Wtyczka pozwala na pobieranie danych przestrzennych udostępnianych przez 
   * Paczki danych modeli 3D budynków (ZIP)
   * Paczki danych EGiB (wersja beta)
   * Paczki archiwalnych danych BDOT10k (ZIP)
-  * Zestawienia zbiorcze EGiB) (XLS)
+  * Zestawienia zbiorcze EGiB (XLS)
   * Opracowania tyflologiczne (PDF/TIFF/JPG/CDR) - mapy dla niewidomych i słabowidzących
   * Osnowy geodezyjnej
     - Podstawowa osnowa geodezyjna (XLS/PDF)
@@ -60,6 +60,13 @@ changelog=
   * Zmiana z biblioteki request na QgsNetworkAccessManager
   * Poprawa struktury i jakości kodu
   * Poprawienie i ustrukturyzowanie logowania i komunikatów dla użytkownika
+  * Przyspieszenie działania wtyczki
+  * Poprawa pobierania danych archiwalnych BDOT10k
+  * Dla pobierania zobrazowań kartograficznych dodano nowe skale
+  * Dla pobierania zestawów zbiorczych EGiB dodano lata 2023-2025
+  * Poprawa pobierania danych NMT
+  * Dodanie filtracji dla pobierania Ortofotomapy WFS
+  * Naprawiono bug dotyczący pobierania modeli 3D budynków
 # Wersja 1.2.11
 # * Dostosowanie wtyczki pod QGIS 4
 #  Wersja 1.2.10
