@@ -262,15 +262,19 @@ class NetworkUtils:
         error_code = reply.error()
         error_str = reply.errorString()
         
-        http_status = reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
-        http_reason = reply.attribute(QNetworkRequest.HttpReasonPhraseAttribute)
+        status_attr = self._getAttributeEnum('HttpStatusCodeAttribute')
+        reason_attr = self._getAttributeEnum('HttpReasonPhraseAttribute')
+        timeout_err = self._getErrorEnum('TimeoutError')
+
+        http_status = reply.attribute(status_attr)
+        http_reason = reply.attribute(reason_attr)
         
         MessageUtils.pushLogWarning(f"Network Error | URL: {url_str} | Status: {http_status} | Code: {error_code} | Msg: {error_str}")
 
         if http_status and http_status >= 400:
             return False, f"Błąd HTTP {http_status}: {http_reason}"
         
-        if error_code == QNetworkReply.TimeoutError:
+        if error_code == timeout_err:
             return False, f"Przekroczono czas oczekiwania dla: {url_str}"
             
         return False, f"Błąd sieciowy ({error_str}) dla: {url_str}"
@@ -292,6 +296,16 @@ class NetworkUtils:
                 QNetworkRequest.RedirectPolicyAttribute,
                 QNetworkRequest.NoLessSafeRedirectPolicy
             )
+    
+    def _getAttributeEnum(self, attr_name):
+        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            return getattr(QNetworkRequest.Attribute, attr_name)
+        return getattr(QNetworkRequest, attr_name)
+
+    def _getErrorEnum(self, attr_name):
+        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            return getattr(QNetworkReply.NetworkError, attr_name)
+        return getattr(QNetworkReply, attr_name)
             
     def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS*2):
         qurl = QUrl(url)
