@@ -6,8 +6,10 @@ from qgis.gui import *
 from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, CRS, WFS_FILTER_KEYS
+from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL, 
+                        OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
+                        MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, 
+                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG)
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -33,7 +35,7 @@ from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotri
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, mesh3d_api
 
 from .egib_api import EgibAPI
-from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, ParsingUtils, VersionUtils
+from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, GeometryUtils
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
@@ -1905,7 +1907,7 @@ class PobieraczDanychGugik:
 
         bledy = 0
         layer = self.dockwidget.wizualizacja_karto_mapLayerComboBox.currentLayer()
-        skala_10000 = True if self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked() else False
+        skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
@@ -1915,8 +1917,10 @@ class PobieraczDanychGugik:
 
             wizKartoList = []
             for point in points:
-                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point,
-                                                                                     skala_10000=skala_10000)
+                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
+                    point=point,
+                    skala=skala_wartosc
+                )
                 if subList:
                     wizKartoList.extend(subList)
                 else:
@@ -1938,9 +1942,12 @@ class PobieraczDanychGugik:
             project=self.project,
             dest_crs=CRS
         )
-        skala_10000 = self.dockwidget.wizualizacja_karto_10_rdbtn.isChecked()
-        wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(point=point_reprojected,
-                                                                                  skala_10000=skala_10000)
+        skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
+        
+        wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
+            point=point_reprojected,
+            skala=skala_wartosc
+        )
         self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
 
     def filterWizualizacjaKartoListAndRunTask(self, wizKartoList):
@@ -1972,6 +1979,32 @@ class PobieraczDanychGugik:
             return
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
+
+    def getSelectedScaleForWizualizacjaKarto(self):
+        """
+        Zwraca klucz dla wybranej skali
+        """
+        for scale_key, scale_config in WIZUALIZACJA_KARTO_CONFIG.items():
+            btn_name = scale_config.get('btn_name')
+            if btn_name:
+                if hasattr(self.dockwidget, btn_name):
+                    button_widget = getattr(self.dockwidget, btn_name)
+                    if button_widget.isChecked():
+                        return scale_key
+                else:
+                    MessageUtils.pushLogWarning(
+                        f"Nie znaleziono przycisku {btn_name}"
+                    )
+            else:
+                MessageUtils.pushLogWarning(
+                   f"Nie znaleziono klucza {scale_key}"
+                )
+        
+        MessageUtils.pushLogWarning(
+            "Nie znaleziono wybranej skali. Używam domyślnej wartości 10."
+        )
+        return list(WIZUALIZACJA_KARTO_CONFIG.keys())[0] # domyślna wartość 10
+
 
     # endregion
 
