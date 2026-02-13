@@ -1,6 +1,6 @@
 import datetime
 
-from .constants import ODBICIOWOSC_WMS_URL, ODBICIOWOWSC_SKOROWIDZE_LAYERS
+from .constants import ODBICIOWOSC_WMS_URL, ODBICIOWOWSC_SKOROWIDZE_LAYERS, WMS_GET_FEATURE_INFO_PARAMS
 from .utils import ServiceAPI
 from .wms.utils import getWmsObjects
 
@@ -10,25 +10,14 @@ def getReflectanceListbyPoint1992(point):
     y = point.y()
     service_api = ServiceAPI()
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.3.0',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(ODBICIOWOWSC_SKOROWIDZE_LAYERS),
-        'styles': '',
-        'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(ODBICIOWOWSC_SKOROWIDZE_LAYERS),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(ODBICIOWOWSC_SKOROWIDZE_LAYERS)
+    })
 
-    resp = service_api.getRequest(params=PARAMS, url=ODBICIOWOSC_WMS_URL)
+    resp = service_api.getRequest(params=params, url=ODBICIOWOSC_WMS_URL)
     return _convertAttributes(getWmsObjects(resp))
 
 

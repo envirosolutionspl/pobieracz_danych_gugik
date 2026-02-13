@@ -24,20 +24,11 @@ def getWizualizacjaKartoListbyPoint1992(point, skala):
         'request': 'GetFeatureInfo',
         'version': '1.1.1',
         'layers': ','.join(layers),
-        'styles': '',
-        'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(layers)
+    })
     service_api = ServiceAPI()
-    resp = service_api.getRequest(params=PARAMS, url=WIZUALIZACJA_KARTO_WMS_URL)
+    resp = service_api.getRequest(params=params, url=WIZUALIZACJA_KARTO_WMS_URL)
     url_wzorzec = re.compile(r'http.+.pdf')
     data_wzorzec = re.compile(r"(\d{4}-\d{1,2}-\d{1,2})")
     if resp[0]:

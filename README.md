@@ -69,6 +69,10 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 * Warunkiem koniecznym do prawidłowego działania wtyczki jest posiadanie wersji QGIS 3.22 lub wyższej.
 * Na niestandardowych wersjach programu QGIS (np. Flatpak, Snap) możliwe są błędy importu bibliotek. Jeżeli wystąpi taka sytuacja, należy zgodnie z instrukcją producenta oprogramowania doinstalować brakujące biblioteki.
 
+## Przykład użycia
+![Przykład użycia](img/przyklad_uzycia.gif)
+
+
 ## EN
 A QGIS plugin for downloading spatial data from GUGiK resources. From version 0.2, the plugin additionally generates a TXT report with additional information about the downloaded files.
 

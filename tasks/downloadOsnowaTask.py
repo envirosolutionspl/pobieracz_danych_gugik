@@ -24,7 +24,7 @@ class DownloadOsnowaTask(QgsTask):
                 
             if self.isCanceled():
                 return False
-            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS)
+            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS*2)
 
             if not success_check:
                 MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {url}: {result_check}')
