@@ -35,7 +35,7 @@ from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotri
     mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, mesh3d_api
 
 from .egib_api import EgibAPI
-from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, GeometryUtils
+from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, ParsingUtils, VersionUtils
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
