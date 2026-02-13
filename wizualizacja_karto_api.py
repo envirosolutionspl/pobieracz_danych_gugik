@@ -26,7 +26,7 @@ def getWizualizacjaKartoListbyPoint1992(point, skala):
         'layers': ','.join(layers),
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
         'query_layers': ','.join(layers)
-    })
+    }
     service_api = ServiceAPI()
     resp = service_api.getRequest(params=params, url=WIZUALIZACJA_KARTO_WMS_URL)
     url_wzorzec = re.compile(r'http.+.pdf')
