@@ -2,7 +2,8 @@ import re
 
 from .constants import (
     WIZUALIZACJA_KARTO_WMS_URL, 
-    WIZUALIZACJA_KARTO_CONFIG
+    WIZUALIZACJA_KARTO_CONFIG,
+    WIZUALIZACJA_KARTO_WMS_URL
 )
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
