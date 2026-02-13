@@ -3,7 +3,7 @@ import re
 from .constants import (
     WIZUALIZACJA_KARTO_WMS_URL, 
     WIZUALIZACJA_KARTO_CONFIG,
-    WIZUALIZACJA_KARTO_WMS_URL
+    WMS_GET_FEATURE_INFO_PARAMS
 )
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
