@@ -2029,7 +2029,7 @@ class PobieraczDanychGugik:
         MessageUtils.pushLogWarning(
             "Nie znaleziono wybranej skali. Używam domyślnej wartości 10."
         )
-        return '10' # domyślna wartość 10
+        return list(WIZUALIZACJA_KARTO_CONFIG.keys())[0] # domyślna wartość 10
 
 
     # endregion
