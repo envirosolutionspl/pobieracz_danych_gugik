@@ -6,8 +6,10 @@ from qgis.gui import *
 from qgis.core import *
 
 from .qgis_feed import QgisFeedDialog, QgisFeed
-from .constants import GROUPBOXES_VISIBILITY_MAP, PRG_URL, OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR, \
-    MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, CRS, WFS_FILTER_KEYS
+from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL, 
+                        OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
+                        MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, 
+                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG)
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -1926,7 +1928,7 @@ class PobieraczDanychGugik:
 
         bledy = 0
         layer = self.dockwidget.wizualizacja_karto_mapLayerComboBox.currentLayer()
-        skala_wartosc = skala_wartosc = self.wybranaSkala()
+        skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
 
         if layer:
             points = self.pointsFromVectorLayer(layer, density=500)
@@ -1961,7 +1963,7 @@ class PobieraczDanychGugik:
             project=self.project,
             dest_crs=CRS
         )
-        skala_wartosc = self.wybranaSkala()
+        skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
         
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
             point=point_reprojected,
@@ -2004,22 +2006,31 @@ class PobieraczDanychGugik:
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
 
-    def wybranaSkala(self):
+    def getSelectedScaleForWizualizacjaKarto(self):
         """
         Zwraca klucz dla wybranej skali
         """
-        btn_map = {
-            self.dockwidget.wizualizacja_karto_10_rdbtn:  '10',
-            self.dockwidget.wizualizacja_karto_25_rdbtn:  '25',
-            self.dockwidget.wizualizacja_karto_50_rdbtn:  '50',
-            self.dockwidget.wizualizacja_karto_100_rdbtn: '100'
-        }
-
-        for btn, key in btn_map.items():
-            if btn.isChecked():
-                return key
+        for scale_key, scale_config in WIZUALIZACJA_KARTO_CONFIG.items():
+            btn_name = scale_config.get('btn_name')
+            if btn_name:
+                if hasattr(self.dockwidget, btn_name):
+                    button_widget = getattr(self.dockwidget, btn_name)
+                    if button_widget.isChecked():
+                        return scale_key
+                else:
+                    MessageUtils.pushLogWarning(
+                        f"Nie znaleziono przycisku {btn_name}"
+                    )
+            else:
+                MessageUtils.pushLogWarning(
+                   f"Nie znaleziono klucza {scale_key}"
+                )
         
+        MessageUtils.pushLogWarning(
+            "Nie znaleziono wybranej skali. Używam domyślnej wartości 10."
+        )
         return '10' # domyślna wartość 10
+
 
     # endregion
 
