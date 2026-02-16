@@ -521,7 +521,12 @@ class ServiceAPI:
 
     def cleanupFile(self, path):
         if os.path.exists(path):
-            os.remove(path)
+            try:
+                os.remove(path)
+            except PermissionError:
+                MessageUtils.pushLogWarning(f'Nie udało się usunąć pliku {path} - plik jest używany przez inny proces')
+            except OSError as e:
+                MessageUtils.pushLogWarning(f"Błąd podczas usuwania pliku {path}: {e}")
 
 class ParsingUtils:
 
