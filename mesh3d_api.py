@@ -13,7 +13,7 @@ def getMesh3dListbyPoint1992(point):
     params = WMS_GET_FEATURE_INFO_PARAMS.copy()
     params.update({
         'layers': ','.join(MESH3D_SKOROWIDZE_LAYERS),
-        'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
+        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
         'query_layers': ','.join(MESH3D_SKOROWIDZE_LAYERS)
     })
     service_api = ServiceAPI()
