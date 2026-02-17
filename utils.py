@@ -17,7 +17,7 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
-from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
+from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager 
 from .constants import (
     TIMEOUT_MS,
     MAX_ATTEMPTS,
@@ -272,8 +272,6 @@ class MessageUtils:
         )
 
 class NetworkUtils:
-    def __init__(self):
-        self.manager = QgsNetworkAccessManager.instance()
 
     def _handle_reply_error(self, reply, url_str):
         """Centralna obsługa błędów sieciowych i HTTP"""
@@ -380,8 +378,11 @@ class NetworkUtils:
         if dest_dir and not os.path.exists(dest_dir):
             os.makedirs(dest_dir, exist_ok=True)
 
+
+        manager = QNetworkAccessManager()
+        manager.setProxy(QgsNetworkAccessManager.instance().proxy())
         event_loop = QEventLoop()
-        reply = self.manager.get(request)
+        reply = manager.get(request)
         try:
             with open(dest_path, 'wb') as f:
                 def handleReadyRead():

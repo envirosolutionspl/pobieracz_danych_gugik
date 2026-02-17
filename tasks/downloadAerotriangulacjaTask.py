@@ -73,6 +73,6 @@ class DownloadAerotriangulacjaTask(QgsTask):
             obj['rok'] = obj.get('zgloszenie').split('.')[3]
         FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_aerotriangulacja'),
-            HEADERS_MAPPING['AEROTRIANGULATION_HEADERS'],
+            HEADERS_MAPPING['AERIAL_TRIANGULATION_HEADERS'],
             self.aerotriangulacjaList
         )
