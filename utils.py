@@ -33,11 +33,16 @@ from .constants import (
     REDIRECT_POLICY_NAME,
     REDIRECT_POLICY_NO_LESS_SAFE,
     DEFAULT_REDIRECT_POLICY,
+    MSG_FILE_WRITE_ERROR, 
+    MSG_DOWNLOAD_CANCELED, 
+    MSG_EMPTY_CONTENT, 
+    MSG_JSON_DECODE_ERROR, 
+    MSG_HTTP_ERROR, 
+    MSG_TIMEOUT, 
+    MSG_NETWORK_ERROR
 )
 
 import lxml.etree as ET
-
-
 
 class LayersUtils:
     
@@ -273,15 +278,19 @@ class MessageUtils:
 
 class NetworkUtils:
 
-    def _handle_reply_error(self, reply, url_str):
+    def __init__(self):
+        self.manager = QNetworkAccessManager()
+        self.manager.setProxy(QgsNetworkAccessManager.instance().proxy())
+
+    def _handleReplyError(self, reply, url_str):
         """Centralna obsługa błędów sieciowych i HTTP"""
-        from .constants import HTTP_ERROR_THRESHOLD, MSG_HTTP_ERROR, MSG_TIMEOUT, MSG_NETWORK_ERROR
+        
         error_code = reply.error()
         error_str = reply.errorString()
         
-        status_attr = self._get_attribute_enum(NETWORK_ATTRS['HTTP_STATUS'])
-        reason_attr = self._get_attribute_enum(NETWORK_ATTRS['HTTP_REASON'])
-        timeout_err = self._get_error_enum(ERR_TIMEOUT)
+        status_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_STATUS'])
+        reason_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_REASON'])
+        timeout_err = self._getErrorEnum(ERR_TIMEOUT)
 
         http_status = reply.attribute(status_attr)
         http_reason = reply.attribute(reason_attr)
@@ -294,12 +303,12 @@ class NetworkUtils:
             
         return False, MSG_NETWORK_ERROR.format(error_str, url_str)
 
-    def _has_error_occurred(self, reply):
+    def _hasErrorOccurred(self, reply):
         """Sprawdza czy wystąpił błąd w odpowiedzi"""
-        no_error = self._get_error_enum(ERR_NONE)
+        no_error = self._getErrorEnum(ERR_NONE)
         return reply.error() != no_error
 
-    def _get_attribute_enum(self, attr_name):
+    def _getAttributeEnum(self, attr_name):
         """Pobiera atrybut QNetworkRequest"""
         if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
             if hasattr(QNetworkRequest, 'Attribute'):
@@ -308,7 +317,7 @@ class NetworkUtils:
                     return val
         return getattr(QNetworkRequest, attr_name, None)
 
-    def _get_error_enum(self, attr_name):
+    def _getErrorEnum(self, attr_name):
         """Pobiera kod błędu QNetworkReply"""
         if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
             if hasattr(QNetworkReply, 'NetworkError'):
@@ -317,20 +326,19 @@ class NetworkUtils:
                     return val
         return getattr(QNetworkReply, attr_name, None)
 
-    def _set_attributes(self, request, timeout_ms):
+    def _setAttributes(self, request, timeout_ms):
         """Ustawia atrybuty zapytania"""
-        redirect_attr = self._get_attribute_enum(NETWORK_ATTRS['REDIRECT'])
+        redirect_attr = self._getAttributeEnum(NETWORK_ATTRS['REDIRECT'])
         if redirect_attr is not None:
             redirect_policy_class = getattr(QNetworkRequest, REDIRECT_POLICY_NAME, QNetworkRequest)
             redirect_policy = getattr(redirect_policy_class, REDIRECT_POLICY_NO_LESS_SAFE, DEFAULT_REDIRECT_POLICY)
             request.setAttribute(redirect_attr, redirect_policy)
         
-        timeout_attr = self._get_attribute_enum(NETWORK_ATTRS['TIMEOUT'])
+        timeout_attr = self._getAttributeEnum(NETWORK_ATTRS['TIMEOUT'])
         if timeout_attr is not None:
             request.setAttribute(timeout_attr, timeout_ms)
             
     def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS):
-        from .constants import MSG_EMPTY_CONTENT
         q_url = QUrl(url)
         if params:
             query = QUrlQuery()
@@ -339,14 +347,14 @@ class NetworkUtils:
             q_url.setQuery(query)
             
         request = QNetworkRequest(q_url)
-        self._set_attributes(request, timeout_ms)
+        self._setAttributes(request, timeout_ms)
         
         blocking_request = QgsBlockingNetworkRequest()
         error_code = blocking_request.get(request)
         reply_content = blocking_request.reply()
         
         if error_code != QgsBlockingNetworkRequest.NoError:
-            return self._handle_reply_error(reply_content, url)
+            return self._handleReplyError(reply_content, url)
 
         raw_data = reply_content.content()
         if len(raw_data) == 0:
@@ -359,7 +367,6 @@ class NetworkUtils:
             return True, f"BinaryData: {len(raw_data)} bytes"
 
     def fetchJson(self, url, params=None, timeout_ms=TIMEOUT_MS):
-        from .constants import MSG_JSON_DECODE_ERROR
         success, result = self.fetchContent(url, params, timeout_ms)
         if not success:
             return False, result
@@ -369,20 +376,17 @@ class NetworkUtils:
             return False, MSG_JSON_DECODE_ERROR.format(str(e))
   
     def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
-        from .constants import MSG_FILE_WRITE_ERROR, MSG_DOWNLOAD_CANCELED
         q_url = QUrl(url)
         request = QNetworkRequest(q_url)
-        self._set_attributes(request, timeout_ms)
+        self._setAttributes(request, timeout_ms)
 
         dest_dir = os.path.dirname(dest_path)
         if dest_dir and not os.path.exists(dest_dir):
             os.makedirs(dest_dir, exist_ok=True)
 
-
-        manager = QNetworkAccessManager()
-        manager.setProxy(QgsNetworkAccessManager.instance().proxy())
+        
         event_loop = QEventLoop()
-        reply = manager.get(request)
+        reply = self.manager.get(request)
         try:
             with open(dest_path, 'wb') as f:
                 def handleReadyRead():
@@ -413,13 +417,13 @@ class NetworkUtils:
         except IOError as e:
             return False, MSG_FILE_WRITE_ERROR.format(str(e))
             
-        if self._has_error_occurred(reply):
-            canceled_error = self._get_error_enum(ERR_CANCELED)
+        if self._hasErrorOccurred(reply):
+            canceled_error = self._getErrorEnum(ERR_CANCELED)
             if reply.error() == canceled_error:
                 reply.deleteLater()
                 return False, MSG_DOWNLOAD_CANCELED
             
-            error_res = self._handle_reply_error(reply, url)
+            error_res = self._handleReplyError(reply, url)
             reply.deleteLater()
             return error_res
 
