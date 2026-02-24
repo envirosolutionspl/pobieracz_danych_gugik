@@ -11,7 +11,7 @@ from ..constants import (
     GML_URL_TEMPLATES, 
     STATUS_SUCCESS, 
     STATUS_CANCELED, 
-    MSG_CONNECTION_INTERRUPTED,
+    MSG_NO_CONNECTION,
     MSG_DOWNLOAD_CANCELED
 )
 
@@ -24,8 +24,9 @@ class WfsEgib:
 
     def saveXml(self, folder, url, teryt, obj=None):
         """Zapisuje plik XML dla zapytania getCapabilities"""
-        if not self.service_api.checkInternetConnection():
-            return MSG_CONNECTION_INTERRUPTED
+        success = self.service_api.checkInternetConnection()
+        if not success:
+            return MSG_NO_CONNECTION
         
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
@@ -94,8 +95,9 @@ class WfsEgib:
                 return STATUS_CANCELED
 
             layer_name = layer.split(':')[-1]
-            if not self.service_api.checkInternetConnection():
-                return MSG_CONNECTION_INTERRUPTED
+            success = self.service_api.checkInternetConnection()
+            if not success:
+                return MSG_NO_CONNECTION
             
             layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
             error_reason = None

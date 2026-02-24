@@ -86,7 +86,7 @@ class PobieraczDanychGugik:
 
         # klasy wykorzystywanych modułów
         self.egib_api = EgibAPI()
-        self.service_api = ServiceAPI()
+        self.service_api = ServiceAPI(self)
 
         self.canvas = self.iface.mapCanvas()
         # out click tool will emit a QgsPoint on every click
@@ -112,7 +112,8 @@ class PobieraczDanychGugik:
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartotekiOsnowClicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjeciaLotniczeClicked)
-        if self.service_api.checkInternetConnection():
+        success = self.service_api.checkInternetConnection()
+        if success:
             self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------
@@ -215,7 +216,6 @@ class PobieraczDanychGugik:
             return
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             self.pluginIsActive = False
             return
 
@@ -349,7 +349,6 @@ class PobieraczDanychGugik:
         """Kliknięcie klawisza pobierania danych WFS przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -464,6 +463,9 @@ class PobieraczDanychGugik:
 
     def runWfsTask(self, urlList):
         """Filtruje listę dostępnych plików ortofotomap i uruchamia wątek QgsTask"""
+        connection = self.service_api.checkInternetConnection()
+        if not connection:
+            return
         task = DownloadWfsTask(description='Pobieranie plików z WFS',
                                urlList=urlList,
                                folder=self.dockwidget.folder_fileWidget.filePath(),
@@ -476,7 +478,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.wfsClickTool)
         self.downloadWfsForLayer(point)
@@ -494,7 +495,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania ortofotomapy przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -565,7 +565,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.ortoClickTool)
         self.downloadOrtoForSinglePoint(point)
@@ -622,7 +621,6 @@ class PobieraczDanychGugik:
         """Kliknięcie klawisza pobierania NMT/NMPT przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -727,7 +725,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.nmtClickTool)
         self.downloadNmtForSinglePoint(point)
@@ -791,7 +788,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania LAS przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -817,7 +813,6 @@ class PobieraczDanychGugik:
         """Pobiera LAS dla pojedynczego punktu"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         point_reprojected = LayersUtils.pointToCrs(
             point=point,
@@ -860,7 +855,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.lasClickTool)
         self.downloadLasForSinglePoint(point)
@@ -917,7 +911,6 @@ class PobieraczDanychGugik:
         """Kliknięcie klawisza pobierania Intensywności przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -996,7 +989,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.reflectanceClickTool)
         self.downloadReflectanceForSinglePoint(point)
@@ -1043,7 +1035,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych BDOT10k dla powiatu"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1085,7 +1076,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych BDOT10k dla województwa"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1126,7 +1116,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych BDOT10k dla całej Polski"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1161,7 +1150,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych BDOO dla województwa"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1190,7 +1178,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych BDOO dla całej Polski"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1214,7 +1201,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych PRNG"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1310,7 +1296,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych PRG"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1370,7 +1355,6 @@ class PobieraczDanychGugik:
     def invokeTask3dTrees(self):
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1422,7 +1406,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych modulu 3D budynków"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1503,7 +1486,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę danych WFS EGiB dla powiatów"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1552,7 +1534,6 @@ class PobieraczDanychGugik:
         """Pobiera excela z Zestawieniami Zbiorczymi EGiB"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1603,7 +1584,6 @@ class PobieraczDanychGugik:
         """Pobiera opracowania tyflologiczne"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1633,7 +1613,6 @@ class PobieraczDanychGugik:
         """Pobiera podstawową osnowę geodezyjną"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1673,7 +1652,6 @@ class PobieraczDanychGugik:
     def mesh3dFromLayerBtnClicked(self):
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -1699,7 +1677,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania Aerotriangulacji przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -1797,7 +1774,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.aerotriangulacjaClickTool)
         self.downloadAerotriangulacjiForSinglePoint(point)
@@ -1807,7 +1783,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.mesh3dClickTool)
         self.downloadMesh3dForSinglePoint(point)
@@ -1816,7 +1791,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania Linii Mozaikowania przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -1886,7 +1860,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.mozaikaClickTool)
         self.downloadMozaikaForSinglePoint(point)
@@ -1898,7 +1871,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania Wizualizacji kartograficznej BDOT10k przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -1975,7 +1947,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.wizualizacja_kartoClickTool)
         self.downloadWizualizacjaKartoForSinglePoint(point)
@@ -2013,7 +1984,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania Archiwalnych kartotek osnów geodezyjnych przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -2088,7 +2058,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.kartoteki_osnowClickTool)
         self.downloadKartotekiOsnowForSinglePoint(point)
@@ -2100,7 +2069,6 @@ class PobieraczDanychGugik:
         """Pobiera paczkę archiwalnych danych BDOT10k dla powiatów"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if not self.checkSavePath(path):
@@ -2140,7 +2108,6 @@ class PobieraczDanychGugik:
         """Kliknięcie plawisza pobierania Zdjęć Lotniczych przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         # sprawdzanie ścieżki zapisu
         path = self.dockwidget.folder_fileWidget.filePath()
@@ -2242,7 +2209,6 @@ class PobieraczDanychGugik:
         """point - QgsPointXY"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         self.canvas.unsetMapTool(self.zdjecia_lotniczeClickTool)
         self.downloadZdjeciaLotniczeForSinglePoint(point)
@@ -2317,7 +2283,6 @@ class PobieraczDanychGugik:
         """Kliknięcie klawisza pobierania danych przez wybór z mapy"""
         connection = self.service_api.checkInternetConnection()
         if not connection:
-            self.showNoConnectionMessage()
             return
         path = self.dockwidget.folder_fileWidget.filePath()
         if self.checkSavePath(path):
@@ -2339,9 +2304,6 @@ class PobieraczDanychGugik:
 
     def noAreaSpecifiedWarning(self):
         MessageUtils.pushWarning(self.iface, 'Nie wskazano obszaru')
-
-    def showNoConnectionMessage(self):
-        MessageUtils.pushWarning(self.iface, "Brak połączenia z internetem")
 
     def showUnavailableFormat(self):
         MessageUtils.pushWarning(self.iface, "Dla podanego obszaru nie ma dostępnego pliku w formacie GeoParquet")

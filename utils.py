@@ -39,9 +39,10 @@ from .constants import (
     MSG_JSON_DECODE_ERROR, 
     MSG_HTTP_ERROR, 
     MSG_TIMEOUT, 
-    MSG_NETWORK_ERROR
+    MSG_NETWORK_ERROR,
+    MSG_NO_CONNECTION
 )
-
+from functools import partial
 import lxml.etree as ET
 
 class LayersUtils:
@@ -376,47 +377,43 @@ class NetworkUtils:
             return False, MSG_JSON_DECODE_ERROR.format(str(e))
   
     def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
-        q_url = QUrl(url)
-        request = QNetworkRequest(q_url)
+        request = QNetworkRequest(QUrl(url))
         self._setAttributes(request, timeout_ms)
 
         dest_dir = os.path.dirname(dest_path)
-        if dest_dir and not os.path.exists(dest_dir):
+        if dest_dir:
             os.makedirs(dest_dir, exist_ok=True)
 
-        
         event_loop = QEventLoop()
         reply = self.manager.get(request)
         try:
             with open(dest_path, 'wb') as f:
-                def handleReadyRead():
-                    if reply.bytesAvailable() > 0:
-                        f.write(reply.readAll().data())
+                reply.readyRead.connect(partial(self._handleReadyRead, reply, f))
+                reply.finished.connect(event_loop.quit)
 
-                def handleFinished():
-                    if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-                        event_loop.quit()
-                    else:
-                        event_loop.exit()
+                self._loopForCancel(obj, reply, event_loop)
 
-                reply.readyRead.connect(handleReadyRead)
-                reply.finished.connect(handleFinished)
-
-                cancel_timer = QTimer()
-                cancel_timer.timeout.connect(lambda: reply.abort() if (obj and obj.isCanceled()) else None)
-                cancel_timer.start(CANCEL_CHECK_MS)
-                
-                if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-                    event_loop.exec()
-                else:
-                    event_loop.exec_()
-
-                cancel_timer.stop()
                 if reply.bytesAvailable() > 0:
                     f.write(reply.readAll().data())
         except IOError as e:
             return False, MSG_FILE_WRITE_ERROR.format(str(e))
             
+        return self._finilizeDownload(reply, url)
+    
+    def _handleReadyRead(self, reply, file):
+        if reply.bytesAvailable() > 0:
+            file.write(reply.readAll().data())
+
+    def _loopForCancel(self, obj, reply, event_loop):
+        cancel_timer = QTimer()
+        cancel_timer.timeout.connect(lambda: reply.abort() if (obj and obj.isCanceled()) else None)
+        cancel_timer.start(CANCEL_CHECK_MS)
+        
+        event_loop.exec()
+
+        cancel_timer.stop()
+    
+    def _finilizeDownload(self, reply, url):
         if self._hasErrorOccurred(reply):
             canceled_error = self._getErrorEnum(ERR_CANCELED)
             if reply.error() == canceled_error:
@@ -431,7 +428,11 @@ class NetworkUtils:
         return True, True
 
 class ServiceAPI:
-    def __init__(self):
+    def __init__(self, parent=None):
+        if parent:
+            self.iface = parent.iface
+        else:
+            self.iface = None
         self.network_utils = NetworkUtils()
 
     def getRequest(self, params, url):
@@ -539,6 +540,8 @@ class ServiceAPI:
     def checkInternetConnection(self):
         # próba połączenia z serwerem np. gugik
         success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
+        if not success and self.iface:
+            MessageUtils.pushWarning(self.iface, MSG_NO_CONNECTION)
         return success
 
 

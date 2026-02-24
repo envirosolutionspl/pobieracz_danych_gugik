@@ -247,7 +247,7 @@ MSG_EMPTY_CONTENT = "Serwer zwrócił pustą zawartość dla: {}"
 MSG_TIMEOUT = "Przekroczono czas oczekiwania dla: {}"
 MSG_FILE_WRITE_ERROR = "Błąd zapisu do pliku: {}"
 MSG_JSON_DECODE_ERROR = "Błąd JSON: {}"
-MSG_CONNECTION_INTERRUPTED = "Połączenie zostało przerwane"
+MSG_NO_CONNECTION = "Brak połączenia z internetem."
 # =============================
 
 # minimalny rozmiar pliku do pobrania danych (~9KB)
