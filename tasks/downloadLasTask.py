@@ -40,10 +40,10 @@ class DownloadLasTask(QgsTask):
                 MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
             MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {las_url}')
-            success, message = self.service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
+            is_success, message = self.service_api.retreiveFile(url=las_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / self.total)
-            results.append(success)
-            if success:
+            results.append(is_success)
+            if is_success:
                 self.success_count += 1
             else:
                 self.errors.append(f"{las.get('url')}: {message}")

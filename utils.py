@@ -11,16 +11,39 @@ from qgis.core import (
     QgsMessageLog,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
-    QgsNetworkAccessManager
+    QgsNetworkAccessManager,
+    QgsBlockingNetworkRequest
 )
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
-from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest
-from .constants import TIMEOUT_MS, MAX_ATTEMPTS, ULDK_URL, QT_VER
+from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager 
+from .constants import (
+    TIMEOUT_MS,
+    MAX_ATTEMPTS,
+    ULDK_URL,
+    QT_VER,
+    CANCEL_CHECK_MS,
+    HTTP_ERROR_THRESHOLD,
+    DEFAULT_ENCODING,
+    NETWORK_ATTRS,
+    ERR_TIMEOUT,
+    ERR_NONE,
+    ERR_CANCELED,
+    REDIRECT_POLICY_NAME,
+    REDIRECT_POLICY_NO_LESS_SAFE,
+    DEFAULT_REDIRECT_POLICY,
+    MSG_FILE_WRITE_ERROR, 
+    MSG_DOWNLOAD_CANCELED, 
+    MSG_EMPTY_CONTENT, 
+    MSG_JSON_DECODE_ERROR, 
+    MSG_HTTP_ERROR, 
+    MSG_TIMEOUT, 
+    MSG_NETWORK_ERROR,
+    MSG_NO_CONNECTION
+)
+from functools import partial
 import lxml.etree as ET
-
-
 
 class LayersUtils:
     
@@ -255,168 +278,169 @@ class MessageUtils:
         )
 
 class NetworkUtils:
+
     def __init__(self):
-        self.manager = QgsNetworkAccessManager.instance()
+        self.manager = QNetworkAccessManager()
+        self.manager.setProxy(QgsNetworkAccessManager.instance().proxy())
 
     def _handleReplyError(self, reply, url_str):
+        """Centralna obsługa błędów sieciowych i HTTP"""
+        
         error_code = reply.error()
         error_str = reply.errorString()
         
-        status_attr = self._getAttributeEnum('HttpStatusCodeAttribute')
-        reason_attr = self._getAttributeEnum('HttpReasonPhraseAttribute')
-        timeout_err = self._getErrorEnum('TimeoutError')
+        status_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_STATUS'])
+        reason_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_REASON'])
+        timeout_err = self._getErrorEnum(ERR_TIMEOUT)
 
         http_status = reply.attribute(status_attr)
         http_reason = reply.attribute(reason_attr)
         
-        MessageUtils.pushLogWarning(f"Network Error | URL: {url_str} | Status: {http_status} | Code: {error_code} | Msg: {error_str}")
-
-        if http_status and http_status >= 400:
-            return False, f"Błąd HTTP {http_status}: {http_reason}"
+        if http_status and http_status >= HTTP_ERROR_THRESHOLD:
+            return False, MSG_HTTP_ERROR.format(http_status, http_reason)
         
         if error_code == timeout_err:
-            return False, f"Przekroczono czas oczekiwania dla: {url_str}"
+            return False, MSG_TIMEOUT.format(url_str)
             
-        return False, f"Błąd sieciowy ({error_str}) dla: {url_str}"
+        return False, MSG_NETWORK_ERROR.format(error_str, url_str)
 
-    def _hasErrorAccured(self, reply):
-        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-            return reply.error() != QNetworkReply.NetworkError.NoError
-        else:
-            return reply.error() != QNetworkReply.NoError
+    def _hasErrorOccurred(self, reply):
+        """Sprawdza czy wystąpił błąd w odpowiedzi"""
+        no_error = self._getErrorEnum(ERR_NONE)
+        return reply.error() != no_error
 
-    def _setAttributes(self, request):
-        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-            request.setAttribute(
-                QNetworkRequest.Attribute.RedirectPolicyAttribute,
-                QNetworkRequest.RedirectPolicy.NoLessSafeRedirectPolicy
-            )
-        else:
-            request.setAttribute(
-                QNetworkRequest.RedirectPolicyAttribute,
-                QNetworkRequest.NoLessSafeRedirectPolicy
-            )
-    
     def _getAttributeEnum(self, attr_name):
+        """Pobiera atrybut QNetworkRequest"""
         if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-            return getattr(QNetworkRequest.Attribute, attr_name)
-        return getattr(QNetworkRequest, attr_name)
+            if hasattr(QNetworkRequest, 'Attribute'):
+                val = getattr(QNetworkRequest.Attribute, attr_name, None)
+                if val is not None:
+                    return val
+        return getattr(QNetworkRequest, attr_name, None)
 
     def _getErrorEnum(self, attr_name):
+        """Pobiera kod błędu QNetworkReply"""
         if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-            return getattr(QNetworkReply.NetworkError, attr_name)
-        return getattr(QNetworkReply, attr_name)
+            if hasattr(QNetworkReply, 'NetworkError'):
+                val = getattr(QNetworkReply.NetworkError, attr_name, None)
+                if val is not None:
+                    return val
+        return getattr(QNetworkReply, attr_name, None)
+
+    def _setAttributes(self, request, timeout_ms):
+        """Ustawia atrybuty zapytania"""
+        redirect_attr = self._getAttributeEnum(NETWORK_ATTRS['REDIRECT'])
+        if redirect_attr is not None:
+            redirect_policy_class = getattr(QNetworkRequest, REDIRECT_POLICY_NAME, QNetworkRequest)
+            redirect_policy = getattr(redirect_policy_class, REDIRECT_POLICY_NO_LESS_SAFE, DEFAULT_REDIRECT_POLICY)
+            request.setAttribute(redirect_attr, redirect_policy)
+        
+        timeout_attr = self._getAttributeEnum(NETWORK_ATTRS['TIMEOUT'])
+        if timeout_attr is not None:
+            request.setAttribute(timeout_attr, timeout_ms)
             
-    def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS*2):
-        qurl = QUrl(url)
+    def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS):
+        q_url = QUrl(url)
         if params:
             query = QUrlQuery()
             for key, value in params.items():
                 query.addQueryItem(str(key), str(value))
-            qurl.setQuery(query)
+            q_url.setQuery(query)
             
-        request = QNetworkRequest(qurl)
+        request = QNetworkRequest(q_url)
+        self._setAttributes(request, timeout_ms)
         
-        self._setAttributes(request)
+        blocking_request = QgsBlockingNetworkRequest()
+        error_code = blocking_request.get(request)
+        reply_content = blocking_request.reply()
         
-        reply = self.manager.get(request)   
-        
-        loop = QEventLoop()
-        timer = QTimer()
-        timer.setSingleShot(True)
-        
-        reply.finished.connect(loop.quit)
-        timer.timeout.connect(loop.quit)
-        
-        timer.start(timeout_ms)
-        loop.exec()
-        
-        if not timer.isActive():
-            reply.abort()
-            reply.deleteLater()
-            return False, f"Timeout ({timeout_ms}ms) dla: {url}"
-        
-        timer.stop()
-        
-        if self._hasErrorAccured(reply):
-            success, error_msg = self._handleReplyError(reply, url)
-            reply.deleteLater()
-            return success, error_msg
+        if error_code != QgsBlockingNetworkRequest.NoError:
+            return self._handleReplyError(reply_content, url)
 
-        raw_data = reply.readAll().data()
-        reply.deleteLater()
-
+        raw_data = reply_content.content()
         if len(raw_data) == 0:
-            return False, f"Serwer zwrócił pustą zawartość (0 bajtów) dla: {url}"
+            return False, MSG_EMPTY_CONTENT.format(url)
+            
         try:
-            data = raw_data.decode('utf-8')
+            data = bytes(raw_data).decode(DEFAULT_ENCODING)
             return True, data
         except UnicodeDecodeError:
             return True, f"BinaryData: {len(raw_data)} bytes"
 
     def fetchJson(self, url, params=None, timeout_ms=TIMEOUT_MS):
-        success, result = self.fetchContent(url, params, timeout_ms)
-        if not success:
+        is_success, result = self.fetchContent(url, params, timeout_ms)
+        if not is_success:
             return False, result
         try:
             return True, json.loads(result)
         except json.JSONDecodeError as e:
-            return False, f"Błąd JSON: {str(e)}"
+            return False, MSG_JSON_DECODE_ERROR.format(str(e))
   
-    def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS * 6):
+    def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
         request = QNetworkRequest(QUrl(url))
+        self._setAttributes(request, timeout_ms)
 
-        self._setAttributes(request)
-        
-        reply = self.manager.get(request)
-        loop = QEventLoop()
-        timer = QTimer()
-        timer.setSingleShot(True)
-        
-        reply.finished.connect(loop.quit)
-        timer.timeout.connect(loop.quit)
-        
         dest_dir = os.path.dirname(dest_path)
-        if dest_dir and not os.path.exists(dest_dir):
-            reply.abort()
-            reply.deleteLater()
-            return False, f"Katalog nie istnieje: {dest_dir}"
+        if dest_dir:
+            os.makedirs(dest_dir, exist_ok=True)
 
+        event_loop = QEventLoop()
+        reply = self.manager.get(request)
         try:
             with open(dest_path, 'wb') as f:
-                timer.start(timeout_ms)
-                
-                while reply.isRunning():
-                    loop.exec()
-                    
-                    if obj and obj.isCanceled():
-                        reply.abort()
-                        return False, "Anulowano. Pobieranie danych zostało przerwane przez użytkownika."
-                        
-                    if reply.bytesAvailable() > 0:
-                        f.write(reply.readAll().data())
-                        timer.start(timeout_ms) 
-                
-                if self._hasErrorAccured(reply):
-                    return self._handleReplyError(reply, url)
-                    
+                reply.readyRead.connect(partial(self._handleReadyRead, reply, f))
+                reply.finished.connect(event_loop.quit)
+
+                self._loopForCancel(obj, reply, event_loop)
+
                 if reply.bytesAvailable() > 0:
                     f.write(reply.readAll().data())
-        finally:
-            reply.deleteLater()
+        except IOError as e:
+            return False, MSG_FILE_WRITE_ERROR.format(str(e))
             
+        return self._finilizeDownload(reply, url)
+    
+    def _handleReadyRead(self, reply, file):
+        if reply.bytesAvailable() > 0:
+            file.write(reply.readAll().data())
+
+    def _loopForCancel(self, obj, reply, event_loop):
+        cancel_timer = QTimer()
+        cancel_timer.timeout.connect(lambda: reply.abort() if (obj and obj.isCanceled()) else None)
+        cancel_timer.start(CANCEL_CHECK_MS)
+        
+        event_loop.exec()
+
+        cancel_timer.stop()
+    
+    def _finilizeDownload(self, reply, url):
+        if self._hasErrorOccurred(reply):
+            canceled_error = self._getErrorEnum(ERR_CANCELED)
+            if reply.error() == canceled_error:
+                reply.deleteLater()
+                return False, MSG_DOWNLOAD_CANCELED
+            
+            error_res = self._handleReplyError(reply, url)
+            reply.deleteLater()
+            return error_res
+
+        reply.deleteLater()
         return True, True
 
 class ServiceAPI:
-    def __init__(self):
+    def __init__(self, parent=None):
+        if parent:
+            self.iface = parent.iface
+        else:
+            self.iface = None
         self.network_utils = NetworkUtils()
 
     def getRequest(self, params, url):
         attempt = 0
         while attempt <= MAX_ATTEMPTS:
             attempt += 1
-            success, result = self.network_utils.fetchContent(url, params=params, timeout_ms=TIMEOUT_MS * 2)
-            if success:
+            is_success, result = self.network_utils.fetchContent(url, params=params, timeout_ms=TIMEOUT_MS * 2)
+            if is_success:
                 return True, result
             time.sleep(2)
         return False, "Nieudana próba połączenia"
@@ -451,8 +475,8 @@ class ServiceAPI:
         path = os.path.join(destFolder, file_name)
         self.cleanupFile(path)
 
-        success, result = self.network_utils.downloadFile(url, path, obj=obj)
-        if success:
+        is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
+        if is_success:
             FileUtils.openFile(destFolder)
             return True, True
         self.cleanupFile(path)
@@ -474,7 +498,7 @@ class ServiceAPI:
         # Parsowanie XML
         parser = ET.XMLParser(recover=True)
         try:
-            root = ET.fromstring(payload.encode("utf-8"), parser=parser)
+            root = ET.fromstring(payload.encode(DEFAULT_ENCODING), parser=parser)
         except Exception:
             # gdyby serwer odesłał już bytes w UTF-8
             root = ET.fromstring(payload, parser=parser)
@@ -515,8 +539,10 @@ class ServiceAPI:
 
     def checkInternetConnection(self):
         # próba połączenia z serwerem np. gugik
-        success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
-        return success
+        is_success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
+        if not is_success and self.iface:
+            MessageUtils.pushWarning(self.iface, MSG_NO_CONNECTION)
+        return is_success
 
 
     def cleanupFile(self, path):

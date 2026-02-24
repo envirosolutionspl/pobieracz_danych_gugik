@@ -26,7 +26,7 @@ class DownloadTrees3dTask(QgsTask):
         if self.isCanceled():
             return False
 
-        success_check, result_check = self.network_utils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS)
+        success_check, result_check = self.network_utils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS*3)
 
         if not success_check:
             MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {trees_url}: {result_check}')

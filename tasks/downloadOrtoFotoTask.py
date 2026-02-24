@@ -35,10 +35,10 @@ class DownloadOrtofotoTask(QgsTask):
             if not orto_url:
                 continue
             MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {orto_url}')
-            success, message = self.service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
+            is_success, message = self.service_api.retreiveFile(url=orto_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
-            results.append(success)
-            if not success:
+            results.append(is_success)
+            if not is_success:
                 self.exception = message
 
         if not any(results):
