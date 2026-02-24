@@ -10,8 +10,8 @@ class EgibAPI:
 
     def getWfsDict(self, filter_name):
         data_dict = {}
-        success, content = self.network_utils.fetchContent(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
-        if not success:
+        is_success, content = self.network_utils.fetchContent(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
+        if not is_success:
             MessageUtils.pushLogWarning(f"Błąd pobierania danych EGiB: {content}")
             MessageUtils.pushWarning(iface, 'Ostrzeżenie:', content)
             return

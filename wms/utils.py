@@ -14,9 +14,9 @@ def getQueryableLayersFromWMS(wmsUrl):
         'request': 'GetCapabilities',
     }
     network_utils = NetworkUtils()
-    success, result = network_utils.fetchContent(wmsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+    is_success, result = network_utils.fetchContent(wmsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
 
-    if not success:
+    if not is_success:
         return False, result
 
     content = result

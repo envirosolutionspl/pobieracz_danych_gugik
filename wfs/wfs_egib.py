@@ -24,14 +24,14 @@ class WfsEgib:
 
     def saveXml(self, folder, url, teryt, obj=None):
         """Zapisuje plik XML dla zapytania getCapabilities"""
-        success = self.service_api.checkInternetConnection()
-        if not success:
+        is_success = self.service_api.checkInternetConnection()
+        if not is_success:
             return MSG_NO_CONNECTION
         
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
-        success, result = self.network_utils.downloadFile(url, path, obj=obj)
-        if not success:
+        is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
+        if not is_success:
             return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {result}. URL: \n{url}"
             
         return STATUS_SUCCESS
@@ -95,16 +95,16 @@ class WfsEgib:
                 return STATUS_CANCELED
 
             layer_name = layer.split(':')[-1]
-            success = self.service_api.checkInternetConnection()
-            if not success:
+            is_success = self.service_api.checkInternetConnection()
+            if not is_success:
                 return MSG_NO_CONNECTION
             
             layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
             error_reason = None
 
             try:
-                success, result = self.network_utils.downloadFile(url_gml, layer_path, obj=obj)
-                if success: 
+                is_success, result = self.network_utils.downloadFile(url_gml, layer_path, obj=obj)
+                if is_success: 
                     # Sprawdzenie rozmiaru
                     if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
                         error_reason = "Za mały rozmiar pliku; błąd pobierania danych (prawdopodobnie brak danych dla tego obszaru)"

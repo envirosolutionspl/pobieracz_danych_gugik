@@ -112,8 +112,8 @@ class PobieraczDanychGugik:
         self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartotekiOsnowClicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjeciaLotniczeClicked)
-        success = self.service_api.checkInternetConnection()
-        if success:
+        is_success = self.service_api.checkInternetConnection()
+        if is_success:
             self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------

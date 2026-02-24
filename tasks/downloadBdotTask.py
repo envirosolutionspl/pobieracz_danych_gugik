@@ -43,15 +43,15 @@ class DownloadBdotTask(QgsTask):
     def run(self):
         MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         MessageUtils.pushLogInfo(f'Pobieram {self.url}')
-        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-        self.result = success
+        is_success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        self.result = is_success
         self.exception = message
         
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
             MessageUtils.pushLogInfo(f'Próba 2: Pobieram {self.url}')
-            success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
-            self.result = success
+            is_success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+            self.result = is_success
             self.exception = message
             
         return self.result and not self.isCanceled()

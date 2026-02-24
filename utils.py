@@ -368,8 +368,8 @@ class NetworkUtils:
             return True, f"BinaryData: {len(raw_data)} bytes"
 
     def fetchJson(self, url, params=None, timeout_ms=TIMEOUT_MS):
-        success, result = self.fetchContent(url, params, timeout_ms)
-        if not success:
+        is_success, result = self.fetchContent(url, params, timeout_ms)
+        if not is_success:
             return False, result
         try:
             return True, json.loads(result)
@@ -439,8 +439,8 @@ class ServiceAPI:
         attempt = 0
         while attempt <= MAX_ATTEMPTS:
             attempt += 1
-            success, result = self.network_utils.fetchContent(url, params=params, timeout_ms=TIMEOUT_MS * 2)
-            if success:
+            is_success, result = self.network_utils.fetchContent(url, params=params, timeout_ms=TIMEOUT_MS * 2)
+            if is_success:
                 return True, result
             time.sleep(2)
         return False, "Nieudana próba połączenia"
@@ -475,8 +475,8 @@ class ServiceAPI:
         path = os.path.join(destFolder, file_name)
         self.cleanupFile(path)
 
-        success, result = self.network_utils.downloadFile(url, path, obj=obj)
-        if success:
+        is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
+        if is_success:
             FileUtils.openFile(destFolder)
             return True, True
         self.cleanupFile(path)
@@ -539,10 +539,10 @@ class ServiceAPI:
 
     def checkInternetConnection(self):
         # próba połączenia z serwerem np. gugik
-        success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
-        if not success and self.iface:
+        is_success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
+        if not is_success and self.iface:
             MessageUtils.pushWarning(self.iface, MSG_NO_CONNECTION)
-        return success
+        return is_success
 
 
     def cleanupFile(self, path):

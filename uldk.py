@@ -11,8 +11,8 @@ class RegionFetch:
         unit_dict = {}
         url = f"{LOCAL_API_URL}{endpoint}"
         MessageUtils.pushLogInfo(f"Pobieranie danych z: {url}")
-        success, result = self.network_utils.fetchJson(url, timeout_ms=TIMEOUT_MS)
-        if not success:
+        is_success, result = self.network_utils.fetchJson(url, timeout_ms=TIMEOUT_MS)
+        if not is_success:
             MessageUtils.pushLogWarning(result)
             return unit_dict
         try:

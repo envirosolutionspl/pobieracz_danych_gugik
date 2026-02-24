@@ -36,9 +36,9 @@ class DownloadBdooTask(QgsTask):
     def run(self):
         MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         MessageUtils.pushLogInfo(f'Pobieram {self.url}')
-        success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
+        is_success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.exception = message
-        return success and not self.isCanceled()
+        return is_success and not self.isCanceled()
 
     def finished(self, result):
         if result:
