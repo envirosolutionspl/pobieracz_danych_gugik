@@ -67,6 +67,7 @@ changelog=
   * Poprawa pobierania danych NMT
   * Dodanie filtracji dla pobierania Ortofotomapy WFS
   * Naprawiono bug dotyczący pobierania modeli 3D budynków
+  * Aktywne anulowanie rozpoczętych zadań
 # Wersja 1.2.11
 # * Dostosowanie wtyczki pod QGIS 4
 #  Wersja 1.2.10
