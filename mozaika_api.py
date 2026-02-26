@@ -1,6 +1,6 @@
-from .constants import MOZAIKA_WMS_URL, MOZAIKA_SKOROWIDZE_LAYERS
-from .wms.utils import get_wms_objects
-from . import service_api
+from .constants import MOZAIKA_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS, MOZAIKA_SKOROWIDZE_LAYERS
+from .wms.utils import getWmsObjects
+from .utils import ServiceAPI
 
 def getMozaikaListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania linii mozaikowania na podstawie
@@ -8,23 +8,12 @@ def getMozaikaListbyPoint1992(point):
     x = point.x()
     y = point.y()
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
-        'version': '1.1.1',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS),
-        'styles': '',
-        'srs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (x-50, y-50, x+50, y+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
-
-    resp = service_api.getRequest(params=PARAMS, url=MOZAIKA_WMS_URL)
-    return get_wms_objects(resp)
+        'query_layers': ','.join(MOZAIKA_SKOROWIDZE_LAYERS)
+    })
+    service_api = ServiceAPI()
+    resp = service_api.getRequest(params=params, url=MOZAIKA_WMS_URL)
+    return getWmsObjects(resp)

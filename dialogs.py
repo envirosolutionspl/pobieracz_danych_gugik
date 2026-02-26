@@ -3,12 +3,19 @@
 
 import os
 import warnings
-
+from .utils import VersionUtils
 from qgis.PyQt import QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal, QRegExp
-from qgis._core import Qgis, QgsMapLayerProxyModel
+from qgis.PyQt.QtCore import QT_VERSION_STR, pyqtSignal
 
-from PyQt5.QtGui import QRegExpValidator
+# różne importy w zależności od wersji Qt
+if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+    from qgis.PyQt.QtCore import QRegularExpression
+    from qgis.PyQt.QtGui import QRegularExpressionValidator
+else: 
+    from qgis.PyQt.QtCore import QRegExp
+    from qgis.PyQt.QtGui import QRegExpValidator
+
+from qgis._core import Qgis, QgsMapLayerProxyModel
 from qgis.gui import QgsFileWidget
 
 from .constants import ADMINISTRATIVE_UNITS_OBJECTS, DOUBLE_VALIDATOR_OBJECTS, DATA_TIME_OBJECTS, MAP_LAYER_COMBOBOXES, \
@@ -23,7 +30,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
     @staticmethod
-    def vector_layers_filter():
+    def vectorLayersFilter():
         if Qgis.versionInt() >= 33400:
             return Qgis.LayerFilters(
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
@@ -41,46 +48,49 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setup_dialog()
 
     def setup_dialog(self):
-        self.setup_validators()
-        self.setup_dates()
-        self.setup_vector_layers_filters()
-        self.fill_voivodeships()
-        self.fill_services()
-        self.fill_wfs_services_data()
-        self.fill_years()
-        self.setup_signals()
+        self.setupValidators()
+        self.setupDates()
+        self.setupVectorLayersFilters()
+        self.fillVoivodeships()
+        self.fillServices()
+        self.fillWfsServicesData()
+        self.fillYears()
+        self.setupSignals()
 
-    def setup_signals(self):
+    def setupSignals(self):
         for base_combo, combo_items in ADMINISTRATIVE_UNITS_OBJECTS.items():
             fetch_func, dependent_combo = combo_items
             combo_obj = getattr(self, base_combo)
             combo_obj.currentTextChanged.connect(
-                lambda _, func=fetch_func, combo=dependent_combo: self.setup_administrative_unit_obj(func, combo))
-        self.wfs_service_cmbbx.currentTextChanged.connect(self.wfs_service_cmbbx_currentTextChanged)
+                lambda _, func=fetch_func, combo=dependent_combo: self.setupAdministrativeUnitObj(func, combo))
+        self.wfs_service_cmbbx.currentTextChanged.connect(self.wfsServiceCmbbxCurrentTextChanged)
 
-    def fill_services(self):
+    def fillServices(self):
         self.wfs_service_cmbbx.clear()
         self.wfs_service_cmbbx.addItems(WFS_URL_MAPPING.keys())
 
-    def fill_wfs_services_data(self):
+    def fillWfsServicesData(self):
         aktualna_warstwa = self.wfs_service_cmbbx.currentText()
-        self.wfs_service_cmbbx_currentTextChanged(aktualna_warstwa)
+        self.wfsServiceCmbbxCurrentTextChanged(aktualna_warstwa)
 
-    def setup_validators(self):
-        double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
+    def setupValidators(self):
+        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
+            double_validator = QRegularExpressionValidator(QRegularExpression("[0-9.]*"))
+        else:
+            double_validator = QRegExpValidator(QRegExp("[0-9.]*"))
         for obj in DOUBLE_VALIDATOR_OBJECTS:
             getattr(self, obj).setValidator(double_validator)
 
-    def setup_dates(self):
+    def setupDates(self):
         for obj in DATA_TIME_OBJECTS:
             getattr(self, obj).setAllowNull(False)
 
-    def setup_vector_layers_filters(self):
-        vector_layers_filter = self.vector_layers_filter()
+    def setupVectorLayersFilters(self):
+        vector_layers_filter = self.vectorLayersFilter()
         for obj in MAP_LAYER_COMBOBOXES:
             getattr(self, obj).setFilters(vector_layers_filter)
 
-    def fill_voivodeships(self):
+    def fillVoivodeships(self):
         voivodeships_ids = self.regionFetch.wojewodztwoDict.keys()
         voivodeships_names = self.regionFetch.wojewodztwoDict.values()
         for obj_name in VOIVODESHIP_COMBOBOXES:
@@ -91,11 +101,11 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 obj.setItemData(idx, val)
             obj.setCurrentIndex(-1)
 
-    def fill_years(self):
+    def fillYears(self):
         for obj, years in YEARS_COMBOBOXES.items():
             getattr(self, obj).addItems(years)
 
-    def setup_administrative_unit_obj(self, func, dependent_combo):
+    def setupAdministrativeUnitObj(self, func, dependent_combo):
         combo_obj = getattr(self, dependent_combo)
         unit_data = self.sender().currentData()
         if not unit_data:
@@ -107,7 +117,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             combo_obj.setItemData(idx, val)
         combo_obj.setCurrentIndex(-1)
 
-    def wfs_service_cmbbx_currentTextChanged(self, text):
+    def wfsServiceCmbbxCurrentTextChanged(self, text):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
         self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))

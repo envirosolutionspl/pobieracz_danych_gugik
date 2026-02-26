@@ -1,42 +1,39 @@
-from .constants import ULDK_GMINA_DICT_URL, ULDK_POWIAT_DICT_URL, ULDK_WOJEWODZTWO_DICT_URL
-from .wfs.httpsAdapter import get_legacy_session
+from .utils import MessageUtils, NetworkUtils
+from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT, TIMEOUT_MS
 
 
 class RegionFetch:
     def __init__(self):
-        self.wojewodztwoDict = self.__fetchWojewodztwoDict()
-        self.powiatDict = self.__fetchPowiatDict()
-        self.gminaDict = self.__fetchGminaDict()
-        self.filteredPowiatDict = {}
-        self.filteredGminaDict = {}
+        self.network_utils = NetworkUtils()
+        self.wojewodztwoDict = self.getWojewodztwoDict()
 
-    @staticmethod
-    def fetch_unit_dict(url):
+    def fetchUnitDict(self, endpoint):
         unit_dict = {}
-        with get_legacy_session().get(url=url, verify=False) as resp:
-            resp_text = resp.text.strip().split('\n')
-            if not resp_text:
-                return
-            for el in resp_text[1:]:
-                split = el.split('|')
-                unit_dict[split[1]] = split[0]
+        url = f"{LOCAL_API_URL}{endpoint}"
+        MessageUtils.pushLogInfo(f"Pobieranie danych z: {url}")
+        is_success, result = self.network_utils.fetchJson(url, timeout_ms=TIMEOUT_MS)
+        if not is_success:
+            MessageUtils.pushLogWarning(result)
+            return unit_dict
+        try:
+            for item in result:
+                unit_dict[item['teryt']] = item['name']
+        except KeyError as e:
+            MessageUtils.pushLogWarning(f"Struktura danych jest niepoprawna: {str(e)}")
+        except Exception as e:
+            MessageUtils.pushLogWarning(f"Inny błąd przy pobieraniu: {str(e)}")
         return unit_dict
 
-    def __fetchGminaDict(self):
-        return self.fetch_unit_dict(ULDK_GMINA_DICT_URL)
+    def getWojewodztwoDict(self):
+        return self.fetchUnitDict(GET_VOIVODESHIP_ENDPOINT)
 
-    def __fetchPowiatDict(self):
-        return self.fetch_unit_dict(ULDK_POWIAT_DICT_URL)
+    def getPowiatByTeryt(self, teryt):
+        if not teryt:
+            return {}
+        return self.fetchUnitDict(GET_COUNTY_ENDPOINT.format(teryt=teryt))
 
-    def __fetchWojewodztwoDict(self):
-        return self.fetch_unit_dict(ULDK_WOJEWODZTWO_DICT_URL)
+    def getGminaByTeryt(self, teryt):
+        if not teryt:
+            return {}
+        return self.fetchUnitDict(GET_COMMUNE_ENDPOINT.format(teryt=teryt))
 
-    def get_powiat_by_teryt(self, teryt):
-        return {key: val for key, val in self.powiatDict.items() if key.startswith(teryt)}
-
-    def get_gmina_by_teryt(self, teryt):
-        return {key: val for key, val in self.gminaDict.items() if key.startswith(teryt)}
-
-
-if __name__ == '__main__':
-    regionFetch = RegionFetch()

@@ -24,10 +24,281 @@ PRNG_WMS_URL = 'https://opendata.geoportal.gov.pl/prng/PRNG_'
 TREES3D_URL = 'https://opendata.geoportal.gov.pl/InneDane/Drzewa3D/LOD1/2023/'
 WIZUALIZACJA_KARTO_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/BDOT/WMS/PobieranieArkuszeMapBDOT10k?'
 ZDJECIA_LOTNICZE_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ZDJ/WMS/Zasiegi_zdj_lot?'
+MESH3D_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/ModeleSiatkowe3D?'
 
-ULDK_GMINA_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=gmina&wynik=gmina,teryt'
-ULDK_POWIAT_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=powiat&wynik=powiat,teryt'
-ULDK_WOJEWODZTWO_DICT_URL = 'https://uldk.gugik.gov.pl/service.php?obiekt=wojewodztwo&wynik=wojewodztwo,teryt'
+# url do sprawdzania połączenia z internetem
+ULDK_URL = 'https://uldk.gugik.gov.pl/'
+
+# kod układu współrzędnych
+CRS= "2180"
+
+# slowniki dla nagłówków 
+HEADERS_MAPPING = {
+    'AERIAL_TRIANGULATION_HEADERS': {
+        'Nazwa pliku': 'url',
+        'Identyfikator aerotriangulacji': 'id',
+        'Numer zgłoszenia': 'zgloszenie',
+        'Rok': 'rok'
+    }, 
+    'CONTROL_POINT_RECORDS_HEADERS': {
+        'nazwa_pliku': 'url',
+        'rodzaj_katalogu': 'rodzaj_katalogu',
+        'Godło': 'godlo',
+    },
+    'LAS_HEADERS': {
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'format': 'format',
+        'aktualnosc': 'aktulnosc',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'MESH3D_HEADERS': {
+        'nazwa_pliku': 'url',
+        'modul': 'modul',
+        'aktualnosc': 'aktualnosc',
+        'format': 'format',
+        'blad_sredni_wysokosci': 'bladSredniWysokosci',
+        'blad_sredni_polozenia': 'bladSredniPolozenia',
+        'uklad_wspolrzednych_poziomych': 'ukladWspolrzednychPoziomych',
+        'uklad_wspolrzednych_pionowych': 'ukladWspolrzednychPionowych',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych', 
+    },
+    'MOZAIKA_HEADERS': {
+        'Nazwa pliku': 'url',
+        'Identyfikator Linii Mozaikowania': 'id',
+        'Numer zgłoszenia': 'zgloszenie',
+        'Rok': 'rok',
+    },
+    'NMPT_HEADERS': {
+        'nazwa_pliku': 'url',
+        'format': 'format',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych',
+        'data_dodania_do_PZGIK': 'dt_pzgik'
+    },
+    'NMT_HEADERS': {
+        'nazwa_pliku': 'url',
+        'format': 'format',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'dokladnosc_pozioma': 'charakterystykaPrzestrzenna',
+        'dokladnosc_pionowa': 'bladSredniWysokosci',
+        'uklad_wspolrzednych_plaskich': 'ukladWspolrzednych',
+        'uklad_wspolrzednych_wysokosciowych': 'ukladWysokosci',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok',
+        'zrodlo_danych': 'zrDanych'
+    },
+    'ORTHOPHOTO_HEADERS': {
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'wielkosc_piksela': 'wielkoscPiksela',
+        'uklad_wspolrzednych': 'ukladWspolrzednych',
+        'caly_arkusz_wypelniony_trescia': 'calyArkuszWyeplnionyTrescia',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'zrodlo_danych': 'zrodloDanych',
+        'kolor': 'kolor',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'REFLECTANCE_HEADERS':{
+        'nazwa_pliku': 'url',
+        'godlo': 'godlo',
+        'aktualnosc': 'aktualnosc',
+        'wielkosc_piksela': 'wielkoscPiksela',
+        'uklad_wspolrzednych': 'ukladWspolrzednych',
+        'modul_archiwizacji': 'modulArchiwizacji',
+        'zrodlo_danych': 'zrodloDanych',
+        'metoda_zapisu': 'metodaZapisu',
+        'zakres_intensywnosci': 'zakresIntensywnosci',
+        'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
+        'aktualnosc_rok': 'aktualnoscRok'
+    },
+    'AERIAL_PHOTOS': {
+        'nazwa_pliku': 'url',
+        'numer_szeregu': 'nrSzeregu',
+        'numer_zdjęcia': 'nrZdjecia',
+        'rok_wykonania': 'rokWykonania',
+        'data_nalotu': 'dataNalotu',
+        'charakterystyka_przestrzenna': 'charakterystykaPrzestrzenna',
+        'kolor': 'kolor',
+        'źrodło_danych': 'zrodloDanych',
+        'numer_zgłoszenia': 'nrZgloszenia',
+        'karta_pracy': 'kartaPracy',
+    }
+}
+
+# tamplate do pobierania danych GML
+GML_URL_TEMPLATES = {
+    'ewns': "{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)",
+    'ms':   "{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)",
+    'default': "{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}"
+}
+
+# wersja Qt6
+QT_VER = {
+    6: "6."
+}
+
+
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+
+# WFS 
+# nazwy atrybutów
+WFS_ATTRIBUTES = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL': 'piksel',
+}
+# nazwy filtrów
+WFS_FILTER_KEYS = {
+    'COLOR': 'kolor',
+    'SOURCE': 'zrodlo_danych',
+    'CRS': 'uklad_xy',
+    'PIXEL_FROM': 'piksel_od',
+    'PIXEL_TO': 'piksel_do',
+}
+# wartość filtra wszystkie
+VALUE_ALL = 'wszystkie'
+
+# katalogi osnow
+KATALOGI_OSNOW = {
+    'Kronsztadt60': 'Katalogi_Kronsztadt60',
+    'Kartoteki1942': 'Katalogi_Kartoteki1942'
+}
+
+# endpointy do lokalnego api
+LOCAL_API_URL = "https://rest.envirosolutions.pl/dzialki"
+GET_VOIVODESHIP_ENDPOINT = "/getVoivodeship"
+GET_COUNTY_ENDPOINT = "/getCounty/{teryt}"
+GET_COMMUNE_ENDPOINT = "/getCommune/{teryt}"
+
+DEFAULT_ENCODING = 'utf-8'
+
+# =============================
+# Parametry do klasy NetworkUtils
+TIMEOUT_MS = 5000
+MAX_ATTEMPTS = 3
+CANCEL_CHECK_MS = 500
+HTTP_ERROR_THRESHOLD = 400
+
+# Nazwy atrybutów
+NETWORK_ATTRS = {
+    'HTTP_STATUS': 'HttpStatusCodeAttribute',
+    'HTTP_REASON': 'HttpReasonPhraseAttribute',
+    'REDIRECT': 'RedirectPolicyAttribute',
+    'TIMEOUT': 'TimeoutAttribute'
+}
+
+# RedirectPolicy
+REDIRECT_POLICY_NAME = 'RedirectPolicy'
+REDIRECT_POLICY_NO_LESS_SAFE = 'NoLessSafeRedirectPolicy'
+DEFAULT_REDIRECT_POLICY = 1
+
+# Wartości błędów i statusów
+ERR_TIMEOUT = 'TimeoutError'
+ERR_NONE = 'NoError'
+ERR_CANCELED = 'OperationCanceledError'
+STATUS_SUCCESS = 'brak_bledow'
+STATUS_CANCELED = 'anulowano'
+
+# Komunikaty sieciowe
+MSG_DOWNLOAD_CANCELED = "Pobieranie zostało anulowane."
+MSG_NETWORK_ERROR = "Błąd sieciowy ({}) dla: {}"
+MSG_HTTP_ERROR = "Błąd HTTP {}: {}"
+MSG_EMPTY_CONTENT = "Serwer zwrócił pustą zawartość dla: {}"
+MSG_TIMEOUT = "Przekroczono czas oczekiwania dla: {}"
+MSG_FILE_WRITE_ERROR = "Błąd zapisu do pliku: {}"
+MSG_JSON_DECODE_ERROR = "Błąd JSON: {}"
+MSG_NO_CONNECTION = "Brak połączenia z internetem."
+# =============================
+
+# minimalny rozmiar pliku do pobrania danych (~9KB)
+MIN_FILE_SIZE = 9000
+
+# nazwa pliku z danymi z WFS
+CAPABILITIES_FILE_NAME = 'egib_wfs.xml'
+
+# lista namespace'ów dla usług WFS
+WFS_NAMESPACES = {
+    'ows': "http://www.opengis.net/ows/1.1",
+    'fes': "http://www.opengis.net/fes/2.0",
+    'gugik': "http://www.gugik.gov.pl",
+    'gml': "http://www.opengis.net/gml/3.2",
+    'wfs': "http://www.opengis.net/wfs/2.0",
+    'xlink': "http://www.w3.org/1999/xlink",
+    'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+    'xmlns': "http://www.opengis.net/wfs/2.0"
+}
+
+
+# lista namespace'ów dla usług WMS
+WMS_NAMESPACES = {
+    'sld': "http://www.opengis.net/sld",
+    'ms': "http://mapserver.gis.umn.edu/mapserver",
+    'xlink': "http://www.w3.org/1999/xlink",
+    'xsi': "http://www.w3.org/2001/XMLSchema-instance",
+    'xmlns': "http://www.opengis.net/wms"
+}
+CRS = "2180"
+
+# parametry do wms
+WMS_GET_FEATURE_INFO_PARAMS = {
+    'SERVICE': 'WMS',
+    'request': 'GetFeatureInfo',
+    'version': '1.3.0',
+    'styles': '',
+    'crs': 'EPSG:' + CRS,
+    'width': '101',
+    'height': '101',
+    'format': 'image/png',
+    'transparent': 'true',
+    'i': '50',
+    'j': '50',
+    'INFO_FORMAT': 'text/html'
+}
+
+# warstwy dla mesh3D
+MESH3D_SKOROWIDZE_LAYERS = [
+    'SkorowidzeModeleSiatkowe3D'
+]
 
 PRG_URL = 'https://integracja.gugik.gov.pl/PRG/pobierz.php?'
 
@@ -38,8 +309,6 @@ OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
 
 DOUBLE_VALIDATOR_OBJECTS = [
-    'orto_pixelFrom_lineEdit',
-    'orto_pixelTo_lineEdit',
     'nmt_pixelFrom_lineEdit',
     'nmt_pixelTo_lineEdit',
     'nmt_mhFrom_lineEdit',
@@ -109,29 +378,44 @@ ODBICIOWOWSC_SKOROWIDZE_LAYERS = [
     'SkorowidzeOIZasieg'
 ]
 
-WIZUALIZACJA_KARTO_10K_SKOROWIDZE_LAYERS = [
-    'Mapy10k'
-]
-
-WIZUALIZACJA_KARTO_25K_SKOROWIDZE_LAYERS = [
-    'Mapy25k'
-]
+WIZUALIZACJA_KARTO_CONFIG = {
+    '10': {
+        'layers': ['Mapy10k'],
+        'label': '1:10000',
+        'btn_name': 'wizualizacja_karto_10_rdbtn'
+    },
+    '25': {
+        'layers': ['Mapy25k'],
+        'label': '1:25000',
+        'btn_name': 'wizualizacja_karto_25_rdbtn'
+    },
+    '50': {
+        'layers': ['Mapy50k'],
+        'label': '1:50000',
+        'btn_name': 'wizualizacja_karto_50_rdbtn'
+    },
+    '100': {
+        'layers': ['Mapy100k'],
+        'label': '1:100000',
+        'btn_name': 'wizualizacja_karto_100_rdbtn'
+    }
+}
 
 ADMINISTRATIVE_UNITS_OBJECTS = {
-    'wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'powiat_cmbbx'),
-    'prg_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'prg_powiat_cmbbx'),
-    'prg_powiat_cmbbx': ('get_gmina_by_teryt', 'prg_gmina_cmbbx'),
-    'model3d_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'model3d_powiat_cmbbx'),
-    'drzewa3d_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'drzewa3d_powiat_cmbbx'),
-    'wfs_egib_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'wfs_egib_powiat_cmbbx'),
-    'egib_excel_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'egib_excel_powiat_cmbbx'),
-    'osnowa_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'osnowa_powiat_cmbbx'),
-    'archiwalne_wojewodztwo_cmbbx': ('get_powiat_by_teryt', 'archiwalne_powiat_cmbbx'),
+    'wojewodztwo_cmbbx': ('getPowiatByTeryt', 'powiat_cmbbx'),
+    'prg_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'prg_powiat_cmbbx'),
+    'prg_powiat_cmbbx': ('getGminaByTeryt', 'prg_gmina_cmbbx'),
+    'model3d_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'model3d_powiat_cmbbx'),
+    'drzewa3d_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'drzewa3d_powiat_cmbbx'),
+    'wfs_egib_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'wfs_egib_powiat_cmbbx'),
+    'egib_excel_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'egib_excel_powiat_cmbbx'),
+    'osnowa_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'osnowa_powiat_cmbbx'),
+    'archiwalne_wojewodztwo_cmbbx': ('getPowiatByTeryt', 'archiwalne_powiat_cmbbx'),
 }
 
 YEARS_COMBOBOXES = {
     'bdoo_dateEdit_comboBox': ['2022', '2021', '2015'],
-    'egib_excel_dateEdit_comboBox': ['2022', '2021', '2020'],
+    'egib_excel_dateEdit_comboBox': ['2025', '2024', '2023', '2022', '2021', '2020'],
     'archiwalne_bdot_dateEdit_comboBox': ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021']
 }
 

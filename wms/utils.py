@@ -1,43 +1,45 @@
 import re
-
-import requests
 import xml.etree.ElementTree as ET
 
-from ..utils import remove_duplicates_from_list_of_dicts
-from ..wfs.httpsAdapter import get_legacy_session
+from ..constants import TIMEOUT_MS, WMS_NAMESPACES
+from ..utils import FilterUtils, NetworkUtils
 
 expr = re.compile(r"\{{1}.*\}{1}")
 
 def getQueryableLayersFromWMS(wmsUrl):
     """Lista dostępnych warstw z usługi WMS"""
-    ns = {'sld': "http://www.opengis.net/sld",
-          'ms': "http://mapserver.gis.umn.edu/mapserver",
-          'xlink': "http://www.w3.org/1999/xlink",
-          'xsi': "http://www.w3.org/2001/XMLSchema-instance",
-          'xmlns': "http://www.opengis.net/wms"
-          }
+
     PARAMS = {
         'SERVICE': 'WMS',
         'request': 'GetCapabilities',
     }
+    network_utils = NetworkUtils()
+    is_success, result = network_utils.fetchContent(wmsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+
+    if not is_success:
+        return False, result
+
+    content = result
+    queryableLayers = []
+
     try:
-        with get_legacy_session().get(url=wmsUrl, params=PARAMS, verify=False) as resp:
-            r_txt = resp.text
-            if resp.status_code == 200:
-                queryableLayers = []
-                root = ET.fromstring(r_txt)
-                for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', ns):
-                    nameET = layerET.find('./xmlns:Name', ns)
-                    if nameET is not None:
-                        queryableLayers.append(nameET.text)
-                return True, queryableLayers
-            else:
-                return False, f'Błąd {resp.status_code}'
-    except requests.exceptions.ConnectionError:
-        return False, "Błąd połączenia"
+        root = ET.fromstring(content)
+        for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', WMS_NAMESPACES):
+            nameET = layerET.find('./xmlns:Name', WMS_NAMESPACES)
+            if nameET is not None:
+                queryableLayers.append(nameET.text)
+                
+        queryableLayers = FilterUtils.removeDuplicatesFromListOfDicts(queryableLayers)
+        
+        return True, queryableLayers
+        
+    except ET.ParseError:
+        return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
+    except Exception as e:
+        return False, f"Błąd pobierania warstw WMS: {str(e)}"
 
 
-def get_wms_objects(request_response):
+def getWmsObjects(request_response):
     if not request_response[0]:
         return None
     req_elements = expr.findall(request_response[1])
@@ -53,7 +55,7 @@ def get_wms_objects(request_response):
                 val = ":".join(item[1:]).strip('"')
             attributes[key] = val
         req_list.append(attributes)
-    return remove_duplicates_from_list_of_dicts(req_list)
+    return FilterUtils.removeDuplicatesFromListOfDicts(req_list)
 
 
 

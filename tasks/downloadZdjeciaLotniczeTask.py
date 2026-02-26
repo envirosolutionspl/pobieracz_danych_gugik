@@ -1,8 +1,7 @@
-import os, datetime
-from qgis.core import (
-    QgsApplication, QgsTask, QgsMessageLog, Qgis
-)
-from .. import service_api, utils
+import os
+from qgis.core import QgsTask
+from ..utils import MessageUtils, FileUtils, ServiceAPI
+from ..constants import HEADERS_MAPPING
 
 
 class DownloadZdjeciaLotniczeTask(QgsTask):
@@ -17,6 +16,7 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         self.iterations = 0
         self.exception = None
         self.iface = iface
+        self.service_api = ServiceAPI()
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -26,21 +26,21 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         Raising exceptions will crash QGIS, so we handle them
         internally and raise them in self.finished
         """
-        QgsMessageLog.logMessage(f'Started task "{self.description()}"')
+        MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
         total = len(self.zdjeciaLotniczeList)
         results = []
         for zdj in self.zdjeciaLotniczeList:
             zdj_url = zdj.get('url')
             if self.isCanceled():
-                QgsMessageLog.logMessage('isCanceled')
+                MessageUtils.pushLogWarning(f'Przerwano zadanie: "{self.description()}"')
                 return False
-            QgsMessageLog.logMessage(f'start {zdj_url}')
-            res, self.exception = service_api.retreiveFile(url=zdj_url, destFolder=self.folder, obj=self)
+            MessageUtils.pushLogInfo(f'Rozpoczęto pobieranie danych z linku: {zdj_url}')
+            res, self.exception = self.service_api.retreiveFile(url=zdj_url, destFolder=self.folder, obj=self)
             self.setProgress(self.progress() + 100 / total)
             results.append(res)
         if not any(results):
             return False
-        self.create_report()
+        self._createReport()
         return True
 
     def finished(self, result):
@@ -54,40 +54,20 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
         result is the return value from self.run.
         """
         if result and self.exception:
-            QgsMessageLog.logMessage('sukces')
-            self.iface.messageBar().pushMessage(
-                'Sukces',
-                'Udało się! Dane zdjęć lotniczych zostały pobrane.',
-                level=Qgis.Success,
-                duration=0
-            )
+            MessageUtils.pushLogInfo('Pobrano dane zdjęć lotniczych')
+            MessageUtils.pushSuccess(self.iface, 'Udało się! Dane zdjęć lotniczych zostały pobrane.')
         else:
             if self.exception is None:
-                QgsMessageLog.logMessage('finished with false')
+                MessageUtils.pushLogWarning('Nie udało się pobrać danych zdjęć lotniczych')
             elif isinstance(self.exception, BaseException):
-                QgsMessageLog.logMessage("exception")
-            self.iface.messageBar().pushWarning(
-                'Błąd',
-                'Dane zdjęć lotniczych nie zostały pobrane.'
-            )
+                MessageUtils.pushLogWarning("Nie udało się pobrać danych zdjęć lotniczych. Wystąpił błąd: " + str(self.exception))
+            MessageUtils.pushWarning(self.iface, 'Dane zdjęć lotniczych nie zostały pobrane.')
 
     def cancel(self):
-        QgsMessageLog.logMessage('cancel')
+        MessageUtils.pushLogWarning('Anulowano pobieranie danych zdjęć lotniczych')
         super().cancel()
 
-    def create_report(self):
+    def _createReport(self):
         zdjeciaLotniczeList_all = self.zdjeciaLotniczeList + self.zdjeciaLotniczeList_brak_url
-        headers_mapping = {
-            'nazwa_pliku': 'url',
-            'numer_szeregu': 'nrSzeregu',
-            'numer_zdjęcia': 'nrZdjecia',
-            'rok_wykonania': 'rokWykonania',
-            'data_nalotu': 'dataNalotu',
-            'charakterystyka_przestrzenna': 'charakterystykaPrzestrzenna',
-            'kolor': 'kolor',
-            'źrodło_danych': 'zrodloDanych',
-            'numer_zgłoszenia': 'nrZgloszenia',
-            'karta_pracy': 'kartaPracy',
-        }
         obj_list = [{**obj, 'url': obj.get('url', '').split('/')[-1]} for obj in zdjeciaLotniczeList_all]
-        utils.create_report(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze'), headers_mapping, obj_list)
+        FileUtils.createReport(os.path.join(self.folder, 'pobieracz_zdjecia_lotnicze'), HEADERS_MAPPING['AERIAL_PHOTOS'], obj_list)

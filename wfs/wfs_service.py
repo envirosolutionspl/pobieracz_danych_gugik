@@ -1,6 +1,6 @@
 import processing
 
-from ..constants import WFS_URL_MAPPING, POZIOMY_UPROSZCZENIA
+from ..constants import WFS_URL_MAPPING, POZIOMY_UPROSZCZENIA, CRS
 
 try:
     from .utils import getTypenamesFromWFS
@@ -9,6 +9,7 @@ except ImportError:
     from wfs.utils import getTypenamesFromWFS
     from wfs.utils import roundCoordinatesOfWkt
 from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsGeometry, QgsRectangle, QgsWkbTypes
+from ..utils import MessageUtils
 
 
 class WfsFetch:
@@ -28,7 +29,7 @@ class WfsFetch:
             self.cachedTypenamesDict[serviceName] = resp[1]
         else:
             self.errors.append(resp[1])
-            print('błąd pobierania warstw usługi WFS %s: %s' % (serviceName, resp[1]))
+            MessageUtils.pushLogWarning('Błąd pobierania warstw usługi WFS %s: %s' % (serviceName, resp[1]))
 
     def getTypenamesByServiceName(self, serviceName):
         if serviceName not in WFS_URL_MAPPING:
@@ -105,7 +106,7 @@ class WfsFetch:
         dsu.setParam('url', wfsUrl)
         dsu.setParam('version', '2.0.0')
         dsu.setParam('typename', wfsTypename)
-        dsu.setParam('srsname', 'EPSG:2180')
+        dsu.setParam('srsname', 'EPSG:' + CRS)
 
         layers = []
         # Wykonanie zapytania dla każdej części geometrii
@@ -126,21 +127,14 @@ class WfsFetch:
                 "native:mergevectorlayers",
                 {
                     'LAYERS': layers, 
-                    'CRS': 'EPSG:2180', 
+                    'CRS': 'EPSG:' + CRS, 
                     'OUTPUT': 'TEMPORARY_OUTPUT'
                 }
             )['OUTPUT']
         else:
             merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
 
-        # Usunięcie zduplikowanych geometrii z połączonej warstwy
-        processedLayer = processing.run(
-            "native:deleteduplicategeometries", {
-                'INPUT': merged_layer,
-                'OUTPUT': 'TEMPORARY_OUTPUT'
-            }
-        )['OUTPUT']
-        return processedLayer
+        return merged_layer
 
 
 

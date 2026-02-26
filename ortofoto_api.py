@@ -1,32 +1,22 @@
-from .constants import ORTOFOTOMAPA_WMS_URL
-from .wms.utils import get_wms_objects
-from . import service_api
+from .constants import ORTOFOTOMAPA_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS
+from .wms.utils import getWmsObjects
+from .utils import ServiceAPI
 
 def getOrtoListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania ortofotomap na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-
+    service_api = ServiceAPI()
     layers = service_api.getAllLayers(url=ORTOFOTOMAPA_WMS_URL, service='WMS')
 
-    PARAMS = {
-        'SERVICE': 'WMS',
-        'request': 'GetFeatureInfo',
+    params = WMS_GET_FEATURE_INFO_PARAMS.copy()
+    params.update({
         'version': '1.3.0',
         'layers': ','.join(layers),
-        'styles': '',
-        'crs': 'EPSG:2180',
         'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
-        'width': '101',
-        'height': '101',
-        'format': 'image/png',
-        'transparent': 'true',
-        'query_layers': ','.join(layers),
-        'i': '50',
-        'j': '50',
-        'INFO_FORMAT': 'text/html'
-    }
+        'query_layers': ','.join(layers)
+    })
 
-    resp = service_api.getRequest(params=PARAMS, url=ORTOFOTOMAPA_WMS_URL)
-    return get_wms_objects(resp)
+    resp = service_api.getRequest(params=params, url=ORTOFOTOMAPA_WMS_URL)
+    return getWmsObjects(resp)
