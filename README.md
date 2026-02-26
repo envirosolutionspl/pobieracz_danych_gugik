@@ -140,3 +140,6 @@ The download process can be stopped. To do this, click on the blue bar at the bo
 * A necessary condition for the proper functioning of the plugin is having QGIS version 3.22 or higher. 
 * On non-standard versions of QGIS (e.g., Flatpak, Snap), there may be errors importing libraries. If this situation occurs, according to the software manufacturer's instructions, the necessary libraries should be installed.
 
+## Example usage
+![Przykład użycia](img/przyklad_uzycia.gif)
+
