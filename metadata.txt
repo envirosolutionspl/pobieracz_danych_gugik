@@ -8,7 +8,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
 supportsQt6=true
-version=1.3.0
+version=1.3.1
 
 author=EnviroSolutions Sp. z o.o.
 email=office@envirosolutions.pl
