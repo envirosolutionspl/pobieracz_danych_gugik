@@ -72,6 +72,10 @@ Wtyczka QGIS do pobierania danych przestrzennych z zasobów GUGiK. Od wersji 0.2
 ## Przykład użycia
 ![Przykład użycia](img/przyklad_uzycia.gif)
 
+## Kontakt
+
+Wtyczka została stworzona przez ****EnviroSolutions**. W razie pytań lub potrzeby wsparcia skontaktuj się z nami przez e-mail:** **[gis@envirosolutions.pl](mailto:gis@envirosolutions.pl)**.
+
 
 ## EN
 A QGIS plugin for downloading spatial data from GUGiK resources. From version 0.2, the plugin additionally generates a TXT report with additional information about the downloaded files.
@@ -143,3 +147,6 @@ The download process can be stopped. To do this, click on the blue bar at the bo
 ## Example usage
 ![Przykład użycia](img/przyklad_uzycia.gif)
 
+## Contact
+
+The plugin was developed by ****EnviroSolutions**. For questions or support, contact us at:** **[gis@envirosolutions.pl](mailto:gis@envirosolutions.pl)**.
