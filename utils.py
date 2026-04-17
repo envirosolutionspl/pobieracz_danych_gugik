@@ -17,7 +17,11 @@ from qgis.core import (
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
-from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager 
+from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager
+import requests
+import ssl
+import urllib3
+from urllib3.util import create_urllib3_context
 from .constants import (
     TIMEOUT_MS,
     MAX_ATTEMPTS,
@@ -40,10 +44,22 @@ from .constants import (
     MSG_HTTP_ERROR, 
     MSG_TIMEOUT, 
     MSG_NETWORK_ERROR,
-    MSG_NO_CONNECTION
+    MSG_NO_CONNECTION,
+    USER_AGENT_HEADER,
+    CONNECTION_HEADER
 )
 from functools import partial
 import lxml.etree as ET
+
+class LegacySslAdapter(requests.adapters.HTTPAdapter):
+    """Adapter dopuszczający stare połączenia SSL"""
+    def init_poolmanager(self, *args, **kwargs):
+        ctx = create_urllib3_context()
+        ctx.options |= 0x4  # ssl.OP_LEGACY_SERVER_CONNECT
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        kwargs['ssl_context'] = ctx
+        return super().init_poolmanager(*args, **kwargs)
 
 class LayersUtils:
     
@@ -282,6 +298,9 @@ class NetworkUtils:
     def __init__(self):
         self.manager = QNetworkAccessManager()
         self.manager.setProxy(QgsNetworkAccessManager.instance().proxy())
+        
+        # Wyciszenie ostrzeżeń o braku weryfikacji SSL (InsecureRequestWarning)
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def _handleReplyError(self, reply, url_str):
         """Centralna obsługa błędów sieciowych i HTTP"""
@@ -354,8 +373,9 @@ class NetworkUtils:
         error_code = blocking_request.get(request)
         reply_content = blocking_request.reply()
         
+        # Fallback: każda nieudana próba Qt skutkuje próbą przez requests
         if error_code != QgsBlockingNetworkRequest.NoError:
-            return self._handleReplyError(reply_content, url)
+            return self._fetchContentWithRequests(url, params, timeout_ms)
 
         raw_data = reply_content.content()
         if len(raw_data) == 0:
@@ -398,8 +418,14 @@ class NetworkUtils:
         except IOError as e:
             return False, MSG_FILE_WRITE_ERROR.format(str(e))
             
-        return self._finilizeDownload(reply, url)
-    
+        status, message = self._finilizeDownload(reply, url)
+        
+        # Fallback: każda nieudana próba Qt skutkuje próbą przez requests
+        if not status:
+            return self._downloadFileWithRequests(url, dest_path, obj, timeout_ms)
+            
+        return status, message
+
     def _handleReadyRead(self, reply, file):
         if reply.bytesAvailable() > 0:
             file.write(reply.readAll().data())
@@ -427,6 +453,90 @@ class NetworkUtils:
         reply.deleteLater()
         return True, True
 
+    # Fallback do requests
+
+    def _getSessionWithLegacySsl(self):
+        """Tworzy sesję requests dopuszczającą stare połączenia SSL (legacy renegotiation)"""
+        session = requests.Session()
+        session.mount("https://", LegacySslAdapter())
+
+        session.headers.update({
+            "User-Agent": USER_AGENT_HEADER,
+            "Connection": CONNECTION_HEADER,
+        })
+
+        # Przekazanie proxy z QGIS
+        proxy = self.manager.proxy()
+        if proxy.hostName():
+            proxy_url = f"http://{proxy.user()}:{proxy.password()}@{proxy.hostName()}:{proxy.port()}" if proxy.user() else f"http://{proxy.hostName()}:{proxy.port()}"
+            session.proxies = {"http": proxy_url, "https": proxy_url}
+            
+        return session
+
+
+    def _downloadFileWithRequests(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
+        try:
+            response = self._requestsGet(url, timeout_ms=timeout_ms, stream=True)
+
+            response.raise_for_status()
+
+            with open(dest_path, 'wb') as f:
+                for chunk in response.iter_content(8192):
+
+                    if obj and obj.isCanceled():
+                        return False, MSG_DOWNLOAD_CANCELED
+
+                    if chunk:
+                        f.write(chunk)
+
+            return True, True
+
+        except Exception as e:
+            return self._handleRequestsError(e)   
+
+    def _fetchContentWithRequests(self, url, params=None, timeout_ms=TIMEOUT_MS):
+        try:
+            response = self._requestsGet(url, params=params, timeout_ms=timeout_ms)
+
+            response.raise_for_status()
+            return True, response.text
+
+        except Exception as e:
+            return self._handleRequestsError(e)
+
+    def _requestsGet(self, url, params=None, timeout_ms=TIMEOUT_MS, stream=False):
+        timeout_s = timeout_ms / 1000.0
+        session = self._getSessionWithLegacySsl()
+
+        response = session.get(
+            url,
+            params=params,
+            timeout=timeout_s,
+            stream=stream,
+            verify=False
+        )
+
+        return response
+    
+    def _handleRequestsError(self, e):
+
+        if isinstance(e, requests.exceptions.Timeout):
+            return False, "Timeout (requests)"
+
+        if isinstance(e, requests.exceptions.SSLError):
+            return False, f"Błąd SSL: {str(e)}"
+
+        if isinstance(e, requests.exceptions.ConnectionError):
+            return False, f"Błąd połączenia: {str(e)}"
+
+        if isinstance(e, requests.exceptions.ChunkedEncodingError):
+            return False, f"Przerwane pobieranie: {str(e)}"
+
+        if isinstance(e, OSError):
+            return False, f"Błąd systemu plików: {str(e)}"
+
+        return False, f"Nieoczekiwany błąd requests: {str(e)}"
+        
 class ServiceAPI:
     def __init__(self, parent=None):
         if parent:

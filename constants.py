@@ -32,6 +32,11 @@ ULDK_URL = 'https://uldk.gugik.gov.pl/'
 # kod układu współrzędnych
 CRS= "2180"
 
+# Nagłówek w requests
+USER_AGENT_HEADER = "Pobieracz-QGIS-Client/1.0"
+CONNECTION_HEADER = "close"
+
+
 # slowniki dla nagłówków 
 HEADERS_MAPPING = {
     'AERIAL_TRIANGULATION_HEADERS': {
