@@ -290,8 +290,8 @@ class FallbackHttpAdapter(BaseHttpAdapter):
     Klasa, która najpierw spróbuje QgisHttpAdapter, a jeśli się nie uda, to RequestsHttpAdapter
     '''
     def __init__(self, qgis_adapter=None, requests_adapter=None):
-        self.qgis_adapter = qgis_adapter or QgisHttpAdapter()
-        self.requests_adapter = requests_adapter or RequestsHttpAdapter()
+        self.qgis_adapter = QgisHttpAdapter()
+        self.requests_adapter = RequestsHttpAdapter()
         self.error_markers = ERROR_MARKERS
         self.transport_markers = TRANSPORT_MARKERS
     def _isFallbackNeeded(self, error_message):
