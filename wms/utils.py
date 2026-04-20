@@ -2,7 +2,8 @@ import re
 import xml.etree.ElementTree as ET
 
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
-from ..utils import FilterUtils, NetworkUtils
+from ..utils import FilterUtils
+from ..network.http_adapter import FallbackHttpAdapter
 
 expr = re.compile(r"\{{1}.*\}{1}")
 
@@ -13,8 +14,8 @@ def getQueryableLayersFromWMS(wmsUrl):
         'SERVICE': 'WMS',
         'request': 'GetCapabilities',
     }
-    network_utils = NetworkUtils()
-    is_success, result = network_utils.fetchContent(wmsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+    http_adapter = FallbackHttpAdapter()
+    is_success, result = http_adapter.fetchContent(wmsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
 
     if not is_success:
         return False, result

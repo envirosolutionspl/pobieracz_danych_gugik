@@ -3,7 +3,8 @@ from qgis.core import (
 )
 
 from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING, TIMEOUT_MS
-from ..utils import MessageUtils, NetworkUtils, ServiceAPI
+from ..utils import MessageUtils, ServiceAPI
+from ..network.http_adapter import FallbackHttpAdapter
 
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
@@ -19,7 +20,7 @@ class DownloadEgibExcelTask(QgsTask):
         self.teryt_wojewodztwo = teryt_wojewodztwo
         self.iface = iface
         self.service_api = ServiceAPI()
-        self.network_utils = NetworkUtils()
+        self.http_adapter = FallbackHttpAdapter()
 
     def run(self):
         list_url = []
@@ -46,7 +47,7 @@ class DownloadEgibExcelTask(QgsTask):
         for url in list_url:
             if self.isCanceled():
                 return False
-            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS)
+            success_check, result_check = self.http_adapter.fetchContent(url, timeout_ms=TIMEOUT_MS)
             if not success_check:
                 MessageUtils.pushLogWarning(f"Błąd sprawdzania dostępności {url}: {result_check}. Pomijam.")
                 continue

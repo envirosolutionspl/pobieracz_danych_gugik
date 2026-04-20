@@ -4,7 +4,8 @@ from qgis.PyQt.QtCore import pyqtSignal
 from qgis.utils import iface
 
 from ..constants import TREES3D_URL, TIMEOUT_MS
-from ..utils import MessageUtils, NetworkUtils, ServiceAPI
+from ..utils import MessageUtils, ServiceAPI
+from ..network.http_adapter import FallbackHttpAdapter
 
 class DownloadTrees3dTask(QgsTask):
     """QgsTask pobierania modeli 3D drzew"""
@@ -17,7 +18,7 @@ class DownloadTrees3dTask(QgsTask):
         self.result = None
         self.iface = iface
         self.service_api = ServiceAPI()
-        self.network_utils = NetworkUtils()
+        self.http_adapter = FallbackHttpAdapter()
 
     def run(self):
         trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
@@ -26,7 +27,7 @@ class DownloadTrees3dTask(QgsTask):
         if self.isCanceled():
             return False
 
-        success_check, result_check = self.network_utils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS*3)
+        success_check, result_check = self.http_adapter.fetchContent(trees_url, timeout_ms=TIMEOUT_MS*3)
 
         if not success_check:
             MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {trees_url}: {result_check}')

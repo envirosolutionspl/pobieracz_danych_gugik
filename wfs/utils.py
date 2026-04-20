@@ -1,7 +1,8 @@
 import re
 import xml.etree.ElementTree as ET
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
-from ..utils import NetworkUtils, MessageUtils
+from ..utils import MessageUtils
+from ..network.http_adapter import FallbackHttpAdapter
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -10,8 +11,8 @@ def getTypenamesFromWFS(wfsUrl):
         'SERVICE': 'WFS',
         'request': 'GetCapabilities',
     }
-    network_utils = NetworkUtils()
-    is_success, result = network_utils.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
+    http_adapter = FallbackHttpAdapter()
+    is_success, result = http_adapter.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
 
     if not is_success:
         return False, result

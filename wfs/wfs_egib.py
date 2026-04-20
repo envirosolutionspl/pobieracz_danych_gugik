@@ -4,7 +4,8 @@ from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError
 from datetime import datetime
-from ..utils import NetworkUtils, ServiceAPI
+from ..utils import ServiceAPI
+from ..network.http_adapter import FallbackHttpAdapter
 from ..constants import (
     MIN_FILE_SIZE, 
     CAPABILITIES_FILE_NAME, 
@@ -20,7 +21,7 @@ class WfsEgib:
 
     def __init__(self):
         self.service_api = ServiceAPI()
-        self.network_utils = NetworkUtils()
+        self.http_adapter = FallbackHttpAdapter()
 
     def saveXml(self, folder, url, teryt, obj=None):
         """Zapisuje plik XML dla zapytania getCapabilities"""
@@ -30,7 +31,7 @@ class WfsEgib:
         
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
-        is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
+        is_success, result = self.http_adapter.downloadFile(url, path, obj=obj)
         if not is_success:
             return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {result}. URL: \n{url}"
             
@@ -103,7 +104,7 @@ class WfsEgib:
             error_reason = None
 
             try:
-                is_success, result = self.network_utils.downloadFile(url_gml, layer_path, obj=obj)
+                is_success, result = self.http_adapter.downloadFile(url_gml, layer_path, obj=obj)
                 if is_success: 
                     # Sprawdzenie rozmiaru
                     if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:

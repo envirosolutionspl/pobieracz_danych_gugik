@@ -1,7 +1,8 @@
 from qgis.core import QgsTask, Qgis
 
 from ..constants import OSNOWA_WMS_URL, TIMEOUT_MS
-from ..utils import MessageUtils, NetworkUtils, ServiceAPI
+from ..utils import MessageUtils, ServiceAPI
+from ..network.http_adapter import FallbackHttpAdapter
 
 
 class DownloadOsnowaTask(QgsTask):
@@ -14,7 +15,7 @@ class DownloadOsnowaTask(QgsTask):
         self.typ = typ
         self.iface = iface
         self.service_api = ServiceAPI()
-        self.network_utils = NetworkUtils()
+        self.http_adapter = FallbackHttpAdapter()
 
     def run(self):
         MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
@@ -24,7 +25,7 @@ class DownloadOsnowaTask(QgsTask):
                 
             if self.isCanceled():
                 return False
-            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS*2)
+            success_check, result_check = self.http_adapter.fetchContent(url, timeout_ms=TIMEOUT_MS*2)
 
             if not success_check:
                 MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {url}: {result_check}')

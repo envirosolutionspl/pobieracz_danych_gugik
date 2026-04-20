@@ -1,17 +1,18 @@
-from .utils import MessageUtils, NetworkUtils
+from .utils import MessageUtils
+from .network.http_adapter import FallbackHttpAdapter
 from .constants import LOCAL_API_URL, GET_VOIVODESHIP_ENDPOINT, GET_COUNTY_ENDPOINT, GET_COMMUNE_ENDPOINT, TIMEOUT_MS
 
 
 class RegionFetch:
     def __init__(self):
-        self.network_utils = NetworkUtils()
+        self.http_adapter = FallbackHttpAdapter()
         self.wojewodztwoDict = self.getWojewodztwoDict()
 
     def fetchUnitDict(self, endpoint):
         unit_dict = {}
         url = f"{LOCAL_API_URL}{endpoint}"
         MessageUtils.pushLogInfo(f"Pobieranie danych z: {url}")
-        is_success, result = self.network_utils.fetchJson(url, timeout_ms=TIMEOUT_MS)
+        is_success, result = self.http_adapter.fetchJson(url, timeout_ms=TIMEOUT_MS)
         if not is_success:
             MessageUtils.pushLogWarning(result)
             return unit_dict
