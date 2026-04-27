@@ -1,6 +1,5 @@
 import re
-import xml.etree.ElementTree as ET
-
+from ..libs.defusedxml import ElementTree as ET
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
 from ..utils import FilterUtils, NetworkUtils
 
@@ -57,9 +56,3 @@ def getWmsObjects(request_response):
         req_list.append(attributes)
     return FilterUtils.removeDuplicatesFromListOfDicts(req_list)
 
-
-
-
-if __name__ == "__main__":
-    # print(getQueryableLayersFromWMS('https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMPT/WMS/SkorowidzeUkladKRON86'))
-    print(getQueryableLayersFromWMS('https://mapy.geoportal.gov.pl/wss/service/PZGIK/mapy/WMS/SkorowidzVMap'))

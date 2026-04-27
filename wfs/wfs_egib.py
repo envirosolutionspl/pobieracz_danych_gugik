@@ -1,5 +1,5 @@
 import os
-import xml.etree.ElementTree as ET
+from ..libs.defusedxml import ElementTree as ET
 from time import sleep
 from lxml import etree
 from lxml.etree import XMLSyntaxError

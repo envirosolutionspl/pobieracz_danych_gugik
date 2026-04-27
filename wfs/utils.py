@@ -1,5 +1,5 @@
 import re
-import xml.etree.ElementTree as ET
+from ..libs.defusedxml import ElementTree as ET
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
 from ..utils import NetworkUtils, MessageUtils
 
@@ -20,7 +20,7 @@ def getTypenamesFromWFS(wfsUrl):
     typenamesDict = {}
 
     try:
-        root = ET.fromstring(content)   
+        root = ET.fromstring(content)
 
         for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
             name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
