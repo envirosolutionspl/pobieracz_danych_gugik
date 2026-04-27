@@ -1,5 +1,5 @@
 import re
-from ..defusedxml import ElementTree as ET
+from ..libs.defusedxml import ElementTree as ET
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
 from ..utils import NetworkUtils, MessageUtils
 
