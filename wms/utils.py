@@ -1,5 +1,5 @@
 import re
-import xml.etree.ElementTree as ET
+from ..defusedxml import ElementTree as ET
 
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
 from ..utils import FilterUtils, NetworkUtils
