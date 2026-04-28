@@ -1,8 +1,7 @@
 import os
-from ..libs.defusedxml import ElementTree as ET
+import xml.etree.ElementTree as ET # nosec B405
 from time import sleep
-from lxml import etree
-from lxml.etree import XMLSyntaxError
+import lxml
 from datetime import datetime
 from ..utils import NetworkUtils, ServiceAPI
 from ..constants import (
@@ -45,8 +44,22 @@ class WfsEgib:
         if name_error == STATUS_SUCCESS:
             error_reason = None
             try:
-                tree = ET.parse(os.path.join(folder, 'egib_wfs.xml'))
-                root = tree.getroot()
+                parser = lxml.etree.XMLParser(
+                    resolve_entities=False,  # Prevent XXE
+                    no_network=True,         # Disable network access
+                    recover=False            # Avoid silent error recovery
+                )
+
+                lxml_string = None
+
+                with open(os.path.join(folder, 'egib_wfs.xml')) as f:
+                    lxml_string = f.read()
+                if lxml_string is None or lxml_string == "":
+                    raise Exception(f"The file '{os.path.join(folder, 'egib_wfs.xml')}' is empty.")
+                
+                lxml_root = lxml.etree.fromstring(lxml_string.encode('utf-8'), parser=parser)
+                root = ET.fromstring(lxml.etree.tostring(lxml_root), parser=parser) # nosec B314
+
                 name_layers = []
                 wfs_ns = {"wfs": "http://www.opengis.net/wfs/2.0"}
 
