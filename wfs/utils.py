@@ -1,5 +1,6 @@
 import re
-from ..libs.defusedxml import ElementTree as ET
+import xml.etree.ElementTree as ET # nosec B405
+import lxml  
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
 from ..utils import NetworkUtils, MessageUtils
 
@@ -20,8 +21,13 @@ def getTypenamesFromWFS(wfsUrl):
     typenamesDict = {}
 
     try:
-        root = ET.fromstring(content)
-
+        parser = lxml.etree.XMLParser(
+                    resolve_entities=False,  # Prevent XXE
+                    no_network=True,         # Disable network access
+                    recover=False            # Avoid silent error recovery
+                )
+        
+        root = ET.fromstring(content, parser=parser) # nosec B314
         for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
             name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
             title = featureType.find('.xmlns:Title', WFS_NAMESPACES).text

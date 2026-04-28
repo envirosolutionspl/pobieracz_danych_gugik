@@ -1,5 +1,6 @@
 import re
-from ..libs.defusedxml import ElementTree as ET
+import xml.etree.ElementTree as ET # nosec B405
+import lxml  
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
 from ..utils import FilterUtils, NetworkUtils
 
@@ -22,7 +23,13 @@ def getQueryableLayersFromWMS(wmsUrl):
     queryableLayers = []
 
     try:
-        root = ET.fromstring(content)
+        parser = lxml.etree.XMLParser(
+                    resolve_entities=False,  # Prevent XXE
+                    no_network=True,         # Disable network access
+                    recover=False            # Avoid silent error recovery
+                )
+        
+        root = ET.fromstring(content, parser=parser) # nosec B314
         for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', WMS_NAMESPACES):
             nameET = layerET.find('./xmlns:Name', WMS_NAMESPACES)
             if nameET is not None:
@@ -55,4 +62,3 @@ def getWmsObjects(request_response):
             attributes[key] = val
         req_list.append(attributes)
     return FilterUtils.removeDuplicatesFromListOfDicts(req_list)
-
