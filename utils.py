@@ -21,7 +21,6 @@ from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessMa
 import requests
 import ssl
 import urllib3
-from urllib3.util import create_urllib3_context
 from .constants import (
     TIMEOUT_MS,
     MAX_ATTEMPTS,
@@ -50,6 +49,10 @@ from .constants import (
 )
 from functools import partial
 import lxml.etree as ET
+try:
+    from urllib3.util.ssl_ import create_urllib3_context
+except ImportError:
+    from urllib3.util import create_urllib3_context
 
 class LegacySslAdapter(requests.adapters.HTTPAdapter):
     """Adapter dopuszczający stare połączenia SSL"""
