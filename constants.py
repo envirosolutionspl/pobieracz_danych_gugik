@@ -183,6 +183,8 @@ WFS_FILTER_KEYS = {
 # wartość filtra wszystkie
 VALUE_ALL = 'wszystkie'
 
+# EGIB
+NAZWA_ZBIORU_EGIB = 'ewidencja gruntów i budynków (egib)'
 
 # WFS 
 # nazwy atrybutów

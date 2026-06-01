@@ -2,13 +2,13 @@ from qgis.utils import iface
 from .utils import MessageUtils, NetworkUtils
 from lxml import etree
 
-from .constants import EGIB_WFS_URL, TIMEOUT_MS 
+from .constants import EGIB_WFS_URL, TIMEOUT_MS, NAZWA_ZBIORU_EGIB 
 
 class EgibAPI:
     def __init__(self):
         self.network_utils = NetworkUtils()
 
-    def getWfsDict(self, filter_name):
+    def getWfsDict(self, filter_name_lowercase):
         data_dict = {}
         is_success, content = self.network_utils.fetchContent(EGIB_WFS_URL, timeout_ms=TIMEOUT_MS * 2)
         if not is_success:
@@ -28,7 +28,7 @@ class EgibAPI:
                 continue
             nazwa_zbioru = next(cells[2].itertext()).strip()
 
-            if nazwa_zbioru == filter_name:
+            if nazwa_zbioru.lower() == filter_name_lowercase:
                 teryt = next(cells[3].itertext()).strip()
                 link_element = cells[6].find('a')
                 link = link_element.get('href') if link_element is not None else ''
@@ -40,4 +40,4 @@ class EgibAPI:
         return data_dict
     
     def getWfsEgibDict(self):
-        return self.getWfsDict("Ewidencja Gruntów i Budynków (EGIB)")
+        return self.getWfsDict(NAZWA_ZBIORU_EGIB)
