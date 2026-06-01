@@ -51,13 +51,17 @@ from functools import partial
 import lxml.etree as ET
 
 try:
-    if urllib3.__version__.startswith('1.'):
+    if urllib3.__version__.startswith("1."):
         from urllib3.util.ssl_ import create_urllib3_context
     else:
         from urllib3.util import create_urllib3_context
 except ImportError:
-    QMessageBox.critical(None, "Błąd biblioteki", 
-                         "Wystąpił problem z wersją urllib3. Wtyczka może nie działać poprawnie.")
+    QMessageBox.critical(
+        None,
+        "Błąd biblioteki",
+        "Wystąpił problem z wersją urllib3. "
+        "Wtyczka może nie działać poprawnie.",
+    )
     create_urllib3_context = None
     
 
