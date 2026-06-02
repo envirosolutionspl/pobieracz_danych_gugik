@@ -21,7 +21,6 @@ from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessMa
 import requests
 import ssl
 import urllib3
-from urllib3.util import create_urllib3_context
 from .constants import (
     TIMEOUT_MS,
     MAX_ATTEMPTS,
@@ -50,6 +49,21 @@ from .constants import (
 )
 from functools import partial
 import lxml.etree as ET
+
+try:
+    if urllib3.__version__.startswith("1."):
+        from urllib3.util.ssl_ import create_urllib3_context
+    else:
+        from urllib3.util import create_urllib3_context
+except ImportError:
+    QMessageBox.critical(
+        None,
+        "Błąd biblioteki",
+        "Wystąpił problem z wersją urllib3. "
+        "Wtyczka może nie działać poprawnie.",
+    )
+    create_urllib3_context = None
+    
 
 class LegacySslAdapter(requests.adapters.HTTPAdapter):
     """Adapter dopuszczający stare połączenia SSL"""
@@ -179,12 +193,16 @@ class FileUtils:
     @staticmethod
     def openFile(filename):
         """otwiera folder/plik niezależnie od systemu operacyjnego"""
+        abs_path = os.path.abspath(filename)
+        if not os.path.exists(abs_path):
+            return
+
         if sys.platform == "win32":
-            os.startfile(filename)
+            os.startfile(abs_path)  # nosec B606
         else:
-            import subprocess
+            import subprocess  # nosec B404
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, filename])
+            subprocess.call([opener, abs_path])  # nosec B603
 
 
     @staticmethod
