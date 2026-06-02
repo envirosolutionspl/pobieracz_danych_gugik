@@ -193,12 +193,16 @@ class FileUtils:
     @staticmethod
     def openFile(filename):
         """otwiera folder/plik niezależnie od systemu operacyjnego"""
+        abs_path = os.path.abspath(filename)
+        if not os.path.exists(abs_path):
+            return
+
         if sys.platform == "win32":
-            os.startfile(filename)
+            os.startfile(abs_path)  # nosec B606
         else:
-            import subprocess
+            import subprocess  # nosec B404
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, filename])
+            subprocess.call([opener, abs_path])  # nosec B603
 
 
     @staticmethod
