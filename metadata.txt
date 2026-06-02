@@ -59,8 +59,8 @@ changelog=
   Wersja 1.3.6
   * Fix dla pobierania WFS EGiB
   * Obsługa błędów importu biblioteki urllib3
-  Wersja 1.3.5
-  * Dodanie parsera XML w celach bezpieczeństwa
+#  Wersja 1.3.5
+#  * Dodanie parsera XML w celach bezpieczeństwa
 #  Wersja 1.3.4
 #  * Poprawa bezpieczeństwa działania wtyczki
 #  Wersja 1.3.3
