@@ -675,15 +675,16 @@ class PobieraczDanychGugik:
             point=point_reprojected,
             isEvrf2007=isEvrf2007
         )
-
         if resp:
             nmtList = resp if isNmpt else resp[1]
+            if not isinstance(nmtList, list):
+                MessageUtils.pushMessageBoxInfo(self.iface.mainWindow(), 'Komunikat', 'Nie znaleziono danych spełniających kryteria')
+                MessageUtils.pushLogWarning(f'Nie pobrano żadnych danych NMT/NMPT dla wskazanego punktu X:{point_reprojected.x()} Y:{point_reprojected.y()}.')
+                return
             self.filterNmtListAndRunTask(nmtList, isNmpt)
         else:
-            self.iface.messageBar().pushCritical(
-                'Błąd pobierania',
-                'Nie udało się pobrać danych z serwera.'
-            )
+            MessageUtils.pushCritical(self.iface, 'Nie udało się uzyskać odpowiedzi z serwera.')
+            MessageUtils.pushLogCritical(f'Pobieranie danych z serwera nie powiodło się dla punktu X:{point_reprojected.x()} Y:{point_reprojected.y()}.')
 
     def filterNmtListAndRunTask(self, nmtList, isNmpt):
         """Filtruje listę dostępnych plików NMT/NMPT i uruchamia wątek QgsTask"""
