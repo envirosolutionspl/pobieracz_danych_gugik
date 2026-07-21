@@ -201,7 +201,7 @@ class PobieraczDanychGugik:
     def showBranchSelectionDialog(self):
         self.qgisfeed_dialog = QgisFeedDialog()
 
-        if self.qgisfeed_dialog.exec() == QDialog.Accepted:
+        if self.qgisfeed_dialog.exec() == QDialog.DialogCode.Accepted:
             self.selected_branch = self.qgisfeed_dialog.comboBox.currentText()
 
             #Zapis w QGIS3.ini
@@ -326,11 +326,8 @@ class PobieraczDanychGugik:
         self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
         self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
-        # show the dockwidget
-        if VersionUtils.isCompatibleQtVersion(QT_VERSION_STR, 6):
-            self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
-        else:
-            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
+
 
         self.dockwidget.label_55.setMargin(5)
         self.dockwidget.show()
