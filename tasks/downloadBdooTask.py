@@ -17,7 +17,7 @@ class DownloadBdooTask(QgsTask):
         1 - województwo
         2 - powiat
         """
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         # self.total = 0
         # self.iterations = 0

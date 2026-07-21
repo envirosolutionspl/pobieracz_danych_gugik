@@ -8,7 +8,7 @@ class DownloadNmptTask(QgsTask):
     """QgsTask pobierania NMPT"""
 
     def __init__(self, description, nmptList, folder, isNmpt, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.nmptList = nmptList
         self.folder = folder
         self.total = 0

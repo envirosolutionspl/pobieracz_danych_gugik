@@ -7,7 +7,7 @@ class DownloadMozaikaTask(QgsTask):
     """QgsTask pobierania intensywności"""
 
     def __init__(self, description, mozaikaList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.mozaikaList = mozaikaList
         self.folder = folder
         self.total = 0

@@ -6,7 +6,7 @@ class DownloadWfsTask(QgsTask):
     """QgsTask pobierania WFS"""
 
     def __init__(self, description, urlList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.urlList = urlList
         self.folder = folder
         self.total = 0

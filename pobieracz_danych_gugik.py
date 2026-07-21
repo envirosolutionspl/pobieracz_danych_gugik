@@ -2219,11 +2219,11 @@ class PobieraczDanychGugik:
         if layer.crs() != QgsCoordinateReferenceSystem('EPSG:' + CRS):
             layer = LayersUtils.layerToCrs(layer, CRS)
 
-        if layer.geometryType() == QgsWkbTypes.LineGeometry:
+        if layer.geometryType() == QgsWkbTypes.GeometryType.LineGeometry:
             points = LayersUtils.createPointsFromLineLayer(layer, density)
-        elif layer.geometryType() == QgsWkbTypes.PolygonGeometry:
+        elif layer.geometryType() == QgsWkbTypes.GeometryType.PolygonGeometry:
             points = LayersUtils.createPointsFromPolygon(layer, density)
-        elif layer.geometryType() == QgsWkbTypes.PointGeometry:
+        elif layer.geometryType() == QgsWkbTypes.GeometryType.PointGeometry:
             points = LayersUtils.createPointsFromPointLayer(layer)
 
         return points

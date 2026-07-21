@@ -30,6 +30,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return Qgis.LayerFilters(
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
             )
+        
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
 
@@ -37,7 +38,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Constructor."""
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
-        self.folder_fileWidget.setStorageMode(QgsFileWidget.GetDirectory)
+        self.folder_fileWidget.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
         self.regionFetch = regionFetch
         self.wfsFetch = WfsFetch()
         self.setup_dialog()

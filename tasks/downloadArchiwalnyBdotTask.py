@@ -10,7 +10,7 @@ class DownloadArchiwalnyBdotTask(QgsTask):
     """QgsTask pobierania dane archiwalne BDOT10k"""
 
     def __init__(self, description, folder, format_danych, teryt, rok, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.page_exist = None
         self.folder = folder
         self.exception = None

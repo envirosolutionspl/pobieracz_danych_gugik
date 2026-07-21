@@ -10,7 +10,7 @@ class DownloadWfsEgibTask(QgsTask):
     """QgsTask pobierania WFS EGiB"""
 
     def __init__(self, description, folder, teryt, wfs_url, iface, plugin_dir):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.name_error = ""
         self.wfsEgib = None
         self.folder = folder

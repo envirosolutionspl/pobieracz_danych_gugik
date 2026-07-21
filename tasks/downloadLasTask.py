@@ -12,7 +12,7 @@ class DownloadLasTask(QgsTask):
     """QgsTask pobierania LAZ"""
 
     def __init__(self, description, lasList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.lasList = lasList
         self.folder = folder
         self.total = len(self.lasList)

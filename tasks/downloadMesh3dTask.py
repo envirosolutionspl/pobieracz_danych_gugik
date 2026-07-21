@@ -6,7 +6,7 @@ from ..constants import HEADERS_MAPPING
 
 class DownloadMesh3dTask(QgsTask):
     def __init__(self, description, mesh_objs, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.mesh_objs = mesh_objs
         self.folder = folder
         self.exception = None

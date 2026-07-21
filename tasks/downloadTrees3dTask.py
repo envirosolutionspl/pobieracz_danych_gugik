@@ -10,7 +10,7 @@ class DownloadTrees3dTask(QgsTask):
     """QgsTask pobierania modeli 3D drzew"""
 
     def __init__(self, description, folder, teryt_powiat, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         self.exception = None
         self.teryt_powiat = teryt_powiat

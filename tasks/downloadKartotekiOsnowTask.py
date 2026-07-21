@@ -10,7 +10,7 @@ class DownloadKartotekiOsnowTask(QgsTask):
     """QgsTask pobierania archiwalnych kartotek osnów"""
 
     def __init__(self, description, kartotekiOsnowList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.kartotekiOsnowList = kartotekiOsnowList
         self.folder = folder
         self.total = 0

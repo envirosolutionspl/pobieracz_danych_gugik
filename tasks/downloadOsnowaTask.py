@@ -7,7 +7,7 @@ from ..utils import MessageUtils, NetworkUtils, ServiceAPI
 class DownloadOsnowaTask(QgsTask):
     def __init__(self, description, folder, teryt_powiat, typ, iface):
 
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         self.exception = None
         self.teryt_powiat = teryt_powiat

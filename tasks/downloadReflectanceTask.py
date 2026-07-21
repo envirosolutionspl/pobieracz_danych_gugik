@@ -7,7 +7,7 @@ class DownloadReflectanceTask(QgsTask):
     """QgsTask pobierania intensywności"""
 
     def __init__(self, description, reflectanceList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.reflectanceList = reflectanceList
         self.folder = folder
         self.total = 0

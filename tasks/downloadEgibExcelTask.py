@@ -10,7 +10,7 @@ class DownloadEgibExcelTask(QgsTask):
 
     def __init__(self, description, folder, egib_excel_zakres_danych, rok, teryt_powiat, teryt_wojewodztwo, iface):
 
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         self.exception = None
         self.zakres_danych = egib_excel_zakres_danych

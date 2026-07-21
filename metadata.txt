@@ -8,7 +8,7 @@ qgisMinimumVersion=3.28
 qgisMaximumVersion=4.99
 description=Pozwala na pobranie danych z zasobów GUGiK z interfejsu QGIS. EN: Allows user to download spatial data of Poland based on GUGiK's services.(Poland only)
 supportsQt6=true
-version=1.3.7
+version=1.3.8
 
 author=EnviroSolutions Sp. z o.o.
 email=gis@envirosolutions.pl
@@ -56,8 +56,10 @@ repository=https://github.com/envirosolutionspl/pobieracz_danych_gugik
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
-  Wersja 1.3.7
-  * Naprawa błedu przy próbie pobrania danych NMT/NMPT
+  Wersja 1.3.8
+  * Poprawa importów pakietów pod wsparcie Qt5 i Qt6
+#  Wersja 1.3.7
+#  * Naprawa błedu przy próbie pobrania danych NMT/NMPT
 #  Wersja 1.3.6
 #  * Fix dla pobierania WFS EGiB
 #  * Obsługa błędów importu biblioteki urllib3

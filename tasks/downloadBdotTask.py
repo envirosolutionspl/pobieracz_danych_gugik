@@ -16,7 +16,7 @@ class DownloadBdotTask(QgsTask):
         1 - województwo
         2 - powiat
         """
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         self.exception = None
         self.iface = iface

@@ -8,7 +8,7 @@ class DownloadZdjeciaLotniczeTask(QgsTask):
     """QgsTask pobierania zdjęć lotniczych"""
 
     def __init__(self, description, zdjeciaLotniczeList, zdjeciaLotniczeList_brak_url, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.zdjeciaLotniczeList = zdjeciaLotniczeList
         self.zdjeciaLotniczeList_brak_url = zdjeciaLotniczeList_brak_url
         self.folder = folder

@@ -7,7 +7,7 @@ class DownloadPrngTask(QgsTask):
 
     def __init__(self, description, folder, rodzaj, format_danych, iface):
 
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.folder = folder
         self.rodzaj = rodzaj
         self.format_danych = format_danych

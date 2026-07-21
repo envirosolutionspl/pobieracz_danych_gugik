@@ -7,7 +7,7 @@ class DownloadOrtofotoTask(QgsTask):
     """QgsTask pobierania ortofotomap"""
 
     def __init__(self, description, ortoList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.ortoList = ortoList
         self.folder = folder
         self.total = 0

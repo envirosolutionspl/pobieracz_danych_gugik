@@ -7,7 +7,7 @@ class DownloadWizKartoTask(QgsTask):
     """QgsTask pobierania wizualizacji kartograficznej BDOT10k"""
 
     def __init__(self, description, wizKartoList, folder, iface):
-        super().__init__(description, QgsTask.CanCancel)
+        super().__init__(description, QgsTask.Flag.CanCancel)
         self.wizKartoList = wizKartoList
         self.folder = folder
         self.total = 0
