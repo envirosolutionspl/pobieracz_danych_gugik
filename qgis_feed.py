@@ -15,7 +15,6 @@ import unicodedata
 from .constants import INDUSTRIES, FEED_URL
 
 
-
 class QgisFeed:
     def __init__(self, selected_industry, plugin_name):
         self.s = QgsSettings()
@@ -38,7 +37,7 @@ class QgisFeed:
 
     def shortenUrl(self, url):
         """
-        Funkcja przetwarza zapisany adres qgisfeed'a 
+        Funkcja przetwarza zapisany adres qgisfeed'a
         na forme zapisana w qgis settingsach
         """
 
@@ -77,7 +76,8 @@ class QgisFeed:
             # przy wlaczeniu qgis za kazdym razem
             if 'cache' in key:
                 check_fetch = self.checkIsFetchTime()
-                if check_fetch is True: self.s.remove(key)
+                if check_fetch is True:
+                    self.s.remove(key)
 
         self.s.sync()
         self.s.beginGroup(f"app/news-feed/items/{self.industry_url_short}")
@@ -115,7 +115,8 @@ class QgisFeed:
         """
 
         check_fetch = self.checkIsFetchTime()
-        if check_fetch is True: self.removeDismissed()
+        if check_fetch is True:
+            self.removeDismissed()
         self.parser.fetch()
 
 
@@ -133,7 +134,7 @@ class QgisFeedDialog(QDialog):
 
     def loadPreviousSelection(self):
         settings = QgsSettings()
-        
+
         previous_selection = settings.value("selected_industry")
         if previous_selection:
 

@@ -2,6 +2,7 @@ from .constants import ORTOFOTOMAPA_WMS_URL, WMS_GET_FEATURE_INFO_PARAMS
 from .wms.utils import getWmsObjects
 from .utils import ServiceAPI
 
+
 def getOrtoListbyPoint1992(point):
     """Zwraca listę dostępnych do pobrania ortofotomap na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
@@ -14,7 +15,7 @@ def getOrtoListbyPoint1992(point):
     params.update({
         'version': '1.3.0',
         'layers': ','.join(layers),
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
+        'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50),
         'query_layers': ','.join(layers)
     })
 

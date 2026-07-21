@@ -1,15 +1,15 @@
 import os
-import xml.etree.ElementTree as ET # nosec B405
+import xml.etree.ElementTree as ET  # nosec B405
 from time import sleep
 import lxml
 from datetime import datetime
 from ..utils import NetworkUtils, ServiceAPI
 from ..constants import (
-    MIN_FILE_SIZE, 
-    CAPABILITIES_FILE_NAME, 
-    GML_URL_TEMPLATES, 
-    STATUS_SUCCESS, 
-    STATUS_CANCELED, 
+    MIN_FILE_SIZE,
+    CAPABILITIES_FILE_NAME,
+    GML_URL_TEMPLATES,
+    STATUS_SUCCESS,
+    STATUS_CANCELED,
     MSG_NO_CONNECTION,
     MSG_DOWNLOAD_CANCELED
 )
@@ -26,13 +26,13 @@ class WfsEgib:
         is_success = self.service_api.checkInternetConnection()
         if not is_success:
             return MSG_NO_CONNECTION
-        
+
         path = os.path.join(folder, CAPABILITIES_FILE_NAME)
 
         is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
         if not is_success:
             return f"Nieprawidłowe warstwy: \n\n - (teryt: {teryt}) {result}. URL: \n{url}"
-            
+
         return STATUS_SUCCESS
 
     def workOnXml(self, folder, url, teryt, obj=None):
@@ -56,9 +56,9 @@ class WfsEgib:
                     lxml_string = f.read()
                 if lxml_string is None or lxml_string == "":
                     raise Exception(f"The file '{os.path.join(folder, 'egib_wfs.xml')}' is empty.")
-                
+
                 lxml_root = lxml.etree.fromstring(lxml_string.encode('utf-8'), parser=parser)
-                root = ET.fromstring(lxml.etree.tostring(lxml_root), parser=parser) # nosec B314
+                root = ET.fromstring(lxml.etree.tostring(lxml_root), parser=parser)  # nosec B314
 
                 name_layers = []
                 wfs_ns = {"wfs": "http://www.opengis.net/wfs/2.0"}
@@ -103,7 +103,7 @@ class WfsEgib:
                 url_gml = GML_URL_TEMPLATES['default'].format(url_main=url_main, layer=layer)
 
             # skracamy sleep lub dodajemy sprawdzenie po nim
-            sleep(0.1) 
+            sleep(0.1)
             if obj and obj.isCanceled():
                 return STATUS_CANCELED
 
@@ -111,13 +111,13 @@ class WfsEgib:
             is_success = self.service_api.checkInternetConnection()
             if not is_success:
                 return MSG_NO_CONNECTION
-            
+
             layer_path = os.path.join(folder, f"{teryt}_{layer_name}_egib_wfs_gml.gml")
             error_reason = None
 
             try:
                 is_success, result = self.network_utils.downloadFile(url_gml, layer_path, obj=obj)
-                if is_success: 
+                if is_success:
                     # Sprawdzenie rozmiaru
                     if os.path.exists(layer_path) and os.path.getsize(layer_path) <= MIN_FILE_SIZE:
                         error_reason = "Za mały rozmiar pliku; błąd pobierania danych (prawdopodobnie brak danych dla tego obszaru)"
@@ -127,7 +127,7 @@ class WfsEgib:
                     if result == MSG_DOWNLOAD_CANCELED:
                         return STATUS_CANCELED
                     error_reason = result
-            
+
             except IOError:
                 error_reason = "Błąd zapisu pliku (IOError)"
             except OSError:
@@ -145,7 +145,7 @@ class WfsEgib:
             if name_error_lista_brak:
                 report_parts.append("Prawidłowe warstwy:  " + ', '.join(name_error_lista_brak))
             return "\n\n".join(report_parts)
-            
+
         return STATUS_SUCCESS
 
     def egibWFS(self, teryt, wfs, folder, obj=None):
@@ -159,4 +159,3 @@ class WfsEgib:
 
 if __name__ == '__main__':
     wfsEgib = WfsEgib()
-

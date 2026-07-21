@@ -2,6 +2,7 @@ from qgis.core import QgsTask
 from ..constants import PRNG_WMS_URL
 from ..utils import MessageUtils, ServiceAPI
 
+
 class DownloadPrngTask(QgsTask):
     """QgsTask pobierania PRNG"""
 

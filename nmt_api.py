@@ -2,19 +2,20 @@ from .constants import NMT_EVRF_WMS_URL, NMT_GRID5M_WMS_URL, NMT_KRON86_WMS_URL,
 from .utils import ServiceAPI
 from .wms.utils import getWmsObjects
 
+
 def getNmtListbyPoint1992(point, isEvrf2007):
     """Pobiera listę dostępnych danych NMT dla punktu o współrzędnych w układzie PUWG1992"""
     x = point.x()
     y = point.y()
     service_api = ServiceAPI()
-    
-    bbox = '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50)
-    
+
+    bbox = '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50)
+
     def getWmsData(url):
         layers = service_api.getAllLayers(url=url, service=WMS_GET_FEATURE_INFO_PARAMS['SERVICE'])
         if not layers:
             return False, None
-            
+
         params = WMS_GET_FEATURE_INFO_PARAMS.copy()
         params.update({
             'layers': ','.join(layers),
@@ -24,12 +25,12 @@ def getNmtListbyPoint1992(point, isEvrf2007):
         return service_api.getRequest(params=params, url=url)
 
     wms_objects = []
-    
+
     if isEvrf2007:
         resp_1m = getWmsData(NMT_EVRF_WMS_URL)
         if resp_1m[0]:
             wms_objects += getWmsObjects(resp_1m)
-            
+
         resp_5m = getWmsData(NMT_GRID5M_WMS_URL)
         if resp_5m[0]:
             wms_objects += getWmsObjects(resp_5m)
@@ -42,5 +43,3 @@ def getNmtListbyPoint1992(point, isEvrf2007):
         return True, wms_objects
     else:
         return False, "Nie znaleziono danych NMT dla tego obszaru."
-
-

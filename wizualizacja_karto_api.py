@@ -1,20 +1,22 @@
 import re
 
 from .constants import (
-    WIZUALIZACJA_KARTO_WMS_URL, 
+    WIZUALIZACJA_KARTO_WMS_URL,
     WIZUALIZACJA_KARTO_CONFIG,
     WMS_GET_FEATURE_INFO_PARAMS
 )
 from .utils import ServiceAPI
 from .models import Wizualizacja_karto
 
-#TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach
+# TODO zmiana sposobu zapisu danych z requesta na słownik jak w innych przypadkach
+
+
 def getWizualizacjaKartoListbyPoint1992(point, skala):
     """Zwraca listę dostępnych do pobrania wizualizacji kartograficznych BDOT10k na podstawie
     zapytania GetFeatureInfo z usługi WMS"""
     x = point.x()
     y = point.y()
-    
+
     config = WIZUALIZACJA_KARTO_CONFIG.get(skala)
 
     layers = config['layers']

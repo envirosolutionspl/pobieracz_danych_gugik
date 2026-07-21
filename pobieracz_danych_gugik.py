@@ -1,14 +1,25 @@
 # -*- coding: utf-8 -*-
-from qgis.PyQt.QtCore import Qt, QT_VERSION_STR
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QMessageBox, QDialog
-from qgis.gui import *
-from qgis.core import *
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
+from qgis.gui import QgsMapToolEmitPoint
+from qgis.core import (
+    Qgis,
+    QgsSettings,
+    QgsApplication,
+    QgsProject,
+    QgsCoordinateReferenceSystem,
+    QgsWkbTypes,
+    QgsPointXY,
+    QgsVectorLayer,
+    QgsFeature,
+    QgsGeometry
+)
 
-from .qgis_feed import QgisFeedDialog, QgisFeed
-from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL, 
+from .qgis_feed import QgisFeedDialog
+from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL,
                         OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
-                        MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD, 
+                        MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD,
                         CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG)
 
 from . import PLUGIN_VERSION as plugin_version
@@ -16,26 +27,57 @@ from . import PLUGIN_NAME as plugin_name
 
 from .uldk import RegionFetch
 from .tasks import (
-    DownloadOrtofotoTask, DownloadNmtTask, DownloadNmptTask, DownloadLasTask, DownloadReflectanceTask,
-    DownloadBdotTask, DownloadBdooTask, DownloadWfsTask, DownloadWfsEgibTask, DownloadPrngTask,
-    DownloadPrgTask, DownloadModel3dTask, DownloadEgibExcelTask, DownloadOpracowaniaTyflologiczneTask,
-    DownloadOsnowaTask, DownloadAerotriangulacjaTask, DownloadMozaikaTask, DownloadWizKartoTask,
-    DownloadKartotekiOsnowTask, DownloadArchiwalnyBdotTask, DownloadZdjeciaLotniczeTask, DownloadMesh3dTask,
+    DownloadOrtofotoTask,
+    DownloadNmtTask,
+    DownloadNmptTask,
+    DownloadLasTask,
+    DownloadReflectanceTask,
+    DownloadBdotTask,
+    DownloadBdooTask,
+    DownloadWfsTask,
+    DownloadWfsEgibTask,
+    DownloadPrngTask,
+    DownloadPrgTask,
+    DownloadModel3dTask,
+    DownloadEgibExcelTask,
+    DownloadOpracowaniaTyflologiczneTask,
+    DownloadOsnowaTask,
+    DownloadAerotriangulacjaTask,
+    DownloadMozaikaTask,
+    DownloadWizKartoTask,
+    DownloadKartotekiOsnowTask,
+    DownloadArchiwalnyBdotTask,
+    DownloadZdjeciaLotniczeTask,
+    DownloadMesh3dTask,
     DownloadTrees3dTask
 )
-# Initialize Qt resources from file resources.py
-from .resources import *
 
 # Import the code for the DockWidget
 from .dialogs import PobieraczDanychDockWidget
-from .qgis_feed import QgisFeedDialog
 import os.path
 
-from . import ortofoto_api, nmt_api, nmpt_api, las_api, reflectance_api, aerotriangulacja_api, \
-    mozaika_api, wizualizacja_karto_api, kartoteki_osnow_api, zdjecia_lotnicze_api, mesh3d_api
+from . import (
+    ortofoto_api,
+    nmt_api,
+    nmpt_api,
+    las_api,
+    reflectance_api,
+    aerotriangulacja_api,
+    mozaika_api,
+    wizualizacja_karto_api,
+    kartoteki_osnow_api,
+    zdjecia_lotnicze_api,
+    mesh3d_api,
+)
 
 from .egib_api import EgibAPI
-from .utils import LayersUtils, FilterUtils, MessageUtils, ServiceAPI, ParsingUtils, VersionUtils
+from .utils import (
+    LayersUtils,
+    FilterUtils,
+    MessageUtils,
+    ServiceAPI,
+    ParsingUtils
+)
 from .wfs.utils import filterWfsFeaturesByUsersInput
 
 
@@ -53,7 +95,10 @@ class PobieraczDanychGugik:
         self.settings = QgsSettings()
         if Qgis.QGIS_VERSION_INT >= 31000:
             from .qgis_feed import QgisFeed
-            self.selected_industry = self.settings.value("selected_industry", None)
+            self.selected_industry = self.settings.value(
+                "selected_industry",
+                None
+            )
             show_dialog = self.settings.value("showDialog", True, type=bool)
 
             if self.selected_industry is None and show_dialog:
@@ -61,7 +106,10 @@ class PobieraczDanychGugik:
 
             select_indust_session = self.settings.value('selected_industry')
 
-            self.feed = QgisFeed(selected_industry=select_indust_session, plugin_name=plugin_name)
+            self.feed = QgisFeed(
+                selected_industry=select_indust_session,
+                plugin_name=plugin_name
+            )
             self.feed.initFeed()
 
         # Save reference to the QGIS interface
@@ -97,21 +145,29 @@ class PobieraczDanychGugik:
         self.lasClickTool = QgsMapToolEmitPoint(self.canvas)
         self.lasClickTool.canvasClicked.connect(self.canvasLasClicked)
         self.reflectanceClickTool = QgsMapToolEmitPoint(self.canvas)
-        self.reflectanceClickTool.canvasClicked.connect(self.canvasReflectanceClicked)
+        self.reflectanceClickTool.canvasClicked.connect(
+            self.canvasReflectanceClicked
+        )
         self.wfsClickTool = QgsMapToolEmitPoint(self.canvas)
         self.wfsClickTool.canvasClicked.connect(self.canvasWfsClicked)
         self.aerotriangulacjaClickTool = QgsMapToolEmitPoint(self.canvas)
-        self.aerotriangulacjaClickTool.canvasClicked.connect(self.canvasAerotriangulacjaClicked)
+        self.aerotriangulacjaClickTool.canvasClicked.connect(
+            self.canvasAerotriangulacjaClicked)
         self.mesh3dClickTool = QgsMapToolEmitPoint(self.canvas)
         self.mesh3dClickTool.canvasClicked.connect(self.canvasMeshClicked)
         self.mozaikaClickTool = QgsMapToolEmitPoint(self.canvas)
         self.mozaikaClickTool.canvasClicked.connect(self.canvasMozaikaClicked)
-        self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(self.canvas)
-        self.wizualizacja_kartoClickTool.canvasClicked.connect(self.canvasWizualizacjaKartoClicked)
-        self.kartoteki_osnowClickTool = QgsMapToolEmitPoint(self.canvas)
-        self.kartoteki_osnowClickTool.canvasClicked.connect(self.canvasKartotekiOsnowClicked)
+        self.wizualizacja_kartoClickTool = QgsMapToolEmitPoint(
+            self.canvas)
+        self.wizualizacja_kartoClickTool.canvasClicked.connect(
+            self.canvasWizualizacjaKartoClicked)
+        self.kartoteki_osnowClickTool = QgsMapToolEmitPoint(
+            self.canvas)
+        self.kartoteki_osnowClickTool.canvasClicked.connect(
+            self.canvasKartotekiOsnowClicked)
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
-        self.zdjecia_lotniczeClickTool.canvasClicked.connect(self.canvasZdjeciaLotniczeClicked)
+        self.zdjecia_lotniczeClickTool.canvasClicked.connect(
+            self.canvasZdjeciaLotniczeClicked)
         is_success = self.service_api.checkInternetConnection()
         if is_success:
             self.regionFetch = RegionFetch()
@@ -197,14 +253,13 @@ class PobieraczDanychGugik:
         # remove the toolbar
         del self.toolbar
 
-
     def showBranchSelectionDialog(self):
         self.qgisfeed_dialog = QgisFeedDialog()
 
         if self.qgisfeed_dialog.exec() == QDialog.DialogCode.Accepted:
             self.selected_branch = self.qgisfeed_dialog.comboBox.currentText()
 
-            #Zapis w QGIS3.ini
+            # Zapis w QGIS3.ini
             self.settings.setValue("selected_industry", self.selected_branch)
             self.settings.setValue("showDialog", False)
 
@@ -328,7 +383,6 @@ class PobieraczDanychGugik:
 
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
 
-
         self.dockwidget.label_55.setMargin(5)
         self.dockwidget.show()
 
@@ -352,7 +406,6 @@ class PobieraczDanychGugik:
         if not self.checkSavePath(path):
             return False
 
-        bledy = 0
         layer = self.dockwidget.wfs_mapLayerComboBox.currentLayer()
 
         # zablokowanie klawisza pobierania
@@ -366,6 +419,7 @@ class PobieraczDanychGugik:
             self.dockwidget.wfs_fromLayer_btn.setEnabled(True)
         else:
             MessageUtils.pushWarning(self.iface, 'Nie wskazano warstwy wektorowej')
+
     def test(self):
         print('test')
 
@@ -389,7 +443,7 @@ class PobieraczDanychGugik:
         if skorowidzeLayer.isValid():
             self.project.addMapLayer(skorowidzeLayer)
             features = list(skorowidzeLayer.getFeatures())
-            
+
             service_name = self.dockwidget.wfs_service_cmbbx.currentText().lower()
 
             if service_name == 'ortofotomapa':
@@ -426,7 +480,7 @@ class PobieraczDanychGugik:
                 return
 
             reply = MessageUtils.pushMessageBoxYesNo(self.iface.mainWindow(), "Potwierdź", f"Znaleziono {len(urls)} plików. Pobrać?")
-            
+
             if reply:
                 # pobieranie
                 self.runWfsTask(urls)
@@ -895,7 +949,6 @@ class PobieraczDanychGugik:
 
         return lasList
 
-
     def downloadLaFile(self, las, folder):
         """Pobiera plik LAS"""
         MessageUtils.pushLogInfo('Rozpoczęto ' + las.url)
@@ -1341,7 +1394,7 @@ class PobieraczDanychGugik:
         MessageUtils.pushMessage(self.iface, description)
 
         task = DownloadPrgTask(
-            description=f'Pobieranie danych z Państwowego Rejestru Granic',
+            description='Pobieranie danych z Państwowego Rejestru Granic',
             folder=self.dockwidget.folder_fileWidget.filePath(),
             url=self.url,
             iface=self.iface
@@ -1471,7 +1524,7 @@ class PobieraczDanychGugik:
             return
         task = DownloadWfsEgibTask(
             description=f'Pobieranie powiatowej paczki WFS dla {wfs_type} {powiat_name}({teryt})',
-            folder=self.dockwidget.folder_fileWidget.filePath(), 
+            folder=self.dockwidget.folder_fileWidget.filePath(),
             teryt=teryt,
             wfs_url=getattr(self, wfs_dict).get(teryt),
             iface=self.iface,
@@ -1494,7 +1547,7 @@ class PobieraczDanychGugik:
             self.noAreaSpecifiedWarning()
             return
         teryt = self.dockwidget.wfs_egib_powiat_cmbbx.currentData()
-        
+
         MessageUtils.pushMessage(self.iface, f'Pobieranie powiatowej paczki WFS dla EGiB {powiat_name}({teryt})')
 
         if not hasattr(self, 'egib_wfs_dict'):
@@ -1736,7 +1789,7 @@ class PobieraczDanychGugik:
         else:
             title = "Potwierdź pobieranie"
             message = "Znaleziono %d plików spełniających kryteria. Czy chcesz je wszystkie pobrać?" % len(
-                                     aerotriangulacjaList)
+                aerotriangulacjaList)
             reply = MessageUtils.pushMessageBoxYesNo(self.iface.mainWindow(), title, message)
             if reply:
                 # pobieranie areotriangulacji
@@ -1913,7 +1966,7 @@ class PobieraczDanychGugik:
             dest_crs=CRS
         )
         skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
-        
+
         wizKartoList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
             point=point_reprojected,
             skala=skala_wartosc
@@ -1966,18 +2019,18 @@ class PobieraczDanychGugik:
                     )
             else:
                 MessageUtils.pushLogWarning(
-                   f"Nie znaleziono klucza {scale_key}"
+                    f"Nie znaleziono klucza {scale_key}"
                 )
-        
+
         MessageUtils.pushLogWarning(
             "Nie znaleziono wybranej skali. Używam domyślnej wartości 10."
         )
-        return list(WIZUALIZACJA_KARTO_CONFIG.keys())[0] # domyślna wartość 10
-
+        return list(WIZUALIZACJA_KARTO_CONFIG.keys())[0]  # domyślna wartość 10
 
     # endregion
 
     # region archiwalne kartoteki osnów geodezyjnych
+
     def osnowaArchFromLayerBtnClicked(self):
         """Kliknięcie plawisza pobierania Archiwalnych kartotek osnów geodezyjnych przez wybór warstwą wektorową"""
         connection = self.service_api.checkInternetConnection()
@@ -2241,15 +2294,13 @@ class PobieraczDanychGugik:
         if dataType == 'LAS':
             filterFunction = self.filterLasList
             downloadTask = DownloadLasTask
-            isNmpt = None
         if dataType == 'ORTOFOTO':
             filterFunction = self.filterOrtoList
             downloadTask = DownloadOrtofotoTask
-            isNmpt = None
         if dataType == 'NMT':
             filterFunction = self.filterNmtList
             downloadTask = DownloadNmtTask
-            isNmpt = self.dockwidget.nmpt_rdbtn.isChecked()
+            self.dockwidget.nmpt_rdbtn.isChecked()
         if dataType == 'REFLECTANCE':
             pass
 
@@ -2290,12 +2341,16 @@ class PobieraczDanychGugik:
     def checkSavePath(self, path):
         """Sprawdza czy ścieżka jest poprawna i zwraca Boolean"""
         if not path:
-            self.iface.messageBar().pushCritical("Ostrzeżenie:",
-                                                 'Nie wskazano wskazano miejsca zapisu plików')
+            self.iface.messageBar().pushCritical(
+                "Ostrzeżenie:",
+                'Nie wskazano wskazano miejsca zapisu plików'
+            )
             return False
         elif not os.path.exists(path):
-            self.iface.messageBar().pushCritical("Ostrzeżenie:",
-                                                 'Wskazano nieistniejącą ścieżkę do zapisu plików')
+            self.iface.messageBar().pushCritical(
+                "Ostrzeżenie:",
+                'Wskazano nieistniejącą ścieżkę do zapisu plików'
+            )
             return False
         else:
             return True
@@ -2304,4 +2359,7 @@ class PobieraczDanychGugik:
         MessageUtils.pushWarning(self.iface, 'Nie wskazano obszaru')
 
     def showUnavailableFormat(self):
-        MessageUtils.pushWarning(self.iface, "Dla podanego obszaru nie ma dostępnego pliku w formacie GeoParquet")
+        MessageUtils.pushWarning(
+            self.iface,
+            "Dla podanego obszaru nie ma dostępnego pliku w formacie GeoParquet"  # E501
+        )

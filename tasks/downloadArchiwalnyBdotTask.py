@@ -1,5 +1,5 @@
 from qgis.core import (
-    QgsTask, Qgis
+    QgsTask
 )
 
 from ..constants import BDOT_WMS_URL

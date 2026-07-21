@@ -1,4 +1,3 @@
-import datetime
 class Wizualizacja_karto:
     def __init__(
             self,
@@ -17,5 +16,3 @@ class Wizualizacja_karto:
 
     def __hash__(self):
         return hash(('url', self.url))
-
-

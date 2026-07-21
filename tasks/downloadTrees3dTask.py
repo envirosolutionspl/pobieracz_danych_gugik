@@ -1,10 +1,9 @@
-from qgis.core import QgsTask, Qgis
+from qgis.core import QgsTask
 
-from qgis.PyQt.QtCore import pyqtSignal
-from qgis.utils import iface
 
 from ..constants import TREES3D_URL, TIMEOUT_MS
 from ..utils import MessageUtils, NetworkUtils, ServiceAPI
+
 
 class DownloadTrees3dTask(QgsTask):
     """QgsTask pobierania modeli 3D drzew"""
@@ -22,25 +21,25 @@ class DownloadTrees3dTask(QgsTask):
     def run(self):
         trees_url = f'{TREES3D_URL}{self.teryt_powiat[:2]}/{self.teryt_powiat}.zip'
         MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
-        
+
         if self.isCanceled():
             return False
 
-        success_check, result_check = self.network_utils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS*3)
+        success_check, result_check = self.network_utils.fetchContent(trees_url, timeout_ms=TIMEOUT_MS * 3)
 
         if not success_check:
             MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {trees_url}: {result_check}')
-            self.exception = result_check 
+            self.exception = result_check
             return False
-            
+
         MessageUtils.pushLogInfo(f'Pobieram {trees_url}')
-        
+
         self.result, self.exception = self.service_api.retreiveFile(url=trees_url, destFolder=self.folder, obj=self)
-        
+
         if not self.result:
             MessageUtils.pushLogCritical(f'Błąd przy pobieraniu modeli 3D: {self.exception}')
             return False
-            
+
         return not self.isCanceled()
 
     def finished(self, result):
@@ -57,5 +56,3 @@ class DownloadTrees3dTask(QgsTask):
     def cancel(self):
         MessageUtils.pushLogWarning('Anulowano pobieranie danych z modelami 3D drzew')
         super().cancel()
-
-

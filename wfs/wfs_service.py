@@ -8,7 +8,7 @@ try:
 except ImportError:
     from wfs.utils import getTypenamesFromWFS
     from wfs.utils import roundCoordinatesOfWkt
-from qgis.core import QgsDataSourceUri, QgsVectorLayer, QgsProject, QgsGeometry, QgsRectangle, QgsWkbTypes
+from qgis.core import QgsDataSourceUri, QgsVectorLayer
 from ..utils import MessageUtils
 
 
@@ -33,10 +33,10 @@ class WfsFetch:
 
     def getTypenamesByServiceName(self, serviceName):
         if serviceName not in WFS_URL_MAPPING:
-            #podano nieistniejącą nazwę usługi
+            # podano nieistniejącą nazwę usługi
             raise Exception('podano nieistniejącą nazwę usługi')
         if serviceName not in self.cachedTypenamesDict:
-            #nie ma listy w cache, spróbuj pobrać
+            # nie ma listy w cache, spróbuj pobrać
             self.__cacheTypenamesForService(serviceName)
             if serviceName not in self.cachedTypenamesDict:
                 # jeżeli nie udało się pobrać
@@ -46,7 +46,7 @@ class WfsFetch:
     def getWfsListbyLayer1992(self, layer, wfsService, typename):
         """
         Funkcja pobierająca dane z WFS, dzieląc geometrię na mniejsze części.
-        
+
         :param layer: Warstwa, dla której wykonujemy zapytanie.
         :param wfsService: Nazwa usługi WFS.
         :param typename: Typ danych.
@@ -54,52 +54,50 @@ class WfsFetch:
         """
         wfsUrl = WFS_URL_MAPPING[wfsService]
         wfsTypename = self.cachedTypenamesDict[wfsService][typename]
-        
+
         # Dynamiczne zarządzanie tolerancją
-        
 
         # Agregacja i uproszczenie geometrii
         aggregation = processing.run(
-            "native:aggregate",{
+            "native:aggregate", {
                 'INPUT': layer,
-                'GROUP_BY': 'NULL', 
-                'AGGREGATES': [], 
+                'GROUP_BY': 'NULL',
+                'AGGREGATES': [],
                 'OUTPUT': 'TEMPORARY_OUTPUT'
-                }
-            )['OUTPUT']
-        
+            }
+        )['OUTPUT']
+
         feat = aggregation.getFeature(1)
         length = feat.geometry().length()
-      
+
         for poziom in POZIOMY_UPROSZCZENIA.keys():
             if length <= poziom:
                 simplification = processing.run(
-                    "native:simplifygeometries",{
+                    "native:simplifygeometries", {
                         'INPUT': aggregation,
-                        'METHOD': 1, 
-                        'TOLERANCE': POZIOMY_UPROSZCZENIA[poziom], 
+                        'METHOD': 1,
+                        'TOLERANCE': POZIOMY_UPROSZCZENIA[poziom],
                         'OUTPUT': 'TEMPORARY_OUTPUT'
                     }
                 )
                 break
         else:
             simplification = processing.run(
-                    "native:simplifygeometries",{
-                        'INPUT': aggregation,
-                        'METHOD': 1, 
-                        'TOLERANCE': POZIOMY_UPROSZCZENIA[50000000], 
-                        'OUTPUT': 'TEMPORARY_OUTPUT'
-                    }
-                )
+                "native:simplifygeometries", {
+                    'INPUT': aggregation,
+                    'METHOD': 1,
+                    'TOLERANCE': POZIOMY_UPROSZCZENIA[50000000],
+                    'OUTPUT': 'TEMPORARY_OUTPUT'
+                }
+            )
 
         simpleLayer = simplification['OUTPUT']
         feat = next(simpleLayer.getFeatures())
         geom = feat.geometry()
-        geometry_type = feat.geometry().type()
+        feat.geometry().type()
 
         # Jeżeli geometria nie jest punktowa, podziel ją na mniejsze fragmenty
-        geometries = [geom] 
-        
+        geometries = [geom]
 
         # Inicjalizacja danych WFS (jeden raz)
         dsu = QgsDataSourceUri()
@@ -117,17 +115,17 @@ class WfsFetch:
             dsu.setParam('filter', "intersects($geometry, geomFromWKT('%s'))" % wkt)
 
             # Pobieranie danych z WFS dla każdej części
-            l = QgsVectorLayer(dsu.uri(), typename, "WFS")
-            l.updateFields()
-            layers.append(l)
+            wfs_layer = QgsVectorLayer(dsu.uri(), typename, "WFS")
+            wfs_layer.updateFields()
+            layers.append(wfs_layer)
 
         # Łączenie warstw tylko jeśli jest ich więcej niż jedna
         if len(layers) > 1:
             merged_layer = processing.run(
                 "native:mergevectorlayers",
                 {
-                    'LAYERS': layers, 
-                    'CRS': 'EPSG:' + CRS, 
+                    'LAYERS': layers,
+                    'CRS': 'EPSG:' + CRS,
                     'OUTPUT': 'TEMPORARY_OUTPUT'
                 }
             )['OUTPUT']
@@ -135,7 +133,6 @@ class WfsFetch:
             merged_layer = layers[0]  # Jeżeli tylko jedna warstwa, nie ma potrzeby łączenia
 
         return merged_layer
-
 
 
 if __name__ == "__main__":

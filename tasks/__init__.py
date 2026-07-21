@@ -1,23 +1,23 @@
-from .downloadOrtoFotoTask import DownloadOrtofotoTask
-from .downloadNmtTask import DownloadNmtTask
-from .downloadNmptTask import DownloadNmptTask
-from .downloadLasTask import DownloadLasTask
-from .downloadReflectanceTask import DownloadReflectanceTask
-from .downloadBdotTask import DownloadBdotTask
-from .downloadBdooTask import DownloadBdooTask
-from .downloadWfsTask import DownloadWfsTask
-from .downloadWfsEgibTask import DownloadWfsEgibTask
-from .downloadPrngTask import DownloadPrngTask
-from .downloadPrgTask import DownloadPrgTask
-from .downloadModel3dTask import DownloadModel3dTask
-from .downloadEgibExcelTask import DownloadEgibExcelTask
-from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologiczneTask
-from .downloadOsnowaTask import DownloadOsnowaTask
-from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask
-from .downloadMozaikaTask import DownloadMozaikaTask
-from .downloadWizKartoTask import DownloadWizKartoTask
-from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask
-from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask
-from .downloadZdjeciaLotniczeTask import DownloadZdjeciaLotniczeTask
-from .downloadMesh3dTask import DownloadMesh3dTask
-from .downloadTrees3dTask import DownloadTrees3dTask
+from .downloadOrtoFotoTask import DownloadOrtofotoTask  # noqa: F401
+from .downloadNmtTask import DownloadNmtTask  # noqa: F401
+from .downloadNmptTask import DownloadNmptTask  # noqa: F401
+from .downloadLasTask import DownloadLasTask  # noqa: F401
+from .downloadReflectanceTask import DownloadReflectanceTask  # noqa: F401
+from .downloadBdotTask import DownloadBdotTask  # noqa: F401
+from .downloadBdooTask import DownloadBdooTask  # noqa: F401
+from .downloadWfsTask import DownloadWfsTask  # noqa: F401
+from .downloadWfsEgibTask import DownloadWfsEgibTask  # noqa: F401
+from .downloadPrngTask import DownloadPrngTask  # noqa: F401
+from .downloadPrgTask import DownloadPrgTask  # noqa: F401
+from .downloadModel3dTask import DownloadModel3dTask  # noqa: F401
+from .downloadEgibExcelTask import DownloadEgibExcelTask  # noqa: F401
+from .downloadOpracowaniaTyflologiczneTask import DownloadOpracowaniaTyflologiczneTask  # noqa: F401
+from .downloadOsnowaTask import DownloadOsnowaTask  # noqa: F401
+from .downloadAerotriangulacjaTask import DownloadAerotriangulacjaTask  # noqa: F401
+from .downloadMozaikaTask import DownloadMozaikaTask  # noqa: F401
+from .downloadWizKartoTask import DownloadWizKartoTask  # noqa: F401
+from .downloadKartotekiOsnowTask import DownloadKartotekiOsnowTask  # noqa: F401
+from .downloadArchiwalnyBdotTask import DownloadArchiwalnyBdotTask  # noqa: F401
+from .downloadZdjeciaLotniczeTask import DownloadZdjeciaLotniczeTask  # noqa: F401
+from .downloadMesh3dTask import DownloadMesh3dTask  # noqa: F401
+from .downloadTrees3dTask import DownloadTrees3dTask  # noqa: F401

@@ -36,5 +36,3 @@ class Mesh3d:
 
     def __hash__(self):
         return hash(('url', self.url))
-
-

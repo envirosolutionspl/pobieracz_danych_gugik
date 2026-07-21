@@ -36,4 +36,3 @@ class RegionFetch:
         if not teryt:
             return {}
         return self.fetchUnitDict(GET_COMMUNE_ENDPOINT.format(teryt=teryt))
-

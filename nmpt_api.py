@@ -17,8 +17,8 @@ def getNmptListbyPoint1992(point, isEvrf2007):
     params.update({
         'layers': ','.join(layers),
         'query_layers': ','.join(layers),
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50)
+        'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50)
     })
-    
+
     resp = service_api.getRequest(params=params, url=_url)
     return getWmsObjects(resp)

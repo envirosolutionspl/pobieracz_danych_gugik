@@ -1,5 +1,5 @@
 import os
-from qgis.core import QgsTask, Qgis
+from qgis.core import QgsTask
 from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 

@@ -1,8 +1,9 @@
 import re
-import xml.etree.ElementTree as ET # nosec B405
-import lxml  
+import xml.etree.ElementTree as ET  # nosec B405
+import lxml
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL
 from ..utils import NetworkUtils, MessageUtils
+
 
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
@@ -17,38 +18,39 @@ def getTypenamesFromWFS(wfsUrl):
     if not is_success:
         return False, result
 
-    content = result 
+    content = result
     typenamesDict = {}
 
     try:
         parser = lxml.etree.XMLParser(
-                    resolve_entities=False,  # Prevent XXE
-                    no_network=True,         # Disable network access
-                    recover=False            # Avoid silent error recovery
-                )
-        
-        root = ET.fromstring(content, parser=parser) # nosec B314
+            resolve_entities=False,  # Prevent XXE
+            no_network=True,         # Disable network access
+            recover=False            # Avoid silent error recovery
+        )
+
+        root = ET.fromstring(content, parser=parser)  # nosec B314
         for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
             name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
             title = featureType.find('.xmlns:Title', WFS_NAMESPACES).text
             typenamesDict[title] = name
-            
+
         return True, typenamesDict
-        
+
     except ET.ParseError:
         return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
     except Exception as e:
         return False, f"Nieoczekiwany błąd przy przetwarzaniu warstw WFS: {str(e)}"
 
-    
+
 def roundCoordinatesOfWkt(wkt):
     c = re.compile(r'(\d+).(\d+)')
     return c.sub(r'\1', wkt)
 
+
 def filterWfsFeaturesByUsersInput(features, filters):
     """Filtrowanie warstw zgodnie z parametrami wpisanymi przez użytkownika"""
     filtered_features = []
-    
+
     # Skróty dla czytelności
     fk = WFS_FILTER_KEYS
     attr = WFS_ATTRIBUTES
@@ -56,13 +58,13 @@ def filterWfsFeaturesByUsersInput(features, filters):
     # Pre-cache constant filter values
     filter_kolor = filters[fk['COLOR']]
     is_color_active = filter_kolor != VALUE_ALL
-    
+
     filter_zrodlo = filters[fk['SOURCE']]
     is_zrodlo_active = filter_zrodlo != VALUE_ALL
-    
+
     filter_crs = filters[fk['CRS']]
     is_crs_active = filter_crs != VALUE_ALL
-    
+
     min_val_pixels = filters[fk['PIXEL_FROM']]
     max_val_pixels = filters[fk['PIXEL_TO']]
     is_pixel_filter_active = min_val_pixels > 0 or max_val_pixels > 0
@@ -87,13 +89,11 @@ def filterWfsFeaturesByUsersInput(features, filters):
                     continue
             except TypeError:
                 MessageUtils.pushLogWarning('Pusta wartość pola pikseli. Zignorowano filtr pikseli.')
-                pass
             except KeyError:
                 MessageUtils.pushLogWarning('Brak pola pikseli. Zignorowano filtr pikseli.')
-                pass 
             except Exception as e:
                 MessageUtils.pushLogWarning(f'Wystąpił błąd podczas filtrowania pikseli: {str(e)}')
-                pass # jeśli brak pola piksel, nie odrzucaj
+                pass  # jeśli brak pola piksel, nie odrzucaj
 
         filtered_features.append(f)
 

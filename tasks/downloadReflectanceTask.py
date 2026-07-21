@@ -3,6 +3,7 @@ from qgis.core import QgsTask
 from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
+
 class DownloadReflectanceTask(QgsTask):
     """QgsTask pobierania intensywności"""
 
@@ -38,7 +39,7 @@ class DownloadReflectanceTask(QgsTask):
             results.append(res)
         if not any(results):
             return False
-        
+
         FileUtils.createReport(os.path.join(self.folder, 'pobieracz_intensywnosc'), HEADERS_MAPPING['REFLECTANCE_HEADERS'], self.reflectanceList)
 
         return True

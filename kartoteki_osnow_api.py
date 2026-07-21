@@ -16,7 +16,7 @@ def getKartotekiOsnowListbyPoint1992(point, is_kronsztad):
         'bbox': '%f,%f,%f,%f' % (x - 50, y - 50, x + 50, y + 50),
         'query_layers': ','.join(KARTOTEKI_OSNOW_SKOROWIDZE_LAYERS),
     })
-    
+
     service_api = ServiceAPI()
     resp = service_api.getRequest(params=params, url=KARTOTEKI_OSNOW_WMS_URL)
     url_wzorzec = re.compile(r'http.+.zip')
@@ -34,10 +34,10 @@ def getKartotekiOsnowListbyPoint1992(point, is_kronsztad):
                 rodzaj_katalogu = KATALOGI_OSNOW['Kartoteki1942']
 
             url = f'{KARTOTEKI_OSNOW_ARCHIWALNE_WMS_URL}{rodzaj_katalogu}/{godlo}.zip'
-                
+
             params = {
-                "url": url, 
-                "rodzaj_katalogu": rodzaj_katalogu, 
+                "url": url,
+                "rodzaj_katalogu": rodzaj_katalogu,
                 "godlo": godlo
             }
             kartoteki_osnowList.append(params)

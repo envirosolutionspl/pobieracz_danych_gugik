@@ -1,10 +1,11 @@
 import re
-import xml.etree.ElementTree as ET # nosec B405
-import lxml  
+import xml.etree.ElementTree as ET  # nosec B405
+import lxml
 from ..constants import TIMEOUT_MS, WMS_NAMESPACES
 from ..utils import FilterUtils, NetworkUtils
 
 expr = re.compile(r"\{{1}.*\}{1}")
+
 
 def getQueryableLayersFromWMS(wmsUrl):
     """Lista dostępnych warstw z usługi WMS"""
@@ -24,21 +25,21 @@ def getQueryableLayersFromWMS(wmsUrl):
 
     try:
         parser = lxml.etree.XMLParser(
-                    resolve_entities=False,  # Prevent XXE
-                    no_network=True,         # Disable network access
-                    recover=False            # Avoid silent error recovery
-                )
-        
-        root = ET.fromstring(content, parser=parser) # nosec B314
+            resolve_entities=False,  # Prevent XXE
+            no_network=True,         # Disable network access
+            recover=False            # Avoid silent error recovery
+        )
+
+        root = ET.fromstring(content, parser=parser)  # nosec B314
         for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', WMS_NAMESPACES):
             nameET = layerET.find('./xmlns:Name', WMS_NAMESPACES)
             if nameET is not None:
                 queryableLayers.append(nameET.text)
-                
+
         queryableLayers = FilterUtils.removeDuplicatesFromListOfDicts(queryableLayers)
-        
+
         return True, queryableLayers
-        
+
     except ET.ParseError:
         return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
     except Exception as e:

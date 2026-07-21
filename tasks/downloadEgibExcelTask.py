@@ -1,9 +1,10 @@
 from qgis.core import (
-    QgsTask, Qgis
+    QgsTask
 )
 
 from ..constants import EGIB_WMS_URL, EGIB_TERYT_MAPPING, TIMEOUT_MS
 from ..utils import MessageUtils, NetworkUtils, ServiceAPI
+
 
 class DownloadEgibExcelTask(QgsTask):
     """QgsTask pobierania zestawień zbiorczych EGiB"""
@@ -60,7 +61,7 @@ class DownloadEgibExcelTask(QgsTask):
         return False
 
     def finished(self, result):
-        
+
         if result and self.exception:
             MessageUtils.pushLogInfo('Pobrano dane zestawień zbiorczych EGiB')
             MessageUtils.pushSuccess(self.iface, 'Udało się! Dane zestawień zbiorczych EGiB zostały pobrane.')

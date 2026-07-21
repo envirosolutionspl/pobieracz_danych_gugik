@@ -30,21 +30,21 @@ MESH3D_WMS_URL = 'https://mapy.geoportal.gov.pl/wss/service/PZGIK/NMT/WMS/Modele
 ULDK_URL = 'https://uldk.gugik.gov.pl/'
 
 # kod układu współrzędnych
-CRS= "2180"
+CRS = "2180"
 
 # Nagłówek w requests
 USER_AGENT_HEADER = "Pobieracz-QGIS-Client/1.0"
 CONNECTION_HEADER = "close"
 
 
-# slowniki dla nagłówków 
+# slowniki dla nagłówków
 HEADERS_MAPPING = {
     'AERIAL_TRIANGULATION_HEADERS': {
         'Nazwa pliku': 'url',
         'Identyfikator aerotriangulacji': 'id',
         'Numer zgłoszenia': 'zgloszenie',
         'Rok': 'rok'
-    }, 
+    },
     'CONTROL_POINT_RECORDS_HEADERS': {
         'nazwa_pliku': 'url',
         'rodzaj_katalogu': 'rodzaj_katalogu',
@@ -74,7 +74,7 @@ HEADERS_MAPPING = {
         'modul_archiwizacji': 'modulArchiwizacji',
         'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
         'aktualnosc_rok': 'aktualnoscRok',
-        'zrodlo_danych': 'zrDanych', 
+        'zrodlo_danych': 'zrDanych',
     },
     'MOZAIKA_HEADERS': {
         'Nazwa pliku': 'url',
@@ -124,7 +124,7 @@ HEADERS_MAPPING = {
         'numer_zgloszenia_pracy': 'numerZgloszeniaPracy',
         'aktualnosc_rok': 'aktualnoscRok'
     },
-    'REFLECTANCE_HEADERS':{
+    'REFLECTANCE_HEADERS': {
         'nazwa_pliku': 'url',
         'godlo': 'godlo',
         'aktualnosc': 'aktualnosc',
@@ -154,7 +154,7 @@ HEADERS_MAPPING = {
 # tamplate do pobierania danych GML
 GML_URL_TEMPLATES = {
     'ewns': "{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)",
-    'ms':   "{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)",
+    'ms': "{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)",
     'default': "{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}"
 }
 
@@ -164,7 +164,7 @@ QT_VER = {
 }
 
 
-# WFS 
+# WFS
 # nazwy atrybutów
 WFS_ATTRIBUTES = {
     'COLOR': 'kolor',
@@ -186,7 +186,7 @@ VALUE_ALL = 'wszystkie'
 # EGIB
 NAZWA_ZBIORU_EGIB = 'ewidencja gruntów i budynków (egib)'
 
-# WFS 
+# WFS
 # nazwy atrybutów
 WFS_ATTRIBUTES = {
     'COLOR': 'kolor',
@@ -427,38 +427,38 @@ YEARS_COMBOBOXES = {
 }
 
 GROUPBOXES_VISIBILITY_MAP = {
-        'wfs_rdbtn': [
-            'wfs_groupBox'
-        ],
-        'wms_rdbtn': [
-            'orto_groupBox',
-            'nmt_groupBox',
-            'las_groupBox',
-            'reflectance_groupBox'
-        ],
-        'paczka_rdbtn': [
-            'bdot_groupBox',
-            'bdoo_groupBox',
-            'wfs_egib_groupBox',
-            'prng_groupBox',
-            'prg_groupBox',
-            'model3d_groupBox',
-            'mesh3d_groupBox',
-            'drzewa3d_groupBox',
-            'archiwalne_bdot_groupBox'
-        ],
-        'inne_rdbtn': [
-            'egib_excel_groupBox',
-            'tyflologiczne_groupBox',
-            'osnowa_groupBox',
-            'osnowa_podstawowa_groupBox',
-            'osnowa_arch_groupBox',
-            'aerotriangulacja_groupBox',
-            'linie_mozaikowania_groupBox',
-            'wizualizacja_karto_groupBox',
-            'zdjecia_lotnicze_groupBox'
-        ]
-    }
+    'wfs_rdbtn': [
+        'wfs_groupBox'
+    ],
+    'wms_rdbtn': [
+        'orto_groupBox',
+        'nmt_groupBox',
+        'las_groupBox',
+        'reflectance_groupBox'
+    ],
+    'paczka_rdbtn': [
+        'bdot_groupBox',
+        'bdoo_groupBox',
+        'wfs_egib_groupBox',
+        'prng_groupBox',
+        'prg_groupBox',
+        'model3d_groupBox',
+        'mesh3d_groupBox',
+        'drzewa3d_groupBox',
+        'archiwalne_bdot_groupBox'
+    ],
+    'inne_rdbtn': [
+        'egib_excel_groupBox',
+        'tyflologiczne_groupBox',
+        'osnowa_groupBox',
+        'osnowa_podstawowa_groupBox',
+        'osnowa_arch_groupBox',
+        'aerotriangulacja_groupBox',
+        'linie_mozaikowania_groupBox',
+        'wizualizacja_karto_groupBox',
+        'zdjecia_lotnicze_groupBox'
+    ]
+}
 
 OPRACOWANIA_TYFLOGICZNE_MAPPING = {
     "radioButton_atlas_swiata": {
@@ -528,12 +528,12 @@ WFS_URL_MAPPING = {
 }
 
 POZIOMY_UPROSZCZENIA = {
-    1000 : 50,
-    5000: 10, 
-    10000 : 50,
-    50000 : 100,
-    100000 : 500,
-    500000 : 2000,
+    1000: 50,
+    5000: 10,
+    10000: 50,
+    50000: 100,
+    100000: 500,
+    500000: 2000,
     1000000: 5000,
     5000000: 10000,
     10000000: 50000,

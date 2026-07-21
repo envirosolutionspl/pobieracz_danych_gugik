@@ -1,5 +1,5 @@
-import os, datetime
-from qgis.core import QgsApplication, QgsTask, Qgis
+import os
+from qgis.core import QgsTask
 from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 
@@ -40,7 +40,7 @@ class DownloadNmtTask(QgsTask):
             results.append(res)
         if not any(results):
             return False
-        
+
         FileUtils.createReport(
             os.path.join(self.folder, 'pobieracz_nmpt' if self.isNmpt else 'pobieracz_nmt'),
             HEADERS_MAPPING['NMT_HEADERS'],
@@ -72,5 +72,3 @@ class DownloadNmtTask(QgsTask):
     def cancel(self):
         MessageUtils.pushLogWarning('Anulowano pobieranie danych NMT')
         super().cancel()
-
-

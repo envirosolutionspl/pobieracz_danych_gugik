@@ -1,11 +1,9 @@
-import os, datetime
+import os
 from qgis.core import (
-    QgsApplication, QgsTask, Qgis
-    )
+    QgsTask
+)
 from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
-
-
 
 
 class DownloadLasTask(QgsTask):
@@ -22,7 +20,6 @@ class DownloadLasTask(QgsTask):
         self.service_api = ServiceAPI()
         self.errors = []
         self.success_count = 0
-
 
     def run(self):
         """Here you implement your heavy lifting.
@@ -47,7 +44,7 @@ class DownloadLasTask(QgsTask):
                 self.success_count += 1
             else:
                 self.errors.append(f"{las.get('url')}: {message}")
-        
+
         # jeżeli nie pobrał się żaden plik, to zwracamy False
         if self.success_count == 0:
             return False
@@ -83,10 +80,6 @@ class DownloadLasTask(QgsTask):
                 MessageUtils.pushLogWarning("Nie pobrano plików:\n" + "\n".join(self.errors))
             MessageUtils.pushWarning(self.iface, f"Pobrano {self.success_count}/{self.total} plików LAZ")
 
-
     def cancel(self):
         MessageUtils.pushLogWarning('Anulowano pobieranie danych LAZ')
         super().cancel()
-
-
-

@@ -1,5 +1,5 @@
-import os, datetime
-from qgis.core import QgsApplication, QgsTask, Qgis
+import os
+from qgis.core import QgsTask
 from ..utils import MessageUtils, FileUtils, ServiceAPI
 from ..constants import HEADERS_MAPPING
 

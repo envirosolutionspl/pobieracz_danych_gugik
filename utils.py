@@ -36,12 +36,12 @@ from .constants import (
     REDIRECT_POLICY_NAME,
     REDIRECT_POLICY_NO_LESS_SAFE,
     DEFAULT_REDIRECT_POLICY,
-    MSG_FILE_WRITE_ERROR, 
-    MSG_DOWNLOAD_CANCELED, 
-    MSG_EMPTY_CONTENT, 
-    MSG_JSON_DECODE_ERROR, 
-    MSG_HTTP_ERROR, 
-    MSG_TIMEOUT, 
+    MSG_FILE_WRITE_ERROR,
+    MSG_DOWNLOAD_CANCELED,
+    MSG_EMPTY_CONTENT,
+    MSG_JSON_DECODE_ERROR,
+    MSG_HTTP_ERROR,
+    MSG_TIMEOUT,
     MSG_NETWORK_ERROR,
     MSG_NO_CONNECTION,
     USER_AGENT_HEADER,
@@ -63,10 +63,11 @@ except ImportError:
         "Wtyczka może nie działać poprawnie.",
     )
     create_urllib3_context = None
-    
+
 
 class LegacySslAdapter(requests.adapters.HTTPAdapter):
     """Adapter dopuszczający stare połączenia SSL"""
+
     def init_poolmanager(self, *args, **kwargs):
         ctx = create_urllib3_context()
         ctx.options |= 0x4  # ssl.OP_LEGACY_SERVER_CONNECT
@@ -75,8 +76,9 @@ class LegacySslAdapter(requests.adapters.HTTPAdapter):
         kwargs['ssl_context'] = ctx
         return super().init_poolmanager(*args, **kwargs)
 
+
 class LayersUtils:
-    
+
     @staticmethod
     def pointToCrs(point, project, dest_crs):
         """zamiana układu na wybrany układ"""
@@ -88,9 +90,9 @@ class LayersUtils:
     def layerToCrs(layer, dest_crs):
         """zamiana układu na 1992"""
         proc = processing.run("native:reprojectlayer",
-                    {'INPUT': layer,
-                        'TARGET_CRS': QgsCoordinateReferenceSystem(f'EPSG:{dest_crs}'),
-                        'OUTPUT': 'TEMPORARY_OUTPUT'})
+                              {'INPUT': layer,
+                               'TARGET_CRS': QgsCoordinateReferenceSystem(f'EPSG:{dest_crs}'),
+                               'OUTPUT': 'TEMPORARY_OUTPUT'})
         return proc['OUTPUT']
 
     @staticmethod
@@ -131,24 +133,22 @@ class LayersUtils:
                 punktyList.append(bbox.center())
             else:
                 params = {
-                    'TYPE':0,
-                    'EXTENT':bbox,
-                    'HSPACING':density,
-                    'VSPACING':density,
-                    'HOVERLAY':0,
-                    'VOVERLAY':0,
-                    'CRS':QgsCoordinateReferenceSystem('EPSG:2180'),
-                    'OUTPUT':'memory:TEMPORARY_OUTPUT'
+                    'TYPE': 0,
+                    'EXTENT': bbox,
+                    'HSPACING': density,
+                    'VSPACING': density,
+                    'HOVERLAY': 0,
+                    'VOVERLAY': 0,
+                    'CRS': QgsCoordinateReferenceSystem('EPSG:2180'),
+                    'OUTPUT': 'memory:TEMPORARY_OUTPUT'
                 }
                 proc = processing.run("qgis:creategrid", params)
                 punkty = proc['OUTPUT']
-
 
                 for pointFeat in punkty.getFeatures():
                     point = pointFeat.geometry().asPoint()
                     if geom.contains(point):
                         punktyList.append(point)
-
 
                 # dodanie werteksów poligonu
                 # uproszczenie geometrii
@@ -156,7 +156,7 @@ class LayersUtils:
                 for point in geom2.vertices():
                     punktyList.append(point)
         return punktyList
-    
+
     @staticmethod
     def removeLayer(project, canvas, layer_id):
         layer = project.mapLayer(layer_id)
@@ -164,8 +164,9 @@ class LayersUtils:
             project.removeMapLayer(layer_id)
             canvas.refresh()
 
+
 class FilterUtils:
-    
+
     @staticmethod
     def onlyNewest(data_file_list):
         """filtruje listę tylko do najnowszych plików według arkuszy"""
@@ -188,8 +189,9 @@ class FilterUtils:
                 unique_dict_list.append(_dict)
         return unique_dict_list
 
+
 class FileUtils:
-    
+
     @staticmethod
     def openFile(filename):
         """otwiera folder/plik niezależnie od systemu operacyjnego"""
@@ -204,19 +206,19 @@ class FileUtils:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
             subprocess.call([opener, abs_path])  # nosec B603
 
-
     @staticmethod
     def createReport(file_path, headers, obj_list, file_name_from_url=True):
         file_path = f'{file_path}_{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.txt'
         if file_name_from_url:
             obj_list = [{**obj, 'url': obj.get('url', '').split('/')[-1]} for obj in obj_list]
         valid_headers = {header: key for header, key in headers.items() if
-                        any(key in obj for obj in obj_list)}
+                         any(key in obj for obj in obj_list)}
         with open(file_path, 'w') as report_file:
             report_file.write(','.join(valid_headers.keys()) + '\n')
             for obj in obj_list:
                 row = [str(obj.get(key, '')) for key in valid_headers.values()]
                 report_file.write(','.join(row) + '\n')
+
 
 class MessageUtils:
 
@@ -268,7 +270,7 @@ class MessageUtils:
             level=Qgis.MessageLevel.Info,
             duration=10
         )
-    
+
     @staticmethod
     def pushSuccess(iface, message: str) -> None:
         iface.messageBar().pushMessage(
@@ -311,34 +313,35 @@ class MessageUtils:
             level=Qgis.MessageLevel.Critical
         )
 
+
 class NetworkUtils:
 
     def __init__(self):
         self.manager = QNetworkAccessManager()
         self.manager.setProxy(QgsNetworkAccessManager.instance().proxy())
-        
+
         # Wyciszenie ostrzeżeń o braku weryfikacji SSL (InsecureRequestWarning)
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def _handleReplyError(self, reply, url_str):
         """Centralna obsługa błędów sieciowych i HTTP"""
-        
+
         error_code = reply.error()
         error_str = reply.errorString()
-        
+
         status_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_STATUS'])
         reason_attr = self._getAttributeEnum(NETWORK_ATTRS['HTTP_REASON'])
         timeout_err = self._getErrorEnum(ERR_TIMEOUT)
 
         http_status = reply.attribute(status_attr)
         http_reason = reply.attribute(reason_attr)
-        
+
         if http_status and http_status >= HTTP_ERROR_THRESHOLD:
             return False, MSG_HTTP_ERROR.format(http_status, http_reason)
-        
+
         if error_code == timeout_err:
             return False, MSG_TIMEOUT.format(url_str)
-            
+
         return False, MSG_NETWORK_ERROR.format(error_str, url_str)
 
     def _hasErrorOccurred(self, reply):
@@ -371,11 +374,11 @@ class NetworkUtils:
             redirect_policy_class = getattr(QNetworkRequest, REDIRECT_POLICY_NAME, QNetworkRequest)
             redirect_policy = getattr(redirect_policy_class, REDIRECT_POLICY_NO_LESS_SAFE, DEFAULT_REDIRECT_POLICY)
             request.setAttribute(redirect_attr, redirect_policy)
-        
+
         timeout_attr = self._getAttributeEnum(NETWORK_ATTRS['TIMEOUT'])
         if timeout_attr is not None:
             request.setAttribute(timeout_attr, timeout_ms)
-            
+
     def fetchContent(self, url, params=None, timeout_ms=TIMEOUT_MS):
         q_url = QUrl(url)
         if params:
@@ -383,14 +386,14 @@ class NetworkUtils:
             for key, value in params.items():
                 query.addQueryItem(str(key), str(value))
             q_url.setQuery(query)
-            
+
         request = QNetworkRequest(q_url)
         self._setAttributes(request, timeout_ms)
-        
+
         blocking_request = QgsBlockingNetworkRequest()
         error_code = blocking_request.get(request)
         reply_content = blocking_request.reply()
-        
+
         # Fallback: każda nieudana próba Qt skutkuje próbą przez requests
         if error_code != QgsBlockingNetworkRequest.ErrorCode.NoError:
             return self._fetchContentWithRequests(url, params, timeout_ms)
@@ -398,7 +401,7 @@ class NetworkUtils:
         raw_data = reply_content.content()
         if len(raw_data) == 0:
             return False, MSG_EMPTY_CONTENT.format(url)
-            
+
         try:
             data = bytes(raw_data).decode(DEFAULT_ENCODING)
             return True, data
@@ -413,7 +416,7 @@ class NetworkUtils:
             return True, json.loads(result)
         except json.JSONDecodeError as e:
             return False, MSG_JSON_DECODE_ERROR.format(str(e))
-  
+
     def downloadFile(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
         request = QNetworkRequest(QUrl(url))
         self._setAttributes(request, timeout_ms)
@@ -435,13 +438,13 @@ class NetworkUtils:
                     f.write(reply.readAll().data())
         except IOError as e:
             return False, MSG_FILE_WRITE_ERROR.format(str(e))
-            
+
         status, message = self._finilizeDownload(reply, url)
-        
+
         # Fallback: każda nieudana próba Qt skutkuje próbą przez requests
         if not status:
             return self._downloadFileWithRequests(url, dest_path, obj, timeout_ms)
-            
+
         return status, message
 
     def _handleReadyRead(self, reply, file):
@@ -452,18 +455,18 @@ class NetworkUtils:
         cancel_timer = QTimer()
         cancel_timer.timeout.connect(lambda: reply.abort() if (obj and obj.isCanceled()) else None)
         cancel_timer.start(CANCEL_CHECK_MS)
-        
+
         event_loop.exec()
 
         cancel_timer.stop()
-    
+
     def _finilizeDownload(self, reply, url):
         if self._hasErrorOccurred(reply):
             canceled_error = self._getErrorEnum(ERR_CANCELED)
             if reply.error() == canceled_error:
                 reply.deleteLater()
                 return False, MSG_DOWNLOAD_CANCELED
-            
+
             error_res = self._handleReplyError(reply, url)
             reply.deleteLater()
             return error_res
@@ -488,9 +491,8 @@ class NetworkUtils:
         if proxy.hostName():
             proxy_url = f"http://{proxy.user()}:{proxy.password()}@{proxy.hostName()}:{proxy.port()}" if proxy.user() else f"http://{proxy.hostName()}:{proxy.port()}"
             session.proxies = {"http": proxy_url, "https": proxy_url}
-            
-        return session
 
+        return session
 
     def _downloadFileWithRequests(self, url, dest_path, obj=None, timeout_ms=TIMEOUT_MS):
         try:
@@ -510,7 +512,7 @@ class NetworkUtils:
             return True, True
 
         except Exception as e:
-            return self._handleRequestsError(e)   
+            return self._handleRequestsError(e)
 
     def _fetchContentWithRequests(self, url, params=None, timeout_ms=TIMEOUT_MS):
         try:
@@ -535,7 +537,7 @@ class NetworkUtils:
         )
 
         return response
-    
+
     def _handleRequestsError(self, e):
 
         if isinstance(e, requests.exceptions.Timeout):
@@ -554,7 +556,8 @@ class NetworkUtils:
             return False, f"Błąd systemu plików: {str(e)}"
 
         return False, f"Nieoczekiwany błąd requests: {str(e)}"
-        
+
+
 class ServiceAPI:
     def __init__(self, parent=None):
         if parent:
@@ -610,7 +613,6 @@ class ServiceAPI:
         self.cleanupFile(path)
         return False, result
 
-
     def getAllLayers(self, url, service="WMS"):
         # Poprawne parametry GetCapabilities
         params = {
@@ -663,15 +665,12 @@ class ServiceAPI:
 
         return unique_layers
 
-
-
     def checkInternetConnection(self):
         # próba połączenia z serwerem np. gugik
         is_success, _ = self.network_utils.fetchContent(ULDK_URL, timeout_ms=TIMEOUT_MS)
         if not is_success and self.iface:
             MessageUtils.pushWarning(self.iface, MSG_NO_CONNECTION)
         return is_success
-
 
     def cleanupFile(self, path):
         if os.path.exists(path):
@@ -681,6 +680,7 @@ class ServiceAPI:
                 MessageUtils.pushLogWarning(f'Nie udało się usunąć pliku {path} - plik jest używany przez inny proces')
             except OSError as e:
                 MessageUtils.pushLogWarning(f"Błąd podczas usuwania pliku {path}: {e}")
+
 
 class ParsingUtils:
 
@@ -714,6 +714,7 @@ class ParsingUtils:
         except TypeError:
             MessageUtils.pushLogWarning(f"Błąd konwersji wartości na float: {value}")
             return 0.0
+
 
 class VersionUtils:
 

@@ -1,4 +1,4 @@
-from qgis.core import QgsApplication, QgsTask, Qgis
+from qgis.core import QgsTask
 from ..utils import MessageUtils, ServiceAPI
 
 

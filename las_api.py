@@ -21,7 +21,7 @@ def getLasListbyPoint1992(point, isEvrf2007):
         'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50),
         'query_layers': ','.join(layers),
     })
-    
+
     resp = service_api.getRequest(params=params, url=_url)
 
     return _convertAttributes(getWmsObjects(resp))
@@ -44,6 +44,6 @@ def _convertAttributes(elems_list):
 
 if __name__ == '__main__':
     from qgis.core import QgsPoint
-    print(getLasListbyPoint1992(QgsPoint(504189, 380335))) #, isLaz=True
+    print(getLasListbyPoint1992(QgsPoint(504189, 380335)))  # , isLaz=True
 # https://opendata.geoportal.gov.pl/NumDaneWys/DanePomiarowe/5020/5020_452318_M-34-52-C-d-1-3-2.las
 # https://opendata.geoportal.gov.pl/NumDaneWys/DanePomiaroweLAZ/5020/5020_452318_M-34-52-C-d-1-3-2.laz

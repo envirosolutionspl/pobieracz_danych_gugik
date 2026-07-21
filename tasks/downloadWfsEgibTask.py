@@ -1,6 +1,5 @@
-from qgis.PyQt.QtGui import QPixmap, QIcon
 
-from qgis.core import QgsApplication, QgsTask, Qgis
+from qgis.core import QgsTask
 from ..utils import MessageUtils, FileUtils
 from ..wfs import WfsEgib
 from ..constants import STATUS_SUCCESS, STATUS_CANCELED
@@ -24,14 +23,14 @@ class DownloadWfsEgibTask(QgsTask):
 
         self.wfsEgib = WfsEgib()
         self.name_error = self.wfsEgib.egibWFS(self.teryt, self.wfs_url, self.folder, obj=self)
-        
+
         if self.isCanceled() or self.name_error == STATUS_CANCELED:
             return False
 
         if self.name_error == STATUS_SUCCESS:
             FileUtils.openFile(self.folder)
             return True
-            
+
         return False
 
     def finished(self, result):
@@ -50,7 +49,7 @@ class DownloadWfsEgibTask(QgsTask):
         # błędy warstw
         MessageUtils.pushLogWarning('Nie udało się pobrać wszystkich danych EGiB')
         MessageUtils.pushWarning(self.iface, 'Niektóre warstwy EGiB nie zostały pobrane. Szczegóły w raporcie błędu.')
-        
+
         if self.name_error and self.name_error != STATUS_SUCCESS:
             title = "Informacje o warstwach EGiB"
             MessageUtils.pushMessageBoxCritical(self.iface.mainWindow(), title, self.name_error)

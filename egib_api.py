@@ -2,7 +2,8 @@ from qgis.utils import iface
 from .utils import MessageUtils, NetworkUtils
 from lxml import etree
 
-from .constants import EGIB_WFS_URL, TIMEOUT_MS, NAZWA_ZBIORU_EGIB 
+from .constants import EGIB_WFS_URL, TIMEOUT_MS, NAZWA_ZBIORU_EGIB
+
 
 class EgibAPI:
     def __init__(self):
@@ -16,7 +17,6 @@ class EgibAPI:
             MessageUtils.pushWarning(iface, 'Ostrzeżenie:', content)
             return
 
-
         root = etree.HTML(content)
         table = root.xpath('.//table[contains(@class, "table")]')[0]
         if table is None:
@@ -24,7 +24,7 @@ class EgibAPI:
 
         for row in table.iterfind('.//tr'):
             cells = [cell for cell in row.iterfind('td')]
-            if len(cells) < 7:  
+            if len(cells) < 7:
                 continue
             nazwa_zbioru = next(cells[2].itertext()).strip()
 
@@ -36,8 +36,8 @@ class EgibAPI:
 
         data_dict.update({"2062": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2062"})
         data_dict.update({"2007": "https://mapy.geoportal.gov.pl/wss/ext/PowiatoweBazyEwidencjiGruntow/2007"})
-    
+
         return data_dict
-    
+
     def getWfsEgibDict(self):
         return self.getWfsDict(NAZWA_ZBIORU_EGIB)

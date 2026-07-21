@@ -3,9 +3,8 @@
 
 import os
 import warnings
-from .utils import VersionUtils
 from qgis.PyQt import QtWidgets, uic
-from qgis.PyQt.QtCore import QT_VERSION_STR, pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal
 
 from qgis.PyQt.QtCore import QRegularExpression
 from qgis.PyQt.QtGui import QRegularExpressionValidator
@@ -30,7 +29,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return Qgis.LayerFilters(
                 Qgis.LayerFilter.PolygonLayer | Qgis.LayerFilter.LineLayer | Qgis.LayerFilter.PointLayer
             )
-        
+
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         return QgsMapLayerProxyModel.Filter.PolygonLayer | QgsMapLayerProxyModel.Filter.LineLayer | QgsMapLayerProxyModel.Filter.PointLayer
 

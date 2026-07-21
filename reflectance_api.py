@@ -13,7 +13,7 @@ def getReflectanceListbyPoint1992(point):
     params = WMS_GET_FEATURE_INFO_PARAMS.copy()
     params.update({
         'layers': ','.join(ODBICIOWOWSC_SKOROWIDZE_LAYERS),
-        'bbox': '%f,%f,%f,%f' % (y-50, x-50, y+50, x+50),
+        'bbox': '%f,%f,%f,%f' % (y - 50, x - 50, y + 50, x + 50),
         'query_layers': ','.join(ODBICIOWOWSC_SKOROWIDZE_LAYERS)
     })
 
@@ -25,7 +25,7 @@ def _convertAttributes(elems_list):
     """
     Konwertuje atrybuty elementów WMS na odpowiednie typy.
     Zapewnia bezpieczeństwo typów danych, przy np. porównywaniu wartości liczbowych.
-    
+
     :param elems_list: Lista elementów WMS.
     :return: Lista elementów WMS z poprawnymi typami atrybutów.
     """

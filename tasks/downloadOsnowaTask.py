@@ -1,4 +1,4 @@
-from qgis.core import QgsTask, Qgis
+from qgis.core import QgsTask
 
 from ..constants import OSNOWA_WMS_URL, TIMEOUT_MS
 from ..utils import MessageUtils, NetworkUtils, ServiceAPI
@@ -18,22 +18,22 @@ class DownloadOsnowaTask(QgsTask):
 
     def run(self):
         MessageUtils.pushLogInfo(f'Rozpoczęto zadanie: "{self.description()}"')
-            
+
         for typ in self.typ:
             url = f"{OSNOWA_WMS_URL}teryt={self.teryt_powiat}&typ={typ}"
-                
+
             if self.isCanceled():
                 return False
-            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS*2)
+            success_check, result_check = self.network_utils.fetchContent(url, timeout_ms=TIMEOUT_MS * 2)
 
             if not success_check:
                 MessageUtils.pushLogCritical(f'Błąd przy sprawdzaniu dostępności {url}: {result_check}')
                 return False
-                    
+
             MessageUtils.pushLogInfo(f'Pobieram {url}')
-                
+
             res, self.exception = self.service_api.retreiveFile(url=url, destFolder=self.folder, obj=self)
-                
+
             if not res:
                 MessageUtils.pushLogCritical(f'Błąd przy pobieraniu pliku {url}: {self.exception}')
                 return False

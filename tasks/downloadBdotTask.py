@@ -1,6 +1,6 @@
 from qgis.core import (
-    QgsTask, Qgis
-    )
+    QgsTask
+)
 
 from ..constants import BDOT_FORMAT_URL_MAPPING
 from ..utils import MessageUtils, ServiceAPI
@@ -46,14 +46,14 @@ class DownloadBdotTask(QgsTask):
         is_success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
         self.result = is_success
         self.exception = message
-        
+
         if not self.result:
             self._construct_url(self.level, self.teryt, self.format_danych, upper=True)
             MessageUtils.pushLogInfo(f'Próba 2: Pobieram {self.url}')
             is_success, message = self.service_api.retreiveFile(url=self.url, destFolder=self.folder, obj=self)
             self.result = is_success
             self.exception = message
-            
+
         return self.result and not self.isCanceled()
 
     def finished(self, result):
@@ -63,7 +63,7 @@ class DownloadBdotTask(QgsTask):
         else:
             error_msg = str(self.exception) if self.exception and self.exception is not True else "Błąd nieznany"
             MessageUtils.pushLogWarning(f'Błąd podczas pobierania danych BDOT10k: {error_msg}')
-            MessageUtils.pushWarning(self.iface, f'Dane BDOT10k nie zostały pobrane')
+            MessageUtils.pushWarning(self.iface, 'Dane BDOT10k nie zostały pobrane')
 
     def cancel(self):
         MessageUtils.pushLogWarning('Anulowano pobieranie danych BDOT10k')
