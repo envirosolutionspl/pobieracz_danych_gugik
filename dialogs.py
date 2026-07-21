@@ -32,7 +32,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             )
         
         warnings.filterwarnings("ignore", category=DeprecationWarning)
-        return QgsMapLayerProxyModel.PolygonLayer | QgsMapLayerProxyModel.LineLayer | QgsMapLayerProxyModel.PointLayer
+        return QgsMapLayerProxyModel.Filter.PolygonLayer | QgsMapLayerProxyModel.Filter.LineLayer | QgsMapLayerProxyModel.Filter.PointLayer
 
     def __init__(self, regionFetch, parent=None):
         """Constructor."""
