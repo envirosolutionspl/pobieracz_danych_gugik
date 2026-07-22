@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QCoreApplication, QT_VERSION_STR
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
 from qgis.gui import QgsMapToolEmitPoint
@@ -556,24 +556,31 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.orto_mapLayerComboBox.currentLayer()
         # zamiana układu na 92
         if layer:
-            points = self.pointsFromVectorLayer(layer)
+            orto_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych dla ortofotomapy..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.orto_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.orto_fromLayer_btn.setEnabled(False)
 
-            ortoList = []
-            for point in points:
-                subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
-                if subList:
-                    ortoList.extend(subList)
-                else:
-                    bledy += 1
-
+                ortoList = []
+                for point in points:
+                    subList = ortofoto_api.getOrtoListbyPoint1992(point=point)
+                    if subList:
+                        ortoList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                orto_notification.close()
+                orto_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.orto_fromLayer_btn.setEnabled(True)
             self.filterOrtoListAndRunTask(ortoList)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.orto_fromLayer_btn.setEnabled(True)
-
         else:
             MessageUtils.pushWarning(self.iface, 'Nie wskazano warstwy wektorowej')
 
@@ -685,28 +692,38 @@ class PobieraczDanychGugik:
         isEvrf2007 = self.dockwidget.evrf2007_rdbtn.isChecked()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=200 if isNmpt else 400)
+            nmt_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych NMT/NMPT..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=200 if isNmpt else 400)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.nmt_fromLayer_btn.setEnabled(False)
 
-            nmtList = []
-            for point in points:
+                nmtList = []
+                for point in points:
 
-                resp = nmpt_api.getNmptListbyPoint1992(
-                    point=point,
-                    isEvrf2007=isEvrf2007
-                ) if isNmpt else nmt_api.getNmtListbyPoint1992(
-                    point=point,
-                    isEvrf2007=isEvrf2007
-                )
-                if resp:
-                    nmtList.extend(resp if isNmpt else resp[1])
-                else:
-                    bledy += 1
+                    resp = nmpt_api.getNmptListbyPoint1992(
+                        point=point,
+                        isEvrf2007=isEvrf2007
+                    ) if isNmpt else nmt_api.getNmtListbyPoint1992(
+                        point=point,
+                        isEvrf2007=isEvrf2007
+                    )
+                    if resp:
+                        nmtList.extend(resp if isNmpt else resp[1])
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                nmt_notification.close()
+                nmt_notification.deleteLater()
+                self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
 
             self.filterNmtListAndRunTask(nmtList, isNmpt)
-            self.dockwidget.nmt_fromLayer_btn.setEnabled(True)
         else:
             MessageUtils.pushWarning(self.iface, 'Nie wskazano warstwy wektorowej')
 
@@ -847,19 +864,33 @@ class PobieraczDanychGugik:
             return False
         layer = self.dockwidget.las_mapLayerComboBox.currentLayer()
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=250)
-            las_list = []
-            # zablokowanie klawisza pobierania
-            self.dockwidget.las_fromLayer_btn.setEnabled(False)
-            for point in points:
-                sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
-                las_list.extend(sub_list)
+            las_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych LAS/LAZ..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=250)
+
+                # zablokowanie klawisza pobierania
+                self.dockwidget.las_fromLayer_btn.setEnabled(False)
+                
+                las_list = []
+                for point in points:
+                    sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
+                    las_list.extend(sub_list)
+                    QCoreApplication.processEvents()
+                
+            finally:
+                las_notification.close()
+                las_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.las_fromLayer_btn.setEnabled(True)
+
             self.filterLasListAndRunTask(las_list)
+
         else:
             MessageUtils.pushWarning(self.iface, 'Nie wskazano warstwy wektorowej')
-
-        # odblokowanie klawisza pobierania
-        self.dockwidget.las_fromLayer_btn.setEnabled(True)
 
     def downloadLasForSinglePoint(self, point):
         """Pobiera LAS dla pojedynczego punktu"""
@@ -972,24 +1003,37 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.reflectance_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.reflectance_fromLayer_btn.setEnabled(False)
+            reflectance_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych intensywności..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            reflectanceList = []
-            for point in points:
-                subList = reflectance_api.getReflectanceListbyPoint1992(point=point)
-                if subList:
-                    reflectanceList.extend(subList)
-                else:
-                    bledy += 1
+                # zablokowanie klawisza pobierania
+                self.dockwidget.reflectance_fromLayer_btn.setEnabled(False)
 
+                reflectanceList = []
+                for point in points:
+                    subList = reflectance_api.getReflectanceListbyPoint1992(point=point)
+                    if subList:
+                        reflectanceList.extend(subList)
+                    else:
+                        bledy += 1
+
+                    QCoreApplication.processEvents()
+                
+                print("%d zapytań się nie powiodło" % bledy)
+                
+            finally:
+                reflectance_notification.close()
+                reflectance_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
+            
             self.filterReflectanceListAndRunTask(reflectanceList)
-            print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
 
         else:
             MessageUtils.pushWarning(self.iface, 'Nie wskazano warstwy wektorowej')
@@ -1710,17 +1754,27 @@ class PobieraczDanychGugik:
         bledy = 0
         layer = self.dockwidget.mesh3d_mapLayerComboBox.currentLayer()
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
-            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(False)
-            mesh_objs = []
-            for point in points:
-                subList = mesh3d_api.getMesh3dListbyPoint1992(point=point)
-                if subList:
-                    mesh_objs.extend(subList)
-                else:
-                    bledy += 1
-            self.filterMeshListAndRunTask(mesh_objs)
-            self.dockwidget.mesh3d_fromLayer_btn.setEnabled(True)
+            mesh3d_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych Mesh 3D..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
+                self.dockwidget.mesh3d_fromLayer_btn.setEnabled(False)
+                mesh_objs = []
+                for point in points:
+                    subList = mesh3d_api.getMesh3dListbyPoint1992(point=point)
+                    if subList:
+                        mesh_objs.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+                self.filterMeshListAndRunTask(mesh_objs)
+            finally:
+                mesh3d_notification.close()
+                mesh3d_notification.deleteLater()
+                self.dockwidget.mesh3d_fromLayer_btn.setEnabled(True)
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
 
@@ -1738,24 +1792,35 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.aerotriangulacja_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            aero_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych dla aerotriangulacji..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(False)
 
-            aerotriangulacjaList = []
-            for point in points:
-                subList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point)
-                if subList:
-                    aerotriangulacjaList.extend(subList)
-                else:
-                    bledy += 1
+                aerotriangulacjaList = []
+                for point in points:
+                    subList = aerotriangulacja_api.getAerotriangulacjaListbyPoint1992(point=point)
+                    if subList:
+                        aerotriangulacjaList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                aero_notification.close()
+                aero_notification.deleteLater()
+                self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
             # print("list: ", aerotriangulacjaList)
             self.filterAerotriangulacjaListAndRunTask(aerotriangulacjaList)
             # print("%d zapytań się nie powiodło" % bledy)
 
             # odblokowanie klawisza pobierania
-            self.dockwidget.aerotriangulacja_fromLayer_btn.setEnabled(True)
+
 
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
@@ -1852,25 +1917,34 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.linie_mozaikowania_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            mosaic_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych linii mozaikowania..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(False)
 
-            mozaikaList = []
-            for point in points:
-                subList = mozaika_api.getMozaikaListbyPoint1992(point=point)
-                if subList:
-                    mozaikaList.extend(subList)
-                else:
-                    bledy += 1
-
+                mozaikaList = []
+                for point in points:
+                    subList = mozaika_api.getMozaikaListbyPoint1992(point=point)
+                    if subList:
+                        mozaikaList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
             # print("list: ", mozaikaList)
+            finally:
+                mosaic_notification.close()
+                mosaic_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(True)
+
             self.filterMozaikaListAndRunTask(mozaikaList)
             # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.linie_mozaikowania_arch_fromLayer_btn.setEnabled(True)
 
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
@@ -1933,27 +2007,36 @@ class PobieraczDanychGugik:
         skala_wartosc = self.getSelectedScaleForWizualizacjaKarto()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
+            karto_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych wizualizacji kartograficznej..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=500)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(False)
 
-            wizKartoList = []
-            for point in points:
-                subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
-                    point=point,
-                    skala=skala_wartosc
-                )
-                if subList:
-                    wizKartoList.extend(subList)
-                else:
-                    bledy += 1
+                wizKartoList = []
+                for point in points:
+                    subList = wizualizacja_karto_api.getWizualizacjaKartoListbyPoint1992(
+                        point=point,
+                        skala=skala_wartosc
+                    )
+                    if subList:
+                        wizKartoList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                karto_notification.close()
+                karto_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(True)
             # print("list: ", wizKartoList)
             self.filterWizualizacjaKartoListAndRunTask(wizKartoList)
             # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.wizualizacja_karto_fromLayer_btn.setEnabled(True)
 
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
@@ -2046,25 +2129,34 @@ class PobieraczDanychGugik:
         is_kronsztad = True if self.dockwidget.niwelacyjne_rdbtn.isChecked() else False
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=500)
+            osnowa_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych osnów geodezyjnych..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=500)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(False)
 
-            kartotekiOsnowList = []
-            for point in points:
-                subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
-                                                                               is_kronsztad=is_kronsztad)
-                if subList:
-                    kartotekiOsnowList.extend(subList)
-                else:
-                    bledy += 1
+                kartotekiOsnowList = []
+                for point in points:
+                    subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
+                                                                                is_kronsztad=is_kronsztad)
+                    if subList:
+                        kartotekiOsnowList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                osnowa_notification.close()
+                osnowa_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(True)
             # print("list: ", wizKartoList)
             self.filterKartotekiOsnowListAndRunTask(kartotekiOsnowList)
             # print("%d zapytań się nie powiodło" % bledy)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.osnowa_arch_fromLayer_btn.setEnabled(True)
 
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
@@ -2169,23 +2261,32 @@ class PobieraczDanychGugik:
         layer = self.dockwidget.zdjecia_lotnicze_mapLayerComboBox.currentLayer()
 
         if layer:
-            points = self.pointsFromVectorLayer(layer, density=1000)
+            aviation_photos_notification = MessageUtils.downloadNotifcation(
+                self.iface.mainWindow(),
+                "Wyszukiwanie danych",
+                "Trwa wyszukiwanie danych zdjęć lotniczych..."
+            )
+            try:
+                points = self.pointsFromVectorLayer(layer, density=1000)
 
-            # zablokowanie klawisza pobierania
-            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(False)
+                # zablokowanie klawisza pobierania
+                self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(False)
 
-            zdjeciaLotniczeList = []
-            for point in points:
-                subList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point)
-                if subList:
-                    zdjeciaLotniczeList.extend(subList)
-                else:
-                    bledy += 1
+                zdjeciaLotniczeList = []
+                for point in points:
+                    subList = zdjecia_lotnicze_api.getZdjeciaLotniczeListbyPoint1992(point=point)
+                    if subList:
+                        zdjeciaLotniczeList.extend(subList)
+                    else:
+                        bledy += 1
+                    QCoreApplication.processEvents()
+            finally:
+                aviation_photos_notification.close()
+                aviation_photos_notification.deleteLater()
+                # odblokowanie klawisza pobierania
+                self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
 
             self.filterZdjeciaLotniczeListAndRunTask(zdjeciaLotniczeList)
-
-            # odblokowanie klawisza pobierania
-            self.dockwidget.zdjecia_lotnicze_fromLayer_btn.setEnabled(True)
 
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")

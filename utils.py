@@ -14,13 +14,13 @@ from qgis.core import (
     QgsNetworkAccessManager,
     QgsBlockingNetworkRequest
 )
-from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtCore import QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager
 import requests
 import ssl
 import urllib3
+from qgis.PyQt.QtCore import Qt, QCoreApplication, QUrl, QUrlQuery, QEventLoop, QTimer, QT_VERSION_STR
 from .constants import (
     TIMEOUT_MS,
     MAX_ATTEMPTS,
@@ -261,6 +261,25 @@ class MessageUtils:
 
         result = msg_box.exec()
         return result == QMessageBox.StandardButton.Yes
+
+    @staticmethod
+    def downloadNotifcation(parent, title, message):
+        msg_box = QProgressDialog(parent)
+        msg_box.setWindowTitle(title)
+        msg_box.setLabelText(message)
+        msg_box.setRange(0, 0)
+        msg_box.setMinimumDuration(0)
+        msg_box.setCancelButton(None)
+        msg_box.setAutoClose(False)
+        msg_box.setAutoReset(False)
+        msg_box.setMinimumSize(420, 100)
+        msg_box.resize(420, 100)
+        msg_box.setWindowModality(Qt.WindowModality.ApplicationModal)
+        msg_box.show()
+        msg_box.raise_()
+        msg_box.activateWindow()
+        QCoreApplication.processEvents()
+        return msg_box
 
     @staticmethod
     def pushMessage(iface, message: str) -> None:
