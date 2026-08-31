@@ -26,11 +26,11 @@ class EgibAPI:
             cells = [cell for cell in row.iterfind('td')]
             if len(cells) < 7:
                 continue
-            nazwa_zbioru = next(cells[2].itertext()).strip()
+            nazwa_zbioru = next(cells[3].itertext()).strip()
 
             if nazwa_zbioru.lower() == filter_name_lowercase:
-                teryt = next(cells[3].itertext()).strip()
-                link_element = cells[6].find('a')
+                teryt = next(cells[4].itertext()).strip()
+                link_element = cells[16].find('a')
                 link = link_element.get('href') if link_element is not None else ''
                 data_dict[teryt] = link.split("?")[0] if link else ''
 
