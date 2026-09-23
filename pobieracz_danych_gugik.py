@@ -874,13 +874,13 @@ class PobieraczDanychGugik:
 
                 # zablokowanie klawisza pobierania
                 self.dockwidget.las_fromLayer_btn.setEnabled(False)
-                
+
                 las_list = []
                 for point in points:
                     sub_list = las_api.getLasListbyPoint1992(point, self.dockwidget.las_evrf2007_rdbtn.isChecked())
                     las_list.extend(sub_list)
                     QCoreApplication.processEvents()
-                
+
             finally:
                 las_notification.close()
                 las_notification.deleteLater()
@@ -1024,15 +1024,15 @@ class PobieraczDanychGugik:
                         bledy += 1
 
                     QCoreApplication.processEvents()
-                
+
                 print("%d zapytań się nie powiodło" % bledy)
-                
+
             finally:
                 reflectance_notification.close()
                 reflectance_notification.deleteLater()
                 # odblokowanie klawisza pobierania
                 self.dockwidget.reflectance_fromLayer_btn.setEnabled(True)
-            
+
             self.filterReflectanceListAndRunTask(reflectanceList)
 
         else:
@@ -1821,7 +1821,6 @@ class PobieraczDanychGugik:
 
             # odblokowanie klawisza pobierania
 
-
         else:
             MessageUtils.pushWarning(self.iface, "Nie wskazano warstwy wektorowej")
 
@@ -2142,8 +2141,10 @@ class PobieraczDanychGugik:
 
                 kartotekiOsnowList = []
                 for point in points:
-                    subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(point=point,
-                                                                                is_kronsztad=is_kronsztad)
+                    subList = kartoteki_osnow_api.getKartotekiOsnowListbyPoint1992(
+                        point=point,
+                        is_kronsztad=is_kronsztad
+                    )
                     if subList:
                         kartotekiOsnowList.extend(subList)
                     else:
