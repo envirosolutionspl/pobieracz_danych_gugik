@@ -1,0 +1,89 @@
+name: Check Security and Quality of the Code
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: python -m pip install flake8
+
+      - name: Run flake8
+        run: flake8 --config=.flake8 . > "$RUNNER_TEMP/flake8.txt"
+      
+      - name: Create flake8's report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flake8-report
+          path: ${{ runner.temp }}/flake8.txt
+
+      - name: Show report
+        if: always()
+        run: cat "$RUNNER_TEMP/flake8.txt" >> "$GITHUB_STEP_SUMMARY"
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: python -m pip install bandit
+
+      - name: Run Bandit
+        run: bandit -ll -x libs -r . > "$RUNNER_TEMP/bandit.txt"
+      
+      - name: Create Bandit's report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: ${{ runner.temp }}/bandit.txt
+
+      - name: Show report
+        if: always()
+        run: cat "$RUNNER_TEMP/bandit.txt" >> "$GITHUB_STEP_SUMMARY"
+
+  detect-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: python -m pip install detect-secrets
+
+      - name: Detect secrets
+        run: detect-secrets scan . > "$RUNNER_TEMP/secrets.txt"
+      
+      - name: Create secrets report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: secrets-report
+          path: ${{ runner.temp }}/secrets.txt
+
+      - name: Show report
+        if: always()
+        run: cat "$RUNNER_TEMP/secrets.txt" >> "$GITHUB_STEP_SUMMARY"
