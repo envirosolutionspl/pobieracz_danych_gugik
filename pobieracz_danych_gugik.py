@@ -713,8 +713,13 @@ class PobieraczDanychGugik:
                         point=point,
                         isEvrf2007=isEvrf2007
                     )
-                    if resp:
-                        nmtList.extend(resp if isNmpt else resp[1])
+                    if isNmpt:
+                        if resp:
+                            nmtList.extend(resp)
+                        else:
+                            bledy += 1
+                    elif resp and resp[0] and isinstance(resp[1], list):
+                        nmtList.extend(resp[1])
                     else:
                         bledy += 1
                     QCoreApplication.processEvents()
