@@ -102,7 +102,7 @@ class WfsEgib:
         for layer in name_layers:
             if obj and obj.isCanceled():
                 return STATUS_CANCELED
-            
+
             for version in OGC_VERSIONS:
 
                 if prefix in GML_URL_TEMPLATES:
