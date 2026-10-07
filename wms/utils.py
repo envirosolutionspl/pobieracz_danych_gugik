@@ -1,7 +1,6 @@
 import re
-import xml.etree.ElementTree as ET  # nosec B405
-import lxml
-from ..constants import TIMEOUT_MS, WMS_NAMESPACES
+import lxml.etree
+from ..constants import TIMEOUT_MS, WMS_NAMESPACES, DEFAULT_ENCODING
 from ..utils import FilterUtils, NetworkUtils
 
 expr = re.compile(r"\{{1}.*\}{1}")
@@ -30,7 +29,7 @@ def getQueryableLayersFromWMS(wmsUrl):
             recover=False            # Avoid silent error recovery
         )
 
-        root = ET.fromstring(content, parser=parser)  # nosec B314
+        root = lxml.etree.fromstring(content.encode(DEFAULT_ENCODING), parser=parser) # nosec B314
         for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', WMS_NAMESPACES):
             nameET = layerET.find('./xmlns:Name', WMS_NAMESPACES)
             if nameET is not None:
@@ -40,7 +39,7 @@ def getQueryableLayersFromWMS(wmsUrl):
 
         return True, queryableLayers
 
-    except ET.ParseError:
+    except lxml.etree.XMLSyntaxError:
         return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
     except Exception as e:
         return False, f"Błąd pobierania warstw WMS: {str(e)}"

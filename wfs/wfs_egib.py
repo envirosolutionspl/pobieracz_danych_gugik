@@ -1,7 +1,6 @@
 import os
-import xml.etree.ElementTree as ET  # nosec B405
 from time import sleep
-import lxml
+import lxml.etree
 from datetime import datetime
 from ..utils import NetworkUtils, ServiceAPI
 from ..constants import (
@@ -53,13 +52,12 @@ class WfsEgib:
 
                 lxml_string = None
 
-                with open(os.path.join(folder, 'egib_wfs.xml')) as f:
+                with open(os.path.join(folder, 'egib_wfs.xml'), 'rb') as f:
                     lxml_string = f.read()
-                if lxml_string is None or lxml_string == "":
+                if lxml_string is None or lxml_string == b"":
                     raise Exception(f"The file '{os.path.join(folder, 'egib_wfs.xml')}' is empty.")
 
-                lxml_root = lxml.etree.fromstring(lxml_string.encode('utf-8'), parser=parser)
-                root = ET.fromstring(lxml.etree.tostring(lxml_root), parser=parser)  # nosec B314
+                root = lxml.etree.fromstring(lxml_string, parser=parser)
 
                 name_layers = []
                 wfs_ns = [
@@ -79,7 +77,7 @@ class WfsEgib:
                         elif name_layers[0].startswith('ms:'):
                             prefix = 'ms'
                         break
-            except ET.ParseError:
+            except lxml.etree.XMLSyntaxError:
                 error_reason = "Błąd parsowania pliku XML. Serwer zwrócił niepoprawne dane"
             except Exception as e:
                 error_reason = f"Błąd przy przetwarzaniu XML: {str(e)}"
