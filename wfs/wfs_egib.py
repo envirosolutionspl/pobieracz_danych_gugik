@@ -35,9 +35,15 @@ class WfsEgib:
 
         return STATUS_SUCCESS
 
-    def workOnXml(self, folder, url, teryt, obj=None):
-        """Pracuje na pliku XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane"""
-        name_error = self.saveXml(folder, url, teryt, obj=obj)
+    @staticmethod
+    def workOnXml(folder, url, teryt):
+        """Pracuje na pliku XML dla zapytania getCapabilities oraz obsługuje błędy z tym związane.
+
+        Wywoływać WYŁĄCZNIE w głównym wątku (np. w QgsTask.finished()). lxml używany
+        w wątku QgsTask powoduje crash QGIS przy zamykaniu wątku (xmlDictFree).
+        Plik musi być wcześniej pobrany przez saveXml().
+        """
+        name_error = STATUS_SUCCESS
         name_layers = None
         prefix = None
 
@@ -87,12 +93,12 @@ class WfsEgib:
 
         return name_error, name_layers, prefix
 
-    def saveGML(self, folder, url, teryt, obj=None):
-        """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty"""
-        name_error, name_layers, prefix = self.workOnXml(folder, url, teryt, obj=obj)
-        if name_error != STATUS_SUCCESS:
-            return name_error
+    def saveGML(self, folder, url, teryt, name_layers, prefix, obj=None):
+        """Pobiera dane EGiB dla wszystkich warstw udostępnionych przez powiaty.
 
+        Wykonywane w wątku QgsTask. Lista warstw (name_layers, prefix) pochodzi
+        z workOnXml(), wywołanego wcześniej w głównym wątku.
+        """
         url_main = url.split('?')[0]
         name_error_lista_brak = []
         name_error_lista = []
@@ -163,13 +169,18 @@ class WfsEgib:
 
         return STATUS_SUCCESS
 
-    def egibWFS(self, teryt, wfs, folder, obj=None):
-        """Tworzy nowy folder dla plików XML"""
-        wfs = f"{wfs}?service=WFS&request=GetCapabilities"
+    @staticmethod
+    def capabilitiesUrl(wfs):
+        """Adres zapytania GetCapabilities dla usługi WFS"""
+        return f"{wfs}?service=WFS&request=GetCapabilities"
+
+    @staticmethod
+    def createFolder(teryt, folder):
+        """Tworzy nowy folder dla plików XML i GML"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         path = os.path.join(folder, f'{teryt}_wfs_egib_{timestamp}/')
         os.makedirs(path, exist_ok=True)
-        return self.saveGML(path, wfs, teryt, obj=obj)
+        return path
 
 
 if __name__ == '__main__':
