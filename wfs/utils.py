@@ -27,7 +27,7 @@ def getTypenamesFromWFS(wfsUrl):
             recover=False            # Avoid silent error recovery
         )
 
-        root = fromstring(content.encode(DEFAULT_ENCODING), parser=parser) # nosec B314
+        root = fromstring(content.encode(DEFAULT_ENCODING), parser=parser)  # nosec B314
         for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
             name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
             title = featureType.find('.xmlns:Title', WFS_NAMESPACES).text

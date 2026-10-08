@@ -29,7 +29,7 @@ def getQueryableLayersFromWMS(wmsUrl):
             recover=False            # Avoid silent error recovery
         )
 
-        root = fromstring(content.encode(DEFAULT_ENCODING), parser=parser) # nosec B314
+        root = fromstring(content.encode(DEFAULT_ENCODING), parser=parser)  # nosec B314
         for layerET in root.findall('.//xmlns:Layer[@queryable="1"]', WMS_NAMESPACES):
             nameET = layerET.find('./xmlns:Name', WMS_NAMESPACES)
             if nameET is not None:
