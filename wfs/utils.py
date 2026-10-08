@@ -1,5 +1,5 @@
 import re
-import lxml.etree
+from lxml.etree import XMLParser, XMLSyntaxError, fromstring
 from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBUTES, VALUE_ALL, DEFAULT_ENCODING
 from ..utils import NetworkUtils, MessageUtils
 
@@ -21,13 +21,13 @@ def getTypenamesFromWFS(wfsUrl):
     typenamesDict = {}
 
     try:
-        parser = lxml.etree.XMLParser(
+        parser = XMLParser(
             resolve_entities=False,  # Prevent XXE
             no_network=True,         # Disable network access
             recover=False            # Avoid silent error recovery
         )
 
-        root = lxml.etree.fromstring(content.encode(DEFAULT_ENCODING), parser=parser) # nosec B314
+        root = fromstring(content.encode(DEFAULT_ENCODING), parser=parser) # nosec B314
         for featureType in root.findall('./xmlns:FeatureTypeList/xmlns:FeatureType', WFS_NAMESPACES):
             name = featureType.find('.xmlns:Name', WFS_NAMESPACES).text
             title = featureType.find('.xmlns:Title', WFS_NAMESPACES).text
@@ -35,7 +35,7 @@ def getTypenamesFromWFS(wfsUrl):
 
         return True, typenamesDict
 
-    except lxml.etree.XMLSyntaxError:
+    except XMLSyntaxError:
         return False, "Serwer zwrócił dane w niepoprawnym formacie (oczekiwano XML)."
     except Exception as e:
         return False, f"Nieoczekiwany błąd przy przetwarzaniu warstw WFS: {str(e)}"
