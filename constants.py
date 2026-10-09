@@ -153,10 +153,18 @@ HEADERS_MAPPING = {
 
 # tamplate do pobierania danych GML
 GML_URL_TEMPLATES = {
-    'ewns': "{url_main}?service=WFS&request=GetFeature&version=2.0.0&typeNames={layer}&namespaces=xmlns(ewns,http://xsd.geoportal2.pl/ewns)",
-    'ms': "{url_main}?service=WFS&request=GetFeature&version=1.0.0&typeNames={layer}&namespaces=xmlns(ms,http://mapserver.gis.umn.edu/mapserver)",
-    'default': "{url_main}?request=getFeature&version=2.0.0&service=WFS&typeNames={layer}"
+    'ewns': "{url_main}?service=WFS&request=GetFeature&version={version}&typeNames={layer}",
+    'ms': "{url_main}?service=WFS&request=GetFeature&version={version}&typeNames={layer}",
+    'default': "{url_main}?request=getFeature&version={version}&service=WFS&typeNames={layer}"
 }
+
+OGC_VERSIONS = (
+    '1.0.0',
+    '1.1.0',
+    '1.2.0',
+    '1.3.0',
+    '2.0.0'
+)
 
 # wersja Qt6
 QT_VER = {
