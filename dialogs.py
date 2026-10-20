@@ -2,22 +2,32 @@
 
 
 import os
+import re
+import configparser
 import warnings
 from qgis.PyQt import QtWidgets, uic
-from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import pyqtSignal, QDir, QEvent, QUrl
 
 from qgis.PyQt.QtCore import QRegularExpression
-from qgis.PyQt.QtGui import QRegularExpressionValidator
+from qgis.PyQt.QtGui import QRegularExpressionValidator, QDesktopServices
 
 from qgis._core import Qgis, QgsMapLayerProxyModel
-from qgis.gui import QgsFileWidget
+from qgis.gui import QgsFileWidget, QgsCollapsibleGroupBox
 
+from . import PLUGIN_VERSION
 from .constants import ADMINISTRATIVE_UNITS_OBJECTS, DOUBLE_VALIDATOR_OBJECTS, DATA_TIME_OBJECTS, MAP_LAYER_COMBOBOXES, \
-    VOIVODESHIP_COMBOBOXES, YEARS_COMBOBOXES, WFS_URL_MAPPING
+    VOIVODESHIP_COMBOBOXES, YEARS_COMBOBOXES, WFS_URL_MAPPING, AVAILABLE_DATA_LABELS, \
+    FOOTER_LINK_COLORS, FOOTER_LOGOS, HOME_LINK
+from .utils import ThemeUtils
 from .wfs import WfsFetch
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'pobieracz_danych_gugik_base.ui'))
+PLUGIN_DIR = os.path.dirname(__file__)
+
+# Prefiks „pdgimg:” używany w url(...) arkusza stylów w pliku .ui.
+# Musi być zarejestrowany PRZED setupUi, inaczej QSS nie znajdzie ikon.
+QDir.addSearchPath('pdgimg', os.path.join(PLUGIN_DIR, 'images'))
+
+FORM_CLASS, _ = uic.loadUiType(os.path.join(PLUGIN_DIR, 'ui', 'pobieracz_danych_gugik_base.ui'))
 
 
 class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
@@ -37,10 +47,13 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Constructor."""
         super(PobieraczDanychDockWidget, self).__init__(parent)
         self.setupUi(self)
+        self._theme = None
+        self._applyTheme()
         self.folder_fileWidget.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
         self.regionFetch = regionFetch
         self.wfsFetch = WfsFetch()
         self.setup_dialog()
+        self._setupLook()
 
     def setup_dialog(self):
         self.setupValidators()
@@ -113,6 +126,69 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.wfs_layer_cmbbx.clear()
         typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
         self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))
+
+    # ------------------------------- Wygląd -----------------------------------
+
+    def _setupLook(self):
+        """Elementy wyglądu, których nie da się opisać w pliku .ui."""
+        self.lbl_pluginVersion.setText('v%s' % PLUGIN_VERSION)
+        self.btn_help.clicked.connect(self._openHelp)
+        self.btn_collapse_all.clicked.connect(self._collapseAllSections)
+        for rdbtn in AVAILABLE_DATA_LABELS:
+            getattr(self, rdbtn).toggled.connect(self._showAvailableData)
+
+    def _collapseAllSections(self):
+        for group_box in self.findChildren(QgsCollapsibleGroupBox):
+            group_box.setCollapsed(True)
+
+    def _showAvailableData(self):
+        """Pokazuje etykietę „Dostępne dane: …” (tekst w .ui) zaznaczonego sposobu wyszukiwania."""
+        for rdbtn, label in AVAILABLE_DATA_LABELS.items():
+            getattr(self, label).setVisible(getattr(self, rdbtn).isChecked())
+
+    def _applyTheme(self, force=False):
+        """Ustawia właściwość „theme” – kolory zdefiniowane w arkuszu stylów w pliku .ui."""
+        theme = 'dark' if ThemeUtils.isDarkTheme() else 'light'
+        if theme == self._theme and not force:
+            return
+        self._theme = theme
+        self.setProperty('theme', theme)
+        ThemeUtils.repolishAll(self)
+        # Linki w stopce: tekst i adres są w .ui, tu zmienia się tylko kolor
+        color = FOOTER_LINK_COLORS[theme]
+        for lbl in (self.lbl_email, self.lbl_szkolenia):
+            lbl.setText(re.sub(r'style="[^"]*"', 'style="text-decoration:underline; color:%s;"' % color, lbl.text()))
+        # Logo w stopce: zielone na jasnym tle, białe na ciemnym.
+        self._setFooterLogo(FOOTER_LOGOS[theme])
+
+    def _setFooterLogo(self, filename, height=34):
+        ThemeUtils.setLogo(self.label_5, filename, height)
+
+    def showEvent(self, event):
+        self._applyTheme()
+        super().showEvent(event)
+        # dopiero po pokazaniu znany jest właściwy devicePixelRatio (skalowanie 125–150%)
+        self._setFooterLogo(FOOTER_LOGOS[self._theme])
+
+    def changeEvent(self, event):
+        # changeEvent przychodzi już w trakcie setupUi – wtedy _theme jeszcze nie istnieje
+        if (event.type() in (QEvent.Type.PaletteChange, QEvent.Type.StyleChange)
+                and getattr(self, '_theme', None) is not None):
+            self._applyTheme()
+        super().changeEvent(event)
+
+    def _openHelp(self):
+        url = self._readHomepage() or HOME_LINK
+        QDesktopServices.openUrl(QUrl(url))
+
+    @staticmethod
+    def _readHomepage():
+        parser = configparser.ConfigParser(interpolation=None)
+        try:
+            parser.read(os.path.join(PLUGIN_DIR, 'metadata.txt'), encoding='utf-8')
+            return parser.get('general', 'homepage', fallback='')
+        except Exception:
+            return ''
 
     def closeEvent(self, event):
         self.closingPlugin.emit()
