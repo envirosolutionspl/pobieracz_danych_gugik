@@ -24,7 +24,7 @@
    <string notr="true">QScrollArea#scrollArea { border: none; background: transparent; }
 QLabel#lbl_title { font-size: 16px; font-weight: 700; }
 QLabel#lbl_subtitle, QLabel#lbl_pluginVersion { font-size: 11px; }
-QToolButton#btn_help, QToolButton#btn_collapse_all { border: none; border-radius: 6px; padding: 3px; }
+QToolButton#btn_help, QToolButton#btn_collapse_all, QToolButton#btn_close { border: none; border-radius: 6px; padding: 3px; }
 QLabel#lbl_email, QLabel#lbl_szkolenia { font-size: 10px; }
 QLabel#label_5 { background: transparent; padding: 0px; }
 
@@ -35,11 +35,11 @@ QLabel[role="field-title"] { font-weight: 700; }
 QLabel[role="divider"] { font-size: 10px; padding: 0px 8px; }
 QFrame#groupBox_pobieranie QPushButton { font-weight: 700; padding: 6px 8px; border-radius: 14px; min-height: 16px; }
 
-QgsCollapsibleGroupBox { margin: 0px; padding: 25px 0px 0px 0px; border: 1px solid; border-radius: 6px; font-size: 13px; font-weight: 700; background-repeat: repeat-x; background-position: top left; background-origin: border; }
-QgsCollapsibleGroupBox::title { padding: 0px 6px 0px 2px; font-size: 13px; font-weight: 700; background: transparent; }
-QgsCollapsibleGroupBox &gt; QToolButton#collapseButton { border: none; background: transparent; min-width: 20px; max-width: 20px; min-height: 24px; max-height: 24px; qproperty-iconSize: 0px 0px; qproperty-focusPolicy: NoFocus; }
+QgsCollapsibleGroupBox { margin: 0px; padding: 25px 0px 0px 0px; border: 1px solid; border-radius: 6px; font-size: 12px; font-weight: 700; background-repeat: repeat-x; background-position: top left; background-origin: border; }
+QgsCollapsibleGroupBox::title { padding: 0px 6px 0px 2px; min-height: 16px; font-size: 12px; font-weight: 700; background: transparent; }
+QgsCollapsibleGroupBox &gt; QToolButton#collapseButton { border: none; background: transparent; min-width: 20px; max-width: 20px; min-height: 25px; max-height: 25px; qproperty-iconSize: 0px 0px; qproperty-focusPolicy: NoFocus; }
 QCheckBox::indicator { width: 14px; height: 14px; border-radius: 3px; }
-QgsCollapsibleGroupBox::indicator { width: 12px; height: 12px; border-radius: 3px; }
+QgsCollapsibleGroupBox::indicator { width: 13px; height: 13px; border-radius: 3px; }
 
 .QGroupBox { border-style: solid; border-width: 1px; border-radius: 6px; margin-top: 10px; padding: 10px 4px 4px 4px; font-weight: 700; }
 .QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; left: 10px; padding: 0px 4px; }
@@ -70,7 +70,10 @@ QDockWidget[theme="light"] QLabel, QDockWidget[theme="light"] QRadioButton, QDoc
 QDockWidget[theme="light"] QFrame#header_frame { background: #ffffff; border: none; border-bottom: 2px solid #4c6e4f; }
 QDockWidget[theme="light"] QLabel#lbl_title { color: #3b5a3e; }
 QDockWidget[theme="light"] QLabel#lbl_subtitle, QDockWidget[theme="light"] QLabel#lbl_pluginVersion { color: #6b7572; }
-QDockWidget[theme="light"] QToolButton#btn_help:hover, QDockWidget[theme="light"] QToolButton#btn_collapse_all:hover { background: #e8efe8; }
+QDockWidget[theme="light"] QToolButton#btn_help:hover, QDockWidget[theme="light"] QToolButton#btn_collapse_all:hover, QDockWidget[theme="light"] QToolButton#btn_close:hover { background: #e8efe8; }
+QDockWidget[theme="light"] QToolButton#btn_help { qproperty-icon: url(pdgimg:help.svg); }
+QDockWidget[theme="light"] QToolButton#btn_collapse_all { qproperty-icon: url(pdgimg:collapse_all.svg); }
+QDockWidget[theme="light"] QToolButton#btn_close { qproperty-icon: url(pdgimg:close.svg); }
 QDockWidget[theme="light"] QFrame#footer_frame { background: #f6f8f6; border: none; border-top: 1px solid #d6ded6; }
 
 QDockWidget[theme="light"] QFrame#groupBox_pobieranie, QDockWidget[theme="light"] QFrame#groupBox_4 { background: #ffffff; border: 1px solid #b9c7b9; }
@@ -124,7 +127,10 @@ QDockWidget[theme="dark"] QLabel, QDockWidget[theme="dark"] QRadioButton, QDockW
 QDockWidget[theme="dark"] QFrame#header_frame { background: #2b2d2e; border: none; border-bottom: 2px solid #5b8260; }
 QDockWidget[theme="dark"] QLabel#lbl_title { color: #a9cfac; }
 QDockWidget[theme="dark"] QLabel#lbl_subtitle, QDockWidget[theme="dark"] QLabel#lbl_pluginVersion { color: #9aa4a0; }
-QDockWidget[theme="dark"] QToolButton#btn_help:hover, QDockWidget[theme="dark"] QToolButton#btn_collapse_all:hover { background: #2c3a2d; }
+QDockWidget[theme="dark"] QToolButton#btn_help:hover, QDockWidget[theme="dark"] QToolButton#btn_collapse_all:hover, QDockWidget[theme="dark"] QToolButton#btn_close:hover { background: #2c3a2d; }
+QDockWidget[theme="dark"] QToolButton#btn_help { qproperty-icon: url(pdgimg:help_dark.svg); }
+QDockWidget[theme="dark"] QToolButton#btn_collapse_all { qproperty-icon: url(pdgimg:collapse_all_dark.svg); }
+QDockWidget[theme="dark"] QToolButton#btn_close { qproperty-icon: url(pdgimg:close_dark.svg); }
 QDockWidget[theme="dark"] QFrame#footer_frame { background: #303334; border: none; border-top: 1px solid #44494a; }
 
 QDockWidget[theme="dark"] QFrame#groupBox_pobieranie, QDockWidget[theme="dark"] QFrame#groupBox_4 { background: #262829; border: 1px solid #4c6e4f; }
@@ -143,8 +149,8 @@ QDockWidget[theme="dark"] QgsCollapsibleGroupBox QgsCollapsibleGroupBox:flat { b
 QDockWidget[theme="dark"] QgsCollapsibleGroupBox::title { color: #a9cfac; }
 QDockWidget[theme="dark"] QgsCollapsibleGroupBox[collapsed="true"] &gt; QToolButton#collapseButton { image: url(pdgimg:sec_right_dark.svg); }
 QDockWidget[theme="dark"] QgsCollapsibleGroupBox[collapsed="false"] &gt; QToolButton#collapseButton { image: url(pdgimg:sec_down_dark.svg); }
-QDockWidget[theme="dark"] .QGroupBox { border-color: #44494a; color: #a9cfac; }
-QDockWidget[theme="dark"] .QGroupBox::title { background: #262829; color: #a9cfac; }
+QDockWidget[theme="dark"] .QGroupBox { border-color: #44494a; color: #e6e9e7; }
+QDockWidget[theme="dark"] .QGroupBox::title { background: #262829; color: #e6e9e7; }
 
 QDockWidget[theme="dark"] QCheckBox::indicator, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator { border: 1px solid #5a6162; background: #1f2122; }
 QDockWidget[theme="dark"] QCheckBox::indicator:hover, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator:hover { border-color: #6f9c73; }
@@ -200,7 +206,7 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_header" stretch="0,1,0,0">
+      <layout class="QHBoxLayout" name="horizontalLayout_header" stretch="0,1,0,0,0">
        <property name="spacing">
         <number>10</number>
        </property>
@@ -326,6 +332,29 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
          <property name="icon">
           <iconset>
            <normaloff>../images/help.svg</normaloff>../images/help.svg</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="btn_close">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="toolTip">
+          <string>Zamknij wtyczkę</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../images/close.svg</normaloff>../images/close.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -566,7 +595,7 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
              <item>
               <widget class="QLabel" name="lbl_available_inne">
                <property name="text">
-                <string>Dostępne dane: Zestawienia Zbiorcze EGiB, Opracowania tyflologiczne, Osnowa geodezyjna, Aerotriangulacja, Linie mozaikowania, Wizualizacja kartograficzna BDOT10k, Zdjęcia lotnicze.</string>
+                <string>Dostępne dane: Zestawienia Zbiorcze EGiB, Opracowania tyflologiczne, Podstawowa Osnowa Geodezyjna, Archiwalne Kartoteki Osnów, Aerotriangulacja, Linie mozaikowania, Wizualizacja kartograficzna BDOT10k, Zdjęcia lotnicze.</string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -4623,9 +4652,9 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
          </widget>
         </item>
         <item>
-         <widget class="QgsCollapsibleGroupBox" name="osnowa_groupBox">
+         <widget class="QgsCollapsibleGroupBox" name="osnowa_podstawowa_groupBox">
           <property name="title">
-           <string>Osnowa geodezyjna</string>
+           <string>Podstawowa Osnowa Geodezyjna</string>
           </property>
           <property name="collapsed">
            <bool>true</bool>
@@ -4633,7 +4662,7 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
           <property name="saveCollapsedState">
            <bool>false</bool>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_13">
+          <layout class="QVBoxLayout" name="verticalLayout_18">
            <property name="leftMargin">
             <number>8</number>
            </property>
@@ -4650,123 +4679,37 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             <number>8</number>
            </property>
            <item>
-            <widget class="QgsCollapsibleGroupBox" name="osnowa_podstawowa_groupBox">
+            <widget class="QGroupBox" name="groupBox_24">
              <property name="title">
-              <string>Podstawowa Osnowa Geodezyjna</string>
+              <string>Typ osnowy</string>
              </property>
-             <property name="collapsed">
-              <bool>true</bool>
+             <property name="alignment">
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
-             <property name="saveCollapsedState">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_18">
+             <layout class="QHBoxLayout" name="horizontalLayout_25">
               <property name="leftMargin">
-               <number>8</number>
+               <number>6</number>
               </property>
               <property name="topMargin">
-               <number>8</number>
+               <number>4</number>
               </property>
               <property name="rightMargin">
-               <number>8</number>
+               <number>6</number>
               </property>
               <property name="bottomMargin">
-               <number>10</number>
+               <number>4</number>
               </property>
-              <property name="spacing">
-               <number>8</number>
-              </property>
-              <item>
-               <widget class="QGroupBox" name="groupBox_24">
-                <property name="title">
-                 <string>Typ osnowy</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_25">
-                 <property name="leftMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>4</number>
-                 </property>
-                 <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                  <widget class="QCheckBox" name="osnowa_H_rdbtn">
-                   <property name="text">
-                    <string>wysokościowa</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                  <widget class="QCheckBox" name="osnowa_XY_rdbtn">
-                   <property name="text">
-                    <string>pozioma</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="widget_11" native="true">
-                <layout class="QFormLayout" name="formLayout_17">
-                 <item row="0" column="0">
-                  <widget class="QLabel" name="label_50">
-                   <property name="text">
-                    <string>Województwo: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="osnowa_wojewodztwo_cmbbx">
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string />
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_51">
-                   <property name="text">
-                    <string>Powiat: </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QComboBox" name="osnowa_powiat_cmbbx">
-                   <property name="editable">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="osnowa_selected_btn">
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QCheckBox" name="osnowa_H_rdbtn">
                 <property name="text">
-                 <string>Pobierz dla wybranego powiatu</string>
+                 <string>wysokościowa</string>
                 </property>
-                <property name="cursor">
-                 <cursorShape>PointingHandCursor</cursorShape>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-                </property>
-                <property name="role" stdset="0">
-                 <string notr="true">primary</string>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+               <widget class="QCheckBox" name="osnowa_XY_rdbtn">
+                <property name="text">
+                 <string>pozioma</string>
                 </property>
                </widget>
               </item>
@@ -4774,170 +4717,226 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             </widget>
            </item>
            <item>
-            <widget class="QgsCollapsibleGroupBox" name="osnowa_arch_groupBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="title">
-              <string>Archiwalne Kartoteki Osnów</string>
-             </property>
-             <property name="collapsed">
-              <bool>true</bool>
-             </property>
-             <property name="saveCollapsedState">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_19">
-              <property name="leftMargin">
-               <number>8</number>
-              </property>
-              <property name="topMargin">
-               <number>8</number>
-              </property>
-              <property name="rightMargin">
-               <number>8</number>
-              </property>
-              <property name="bottomMargin">
-               <number>10</number>
-              </property>
-              <property name="spacing">
-               <number>8</number>
-              </property>
-              <item>
-               <widget class="QGroupBox" name="groupBox_26">
-                <property name="title">
-                 <string>Rodzaj katalogów</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignHCenter|Qt::AlignTop</set>
-                </property>
-                <layout class="QGridLayout" name="horizontalLayout_27">
-                 <property name="leftMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>6</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>4</number>
-                 </property>
-                 <item row="0" column="0">
-                  <widget class="QRadioButton" name="niwelacyjne_rdbtn">
-                   <property name="text">
-                    <string>niwelacyjne Kronsztadt60</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QRadioButton" name="kartotekowe_rdbtn">
-                   <property name="text">
-                    <string>kartotekowe w układzie 1942</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="osnowa_arch_capture_btn">
+            <widget class="QWidget" name="widget_11" native="true">
+             <layout class="QFormLayout" name="formLayout_17">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_50">
                 <property name="text">
-                 <string>Pobierz przez wskazanie punktu na mapie</string>
-                </property>
-                <property name="cursor">
-                 <cursorShape>PointingHandCursor</cursorShape>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>../images/pin.svg</normaloff>../images/pin.svg</iconset>
-                </property>
-                <property name="role" stdset="0">
-                 <string notr="true">primary</string>
+                 <string>Województwo: </string>
                 </property>
                </widget>
               </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_or_osnowa_arch">
-                <property name="spacing">
-                 <number>0</number>
+              <item row="0" column="1">
+               <widget class="QComboBox" name="osnowa_wojewodztwo_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
                 </property>
                 <item>
-                 <widget class="QFrame" name="line_or_l_osnowa_arch">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>1</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
-                  </property>
-                 </widget>
+                 <property name="text">
+                  <string />
+                 </property>
                 </item>
-                <item>
-                 <widget class="QLabel" name="label_25">
-                  <property name="text">
-                   <string>LUB</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                  <property name="role" stdset="0">
-                   <string notr="true">divider</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QFrame" name="line_or_r_osnowa_arch">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>1</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               </widget>
               </item>
-              <item>
-               <widget class="QLabel" name="label_7">
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_51">
                 <property name="text">
-                 <string>Wybierz warstwę wektorową</string>
-                </property>
-                <property name="role" stdset="0">
-                 <string notr="true">field-title</string>
+                 <string>Powiat: </string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QgsMapLayerComboBox" name="osnowa_arch_mapLayerComboBox" />
-              </item>
-              <item>
-               <widget class="QPushButton" name="osnowa_arch_fromLayer_btn">
-                <property name="text">
-                 <string>Pobierz warstwą wektorową</string>
-                </property>
-                <property name="cursor">
-                 <cursorShape>PointingHandCursor</cursorShape>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>../images/layers.svg</normaloff>../images/layers.svg</iconset>
-                </property>
-                <property name="role" stdset="0">
-                 <string notr="true">primary</string>
+              <item row="1" column="1">
+               <widget class="QComboBox" name="osnowa_powiat_cmbbx">
+                <property name="editable">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="osnowa_selected_btn">
+             <property name="text">
+              <string>Pobierz dla wybranego powiatu</string>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+             </property>
+             <property name="role" stdset="0">
+              <string notr="true">primary</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QgsCollapsibleGroupBox" name="osnowa_arch_groupBox">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="title">
+           <string>Archiwalne Kartoteki Osnów</string>
+          </property>
+          <property name="collapsed">
+           <bool>true</bool>
+          </property>
+          <property name="saveCollapsedState">
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_19">
+           <property name="leftMargin">
+            <number>8</number>
+           </property>
+           <property name="topMargin">
+            <number>8</number>
+           </property>
+           <property name="rightMargin">
+            <number>8</number>
+           </property>
+           <property name="bottomMargin">
+            <number>10</number>
+           </property>
+           <property name="spacing">
+            <number>8</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="groupBox_26">
+             <property name="title">
+              <string>Rodzaj katalogów</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             </property>
+             <layout class="QGridLayout" name="horizontalLayout_27">
+              <property name="leftMargin">
+               <number>6</number>
+              </property>
+              <property name="topMargin">
+               <number>4</number>
+              </property>
+              <property name="rightMargin">
+               <number>6</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="niwelacyjne_rdbtn">
+                <property name="text">
+                 <string>niwelacyjne Kronsztadt60</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QRadioButton" name="kartotekowe_rdbtn">
+                <property name="text">
+                 <string>kartotekowe w układzie 1942</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="osnowa_arch_capture_btn">
+             <property name="text">
+              <string>Pobierz przez wskazanie punktu na mapie</string>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../images/pin.svg</normaloff>../images/pin.svg</iconset>
+             </property>
+             <property name="role" stdset="0">
+              <string notr="true">primary</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_or_osnowa_arch">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QFrame" name="line_or_l_osnowa_arch">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_25">
+               <property name="text">
+                <string>LUB</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="role" stdset="0">
+                <string notr="true">divider</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="line_or_r_osnowa_arch">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Wybierz warstwę wektorową</string>
+             </property>
+             <property name="role" stdset="0">
+              <string notr="true">field-title</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QgsMapLayerComboBox" name="osnowa_arch_mapLayerComboBox" />
+           </item>
+           <item>
+            <widget class="QPushButton" name="osnowa_arch_fromLayer_btn">
+             <property name="text">
+              <string>Pobierz warstwą wektorową</string>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
+             <property name="icon">
+              <iconset>
+               <normaloff>../images/layers.svg</normaloff>../images/layers.svg</iconset>
+             </property>
+             <property name="role" stdset="0">
+              <string notr="true">primary</string>
+             </property>
             </widget>
            </item>
           </layout>

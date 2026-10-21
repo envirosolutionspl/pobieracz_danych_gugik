@@ -133,9 +133,16 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         """Elementy wyglądu, których nie da się opisać w pliku .ui."""
         self.lbl_pluginVersion.setText('v%s' % PLUGIN_VERSION)
         self.btn_help.clicked.connect(self._openHelp)
+        self.btn_close.clicked.connect(self.close)
         self.btn_collapse_all.clicked.connect(self._collapseAllSections)
         for rdbtn in AVAILABLE_DATA_LABELS:
             getattr(self, rdbtn).toggled.connect(self._showAvailableData)
+        self._setupTitleBar()
+
+    def _setupTitleBar(self):
+        """Nagłówek wtyczki jako pasek tytułu panelu – zamiast systemowego paska z nazwą."""
+        self.verticalLayout_main.removeWidget(self.header_frame)
+        self.setTitleBarWidget(self.header_frame)
 
     def _collapseAllSections(self):
         for group_box in self.findChildren(QgsCollapsibleGroupBox):

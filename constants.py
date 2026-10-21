@@ -458,7 +458,6 @@ GROUPBOXES_VISIBILITY_MAP = {
     'inne_rdbtn': [
         'egib_excel_groupBox',
         'tyflologiczne_groupBox',
-        'osnowa_groupBox',
         'osnowa_podstawowa_groupBox',
         'osnowa_arch_groupBox',
         'aerotriangulacja_groupBox',
