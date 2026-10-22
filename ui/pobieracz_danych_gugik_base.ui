@@ -2755,10 +2755,64 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_bdot_zakres">
+             <property name="title">
+              <string>Zakres pobierania</string>
+             </property>
+             <layout class="QGridLayout" name="verticalLayout_bdot_zakres" columnstretch="1,1,1">
+              <property name="leftMargin">
+               <number>6</number>
+              </property>
+              <property name="topMargin">
+               <number>4</number>
+              </property>
+              <property name="rightMargin">
+               <number>6</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="bdot_zakres_powiat_rdbtn">
+                <property name="text">
+                 <string>Powiat</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="bdot_zakres_woj_rdbtn">
+                <property name="text">
+                 <string>Województwo</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QRadioButton" name="bdot_zakres_polska_rdbtn">
+                <property name="text">
+                 <string>Cała Polska</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QFormLayout" name="formLayout">
               <item row="0" column="0">
-               <widget class="QLabel" name="label_16">
+               <widget class="QLabel" name="lbl_bdot_wojewodztwo">
                 <property name="text">
                  <string>Województwo: </string>
                 </property>
@@ -2780,7 +2834,7 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QLabel" name="label_19">
+               <widget class="QLabel" name="lbl_bdot_powiat">
                 <property name="text">
                  <string>Powiat: </string>
                 </property>
@@ -2800,54 +2854,81 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="bdot_selected_powiat_btn">
-             <property name="text">
-              <string>Pobierz dla wybranego powiatu</string>
-             </property>
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-             </property>
-             <property name="role" stdset="0">
-              <string notr="true">primary</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bdot_selected_woj_btn">
-             <property name="text">
-              <string>Pobierz dla wybranego województwa (ok. 1 GB)</string>
-             </property>
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-             </property>
-             <property name="role" stdset="0">
-              <string notr="true">primary</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bdot_polska_btn">
-             <property name="text">
-              <string>Pobierz dla całej Polski (ok. 9 GB)</string>
-             </property>
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-             </property>
-             <property name="role" stdset="0">
-              <string notr="true">primary</string>
-             </property>
+            <widget class="QWidget" name="widget_bdot_przyciski" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_bdot_przyciski">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="bdot_selected_powiat_btn">
+                <property name="text">
+                 <string>Pobierz dane</string>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+                </property>
+                <property name="role" stdset="0">
+                 <string notr="true">primary</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="bdot_selected_woj_btn">
+                <property name="text">
+                 <string>Pobierz dane (ok. 1 GB)</string>
+                </property>
+                <property name="visible">
+                 <bool>false</bool>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+                </property>
+                <property name="role" stdset="0">
+                 <string notr="true">primary</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="bdot_polska_btn">
+                <property name="text">
+                 <string>Pobierz dane (ok. 9 GB)</string>
+                </property>
+                <property name="visible">
+                 <bool>false</bool>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+                </property>
+                <property name="role" stdset="0">
+                 <string notr="true">primary</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -3077,6 +3158,47 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             </widget>
            </item>
            <item>
+            <widget class="QGroupBox" name="groupBox_bdoo_zakres">
+             <property name="title">
+              <string>Zakres pobierania</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_bdoo_zakres" columnstretch="1,1">
+              <property name="leftMargin">
+               <number>6</number>
+              </property>
+              <property name="topMargin">
+               <number>4</number>
+              </property>
+              <property name="rightMargin">
+               <number>6</number>
+              </property>
+              <property name="bottomMargin">
+               <number>4</number>
+              </property>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="bdoo_zakres_woj_rdbtn">
+                <property name="text">
+                 <string>Województwo</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="bdoo_zakres_polska_rdbtn">
+                <property name="text">
+                 <string>Cała Polska</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QWidget" name="widget" native="true">
              <layout class="QFormLayout" name="formLayout">
               <item row="1" column="0">
@@ -3097,43 +3219,67 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="bdoo_selected_woj_btn">
-             <property name="text">
-              <string>Pobierz dla wybranego województwa (5-25 MB)</string>
-             </property>
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-             </property>
-             <property name="role" stdset="0">
-              <string notr="true">primary</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="bdoo_selected_polska_btn">
-             <property name="mouseTracking">
-              <bool>true</bool>
-             </property>
-             <property name="acceptDrops">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Pobierz dla całej Polski (ok. 150 MB)</string>
-             </property>
-             <property name="cursor">
-              <cursorShape>PointingHandCursor</cursorShape>
-             </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
-             </property>
-             <property name="role" stdset="0">
-              <string notr="true">primary</string>
-             </property>
+            <widget class="QWidget" name="widget_bdoo_przyciski" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_bdoo_przyciski">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="bdoo_selected_woj_btn">
+                <property name="text">
+                 <string>Pobierz dane (5-25 MB)</string>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+                </property>
+                <property name="role" stdset="0">
+                 <string notr="true">primary</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="bdoo_selected_polska_btn">
+                <property name="visible">
+                 <bool>false</bool>
+                </property>
+                <property name="mouseTracking">
+                 <bool>true</bool>
+                </property>
+                <property name="acceptDrops">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>Pobierz dane (ok. 150 MB)</string>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../images/download.svg</normaloff>../images/download.svg</iconset>
+                </property>
+                <property name="role" stdset="0">
+                 <string notr="true">primary</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
@@ -6043,5 +6189,54 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
   </customwidget>
  </customwidgets>
  <resources />
- <connections />
+ <connections>
+  <connection>
+   <sender>bdot_zakres_powiat_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>powiat_cmbbx</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdot_zakres_polska_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>wojewodztwo_cmbbx</receiver>
+   <slot>setDisabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdot_zakres_powiat_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdot_selected_powiat_btn</receiver>
+   <slot>setVisible(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdot_zakres_woj_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdot_selected_woj_btn</receiver>
+   <slot>setVisible(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdot_zakres_polska_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdot_polska_btn</receiver>
+   <slot>setVisible(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdoo_zakres_polska_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdoo_wojewodztwo_cmbbx</receiver>
+   <slot>setDisabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdoo_zakres_woj_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdoo_selected_woj_btn</receiver>
+   <slot>setVisible(bool)</slot>
+  </connection>
+  <connection>
+   <sender>bdoo_zakres_polska_rdbtn</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>bdoo_selected_polska_btn</receiver>
+   <slot>setVisible(bool)</slot>
+  </connection>
+ </connections>
 </ui>
