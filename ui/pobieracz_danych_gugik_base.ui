@@ -46,7 +46,7 @@ QgsCollapsibleGroupBox::indicator { width: 13px; height: 13px; border-radius: 3p
 
 QRadioButton, QCheckBox { spacing: 6px; }
 QRadioButton::indicator { width: 12px; height: 12px; border-radius: 7px; }
-QRadioButton::indicator:checked { width: 6px; height: 6px; }
+QRadioButton::indicator:checked { width: 14px; height: 14px; }
 
 QLineEdit { border-radius: 4px; padding: 0px 6px; min-height: 26px; }
 QComboBox, QAbstractSpinBox { border-radius: 4px; padding: 3px 6px; min-height: 20px; }
@@ -101,7 +101,8 @@ QDockWidget[theme="light"] QCheckBox::indicator:checked, QDockWidget[theme="ligh
 QDockWidget[theme="light"] QCheckBox::indicator:disabled { background: #f3f5f3; border-color: #d6ded6; }
 QDockWidget[theme="light"] QRadioButton::indicator { border: 1px solid #b9c7ba; background: #ffffff; }
 QDockWidget[theme="light"] QRadioButton::indicator:hover { border-color: #4c6e4f; }
-QDockWidget[theme="light"] QRadioButton::indicator:checked { border: 4px solid #4c6e4f; }
+QDockWidget[theme="light"] QRadioButton::indicator:checked { border: none; background: transparent; image: url(pdgimg:radio_on.svg); }
+QDockWidget[theme="light"] QRadioButton::indicator:checked:disabled { border: none; background: transparent; image: url(pdgimg:radio_on_disabled.svg); }
 QDockWidget[theme="light"] QRadioButton::indicator:disabled { background: #f3f5f3; border-color: #d6ded6; }
 QDockWidget[theme="light"] QRadioButton:disabled, QDockWidget[theme="light"] QCheckBox:disabled, QDockWidget[theme="light"] QLabel:disabled { color: #9aa39e; }
 
@@ -152,13 +153,14 @@ QDockWidget[theme="dark"] QgsCollapsibleGroupBox[collapsed="false"] &gt; QToolBu
 QDockWidget[theme="dark"] .QGroupBox { border-color: #44494a; color: #e6e9e7; }
 QDockWidget[theme="dark"] .QGroupBox::title { background: #262829; color: #e6e9e7; }
 
-QDockWidget[theme="dark"] QCheckBox::indicator, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator { border: 1px solid #5a6162; background: #1f2122; }
+QDockWidget[theme="dark"] QCheckBox::indicator, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator { border: 1px solid #7a8380; background: #1f2122; }
 QDockWidget[theme="dark"] QCheckBox::indicator:hover, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator:hover { border-color: #6f9c73; }
 QDockWidget[theme="dark"] QCheckBox::indicator:checked, QDockWidget[theme="dark"] QgsCollapsibleGroupBox::indicator:checked { background: #5b8260; border-color: #5b8260; image: url(pdgimg:check.svg); }
 QDockWidget[theme="dark"] QCheckBox::indicator:disabled { background: #2b2d2e; border-color: #44494a; }
-QDockWidget[theme="dark"] QRadioButton::indicator { border: 1px solid #5a6162; background: #1f2122; }
+QDockWidget[theme="dark"] QRadioButton::indicator { border: 1px solid #7a8380; background: #1f2122; }
 QDockWidget[theme="dark"] QRadioButton::indicator:hover { border-color: #6f9c73; }
-QDockWidget[theme="dark"] QRadioButton::indicator:checked { border: 4px solid #5b8260; }
+QDockWidget[theme="dark"] QRadioButton::indicator:checked { border: none; background: transparent; image: url(pdgimg:radio_on_dark.svg); }
+QDockWidget[theme="dark"] QRadioButton::indicator:checked:disabled { border: none; background: transparent; image: url(pdgimg:radio_on_disabled_dark.svg); }
 QDockWidget[theme="dark"] QRadioButton::indicator:disabled { background: #2b2d2e; border-color: #44494a; }
 QDockWidget[theme="dark"] QRadioButton:disabled, QDockWidget[theme="dark"] QCheckBox:disabled, QDockWidget[theme="dark"] QLabel:disabled { color: #6f7773; }
 
@@ -2683,7 +2685,7 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
              <property name="alignment">
               <set>Qt::AlignHCenter|Qt::AlignTop</set>
              </property>
-             <layout class="QGridLayout" name="horizontalLayout_5">
+             <layout class="QGridLayout" name="horizontalLayout_5" columnstretch="1,1,1">
               <property name="leftMargin">
                <number>6</number>
               </property>
@@ -2697,65 +2699,57 @@ QDockWidget[theme="dark"] QFrame#line_or_l_wfs, QDockWidget[theme="dark"] QFrame
                <number>4</number>
               </property>
               <item row="0" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
-                <item>
-                 <widget class="QRadioButton" name="bdot_shp_rdbtn">
-                  <property name="text">
-                   <string>SHP</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="bdot_gml_rdbtn">
-                  <property name="text">
-                   <string>GML</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="bdot_gpkg_rdbtn">
-                  <property name="text">
-                   <string>GPKG</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QRadioButton" name="bdot_shp_rdbtn">
+                <property name="text">
+                 <string>SHP</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QRadioButton" name="bdot_gml_rdbtn">
+                <property name="text">
+                 <string>GML</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QRadioButton" name="bdot_gpkg_rdbtn">
+                <property name="text">
+                 <string>GPKG</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_18">
-                <item>
-                 <widget class="QRadioButton" name="bdot_parquet_rdbtn">
-                  <property name="text">
-                   <string>GeoParquet</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                  <property name="autoExclusive">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QRadioButton" name="bdot_old_gml_rdbtn">
-                  <property name="text">
-                   <string>GML wg. schematu z 2011r.</string>
-                  </property>
-                  <property name="checked">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QRadioButton" name="bdot_parquet_rdbtn">
+                <property name="text">
+                 <string>GeoParquet</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" colspan="2">
+               <widget class="QRadioButton" name="bdot_old_gml_rdbtn">
+                <property name="text">
+                 <string>GML wg. schematu z 2011r.</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
