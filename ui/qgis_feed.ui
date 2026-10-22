@@ -6,196 +6,186 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>185</height>
+    <width>380</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Nowości EnviroSolutions - Wybór branży</string>
+   <string>Wybór branży</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" rowspan="2" colspan="2">
-    <layout class="QGridLayout" name="gridLayout_2" rowminimumheight="0,0,0,0,0">
+  <property name="styleSheet">
+   <string notr="true">QLabel#label { font-size: 14px; }
+QLabel#lbl_field { font-weight: 700; }
+QLabel#lbl_logo { padding: 2px 6px; }
+QComboBox { border-radius: 4px; padding: 3px 8px; min-height: 22px; }
+QComboBox::drop-down { subcontrol-origin: padding; subcontrol-position: center right; width: 22px; border: none; }
+QComboBox::down-arrow { image: url(pdgimg:chevron_down.svg); width: 12px; height: 12px; }
+QPushButton#pushButton { font-weight: 700; border: none; border-radius: 4px; padding: 5px 16px; }
+QPushButton:focus, QComboBox:focus { outline: none; }
+
+QDialog[theme="light"] { background: #ffffff; }
+QDialog[theme="light"] QLabel { color: #23282a; }
+QDialog[theme="light"] QLabel#label { color: #3b5a3e; }
+QDialog[theme="light"] QFrame#footer_frame { background: #f6f8f6; border: none; border-top: 1px solid #d6ded6; }
+QDialog[theme="light"] QComboBox { background: #ffffff; color: #23282a; border: 1px solid #b9c7ba; selection-background-color: #4c6e4f; selection-color: #ffffff; }
+QDialog[theme="light"] QComboBox:focus, QDialog[theme="light"] QComboBox:on { border: 1px solid #4c6e4f; }
+QDialog[theme="light"] QComboBox QAbstractItemView { background: #ffffff; color: #23282a; border: 1px solid #b9c7ba; selection-background-color: #4c6e4f; selection-color: #ffffff; }
+QDialog[theme="light"] QPushButton#pushButton { background: #4c6e4f; color: #ffffff; }
+QDialog[theme="light"] QPushButton#pushButton:hover { background: #5b8260; }
+QDialog[theme="light"] QPushButton#pushButton:pressed { background: #3d5a40; }
+
+QDialog[theme="dark"] { background: #2b2d2e; }
+QDialog[theme="dark"] QLabel { color: #e6e9e7; }
+QDialog[theme="dark"] QLabel#label { color: #a9cfac; }
+QDialog[theme="dark"] QFrame#footer_frame { background: #303334; border: none; border-top: 1px solid #44494a; }
+QDialog[theme="dark"] QComboBox { background: #1f2122; color: #e6e9e7; border: 1px solid #5a6162; selection-background-color: #5b8260; selection-color: #ffffff; }
+QDialog[theme="dark"] QComboBox:focus, QDialog[theme="dark"] QComboBox:on { border: 1px solid #6f9c73; }
+QDialog[theme="dark"] QComboBox QAbstractItemView { background: #1f2122; color: #e6e9e7; border: 1px solid #5a6162; selection-background-color: #5b8260; selection-color: #ffffff; }
+QDialog[theme="dark"] QPushButton#pushButton { background: #5b8260; color: #ffffff; }
+QDialog[theme="dark"] QPushButton#pushButton:hover { background: #6f9c73; }
+QDialog[theme="dark"] QPushButton#pushButton:pressed { background: #4c6e4f; }</string>
+  </property>
+  <property name="theme" stdset="0">
+   <string notr="true">light</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_root" stretch="1,0">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_body">
+     <property name="spacing">
+      <number>8</number>
+     </property>
+     <property name="leftMargin">
+      <number>18</number>
+     </property>
+     <property name="topMargin">
+      <number>20</number>
+     </property>
+     <property name="rightMargin">
+      <number>18</number>
+     </property>
      <property name="bottomMargin">
-      <number>6</number>
+      <number>16</number>
      </property>
-     <property name="verticalSpacing">
-      <number>10</number>
-     </property>
-     <item row="1" column="0">
-      <spacer name="horizontalSpacer">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Pomóż nam lepiej dostosować&lt;br/&gt;bezpłatne wtyczki.&lt;br/&gt;Wskaż którą branżę reprezentujesz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_body">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
          <width>10</width>
-         <height>20</height>
+         <height>4</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item row="0" column="1">
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label">
-       <property name="minimumSize">
-        <size>
-         <width>300</width>
-         <height>50</height>
-        </size>
-       </property>
+     <item>
+      <widget class="QLabel" name="lbl_field">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Pomóż nam lepiej dostosować&lt;br/&gt;bezpłatne wtyczki.&lt;br/&gt;Wskaż którą branżę reprezentujesz.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>Branża</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+     <item>
       <widget class="QComboBox" name="comboBox">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
        </property>
-       <property name="locale">
-        <locale language="Polish" country="Poland"/>
+       <property name="maxVisibleItems">
+        <number>17</number>
        </property>
        <property name="editable">
         <bool>false</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>Nie wybrano</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Energetyka/OZE</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Urząd</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Transport/Drogi</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Planowanie/Geodezja</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>WodKan</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Środowisko</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Rolnictwo/Leśnictwo</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Telkom</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Edukacja</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Inne</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>IT</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Nieruchomości</string>
-        </property>
-       </item>
       </widget>
      </item>
-     <item row="4" column="1">
-      <spacer name="verticalSpacer">
+     <item>
+      <spacer name="verticalSpacer_bottom">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
-         <height>5</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="1" column="2">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
          <width>10</width>
-         <height>20</height>
+         <height>10</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item row="3" column="1">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <spacer name="horizontalSpacer_3">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_buttons">
+       <item>
+        <spacer name="horizontalSpacer_buttons">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>40</width>
+           <height>10</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="0" column="1">
+       <item>
         <widget class="QPushButton" name="pushButton">
+         <property name="minimumSize">
+          <size>
+           <width>110</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="text">
           <string>Zapisz</string>
          </property>
+         <property name="default">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <spacer name="horizontalSpacer_4">
+       <item>
+        <spacer name="horizontalSpacer_buttons_right">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>40</width>
+           <height>10</height>
           </size>
          </property>
         </spacer>
@@ -204,8 +194,43 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QFrame" name="footer_frame">
+     <layout class="QHBoxLayout" name="horizontalLayout_footer">
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="lbl_logo">
+        <property name="minimumSize">
+         <size>
+          <width>160</width>
+          <height>36</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

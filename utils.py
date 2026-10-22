@@ -8,14 +8,15 @@ import time
 from . import PLUGIN_NAME
 from qgis.core import (
     Qgis,
+    QgsApplication,
     QgsMessageLog,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsNetworkAccessManager,
     QgsBlockingNetworkRequest
 )
-from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog
-from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog, QWidget
+from qgis.PyQt.QtGui import QIcon, QPalette, QPixmap
 from qgis.PyQt.QtNetwork import QNetworkReply, QNetworkRequest, QNetworkAccessManager
 import requests
 import ssl
@@ -740,3 +741,52 @@ class VersionUtils:
     @staticmethod
     def isCompatibleQtVersion(cur_version, tar_version):
         return cur_version.startswith(QT_VER[tar_version])
+
+
+class ThemeUtils:
+    """Wspólne dla okien wtyczki (główny dock, okno wyboru branży QGIS Feed): motyw jasny/ciemny i logo."""
+
+    PLUGIN_DIR = os.path.dirname(__file__)
+
+    @staticmethod
+    def isDarkTheme():
+        """Ciemny motyw QGIS (np. Night Mapping) albo ciemna paleta systemu."""
+        name = ''  # domyślnie - gdy QGIS nie poda nazwy motywu albo wystąpi wyjątek
+        try:
+            theme_name = (QgsApplication.themeName() or '').lower()
+            if theme_name:
+                name = theme_name
+        except AttributeError as e:
+            MessageUtils.pushLogCritical(f"Atrybut motywu jest niedostępny (AttributeError): {e}")
+        except RuntimeError as e:
+            MessageUtils.pushLogCritical(f"Aplikacja QGIS nie jest w pełni zainicjalizowana (RuntimeError): {e}")
+        except TypeError as e:
+            MessageUtils.pushLogCritical(f"Nieoczekiwany typ danych przy pobieraniu motywu (TypeError): {e}")
+        except Exception as e:
+            MessageUtils.pushLogCritical(f"Nieoczekiwany błąd: {e}")
+
+        if 'night' in name or 'dark' in name:
+            return True
+        return QgsApplication.palette().color(QPalette.ColorRole.Window).lightness() < 128
+
+    @staticmethod
+    def repolishAll(window):
+        """Pełne przeliczenie stylu okna i wszystkich jego widgetów (po zmianie właściwości "theme").
+        Widgety mogły zostać ostylowane, zanim okno dostało tę właściwość (setStyleSheet sam tego nie robi przed show())."""
+        for widget in [window] + window.findChildren(QWidget):
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+            widget.update()
+
+    @staticmethod
+    def setLogo(label, filename, height):
+        """Wstawia logo z images/ do etykiety, w skali ekranu (bez rozpikselowania przy 125-150%)."""
+        pix = QPixmap(os.path.join(ThemeUtils.PLUGIN_DIR, 'images', filename))
+        if pix.isNull():
+            return
+        dpr = label.devicePixelRatioF()
+        pix = pix.scaledToHeight(int(height * dpr), Qt.TransformationMode.SmoothTransformation)
+        pix.setDevicePixelRatio(dpr)
+        label.setScaledContents(False)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label.setPixmap(pix)

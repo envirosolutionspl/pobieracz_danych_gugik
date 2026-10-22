@@ -20,7 +20,7 @@ from .qgis_feed import QgisFeedDialog
 from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL,
                         OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
                         MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD,
-                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG)
+                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG, INDUSTRIES)
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -93,6 +93,7 @@ class PobieraczDanychGugik:
         :type iface: QgsInterface
         """
         self.settings = QgsSettings()
+        self.iface = iface
         if Qgis.QGIS_VERSION_INT >= 31000:
             from .qgis_feed import QgisFeed
             self.selected_industry = self.settings.value(
@@ -100,6 +101,11 @@ class PobieraczDanychGugik:
                 None
             )
             show_dialog = self.settings.value("showDialog", True, type=bool)
+
+            # wczytywanie branży jeżeli nie jest zgodna z aktualnym słownikiem
+            if self.selected_industry not in INDUSTRIES.values():
+                self.selected_industry = None
+                show_dialog = True
 
             if self.selected_industry is None and show_dialog:
                 self.showBranchSelectionDialog()
@@ -254,14 +260,10 @@ class PobieraczDanychGugik:
         del self.toolbar
 
     def showBranchSelectionDialog(self):
-        self.qgisfeed_dialog = QgisFeedDialog()
-
-        if self.qgisfeed_dialog.exec() == QDialog.DialogCode.Accepted:
-            self.selected_branch = self.qgisfeed_dialog.comboBox.currentText()
-
-            # Zapis w QGIS3.ini
-            self.settings.setValue("selected_industry", self.selected_branch)
-            self.settings.setValue("showDialog", False)
+        """Wyświetla dialog wyboru branży dla QGIS Feed."""
+        dialog = QgisFeedDialog(self.iface.mainWindow())
+        dialog.exec()
+        self.selected_industry = self.settings.value("selected_industry", None)
 
     # --------------------------------------------------------------------------
 
@@ -377,9 +379,6 @@ class PobieraczDanychGugik:
                 "pobieracz_danych_gugik/settings/defaultPath",
                 self.dockwidget.folder_fileWidget.filePath())
         )
-        # informacje o wersji
-        self.dockwidget.setWindowTitle('%s %s' % (plugin_name, plugin_version))
-        self.dockwidget.lbl_pluginVersion.setText('%s %s' % (plugin_name, plugin_version))
 
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dockwidget)
 

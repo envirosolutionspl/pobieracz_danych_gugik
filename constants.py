@@ -458,7 +458,6 @@ GROUPBOXES_VISIBILITY_MAP = {
     'inne_rdbtn': [
         'egib_excel_groupBox',
         'tyflologiczne_groupBox',
-        'osnowa_groupBox',
         'osnowa_podstawowa_groupBox',
         'osnowa_arch_groupBox',
         'aerotriangulacja_groupBox',
@@ -551,17 +550,39 @@ POZIOMY_UPROSZCZENIA = {
 
 
 INDUSTRIES = {
-    "999": "Nie wybrano",
-    "e": "Energetyka/OZE",
-    "u": "Urząd",
-    "td": "Transport/Drogi",
-    "pg": "Planowanie/Geodezja",
-    "wk": "WodKan",
-    "s": "Środowisko",
-    "rl": "Rolnictwo/Leśnictwo",
-    "tk": "Telkom",
+    "999": "nie wybrano",
+    "pub": "Administracja publiczna",
     "edu": "Edukacja",
-    "i": "Inne",
+    "enr": "Energetyka",
+    "gdz": "Geodezja",
     "it": "IT",
-    "n": "Nieruchomości"
+    "les": "Leśnictwo",
+    "nrs": "Nieruchomości",
+    "oze": "OZE",
+    "pla": "Planowanie przestrzenne",
+    "rol": "Rolnictwo",
+    "srd": "Środowisko",
+    "tkm": "Telekomunikacja",
+    "trn": "Transport",
+    "ubz": "Ubezpieczenia",
+    "wkn": "WodKan",
+    "inn": "inne"
+}
+
+
+# ----------- Wygląd: pomoc, kolory linków i logo w stopce zależne od motywu -----------
+
+HOME_LINK = 'https://envirosolutions.pl/wtyczki-qgis/pobieracz-danych-gugik/'
+
+FOOTER_LINK_COLORS = {'light': '#4a5250', 'dark': '#b8c0bc'}
+
+# Logo w stopce zależne od motywu (pliki w images/).
+FOOTER_LOGOS = {'light': 'es_logo_h.png', 'dark': 'es_logo_white.png'}
+
+# Etykieta „Dostępne dane: …” (tekst w .ui) pokazywana dla zaznaczonego sposobu wyszukiwania.
+AVAILABLE_DATA_LABELS = {
+    'wfs_rdbtn': 'lbl_available_wfs',
+    'wms_rdbtn': 'lbl_available_wms',
+    'paczka_rdbtn': 'lbl_available_paczka',
+    'inne_rdbtn': 'lbl_available_inne',
 }
