@@ -3,8 +3,8 @@ from qgis.core import (
     QgsNewsFeedParser,
     QgsSettings
 )
-from .utils import MessageUtils
-from qgis.PyQt.QtCore import QUrl
+from .utils import MessageUtils, ThemeUtils
+from qgis.PyQt.QtCore import QUrl, QDir, QEvent
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog, QComboBox, QPushButton
 
@@ -12,7 +12,12 @@ import re
 import os
 import unicodedata
 
-from .constants import INDUSTRIES, FEED_URL
+from .constants import INDUSTRIES, FEED_URL, FOOTER_LOGOS
+
+PLUGIN_DIR = os.path.dirname(__file__)
+
+# Prefiks "pdgimg:" używany w url(...) arkusza stylów w ui/qgis_feed.ui (strzałka listy).
+QDir.addSearchPath('pdgimg', os.path.join(PLUGIN_DIR, 'images'))
 
 
 class QgisFeed:
@@ -125,19 +130,51 @@ class QgisFeedDialog(QDialog):
         super(QgisFeedDialog, self).__init__(parent)
         self.ui_file_path = os.path.join(os.path.dirname(__file__), 'ui', 'qgis_feed.ui')
         uic.loadUi(self.ui_file_path, self)
+        self._theme = None
 
         self.comboBox = self.findChild(QComboBox, 'comboBox')
         self.pushButton = self.findChild(QPushButton, 'pushButton')
+        # lista branż z constants.INDUSTRIES
+        self.comboBox.clear()
+        for code, name in INDUSTRIES.items():
+            self.comboBox.addItem(name, code)
         self.pushButton.clicked.connect(self.onSaveClicked)
 
+        self._applyTheme()
         self.loadPreviousSelection()
+
+    # ------------------------------- Motyw -----------------------------------
+    def _applyTheme(self, force=False):
+        """Ustawia właściwość "theme" – kolory są zdefiniowane w arkuszu stylów ui/qgis_feed.ui."""
+        theme = 'dark' if ThemeUtils.isDarkTheme() else 'light'
+        if theme == self._theme and not force:
+            return
+        self._theme = theme
+        self.setProperty('theme', theme)
+        ThemeUtils.repolishAll(self)
+        self._setLogo()
+
+    def _setLogo(self, height=30):
+        """Logo w stopce: zielone na jasnym tle, białe na ciemnym (FOOTER_LOGOS w constants)."""
+        if self._theme is not None:
+            ThemeUtils.setLogo(self.lbl_logo, FOOTER_LOGOS[self._theme], height)
+
+    def showEvent(self, event):
+        self._applyTheme()
+        super().showEvent(event)
+        self._setLogo()
+
+    def changeEvent(self, event):
+        if (event.type() in (QEvent.Type.PaletteChange, QEvent.Type.StyleChange)
+                and getattr(self, '_theme', None) is not None):
+            self._applyTheme()
+        super().changeEvent(event)
+
+    # ------------------------------- Logika ----------------------------------
 
     def loadPreviousSelection(self):
         settings = QgsSettings()
-
-        previous_selection = settings.value("selected_industry")
-        if previous_selection:
-
+        if previous_selection := settings.value("selected_industry"):
             index = self.comboBox.findText(previous_selection)
             if index != -1:
                 self.comboBox.setCurrentIndex(index)
