@@ -628,6 +628,12 @@ class ServiceAPI:
 
         is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
         if is_success:
+            # folder otwieramy raz na zadanie - po pierwszym pobranym pliku
+            if obj is None:
+                FileUtils.openFile(destFolder)
+            elif not getattr(obj, 'folder_opened', False):
+                FileUtils.openFile(destFolder)
+                obj.folder_opened = True
             return True, True
         self.cleanupFile(path)
         return False, result
