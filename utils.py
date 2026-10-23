@@ -205,7 +205,7 @@ class FileUtils:
         else:
             import subprocess  # nosec B404
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, abs_path])  # nosec B603
+            subprocess.Popen([opener, abs_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)  # nosec B603
 
     @staticmethod
     def createReport(file_path, headers, obj_list, file_name_from_url=True):
@@ -628,7 +628,12 @@ class ServiceAPI:
 
         is_success, result = self.network_utils.downloadFile(url, path, obj=obj)
         if is_success:
-            FileUtils.openFile(destFolder)
+            # folder otwieramy raz na zadanie - po pierwszym pobranym pliku
+            if obj is None:
+                FileUtils.openFile(destFolder)
+            elif not getattr(obj, 'folder_opened', False):
+                FileUtils.openFile(destFolder)
+                obj.folder_opened = True
             return True, True
         self.cleanupFile(path)
         return False, result
