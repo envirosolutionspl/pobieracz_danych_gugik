@@ -550,23 +550,19 @@ POZIOMY_UPROSZCZENIA = {
 
 
 INDUSTRIES = {
-    "999": "nie wybrano",
-    "pub": "Administracja publiczna",
+    "999": "Nie wybrano",
+    "e": "Energetyka/OZE",
+    "u": "Urząd",
+    "td": "Transport/Drogi",
+    "pg": "Planowanie/Geodezja",
+    "wk": "WodKan",
+    "s": "Środowisko",
+    "rl": "Rolnictwo/Leśnictwo",
+    "tk": "Telkom",
     "edu": "Edukacja",
-    "enr": "Energetyka",
-    "gdz": "Geodezja",
+    "i": "Inne",
     "it": "IT",
-    "les": "Leśnictwo",
-    "nrs": "Nieruchomości",
-    "oze": "OZE",
-    "pla": "Planowanie przestrzenne",
-    "rol": "Rolnictwo",
-    "srd": "Środowisko",
-    "tkm": "Telekomunikacja",
-    "trn": "Transport",
-    "ubz": "Ubezpieczenia",
-    "wkn": "WodKan",
-    "inn": "inne"
+    "n": "Nieruchomości"
 }
 
 
