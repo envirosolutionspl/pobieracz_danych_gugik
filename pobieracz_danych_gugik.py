@@ -7,6 +7,7 @@ from qgis.core import (
     Qgis,
     QgsSettings,
     QgsApplication,
+    QgsTask,
     QgsProject,
     QgsCoordinateReferenceSystem,
     QgsWkbTypes,
@@ -75,6 +76,7 @@ from .utils import (
     LayersUtils,
     FilterUtils,
     MessageUtils,
+    FileUtils,
     ServiceAPI,
     ParsingUtils
 )
@@ -124,6 +126,8 @@ class PobieraczDanychGugik:
         self.plugin_dir = os.path.dirname(__file__)
 
         self.task_mngr = QgsApplication.taskManager()
+        # po zakończeniu każdego zadania pobierania otwieramy jego folder
+        self.task_mngr.statusChanged.connect(self._onTaskStatusChanged)
 
         # Declare instance attributes
         self.actions = []
@@ -250,6 +254,15 @@ class PobieraczDanychGugik:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
+        try:
+            self.task_mngr.statusChanged.disconnect(self._onTaskStatusChanged)
+        except TypeError as e:
+            # sygnał nie był podłączony do tego slotu
+            MessageUtils.pushLogWarning(f'Nie udało się odłączyć sygnału statusChanged (TypeError): {e}')
+        except RuntimeError as e:
+            # obiekt C++ menedżera zadań został już usunięty
+            MessageUtils.pushLogWarning(f'Nie udało się odłączyć sygnału statusChanged (RuntimeError): {e}')
+
         for action in self.actions:
             self.iface.removePluginMenu(
                 u'&EnviroSolutions',
@@ -258,6 +271,19 @@ class PobieraczDanychGugik:
             self.toolbar.removeAction(action)
         # remove the toolbar
         del self.toolbar
+
+    def _onTaskStatusChanged(self, task_id, status):
+        """Otwiera folder docelowy po pomyślnym zakończeniu zadania pobierania.
+
+        Każde zadanie wtyczki ma atrybut `folder`, więc zadania innych wtyczek
+        i QGIS są ignorowane. Anulowane/nieudane zadania nie otwierają folderu.
+        """
+        if status != QgsTask.Complete:
+            return
+        task = self.task_mngr.task(task_id)
+        folder = getattr(task, 'folder', None)
+        if folder:
+            FileUtils.openFile(folder)
 
     def showBranchSelectionDialog(self):
         """Wyświetla dialog wyboru branży dla QGIS Feed."""

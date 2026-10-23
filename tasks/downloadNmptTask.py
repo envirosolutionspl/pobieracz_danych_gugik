@@ -46,7 +46,6 @@ class DownloadNmptTask(QgsTask):
             HEADERS_MAPPING['NMT_HEADERS'],
             self.nmptList
         )
-        FileUtils.openFile(self.folder)
         if self.isCanceled():
             return False
         return True

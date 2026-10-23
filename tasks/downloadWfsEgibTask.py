@@ -110,7 +110,6 @@ class DownloadWfsEgibLayersTask(QgsTask):
 
         # sukces
         if result:
-            FileUtils.openFile(self.folder)
             MessageUtils.pushLogInfo('Pobrano dane EGiB')
             MessageUtils.pushSuccess(self.iface, 'Udało się! Dane EGiB dla powiatów zostały pobrane.')
             return
