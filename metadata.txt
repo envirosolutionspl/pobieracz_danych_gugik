@@ -57,7 +57,9 @@ hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
   Wersja 2.0.0
-  * Poprawa UI
+  * Zmiana wyglądu wtyczki
+  * Zmiana linków w stopce
+  * Poprawa UI qgisfeed
   * Zmiana otwierania się folderu po pobraniu danych
 #  Wersja 1.3.10
 #  * Przeniesienie parsowania XML EGiB do głównego wątku
