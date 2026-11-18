@@ -263,6 +263,13 @@ MSG_TIMEOUT = "Przekroczono czas oczekiwania dla: {}"
 MSG_FILE_WRITE_ERROR = "Błąd zapisu do pliku: {}"
 MSG_JSON_DECODE_ERROR = "Błąd JSON: {}"
 MSG_NO_CONNECTION = "Brak połączenia z internetem."
+MSG_LIST_LOADING = "Ładowanie…"
+MSG_LIST_UNAVAILABLE = "Nie udało się pobrać listy"
+MSG_VOIVODESHIPS_NO_CONNECTION = ("Brak połączenia z internetem - nie udało się pobrać listy województw. "
+                                  "Lista zostanie pobrana ponownie przy kolejnym otwarciu wtyczki.")
+MSG_VOIVODESHIPS_API_ERROR = ("Nie udało się pobrać listy województw - serwer API EnviroSolutions nie odpowiada "
+                              "lub zwrócił błąd. Spróbuj ponownie później (przy kolejnym otwarciu wtyczki).")
+MSG_WFS_LAYERS_NOT_READY = "Lista warstw WFS nie została jeszcze pobrana - spróbuj za chwilę."
 # =============================
 
 # minimalny rozmiar pliku do pobrania danych (~9KB)

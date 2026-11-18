@@ -4,20 +4,25 @@ from ..constants import TIMEOUT_MS, WFS_NAMESPACES, WFS_FILTER_KEYS, WFS_ATTRIBU
 from ..utils import NetworkUtils, MessageUtils
 
 
+WFS_CAPABILITIES_PARAMS = {
+    'SERVICE': 'WFS',
+    'request': 'GetCapabilities',
+}
+WFS_CAPABILITIES_TIMEOUT_MS = TIMEOUT_MS * 2
+
+
 def getTypenamesFromWFS(wfsUrl):
     """Lista dostępnych warstw z usługi WFS"""
-
-    PARAMS = {
-        'SERVICE': 'WFS',
-        'request': 'GetCapabilities',
-    }
     network_utils = NetworkUtils()
-    is_success, result = network_utils.fetchContent(wfsUrl, params=PARAMS, timeout_ms=TIMEOUT_MS * 2)
-
+    is_success, result = network_utils.fetchContent(
+        wfsUrl, params=WFS_CAPABILITIES_PARAMS, timeout_ms=WFS_CAPABILITIES_TIMEOUT_MS)
     if not is_success:
         return False, result
+    return parseTypenamesFromCapabilities(result)
 
-    content = result
+
+def parseTypenamesFromCapabilities(content):
+    """Parsuje GetCapabilities WFS (lxml)"""
     typenamesDict = {}
 
     try:
