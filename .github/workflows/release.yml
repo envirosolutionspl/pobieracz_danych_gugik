@@ -1,0 +1,198 @@
+name: Create release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  PLUGIN: pobieracz_danych_gugik
+  PLUGIN_DIR: "."
+  EXCLUDE: ".github .gitignore .gitattributes .flake8 test tests docs scripts"
+
+jobs:
+  version:
+    name: Wersja z metadata.txt
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      release: ${{ steps.v.outputs.release }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          meta="$PLUGIN_DIR/metadata.txt"
+          test -f "$meta" || { echo "::error::Brak $meta – sprawdz PLUGIN_DIR w release.yaml"; exit 1; }
+          version=$(grep -E '^version[[:space:]]*=' "$meta" | head -1 | cut -d= -f2 | tr -d ' \t\r')
+          [ -n "$version" ] || { echo "::error::Brak wersji w $meta"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::notice::Wydanie v$version juz istnieje – pomijam. Aby wydac nowa wersje, podbij version= w metadata.txt."
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nowa wersja: v$version"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  flake8:
+    name: flake8
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: python -m pip install flake8
+
+      - name: Run flake8
+        run: |
+          set +eo pipefail
+          cfg=""; [ -f .flake8 ] && cfg="--config=.flake8"
+          flake8 $cfg . | tee "$RUNNER_TEMP/flake8.txt"
+          status=${PIPESTATUS[0]}
+          cat "$RUNNER_TEMP/flake8.txt" >> "$GITHUB_STEP_SUMMARY"
+          exit $status
+
+  tests:
+    name: Testy jednostkowe (QGIS)
+    needs: version
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.PLUGIN_DIR == '.' && env.PLUGIN || '.' }}
+
+      - name: Run unit tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        shell: bash
+        run: |
+          if [ "$PLUGIN_DIR" = "." ]; then base="$PLUGIN"; else base="."; fi
+          tdir=""
+          for d in tests test; do [ -d "$base/$d" ] && tdir="$base/$d" && break; done
+          if [ -z "$tdir" ]; then
+            echo "::warning title=Brak testow::Repozytorium nie ma katalogu test/ ani tests/ – wydanie bez testow jednostkowych."
+            exit 0
+          fi
+          python3 -m unittest discover -s "$tdir" -t . -v
+
+  publish:
+    name: Wydanie
+    needs: [version, flake8, tests]
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build plugin ZIP
+        run: |
+          if [ -f scripts/package.py ]; then
+            python scripts/package.py
+          else
+            if git ls-files "$PLUGIN_DIR" | grep -q '\.ts$'; then
+              sudo apt-get update -qq && sudo apt-get install -y -qq qttools5-dev-tools
+              git ls-files "$PLUGIN_DIR" | grep '\.ts$' | xargs -r -n1 /usr/lib/qt5/bin/lrelease
+            fi
+            python - <<'PY'
+          import os, subprocess, zipfile
+          from pathlib import Path, PurePosixPath
+          plugin, src, version = os.environ["PLUGIN"], os.environ["PLUGIN_DIR"], os.environ["VERSION"]
+          exclude = set(os.environ["EXCLUDE"].split())
+          base = PurePosixPath(src)
+          files = subprocess.run(["git", "ls-files", "-z", src], capture_output=True, text=True, check=True).stdout.split("\0")
+          files += [str(p) for p in Path(src).rglob("*.qm")]
+          Path("dist").mkdir(exist_ok=True)
+          out = Path("dist") / f"{plugin}-{version}.zip"
+          added = set()
+          with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
+              for f in sorted(set(filter(None, files))):
+                  rel = PurePosixPath(f).relative_to(base) if src != "." else PurePosixPath(f)
+                  if rel.parts[0] in exclude or "__pycache__" in rel.parts or rel.suffix in {".pyc", ".ts"}:
+                      continue
+                  if not Path(f).is_file():
+                      continue
+                  zf.write(f, f"{plugin}/{rel}")
+                  added.add(str(rel))
+              if "LICENSE" not in added and Path("LICENSE").is_file():
+                  zf.write("LICENSE", f"{plugin}/LICENSE")
+          print(out, len(added), "plikow")
+          PY
+          fi
+          ls -l dist/
+          unzip -l dist/*.zip | grep -q " $PLUGIN/metadata.txt$" || { echo "::error::W ZIP brak $PLUGIN/metadata.txt"; exit 1; }
+
+      - name: Upload to plugins.qgis.org
+        env:
+          QGIS_PLUGIN_TOKEN: ${{ secrets.QGIS_PLUGIN_TOKEN }}
+        run: |
+          if [ -z "$QGIS_PLUGIN_TOKEN" ]; then
+            msg="Brak sekretu QGIS_PLUGIN_TOKEN – wersja $VERSION NIE zostala wyslana na plugins.qgis.org."
+            echo "::warning title=Wtyczka nie wyslana na plugins.qgis.org::$msg"
+            echo "### ⚠️ $msg" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          STATUS=$(curl -sS -o response.html -w "%{http_code}" \
+            -H "Authorization: Bearer ${QGIS_PLUGIN_TOKEN}" \
+            -A "${PLUGIN}-release (GitHub Actions)" \
+            -F "package=@dist/${PLUGIN}-${VERSION}.zip" \
+            "https://plugins.qgis.org/plugins/api/${PLUGIN}/version/add/")
+          # 201 = przyjeta; 200 = formularz z bledami (paczka odrzucona); 403 = zly token
+          if [ "$STATUS" != "201" ]; then
+            echo "::error::plugins.qgis.org odpowiedzial HTTP $STATUS"
+            sed -e 's/<[^>]*>//g' response.html | grep -v '^\s*$' \
+              | grep -iE -m 20 "error|invalid|token|mismatch|already" || true
+            exit 1
+          fi
+          echo "Wersja $VERSION wyslana, czeka na zatwierdzenie na plugins.qgis.org" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          repo: ${{ github.repository }}
+        run: |
+          tag="v$VERSION"
+          since=$(gh api "repos/$repo/releases/latest" --jq .created_at 2>/dev/null || true)
+          latest_tag=$(gh api "repos/$repo/releases/latest" --jq .tag_name 2>/dev/null || true)
+          search=""
+          [ -n "$since" ] && search="closed:>$since"
+          issues=$(gh issue list --repo "$repo" --state closed --search "$search" \
+            --json number,title,url --jq '.[] | "- \(.title) ([#\(.number)](\(.url)))"')
+          {
+            echo "## Wprowadzone zmiany"
+            echo
+            echo "${issues:-- Brak zamkniętych zgłoszeń}"
+            if [ -n "$latest_tag" ]; then
+              echo
+              echo "**Pełny Changelog**: https://github.com/$repo/compare/$latest_tag...$tag"
+            fi
+          } > notes.md
+          gh release create "$tag" dist/*.zip \
+            --repo "$repo" \
+            --target "$GITHUB_SHA" \
+            --title "$tag" \
+            --notes-file notes.md
