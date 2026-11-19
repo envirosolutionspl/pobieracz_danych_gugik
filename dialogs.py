@@ -5,7 +5,8 @@ import os
 import re
 import configparser
 import warnings
-from qgis.PyQt import QtWidgets, uic
+from functools import partial
+from qgis.PyQt import QtWidgets, uic, sip
 from qgis.PyQt.QtCore import pyqtSignal, QDir, QEvent, QUrl
 
 from qgis.PyQt.QtCore import QRegularExpression
@@ -17,7 +18,7 @@ from qgis.gui import QgsFileWidget, QgsCollapsibleGroupBox
 from . import PLUGIN_VERSION
 from .constants import ADMINISTRATIVE_UNITS_OBJECTS, DOUBLE_VALIDATOR_OBJECTS, DATA_TIME_OBJECTS, MAP_LAYER_COMBOBOXES, \
     VOIVODESHIP_COMBOBOXES, YEARS_COMBOBOXES, WFS_URL_MAPPING, AVAILABLE_DATA_LABELS, \
-    FOOTER_LINK_COLORS, FOOTER_LOGOS, HOME_LINK
+    FOOTER_LINK_COLORS, FOOTER_LOGOS, HOME_LINK, MSG_LIST_LOADING, MSG_LIST_UNAVAILABLE
 from .utils import ThemeUtils
 from .wfs import WfsFetch
 
@@ -52,6 +53,7 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.folder_fileWidget.setStorageMode(QgsFileWidget.StorageMode.GetDirectory)
         self.regionFetch = regionFetch
         self.wfsFetch = WfsFetch()
+        self._pendingRequests = {}
         self.setup_dialog()
         self._setupLook()
 
@@ -59,7 +61,8 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.setupValidators()
         self.setupDates()
         self.setupVectorLayersFilters()
-        self.fillVoivodeships()
+        # województwa wypełnia wtyczka po pobraniu w tle (PobieraczDanychGugik.loadVoivodeships)
+        self.setVoivodeshipsLoading()
         self.fillServices()
         self.fillWfsServicesData()
         self.fillYears()
@@ -95,37 +98,112 @@ class PobieraczDanychDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         for obj in MAP_LAYER_COMBOBOXES:
             getattr(self, obj).setFilters(vector_layers_filter)
 
-    def fillVoivodeships(self):
-        voivodeships_ids = self.regionFetch.wojewodztwoDict.keys()
-        voivodeships_names = self.regionFetch.wojewodztwoDict.values()
+    # ------------------------- listy pobierane z sieci (w tle) -------------------------
+
+    @staticmethod
+    def _setComboStatus(combo_obj, status_text):
+        """Czyści combo i pokazuje status („Ładowanie…”, błąd)."""
+        combo_obj.blockSignals(True)
+        combo_obj.clear()
+        combo_obj.clearEditText()
+        combo_obj.blockSignals(False)
+        PobieraczDanychDockWidget._setPlaceholder(combo_obj, status_text)
+
+    @staticmethod
+    def _setPlaceholder(combo_obj, text):
+        """Edytowalne combo (np. województwa) rysuje tekst w lineEdit, więc placeholder ustawiamy też tam."""
+        combo_obj.setPlaceholderText(text)
+        if combo_obj.isEditable():
+            combo_obj.lineEdit().setPlaceholderText(text)
+
+    @staticmethod
+    def _fillCombo(combo_obj, items, select_first=False):
+        """Wypełnia combo; `items` to słownik {dane: tekst} albo lista tekstów."""
+        combo_obj.blockSignals(True)
+        combo_obj.clear()
+        PobieraczDanychDockWidget._setPlaceholder(combo_obj, '')
+        if isinstance(items, dict):
+            combo_obj.addItems(list(items.values()))
+            for idx, val in enumerate(items.keys()):
+                combo_obj.setItemData(idx, val)
+        else:
+            combo_obj.addItems(items)
+        combo_obj.setCurrentIndex(0 if select_first and combo_obj.count() else -1)
+        combo_obj.blockSignals(False)
+
+    def setVoivodeshipsLoading(self):
         for obj_name in VOIVODESHIP_COMBOBOXES:
-            obj = getattr(self, obj_name)
-            obj.clear()
-            obj.addItems(voivodeships_names)
-            for idx, val in enumerate(voivodeships_ids):
-                obj.setItemData(idx, val)
-            obj.setCurrentIndex(-1)
+            self._setComboStatus(getattr(self, obj_name), MSG_LIST_LOADING)
+
+    def setVoivodeshipsUnavailable(self):
+        """Bez województw nie da się wybrać też powiatu ani gminy - wszystkie dostają ten sam status."""
+        dependent_combos = [dependent for _, dependent in ADMINISTRATIVE_UNITS_OBJECTS.values()]
+        for obj_name in VOIVODESHIP_COMBOBOXES + dependent_combos:
+            self._setComboStatus(getattr(self, obj_name), MSG_LIST_UNAVAILABLE)
+
+    def fillVoivodeships(self, voivodeships_dict):
+        for obj_name in VOIVODESHIP_COMBOBOXES:
+            self._fillCombo(getattr(self, obj_name), voivodeships_dict)
 
     def fillYears(self):
         for obj, years in YEARS_COMBOBOXES.items():
             getattr(self, obj).addItems(years)
 
     def setupAdministrativeUnitObj(self, func, dependent_combo):
-        combo_obj = getattr(self, dependent_combo)
         unit_data = self.sender().currentData()
         if not unit_data:
             return
-        combo_obj.clear()
-        unit_dict = getattr(self.regionFetch, func)(unit_data)
-        combo_obj.addItems(unit_dict.values())
-        for idx, val in enumerate(unit_dict.keys()):
-            combo_obj.setItemData(idx, val)
-        combo_obj.setCurrentIndex(-1)
+        self._pendingRequests[dependent_combo] = unit_data
+        self._setComboStatus(getattr(self, dependent_combo), MSG_LIST_LOADING)
+        self.regionFetch.fetchUnitsByTerytAsync(
+            func,
+            unit_data,
+            partial(self._onAdministrativeUnitsFetched, dependent_combo, unit_data)
+        )
+
+    def _onAdministrativeUnitsFetched(self, dependent_combo, teryt, unit_dict):
+        if not self._isResponseCurrent(dependent_combo, teryt):
+            return
+        combo_obj = getattr(self, dependent_combo)
+        if not unit_dict:
+            self._setComboStatus(combo_obj, MSG_LIST_UNAVAILABLE)
+            return
+        self._fillCombo(combo_obj, unit_dict)
 
     def wfsServiceCmbbxCurrentTextChanged(self, text):
-        self.wfs_layer_cmbbx.clear()
-        typenamesDict = self.wfsFetch.getTypenamesByServiceName(text)
-        self.wfs_layer_cmbbx.addItems(sorted(list(typenamesDict.keys()), reverse=True))
+        if not text:
+            return
+        cached = self.wfsFetch.getCachedTypenames(text)
+        if cached is not None:
+            self._fillWfsLayers(cached)
+            return
+        self._pendingRequests['wfs_layer_cmbbx'] = text
+        self._setComboStatus(self.wfs_layer_cmbbx, MSG_LIST_LOADING)
+        self.wfsFetch.fetchTypenamesAsync(
+            text,
+            partial(self._onWfsTypenamesFetched, text)
+        )
+
+    def _onWfsTypenamesFetched(self, service_name, typenames_dict):
+        if not self._isResponseCurrent('wfs_layer_cmbbx', service_name):
+            return
+        if not typenames_dict:
+            self._setComboStatus(self.wfs_layer_cmbbx, MSG_LIST_UNAVAILABLE)
+            return
+        self._fillWfsLayers(typenames_dict)
+
+    def _fillWfsLayers(self, typenames_dict):
+        self._fillCombo(self.wfs_layer_cmbbx, sorted(typenames_dict.keys(), reverse=True), select_first=True)
+
+    def _isResponseCurrent(self, combo_name, request_key):
+        """Czy odpowiedź z zadania w tle nadal dotyczy aktualnego wyboru w doku."""
+        if sip.isdeleted(self):
+            # dok został usunięty, zanim zadanie się skończyło
+            return False
+        if self._pendingRequests.get(combo_name) != request_key:
+            return False
+        del self._pendingRequests[combo_name]
+        return True
 
     # ------------------------------- Wygląd -----------------------------------
 

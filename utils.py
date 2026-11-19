@@ -13,7 +13,8 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransform,
     QgsNetworkAccessManager,
-    QgsBlockingNetworkRequest
+    QgsBlockingNetworkRequest,
+    QgsTask
 )
 from qgis.PyQt.QtWidgets import QMessageBox, QProgressDialog, QWidget
 from qgis.PyQt.QtGui import QIcon, QPalette, QPixmap
@@ -334,11 +335,63 @@ class MessageUtils:
         )
 
 
+class BackgroundTasks:
+    """Uruchamia krótkie operacje (czysty Python, np. requests) w QgsTask."""
+
+    def __init__(self):
+        # referencje do uruchomionych zadań (id -> zadanie)
+        self._tasks = {}
+        self._next_task_id = 0
+
+    def run(self, description, fetch_func, on_done):
+        task_id = self._next_task_id
+        self._next_task_id += 1
+        task = QgsTask.fromFunction(
+            description,
+            self._runInThread,
+            fetch_func,
+            on_finished=partial(self._onTaskFinished, task_id, description, on_done)
+        )
+        self._tasks[task_id] = task
+        QgsApplication.taskManager().addTask(task)
+        return task
+
+    @staticmethod
+    def _runInThread(task, fetch_func):
+        # QgsTask.fromFunction przekazuje zadanie jako pierwszy argument
+        return fetch_func()
+
+    def _onTaskFinished(self, task_id, description, on_done, exception, result=None):
+        """Wywoływane przez QGIS w głównym wątku po zakończeniu zadania."""
+        self._tasks.pop(task_id, None)
+        if exception is not None:
+            MessageUtils.pushLogWarning(
+                f"{description}: {type(exception).__name__}: {exception}"
+            )
+            result = None
+        try:
+            on_done(result)
+        except Exception as e:
+            MessageUtils.pushLogWarning(
+                f"{description} - błąd w obsłudze wyniku: {type(e).__name__}: {e}"
+            )
+
+    def cancelAll(self):
+        # referencje zostają w self._tasks do czasu wywołania _onTaskFinished
+        for task in list(self._tasks.values()):
+            task.cancel()
+
+
 class NetworkUtils:
 
     def __init__(self):
         self.manager = QNetworkAccessManager()
         self.manager.setProxy(QgsNetworkAccessManager.instance().proxy())
+
+        # zapytania asynchroniczne
+        self._pending_replies = set()
+        self._background = BackgroundTasks()
+        self._cancelled = False
 
         # Wyciszenie ostrzeżeń o braku weryfikacji SSL (InsecureRequestWarning)
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -427,6 +480,73 @@ class NetworkUtils:
             return True, data
         except UnicodeDecodeError:
             return True, f"BinaryData: {len(raw_data)} bytes"
+
+    def fetchContentAsync(self, url, on_done, params=None, timeout_ms=TIMEOUT_MS):
+        """Pobiera treść BEZ blokowania QGIS; wynik `on_done((is_success, result))`."""
+        q_url = QUrl(url)
+        if params:
+            query = QUrlQuery()
+            for key, value in params.items():
+                query.addQueryItem(str(key), str(value))
+            q_url.setQuery(query)
+
+        request = QNetworkRequest(q_url)
+        self._setAttributes(request, timeout_ms)
+
+        reply = QgsNetworkAccessManager.instance().get(request)
+        timeout_timer = QTimer()
+        timeout_timer.setSingleShot(True)
+        timeout_timer.timeout.connect(reply.abort)
+        timeout_timer.start(timeout_ms)
+        self._pending_replies.add(reply)
+        # partial trzyma też referencję do timera, dopóki odpowiedź nie przyjdzie
+        reply.finished.connect(
+            partial(self._onAsyncReplyFinished, reply, timeout_timer, url, params, timeout_ms, on_done)
+        )
+
+    def _onAsyncReplyFinished(self, reply, timeout_timer, url, params, timeout_ms, on_done):
+        timeout_timer.stop()
+        self._pending_replies.discard(reply)
+        has_error = self._hasErrorOccurred(reply)
+        error_str = reply.errorString()
+        raw_data = b'' if has_error else reply.readAll().data()
+        reply.deleteLater()
+
+        if self._cancelled:
+            return
+
+        if has_error:
+            MessageUtils.pushLogWarning(f"Qt: {error_str} ({url}) - próba przez requests")
+            self._background.run(
+                f'Pobieranie (requests): {url}',
+                partial(self._fetchContentWithRequests, url, params, timeout_ms),
+                partial(self._onRequestsFallbackFinished, url, on_done)
+            )
+            return
+
+        if len(raw_data) == 0:
+            on_done((False, MSG_EMPTY_CONTENT.format(url)))
+            return
+        try:
+            on_done((True, raw_data.decode(DEFAULT_ENCODING)))
+        except UnicodeDecodeError:
+            on_done((True, f"BinaryData: {len(raw_data)} bytes"))
+
+    def _onRequestsFallbackFinished(self, url, on_done, result):
+        if self._cancelled:
+            return
+        if result is None:
+            # zadanie przerwane wyjątkiem - szczegóły zalogował BackgroundTasks
+            on_done((False, MSG_NETWORK_ERROR.format('zadanie przerwane', url)))
+            return
+        on_done(result)
+
+    def cancelAsync(self):
+        """Przerywa zapytania asynchroniczne; ich callbacki nie zostaną wywołane."""
+        self._cancelled = True
+        for reply in list(self._pending_replies):
+            reply.abort()
+        self._background.cancelAll()
 
     def fetchJson(self, url, params=None, timeout_ms=TIMEOUT_MS):
         is_success, result = self.fetchContent(url, params, timeout_ms)
@@ -696,6 +816,19 @@ class ServiceAPI:
         if not is_success and self.iface:
             MessageUtils.pushWarning(self.iface, MSG_NO_CONNECTION)
         return is_success
+
+    def checkInternetConnectionAsync(self, on_done):
+        """Jak checkInternetConnection, ale bez blokowania; wynik `on_done(is_connected)`."""
+        self.network_utils.fetchContentAsync(
+            ULDK_URL,
+            partial(self._onInternetChecked, on_done),
+            timeout_ms=TIMEOUT_MS
+        )
+
+    @staticmethod
+    def _onInternetChecked(on_done, fetch_result):
+        is_success, _ = fetch_result
+        on_done(is_success)
 
     def cleanupFile(self, path):
         if os.path.exists(path):

@@ -1,22 +1,56 @@
 import processing
+from functools import partial
 
 from ..constants import WFS_URL_MAPPING, POZIOMY_UPROSZCZENIA, CRS
 
 try:
-    from .utils import getTypenamesFromWFS
+    from .utils import getTypenamesFromWFS, parseTypenamesFromCapabilities
+    from .utils import WFS_CAPABILITIES_PARAMS, WFS_CAPABILITIES_TIMEOUT_MS
     from .utils import roundCoordinatesOfWkt
 except ImportError:
-    from wfs.utils import getTypenamesFromWFS
+    from wfs.utils import getTypenamesFromWFS, parseTypenamesFromCapabilities
+    from wfs.utils import WFS_CAPABILITIES_PARAMS, WFS_CAPABILITIES_TIMEOUT_MS
     from wfs.utils import roundCoordinatesOfWkt
 from qgis.core import QgsDataSourceUri, QgsVectorLayer
-from ..utils import MessageUtils
+from ..utils import MessageUtils, NetworkUtils
 
 
 class WfsFetch:
     def __init__(self):
         self.cachedTypenamesDict = {}
         self.errors = []
+        self.network_utils = NetworkUtils()
         # self.refreshCachedTypenamesDict()
+
+    def getCachedTypenames(self, serviceName):
+        """Lista warstw z pamięci albo None, jeśli jeszcze nie pobrana."""
+        return self.cachedTypenamesDict.get(serviceName)
+
+    def fetchTypenamesAsync(self, serviceName, on_done):
+        """Pobiera listę warstw usługi bez blokowania QGIS.
+
+        `on_done(typenames_dict)` w głównym wątku; pusty słownik oznacza błąd.
+        Parsowanie (lxml) też w głównym wątku - lxml w QgsTask crashuje QGIS.
+        """
+        self.network_utils.fetchContentAsync(
+            WFS_URL_MAPPING[serviceName],
+            partial(self._onCapabilitiesFetched, serviceName, on_done),
+            params=WFS_CAPABILITIES_PARAMS,
+            timeout_ms=WFS_CAPABILITIES_TIMEOUT_MS
+        )
+
+    def _onCapabilitiesFetched(self, serviceName, on_done, fetch_result):
+        """GetCapabilities -> lista warstw (zapisana w cache); pusty słownik przy błędzie."""
+        is_success, result = fetch_result
+        if is_success:
+            is_success, result = parseTypenamesFromCapabilities(result)
+        if not is_success:
+            self.errors.append(result)
+            MessageUtils.pushLogWarning('Błąd pobierania warstw usługi WFS %s: %s' % (serviceName, result))
+            on_done({})
+            return
+        self.cachedTypenamesDict[serviceName] = result
+        on_done(result)
 
     def refreshCachedTypenamesDict(self):
         self.errors = []

@@ -2,6 +2,7 @@
 from qgis.PyQt.QtCore import Qt, QCoreApplication, QT_VERSION_STR
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
+from qgis.PyQt import sip
 from qgis.gui import QgsMapToolEmitPoint
 from qgis.core import (
     Qgis,
@@ -20,7 +21,9 @@ from .qgis_feed import QgisFeedDialog
 from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL,
                         OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
                         MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD,
-                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG, INDUSTRIES)
+                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG, INDUSTRIES,
+                        MSG_VOIVODESHIPS_NO_CONNECTION, MSG_VOIVODESHIPS_API_ERROR,
+                        MSG_WFS_LAYERS_NOT_READY)
 
 from . import PLUGIN_VERSION as plugin_version
 from . import PLUGIN_NAME as plugin_name
@@ -174,9 +177,7 @@ class PobieraczDanychGugik:
         self.zdjecia_lotniczeClickTool = QgsMapToolEmitPoint(self.canvas)
         self.zdjecia_lotniczeClickTool.canvasClicked.connect(
             self.canvasZdjeciaLotniczeClicked)
-        is_success = self.service_api.checkInternetConnection()
-        if is_success:
-            self.regionFetch = RegionFetch()
+        self.regionFetch = RegionFetch()
 
         # --------------------------------------------------------------------------
 
@@ -250,6 +251,11 @@ class PobieraczDanychGugik:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
+        self.regionFetch.network_utils.cancelAsync()
+        self.service_api.network_utils.cancelAsync()
+        if self.dockwidget is not None and not sip.isdeleted(self.dockwidget):
+            self.dockwidget.wfsFetch.network_utils.cancelAsync()
+
         for action in self.actions:
             self.iface.removePluginMenu(
                 u'&EnviroSolutions',
@@ -271,14 +277,8 @@ class PobieraczDanychGugik:
         """Run method that loads and starts the plugin"""
         if self.pluginIsActive:
             return
-        connection = self.service_api.checkInternetConnection()
-        if not connection:
-            self.pluginIsActive = False
-            return
 
         if self.dockwidget is None:
-            if not hasattr(self, 'regionFetch'):
-                self.regionFetch = RegionFetch()
             self.dockwidget = PobieraczDanychDockWidget(self.regionFetch)
             self.pluginIsActive = True
 
@@ -384,6 +384,31 @@ class PobieraczDanychGugik:
 
         self.dockwidget.label_55.setMargin(5)
         self.dockwidget.show()
+        self.loadVoivodeships()
+
+    def loadVoivodeships(self):
+        """Wypełnia listy województw - z pamięci albo po pobraniu w tle."""
+        if self.regionFetch.wojewodztwoDict:
+            self.dockwidget.fillVoivodeships(self.regionFetch.wojewodztwoDict)
+            return
+        if self.regionFetch.isFetchingWojewodztwa():
+            return
+        self.regionFetch.fetchWojewodztwaAsync(self._onVoivodeshipsFetched)
+
+    def _onVoivodeshipsFetched(self, wojewodztwa_dict):
+        if self.dockwidget is None or sip.isdeleted(self.dockwidget):
+            # dok zamknięty w trakcie pobierania - lista zostaje w pamięci
+            return
+        if not wojewodztwa_dict:
+            self.dockwidget.setVoivodeshipsUnavailable()
+            # dopiero po błędzie sprawdzamy, czy winny jest internet, czy API
+            self.service_api.checkInternetConnectionAsync(self._onVoivodeshipsErrorDiagnosed)
+            return
+        self.dockwidget.fillVoivodeships(wojewodztwa_dict)
+
+    def _onVoivodeshipsErrorDiagnosed(self, is_connected):
+        message = MSG_VOIVODESHIPS_API_ERROR if is_connected else MSG_VOIVODESHIPS_NO_CONNECTION
+        MessageUtils.pushWarning(self.iface, message)
 
     def changeGroupboxesVisibility(self):
         if self.dockwidget is None:
@@ -424,6 +449,10 @@ class PobieraczDanychGugik:
 
     def downloadWfsForLayer(self, layer):
         """Pobiera dane WFS """
+        if not self.dockwidget.wfs_layer_cmbbx.currentText():
+            # lista warstw WFS pobierana jest w tle i mogła jeszcze nie dotrzeć
+            MessageUtils.pushWarning(self.iface, MSG_WFS_LAYERS_NOT_READY)
+            return
         if isinstance(layer, QgsPointXY):
             vp = QgsVectorLayer(f'Point?crs={self.project.crs().authid()}', "vectpoi", "memory")
             feature = QgsFeature()
