@@ -1,6 +1,7 @@
 name: Check Security and Quality of the Code
 
 on:
+  workflow_call:
   push:
     branches: [master, dev]
   pull_request:
