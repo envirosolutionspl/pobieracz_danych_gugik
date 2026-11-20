@@ -1,0 +1,38 @@
+name: "Testy jednostkowe (QGIS)"
+
+on:
+  push:
+    branches: [master, dev]
+  pull_request:
+    branches: [master]
+  workflow_call:
+
+permissions:
+  contents: read
+
+env:
+  PLUGIN: pobieracz_danych_gugik
+
+jobs:
+  unit:
+    name: Testy jednostkowe (QGIS)
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ${{ env.PLUGIN }}
+
+      - name: Run unit tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        shell: bash
+        run: |
+          tdir=""
+          for d in tests test; do [ -d "$PLUGIN/$d" ] && tdir="$PLUGIN/$d" && break; done
+          if [ -z "$tdir" ]; then
+            echo "::warning title=Brak testow::Repozytorium nie ma katalogu test/ ani tests/."
+            exit 0
+          fi
+          python3 -m unittest discover -s "$tdir" -t . -v

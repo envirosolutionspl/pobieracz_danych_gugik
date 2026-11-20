@@ -1,0 +1,72 @@
+name: "Publish plugin"
+
+on:
+  workflow_run:
+    workflows: ["Create release"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Wersja do wysłania – ZIP z wydania v<wersja> na GitHubie"
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: publish-plugin
+  cancel-in-progress: false
+
+env:
+  PLUGIN: pobieracz_danych_gugik
+
+jobs:
+  qgis_upload:
+    name: "Upload na plugins.qgis.org"
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobranie ZIP
+        id: zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          mkdir -p dist
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            gh release download "v$INPUT_VERSION" --repo "$GITHUB_REPOSITORY" --pattern '*.zip' --dir dist
+          elif ! gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" --name plugin-zip --dir dist 2>/dev/null; then
+            echo "::notice::Create release nie wydal nowej wersji – nic do wyslania."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          ls -l dist/
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Upload
+        if: steps.zip.outputs.skip == 'false'
+        env:
+          QGIS_PLUGIN_TOKEN: ${{ secrets.QGIS_PLUGIN_TOKEN }}
+        run: |
+          zip=$(ls dist/*.zip)
+          if [ -z "$QGIS_PLUGIN_TOKEN" ]; then
+            msg="Brak sekretu QGIS_PLUGIN_TOKEN – $zip NIE zostal wyslany na plugins.qgis.org."
+            echo "::warning title=Wtyczka nie wyslana na plugins.qgis.org::$msg"
+            echo "### ⚠️ $msg" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          STATUS=$(curl -sS -o response.html -w "%{http_code}" \
+            -H "Authorization: Bearer ${QGIS_PLUGIN_TOKEN}" \
+            -A "${PLUGIN}-release (GitHub Actions)" \
+            -F "package=@${zip}" \
+            "https://plugins.qgis.org/plugins/api/${PLUGIN}/version/add/")
+          if [ "$STATUS" != "201" ]; then
+            echo "::error::plugins.qgis.org odpowiedzial HTTP $STATUS"
+            sed -e 's/<[^>]*>//g' response.html | grep -v '^\s*$' \
+              | grep -iE -m 20 "error|invalid|token|mismatch|already" || true
+            exit 1
+          fi
+          echo "$zip wyslany, czeka na zatwierdzenie na plugins.qgis.org" | tee -a "$GITHUB_STEP_SUMMARY"
