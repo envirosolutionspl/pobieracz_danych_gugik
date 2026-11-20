@@ -329,6 +329,13 @@ MIN_YEAR_BUILDINGS_3D = 1970
 OKRES_DOSTEPNYCH_DANYCH_LOD = range(MIN_YEAR_BUILDINGS_3D, CURRENT_YEAR + 1)
 
 FEED_URL = 'https://qgisfeed.envirosolutions.pl/'
+INDUSTRIES_URL = 'https://qgisfeed.enviro-dev.pl/industries/'
+INDUSTRIES_TIMEOUT_MS = 3000
+
+# Klucze QgsSettings wspólne dla wszystkich wtyczek EnviroSolutions w profilu QGIS
+FEED_KEY_USER_ID = 'anonymous_user_id'
+FEED_KEY_INDUSTRY = 'selected_industry'
+FEED_APP_PROPERTY_DIALOG_HANDLED = 'envirosolutions_industry_dialog_handled'
 
 DOUBLE_VALIDATOR_OBJECTS = [
     'nmt_pixelFrom_lineEdit',
@@ -553,23 +560,6 @@ POZIOMY_UPROSZCZENIA = {
     10000000: 50000,
     50000000: 100000
 
-}
-
-
-INDUSTRIES = {
-    "999": "Nie wybrano",
-    "e": "Energetyka/OZE",
-    "u": "Urząd",
-    "td": "Transport/Drogi",
-    "pg": "Planowanie/Geodezja",
-    "wk": "WodKan",
-    "s": "Środowisko",
-    "rl": "Rolnictwo/Leśnictwo",
-    "tk": "Telkom",
-    "edu": "Edukacja",
-    "i": "Inne",
-    "it": "IT",
-    "n": "Nieruchomości"
 }
 
 

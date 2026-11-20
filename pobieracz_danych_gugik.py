@@ -17,11 +17,12 @@ from qgis.core import (
     QgsGeometry
 )
 
-from .qgis_feed import QgisFeedDialog
+from .qgis_feed import EnviroFeedManager
+from .qgis_feed_dialog import QgisFeedDialog
 from .constants import (GROUPBOXES_VISIBILITY_MAP, PRG_URL,
                         OPRACOWANIA_TYFLOGICZNE_MAPPING, CURRENT_YEAR,
                         MIN_YEAR_BUILDINGS_3D, OKRES_DOSTEPNYCH_DANYCH_LOD,
-                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG, INDUSTRIES,
+                        CRS, WFS_FILTER_KEYS, WIZUALIZACJA_KARTO_CONFIG,
                         MSG_VOIVODESHIPS_NO_CONNECTION, MSG_VOIVODESHIPS_API_ERROR,
                         MSG_WFS_LAYERS_NOT_READY)
 
@@ -97,29 +98,10 @@ class PobieraczDanychGugik:
         """
         self.settings = QgsSettings()
         self.iface = iface
+        self.feed_manager = None
         if Qgis.QGIS_VERSION_INT >= 31000:
-            from .qgis_feed import QgisFeed
-            self.selected_industry = self.settings.value(
-                "selected_industry",
-                None
-            )
-            show_dialog = self.settings.value("showDialog", True, type=bool)
-
-            # wczytywanie branży jeżeli nie jest zgodna z aktualnym słownikiem
-            if self.selected_industry not in INDUSTRIES.values():
-                self.selected_industry = None
-                show_dialog = True
-
-            if self.selected_industry is None and show_dialog:
-                self.showBranchSelectionDialog()
-
-            select_indust_session = self.settings.value('selected_industry')
-
-            self.feed = QgisFeed(
-                selected_industry=select_indust_session,
-                plugin_name=plugin_name
-            )
-            self.feed.initFeed()
+            self.feed_manager = EnviroFeedManager(iface, plugin_name, QgisFeedDialog)
+            self.feed_manager.start()
 
         # Save reference to the QGIS interface
         self.iface = iface
@@ -251,6 +233,10 @@ class PobieraczDanychGugik:
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
 
+        if self.feed_manager is not None:
+            self.feed_manager.unload()
+            self.feed_manager = None
+
         self.regionFetch.network_utils.cancelAsync()
         self.service_api.network_utils.cancelAsync()
         if self.dockwidget is not None and not sip.isdeleted(self.dockwidget):
@@ -264,12 +250,6 @@ class PobieraczDanychGugik:
             self.toolbar.removeAction(action)
         # remove the toolbar
         del self.toolbar
-
-    def showBranchSelectionDialog(self):
-        """Wyświetla dialog wyboru branży dla QGIS Feed."""
-        dialog = QgisFeedDialog(self.iface.mainWindow())
-        dialog.exec()
-        self.selected_industry = self.settings.value("selected_industry", None)
 
     # --------------------------------------------------------------------------
 
