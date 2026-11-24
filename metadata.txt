@@ -59,6 +59,7 @@ changelog=
   Wersja 2.1.0
    * Zmiana momentu pobierania województw 
    * Poprawa komunikatów
+   * Zmiana działania qgisfeeda
 #  Wersja 2.0.0
 #  * Zmiana wyglądu wtyczki
 #  * Zmiana linków w stopce
