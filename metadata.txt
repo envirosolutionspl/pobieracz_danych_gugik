@@ -57,6 +57,7 @@ hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
 changelog=
   Wersja 2.1.0
+   * Zautomatyzowanie procesu publikacji wtyczek w repozytorium QGIS
    * Zmiana momentu pobierania województw 
    * Poprawa komunikatów
    * Zmiana działania qgisfeeda
