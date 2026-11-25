@@ -17,7 +17,7 @@ concurrency:
 env:
   PLUGIN: pobieracz_danych_gugik
   PLUGIN_DIR: "."
-  EXCLUDE: ".github .gitignore .gitattributes .flake8 test tests docs scripts"
+  EXCLUDE: ".github .gitignore .gitattributes test tests docs scripts"
 
 jobs:
   version:
